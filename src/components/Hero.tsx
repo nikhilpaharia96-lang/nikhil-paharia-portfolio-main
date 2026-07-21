@@ -294,6 +294,18 @@ export default function Hero() {
         .rim-blue { animation: rimGlowIn 1.8s ease-out forwards; }
         .rim-orange { animation: rimGlowIn 1.8s ease-out 0.1s forwards; }
 
+        /* ── Recurring shine sweep on the profile photo — same look as the one-shot
+           light-sweep on load, but loops every 4.5s so the photo keeps "catching light" */
+        @keyframes profileShine {
+          0%   { transform: translateX(-160%) skewX(-20deg); }
+          35%  { transform: translateX(160%) skewX(-20deg); }
+          100% { transform: translateX(160%) skewX(-20deg); }
+        }
+        .profile-shine {
+          animation: profileShine 4.5s ease-in-out infinite;
+          animation-delay: 2.2s; /* start once the initial cinematic reveal has finished */
+        }
+
         /* ── Recurring glow pulse — soft breathing glow around the profile photo ── */
         .profile-glow {
           position: absolute; inset: 0; z-index: 21; pointer-events: none;
@@ -712,6 +724,18 @@ export default function Hero() {
                   style={{ animation: 'cinematicReveal 1.6s cubic-bezier(0.22,1,0.36,1) forwards, floatY 6s ease-in-out infinite 1.6s' }}
                 />
                 <div className="light-sweep" aria-hidden="true" />
+                <div
+                  className="profile-shine"
+                  aria-hidden="true"
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    zIndex: 20,
+                    pointerEvents: 'none',
+                    background: 'linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.75) 50%, rgba(180,210,255,0.45) 54%, transparent 65%)',
+                    mixBlendMode: 'screen',
+                  }}
+                />
               </div>
 
               {/* Recurring soft glow pulse around the blob — sits outside the clip so the glow isn't cut off */}
