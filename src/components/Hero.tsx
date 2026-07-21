@@ -85,12 +85,12 @@ const stats = [
 ];
 
 const socials = [
-  { icon: <FaGithub />,     href: "#", label: "GitHub",    color: "text-slate-800" },
-  { icon: <FaLinkedinIn />, href: "#", label: "LinkedIn",  color: "text-blue-600"  },
-  { icon: <FaInstagram />,  href: "#", label: "Instagram", color: "text-pink-500"  },
-  { icon: <FaYoutube />,    href: "#", label: "YouTube",   color: "text-red-500"   },
-  { icon: <FaXTwitter />,   href: "#", label: "X",         color: "text-slate-900" },
-  { icon: <FaWhatsapp />,   href: "#", label: "WhatsApp",  color: "text-green-500" },
+  { icon: <FaGithub />,     href: "https://github.com/nikhilpaharia96-lang",         label: "GitHub",    color: "text-slate-800" },
+  { icon: <FaLinkedinIn />, href: "https://www.linkedin.com/in/your-linkedin-id",      label: "LinkedIn",  color: "text-blue-600"  },
+  { icon: <FaInstagram />,  href: "https://www.instagram.com/your-instagram-id",       label: "Instagram", color: "text-pink-500"  },
+  { icon: <FaYoutube />,    href: "https://www.youtube.com/@your-channel",             label: "YouTube",   color: "text-red-500"   },
+  { icon: <FaXTwitter />,   href: "https://x.com/your-x-handle",                       label: "X",         color: "text-slate-900" },
+  { icon: <FaWhatsapp />,   href: "https://wa.me/919401058667 ",                        label: "WhatsApp",  color: "text-green-500" },
 ];
 
 export default function Hero() {
