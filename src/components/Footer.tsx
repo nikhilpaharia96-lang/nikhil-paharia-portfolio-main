@@ -123,7 +123,7 @@ export default function Footer() {
           <p className="text-slate-500 text-sm font-medium">
             © {new Date().getFullYear()} Nikhil Paharia. <span className="hidden sm:inline">All rights reserved.</span>
           </p>
-          <p className="text-slate-500 text-sm italic">Crafted in Assam, for the world.</p>
+          <p className="text-slate-500 text-sm italic">Crafted in North East India, Assam, for the world.</p>
 
           {/* Back-to-top — elastic morph button with Magnetic */}
           <Magnetic range={60} strength={0.45} scaleHover={1.1}>
