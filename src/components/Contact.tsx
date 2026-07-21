@@ -262,8 +262,8 @@ const BUDGET_OPTIONS = [
 
 const contactInfo = [
   { Icon: RiMailFill,  label: "Email",    value: "nikhilpaharia96@gmail.com", href: "mailto:nikhilpaharia96@gmail.com" },
-  { Icon: RiPhoneFill, label: "Phone",    value: "+91 00000 00000",           href: "tel:+910000000000" },
-  { Icon: RiMapPinFill,label: "Location", value: "Assam, India",              href: undefined },
+  { Icon: RiPhoneFill, label: "Phone",    value: "+91 94010 58667",           href: "tel:+919401058667" },
+  { Icon: RiMapPinFill,label: "Location", value: "Northh East India, Assam",              href: undefined },
 ];
 
 const socials = [
