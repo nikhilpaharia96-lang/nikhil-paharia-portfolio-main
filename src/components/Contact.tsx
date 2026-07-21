@@ -263,7 +263,7 @@ const BUDGET_OPTIONS = [
 const contactInfo = [
   { Icon: RiMailFill,  label: "Email",    value: "nikhilpaharia96@gmail.com", href: "mailto:nikhilpaharia96@gmail.com" },
   { Icon: RiPhoneFill, label: "Phone",    value: "+91 94010 58667",           href: "tel:+919401058667" },
-  { Icon: RiMapPinFill,label: "Location", value: "Northh East India, Assam",              href: undefined },
+  { Icon: RiMapPinFill,label: "Location", value: "Northh East India, Assam",              href: https://maps.app.goo.gl/hoBbde9u99uG69P18?g_st=ac },
 ];
 
 const socials = [
