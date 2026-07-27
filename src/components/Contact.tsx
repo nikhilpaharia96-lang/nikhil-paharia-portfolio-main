@@ -261,11 +261,25 @@ const BUDGET_OPTIONS = [
 ];
 
 const contactInfo = [
-  { Icon: RiMailFill,  label: "Email",    value: "nikhilpaharia96@gmail.com", href: "mailto:nikhilpaharia96@gmail.com" },
-  { Icon: RiPhoneFill, label: "Phone",    value: "+91 94010 58667",           href: "tel:+919401058667" },
-  { Icon: RiMapPinFill,label: "Location", value: "Northh East India, Assam",              href: undefined ,
+  {
+    Icon: RiMailFill,
+    label: "Email",
+    value: "nikhilpaharia96@gmail.com",
+    href: "mailto:nikhilpaharia96@gmail.com",
+  },
+  {
+    Icon: RiPhoneFill,
+    label: "Phone",
+    value: "+91 94010 58667",
+    href: "tel:+919401058667",
+  },
+  {
+    Icon: RiMapPinFill,
+    label: "Location",
+    value: "North East India, Assam",
+    href: undefined,
+  },
 ];
-
 const socials = [
   { Icon: RiGithubFill,    href: "https://github.com/nikhilpaharia96-lang", label: "GitHub"    },
   { Icon: RiLinkedinFill,  href: "#", label: "LinkedIn"  },
