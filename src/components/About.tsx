@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import teaAboutBg from "../assets/images/tea-sunset-person-wide.png";
+import teaAboutBg from "../assets/images/tea-sunset-person-wide.webp";
 import { RiCodeSSlashLine, RiVideoAddLine, RiPaletteLine } from "react-icons/ri";
 import Tilt from "@/components/ui/Tilt";
 import SplitText from "@/components/ui/SplitText";
