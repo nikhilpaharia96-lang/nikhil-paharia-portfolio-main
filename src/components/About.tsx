@@ -1,8 +1,4 @@
-diff --git a/src/components/About.tsx b/src/components/About.tsx
-index 435fcda..38e1110 100644
---- a/src/components/About.tsx
-+++ b/src/components/About.tsx
-@@ -1,240 +1,331 @@
+
 -import { motion, useScroll, useTransform, useInView } from "framer-motion";
 -import { useEffect, useRef, useState } from "react";
 -import teaAboutBg from "../assets/images/tea-sunset-person-wide.webp";
