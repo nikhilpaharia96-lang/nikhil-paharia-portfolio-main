@@ -1,238 +1,719 @@
-import { motion, useScroll, useTransform, useInView } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
-import teaAboutBg from "../assets/images/tea-sunset-person-wide.webp";
-import { RiCodeSSlashLine, RiVideoAddLine, RiPaletteLine } from "react-icons/ri";
-import Tilt from "@/components/ui/Tilt";
+import { useRef, useMemo } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import {
+  SiReact,
+  SiNextdotjs,
+  SiNodedotjs,
+  SiExpress,
+  SiMongodb,
+  SiTailwindcss,
+  SiTypescript,
+  SiFirebase,
+  SiGithub,
+  SiRender,
+  SiFigma,
+} from "react-icons/si";
+import { VscVscode } from "react-icons/vsc";
+import { Paperclip, ArrowDownRight } from "lucide-react";
+import profilePhoto from "../assets/images/profile-nobg.png";
 import SplitText from "@/components/ui/SplitText";
 
-/* ── Animated counter ─────────────────────────────────── */
-function AboutCounter({ value }: { value: string }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-40px" });
+const ease = [0.16, 1, 0.3, 1] as const;
 
-  const numericValue = parseInt(value.replace(/[^0-9]/g, ""), 10);
-  const suffix = value.replace(/[0-9]/g, "");
+/* ────────────────────────────────────────────────────────────
+   Marker highlight — animated blue highlighter stroke behind text
+   ──────────────────────────────────────────────────────────── */
 
-  useEffect(() => {
-    if (!inView || isNaN(numericValue)) return;
-    let start = 0;
-    const end = numericValue;
-    const totalMs = 1500;
-    const timer = setInterval(() => {
-      start += Math.ceil(end / (totalMs / 16));
-      if (start >= end) {
-        setCount(end);
-        clearInterval(timer);
-      } else {
-        setCount(start);
-      }
-    }, 16);
-    return () => clearInterval(timer);
-  }, [numericValue, inView]);
-
-  return <span ref={ref}>{count}{suffix}</span>;
+function Marker({ children, delay = 0 }: { children: string; delay?: number }) {
+  return (
+    <span className="relative inline-block px-1 whitespace-nowrap">
+      <motion.span
+        aria-hidden="true"
+        initial={{ scaleX: 0 }}
+        whileInView={{ scaleX: 1 }}
+        viewport={{ once: false, margin: "-60px" }}
+        transition={{ duration: 0.55, delay, ease: "easeOut" }}
+        className="absolute inset-x-0 bottom-[0.06em] h-[0.42em] bg-primary/35 rounded-[2px] origin-left -z-[1]"
+        style={{ transform: "skewX(-6deg)" }}
+      />
+      <span className="relative text-primary">{children}</span>
+    </span>
+  );
 }
 
-/* ── Hand-drawn SVG signature ─────────────────────────── */
-function Signature() {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true });
+/* ────────────────────────────────────────────────────────────
+   Handwritten note — ink "written" reveal via clip-path wipe
+   ──────────────────────────────────────────────────────────── */
 
+function HandwrittenNote({
+  children,
+  className = "",
+  delay = 0,
+}: {
+  children: string;
+  className?: string;
+  delay?: number;
+}) {
+  return (
+    <motion.p
+      initial={{ clipPath: "inset(0 100% 0 0)", opacity: 0 }}
+      whileInView={{ clipPath: "inset(0 0% 0 0)", opacity: 1 }}
+      viewport={{ once: false, margin: "-60px" }}
+      transition={{ duration: 1.1, delay, ease: "easeInOut" }}
+      className={`font-hand text-primary/90 leading-snug ${className}`}
+    >
+      {children}
+    </motion.p>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   Masking tape strip
+   ──────────────────────────────────────────────────────────── */
+
+function Tape({ className = "", rotate = -4 }: { className?: string; rotate?: number }) {
+  return (
+    <div
+      className={`absolute w-16 h-6 sm:w-20 sm:h-7 bg-amber-100/70 border border-amber-200/50 shadow-sm pointer-events-none ${className}`}
+      style={{
+        transform: `rotate(${rotate}deg)`,
+        backdropFilter: "blur(1px)",
+        backgroundImage:
+          "repeating-linear-gradient(45deg, rgba(255,255,255,0.25) 0, rgba(255,255,255,0.25) 2px, transparent 2px, transparent 6px)",
+      }}
+    />
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   Sticky note — drops in with a settling rotate
+   ──────────────────────────────────────────────────────────── */
+
+function StickyNote({
+  title,
+  children,
+  color = "#fef3c7",
+  rotate = -3,
+  className = "",
+  delay = 0,
+}: {
+  title?: string;
+  children: React.ReactNode;
+  color?: string;
+  rotate?: number;
+  className?: string;
+  delay?: number;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -60, rotate: 0 }}
+      whileInView={{ opacity: 1, y: 0, rotate }}
+      viewport={{ once: false, margin: "-60px" }}
+      transition={{ duration: 0.7, delay, ease: "backOut" }}
+      whileHover={{ rotate: rotate * 0.4, scale: 1.03 }}
+      className={`relative w-48 sm:w-56 p-4 shadow-[0_14px_28px_-12px_rgba(70,50,20,0.35)] ${className}`}
+      style={{ backgroundColor: color }}
+    >
+      {title && (
+        <p className="font-hand text-lg text-slate-700 mb-1.5 border-b border-slate-400/30 pb-1">
+          {title}
+        </p>
+      )}
+      <div className="font-hand text-base text-slate-700 leading-snug">{children}</div>
+    </motion.div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   Torn paper card — jagged bottom edge via clip-path
+   ──────────────────────────────────────────────────────────── */
+
+function TornPaper({
+  children,
+  className = "",
+  rotate = 0,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  rotate?: number;
+  delay?: number;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: false, margin: "-60px" }}
+      transition={{ duration: 0.6, delay, ease }}
+      whileHover={{ rotate: rotate + (rotate >= 0 ? 1.5 : -1.5), y: -3 }}
+      className={`relative bg-[#fdfaf3] shadow-[0_10px_24px_-10px_rgba(70,50,20,0.3)] ${className}`}
+      style={{
+        rotate,
+        clipPath:
+          "polygon(0% 2%, 4% 0%, 9% 3%, 15% 0%, 22% 2%, 29% 0%, 36% 3%, 44% 0%, 51% 2%, 58% 0%, 66% 3%, 74% 0%, 82% 2%, 90% 0%, 96% 2%, 100% 0%, 100% 100%, 0% 100%)",
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   Floating sticker — logos & doodles drifting around the notebook
+   ──────────────────────────────────────────────────────────── */
+
+function FloatingSticker({
+  children,
+  className = "",
+  delay = 0,
+  duration = 7,
+  rotate = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+  duration?: number;
+  rotate?: number;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.6 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: false, margin: "-40px" }}
+      transition={{ duration: 0.6, delay, ease: "backOut" }}
+      className={`absolute hidden lg:flex items-center justify-center pointer-events-none ${className}`}
+    >
+      <motion.div
+        animate={{ y: [0, -12, 0], rotate: [rotate, rotate + 6, rotate] }}
+        transition={{ duration, delay, repeat: Infinity, ease: "easeInOut" }}
+        className="w-11 h-11 rounded-xl bg-white/85 backdrop-blur-sm border border-slate-200/70 shadow-[0_10px_22px_-8px_rgba(70,50,20,0.35)] flex items-center justify-center"
+      >
+        {children}
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   Scattered tech icon
+   ──────────────────────────────────────────────────────────── */
+
+type TechItem = { Icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>; label: string; color: string };
+
+const techStack: TechItem[] = [
+  { Icon: SiReact, label: "React", color: "#61DAFB" },
+  { Icon: SiNextdotjs, label: "Next.js", color: "#111827" },
+  { Icon: SiNodedotjs, label: "Node.js", color: "#339933" },
+  { Icon: SiExpress, label: "Express", color: "#4b5563" },
+  { Icon: SiMongodb, label: "MongoDB", color: "#47A248" },
+  { Icon: SiTailwindcss, label: "Tailwind", color: "#06B6D4" },
+  { Icon: SiTypescript, label: "TypeScript", color: "#3178C6" },
+  { Icon: SiFirebase, label: "Firebase", color: "#FFCA28" },
+  { Icon: SiGithub, label: "GitHub", color: "#111827" },
+  { Icon: SiRender, label: "Render", color: "#46E3B7" },
+];
+
+// fixed, hand-picked offsets so the scatter looks natural but never shifts on re-render
+const techOffsets = [
+  { rotate: -8, y: 0 }, { rotate: 6, y: 10 }, { rotate: -4, y: -6 }, { rotate: 9, y: 4 },
+  { rotate: -10, y: 8 }, { rotate: 4, y: -4 }, { rotate: -6, y: 6 }, { rotate: 8, y: -8 },
+  { rotate: -5, y: 2 }, { rotate: 7, y: -2 },
+];
+
+function TechScatter() {
+  return (
+    <div className="flex flex-wrap gap-x-5 gap-y-7 sm:gap-x-7">
+      {techStack.map(({ Icon, label, color }, i) => (
+        <motion.div
+          key={label}
+          initial={{ opacity: 0, scale: 0.5, y: 20 }}
+          whileInView={{ opacity: 1, scale: 1, y: techOffsets[i].y }}
+          viewport={{ once: false, margin: "-40px" }}
+          transition={{ duration: 0.5, delay: 0.04 * i, ease: "backOut" }}
+          whileHover={{ scale: 1.15, rotate: 0, y: 0 }}
+          style={{ rotate: techOffsets[i].rotate }}
+          className="flex flex-col items-center gap-1.5 cursor-default"
+        >
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white shadow-[0_8px_18px_-8px_rgba(70,50,20,0.4)] border border-slate-200/70 flex items-center justify-center">
+            <Icon className="w-6 h-6" style={{ color }} />
+          </div>
+          <span className="font-hand text-sm text-slate-500">{label}</span>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   Favorite things — mini torn-paper cards
+   ──────────────────────────────────────────────────────────── */
+
+const favorites = [
+  { emoji: "☕", label: "Assam Tea" },
+  { emoji: "⚽", label: "Football" },
+  { emoji: "💻", label: "Coding" },
+  { emoji: "🎬", label: "Video Editing" },
+  { emoji: "📖", label: "Learning" },
+  { emoji: "🌿", label: "Nature" },
+];
+
+const favRotate = [-4, 3, -2, 5, -5, 2];
+
+function FavoriteThings() {
+  return (
+    <div className="grid grid-cols-3 gap-3 sm:gap-4">
+      {favorites.map((f, i) => (
+        <motion.div
+          key={f.label}
+          initial={{ opacity: 0, scale: 0.7, y: 16 }}
+          whileInView={{ opacity: 1, scale: 1, y: 0 }}
+          viewport={{ once: false, margin: "-40px" }}
+          transition={{ duration: 0.45, delay: 0.05 * i, ease: "backOut" }}
+          whileHover={{ scale: 1.06, rotate: 0 }}
+          style={{ rotate: favRotate[i] }}
+          className="bg-[#fdfaf3] rounded-sm p-3 text-center shadow-[0_8px_18px_-10px_rgba(70,50,20,0.4)] border border-slate-200/50"
+        >
+          <div className="text-xl sm:text-2xl mb-1">{f.emoji}</div>
+          <div className="font-hand text-xs sm:text-sm text-slate-600 leading-tight">{f.label}</div>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   Daily fuel — torn checklist paper, checks tick in one by one
+   ──────────────────────────────────────────────────────────── */
+
+const dailyFuel = ["Chai", "Music", "Focus", "Curiosity", "Discipline"];
+
+function DailyFuel() {
+  return (
+    <TornPaper rotate={2} delay={0.1} className="p-5 sm:p-6 w-full max-w-[15rem]">
+      <p className="font-hand text-lg text-slate-700 mb-3 border-b border-slate-300/60 pb-1.5">
+        Daily Fuel
+      </p>
+      <ul className="space-y-2">
+        {dailyFuel.map((item, i) => (
+          <motion.li
+            key={item}
+            initial={{ opacity: 0, x: -12 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: false, margin: "-40px" }}
+            transition={{ duration: 0.4, delay: 0.15 + i * 0.12, ease }}
+            className="flex items-center gap-2"
+          >
+            <motion.svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              className="shrink-0 text-primary"
+              initial={{ pathLength: 0 }}
+              whileInView={{ pathLength: 1 }}
+              viewport={{ once: false }}
+              transition={{ duration: 0.35, delay: 0.25 + i * 0.12 }}
+            >
+              <motion.path
+                d="M2 8 L6 12 L14 3"
+                stroke="currentColor"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </motion.svg>
+            <span className="font-hand text-base text-slate-700">{item}</span>
+          </motion.li>
+        ))}
+      </ul>
+    </TornPaper>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   Hand-drawn arrow connector
+   ──────────────────────────────────────────────────────────── */
+
+function DrawnArrow({ className = "", path, delay = 0 }: { className?: string; path: string; delay?: number }) {
   return (
     <svg
-      ref={ref}
-      className="w-28 h-10 text-primary/70 mt-6 mx-auto"
-      viewBox="0 0 100 40"
+      aria-hidden="true"
+      className={`absolute pointer-events-none hidden lg:block ${className}`}
+      width="160"
+      height="120"
+      viewBox="0 0 160 120"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg"
     >
       <motion.path
-        d="M10 28 Q22 4 32 24 T55 12 T75 22 T90 16"
-        stroke="currentColor"
-        strokeWidth="1.75"
+        d={path}
+        stroke="#1d6feb"
+        strokeWidth="1.5"
         strokeLinecap="round"
-        strokeLinejoin="round"
-        initial={{ pathLength: 0 }}
-        animate={inView ? { pathLength: 1 } : {}}
-        transition={{ duration: 1.6, ease: "easeInOut", delay: 0.3 }}
-      />
-      <motion.path
-        d="M18 26 Q42 30 70 22"
-        stroke="currentColor"
-        strokeWidth="1.25"
-        strokeLinecap="round"
-        initial={{ pathLength: 0 }}
-        animate={inView ? { pathLength: 1 } : {}}
-        transition={{ duration: 1.1, ease: "easeInOut", delay: 1.2 }}
+        strokeDasharray="3 5"
+        initial={{ pathLength: 0, opacity: 0 }}
+        whileInView={{ pathLength: 1, opacity: 0.55 }}
+        viewport={{ once: false }}
+        transition={{ duration: 1.4, delay, ease: "easeInOut" }}
       />
     </svg>
   );
 }
 
-/* ── Data ─────────────────────────────────────────────── */
-const timeline = [
-  { year: "2020", title: "Started Video Editing", desc: "Discovered the art of visual storytelling. Spent countless hours mastering Premiere Pro and After Effects." },
-  { year: "2021", title: "Learned Web Development", desc: "HTML, CSS, JavaScript became my new tools. Realized I could build the things I imagined." },
-  { year: "2022", title: "Built First Client Projects", desc: "Turned skills into freelance income. Delivered high-quality websites and edits to local businesses." },
-  { year: "2023", title: "Full Stack Mastery", desc: "React, Node.js, MongoDB became my stack. Started building complex, interactive web applications." },
-  { year: "2024", title: "Premium Digital Creator", desc: "Fusing code and video to build truly cinematic digital experiences for global clients." },
-];
+/* ────────────────────────────────────────────────────────────
+   Main About section — the notebook
+   ──────────────────────────────────────────────────────────── */
 
-const statCards = [
-  { Icon: RiCodeSSlashLine, color: "text-primary",   val: "15+",  label: "Techs"   },
-  { Icon: RiVideoAddLine,   color: "text-accent",    val: "50+",  label: "Videos"  },
-  { Icon: RiPaletteLine,    color: "text-secondary", val: "100%", label: "Passion" },
-];
-
-/* ── Component ────────────────────────────────────────── */
 export default function About() {
-  const timelineRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: timelineRef,
-    offset: ["start end", "end start"],
-  });
-  const scaleY = useTransform(scrollYProgress, [0.08, 0.92], [0, 1]);
+  const notebookRef = useRef<HTMLDivElement>(null);
+  const mx = useMotionValue(0.5);
+  const my = useMotionValue(0.5);
+  const springCfg = { stiffness: 120, damping: 20, mass: 0.7 };
+  const rotateX = useSpring(useTransform(my, [0, 1], [2, -2]), springCfg);
+  const rotateY = useSpring(useTransform(mx, [0, 1], [-2, 2]), springCfg);
+
+  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = notebookRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    mx.set((e.clientX - rect.left) / rect.width);
+    my.set((e.clientY - rect.top) / rect.height);
+  };
+  const handleLeave = () => {
+    mx.set(0.5);
+    my.set(0.5);
+  };
+
+  const dust = useMemo(() => Array.from({ length: 10 }), []);
 
   return (
-    <section id="about" className="section-padding relative overflow-hidden section-wrap max-w-full">
-      {/* Background */}
-      <div className="absolute inset-0 z-0">
-        <img
-          src={teaAboutBg}
-          alt=""
-          className="w-full h-full object-cover object-center max-w-full"
-          style={{ filter: "brightness(0.82) saturate(0.8)" }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-white/80 via-blue-50/70 to-white/80" />
-        <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-transparent to-white/80" />
+    <section
+      id="about"
+      className="relative overflow-hidden section-wrap max-w-full py-20 sm:py-28 md:py-32 lg:py-36 bg-white"
+      aria-label="About — My Story"
+    >
+      {/* ambient paper dust */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        {dust.map((_, i) => (
+          <motion.span
+            key={i}
+            className="absolute rounded-full bg-primary/20"
+            style={{
+              left: `${(i * 47) % 100}%`,
+              top: `${(i * 31) % 100}%`,
+              width: i % 3 === 0 ? 3 : 2,
+              height: i % 3 === 0 ? 3 : 2,
+            }}
+            animate={{ y: [0, -22, 0], opacity: [0.1, 0.4, 0.1] }}
+            transition={{ duration: 7 + (i % 4), delay: i * 0.4, repeat: Infinity, ease: "easeInOut" }}
+          />
+        ))}
       </div>
 
       <div className="container-tight relative z-10 max-w-full">
-
-        {/* Header */}
+        {/* section intro label */}
         <motion.div
-          initial={{ opacity: 0, x: -60 }}
-          whileInView={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: false, margin: "-80px" }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
-          className="mb-20"
+          transition={{ duration: 0.7 }}
+          className="text-center mb-12 sm:mb-16"
         >
-          <h2 className="section-title mb-4">
-            <SplitText type="words">The Story</SplitText>
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-xs font-mono font-semibold tracking-[0.18em] uppercase text-primary mb-5">
+            📔 My Story
+          </span>
+          <h2 className="font-serif font-bold text-3xl sm:text-4xl md:text-5xl text-foreground">
+            <SplitText type="words">A Page From My Life.</SplitText>
           </h2>
-          <div className="section-divider" />
         </motion.div>
 
-        <div className="flex flex-col lg:flex-row gap-16 lg:gap-24 w-full">
+        {/* ═══════════════ THE NOTEBOOK ═══════════════ */}
+        <div className="relative max-w-6xl mx-auto">
+          {/* floating stickers around the notebook */}
+          <FloatingSticker className="-top-6 left-4 sm:left-10" delay={0} duration={7}>
+            <SiFigma className="w-5 h-5 text-[#F24E1E]" />
+          </FloatingSticker>
+          <FloatingSticker className="-top-10 right-10 sm:right-24" delay={0.6} duration={8} rotate={-6}>
+            <SiGithub className="w-5 h-5 text-slate-800" />
+          </FloatingSticker>
+          <FloatingSticker className="top-1/3 -left-14" delay={1.1} duration={6.5} rotate={4}>
+            <VscVscode className="w-5 h-5 text-[#0098FF]" />
+          </FloatingSticker>
+          <FloatingSticker className="top-1/4 -right-12" delay={0.3} duration={7.5} rotate={-4}>
+            <SiReact className="w-5 h-5 text-[#61DAFB]" />
+          </FloatingSticker>
+          <FloatingSticker className="bottom-24 -left-10" delay={0.9} duration={6} rotate={6}>
+            <span className="text-lg">☕</span>
+          </FloatingSticker>
+          <FloatingSticker className="bottom-16 -right-14" delay={1.4} duration={7} rotate={-5}>
+            <span className="text-lg">🌿</span>
+          </FloatingSticker>
+          <FloatingSticker className="-bottom-8 left-1/3" delay={0.5} duration={6.8} rotate={3}>
+            <Paperclip className="w-5 h-5 text-slate-400" strokeWidth={1.5} />
+          </FloatingSticker>
 
-          {/* ── Timeline ── */}
-          <div ref={timelineRef} className="flex-1 order-2 lg:order-1 relative w-full">
-            {/* Faint track */}
-            <div className="absolute left-4 md:left-1/2 top-4 bottom-4 w-[2px] bg-slate-200/50 -translate-x-1/2 rounded-full" />
+          {/* ── Notebook body ── */}
+          <motion.div
+            ref={notebookRef}
+            onMouseMove={handleMove}
+            onMouseLeave={handleLeave}
+            style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+            initial={{ opacity: 0, y: 50, scale: 0.98 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: false, margin: "-100px" }}
+            transition={{ duration: 1, ease }}
+            className="relative rounded-[20px] sm:rounded-[28px] overflow-hidden
+                       shadow-[0_2px_0_rgba(0,0,0,0.05)_inset,0_50px_100px_-30px_rgba(70,50,20,0.35)]
+                       border border-[#e8dcc4]"
+          >
+            {/* leather-ish outer frame */}
+            <div className="absolute inset-0 pointer-events-none rounded-[20px] sm:rounded-[28px] ring-1 ring-inset ring-black/5" />
 
-            {/* Scroll-drawn animated track */}
-            <motion.div
-              style={{ scaleY, transformOrigin: "top" }}
-              className="absolute left-4 md:left-1/2 top-4 bottom-4 w-[2px] bg-gradient-to-b from-primary via-accent to-sky-300 rounded-full -translate-x-1/2"
+            {/* folded corner (top-right) */}
+            <div
+              className="absolute top-0 right-0 w-10 h-10 sm:w-14 sm:h-14 z-20 pointer-events-none"
+              style={{
+                background: "linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.08) 50%)",
+              }}
+            />
+            <div
+              className="absolute top-0 right-0 w-10 h-10 sm:w-14 sm:h-14 z-20 pointer-events-none"
+              style={{
+                clipPath: "polygon(100% 0, 0 0, 100% 100%)",
+                background: "linear-gradient(225deg, #f6ecd6, #e4d5ae)",
+                boxShadow: "-4px 4px 8px rgba(70,50,20,0.25)",
+              }}
             />
 
-            <div className="flex flex-col gap-12 w-full">
-              {timeline.map((item, index) => {
-                const isRight = index % 2 !== 0;
-                return (
-                  <motion.div
-                    key={item.year}
-                    initial={{ opacity: 0, x: isRight ? 60 : -60 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: false, margin: "-80px" }}
-                    transition={{ duration: 0.6, delay: index * 0.08, ease: "easeOut" }}
-                    className="relative pl-14 md:pl-0 md:w-1/2 group max-w-full overflow-hidden"
-                    style={{ marginLeft: isRight ? "auto" : "0" }}
-                  >
-                    {/* Dot */}
-                    <div
-                      className="absolute left-0 md:left-auto md:right-[-20px] top-1 w-10 h-10 rounded-full bg-white border-2 border-primary flex items-center justify-center z-10 shadow-[0_0_15px_rgba(29,111,235,0.4)] group-hover:scale-110 transition-transform"
-                      style={isRight ? { left: "-20px", right: "auto" } : {}}
-                    >
-                      <motion.div
-                        whileHover={{ scale: 1.4 }}
-                        className="w-3 h-3 rounded-full bg-primary group-hover:shadow-[0_0_10px_rgba(29,111,235,0.8)]"
-                      />
-                    </div>
+            {/* paper grain texture, warm cream base */}
+            <div
+              className="relative grid grid-cols-1 lg:grid-cols-2"
+              style={{
+                backgroundColor: "#fbf5e6",
+                backgroundImage:
+                  "radial-gradient(circle at 15% 20%, rgba(255,255,255,0.5), transparent 40%), radial-gradient(circle at 85% 80%, rgba(255,255,255,0.4), transparent 40%), repeating-radial-gradient(circle at 50% 50%, rgba(120,90,40,0.025) 0, rgba(120,90,40,0.025) 1px, transparent 1px, transparent 3px)",
+              }}
+            >
+              {/* center spine */}
+              <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-6 -translate-x-1/2 z-10 pointer-events-none">
+                <div className="w-full h-full bg-gradient-to-r from-black/10 via-black/[0.03] to-black/10" />
+                <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-black/15" />
+              </div>
 
-                    <Tilt maxRotate={5} glowColor="#1d6feb" glowOpacity={0.1} className="md:mr-10">
-                      <motion.div
-                        whileHover={{ scale: 1.01 }}
-                        transition={{ type: "spring", stiffness: 300 }}
-                        className="glass-card p-6"
-                        style={isRight ? { marginLeft: "2.5rem", marginRight: "0" } : {}}
-                      >
-                        <div className="text-sm font-mono text-primary mb-2 tracking-widest bg-blue-50 w-fit px-3 py-1 rounded-full">
-                          {item.year}
-                        </div>
-                        <h3 className="text-xl font-bold text-foreground mb-3 font-serif">{item.title}</h3>
-                        <p className="text-slate-600 leading-relaxed text-sm">{item.desc}</p>
-                      </motion.div>
-                    </Tilt>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </div>
+              {/* ═══════════ LEFT PAGE ═══════════ */}
+              <div className="relative px-6 py-10 sm:px-10 sm:py-14 lg:pr-14 lg:pl-12">
+                <div className="flex items-center justify-between mb-8 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-slate-400">
+                  <span>01 — About Me</span>
+                  <span>The Beginning</span>
+                </div>
 
-          {/* ── Right panel ── */}
-          <div className="flex-1 order-1 lg:order-2">
-            <Tilt maxRotate={3} glowColor="#1d6feb" glowOpacity={0.08} className="sticky top-32">
-              <motion.div
-                initial={{ opacity: 0, x: 70 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: false, margin: "-80px" }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="glass-card p-8 md:p-12 glow-border"
-              >
-                <div className="mb-8 pb-6 border-b border-blue-100/60">
-                  <p className="text-primary/80 italic font-serif text-lg text-center">
-                    "From the green hills of Assam to the digital world..."
+                {/* headline with marker highlights */}
+                <motion.h3
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: false, margin: "-80px" }}
+                  transition={{ duration: 0.7, ease }}
+                  className="font-serif font-extrabold text-[1.9rem] sm:text-4xl leading-[1.15] text-foreground mb-3"
+                >
+                  I started learning <Marker delay={0.15}>CODE</Marker> because I
+                  wanted to change my <Marker delay={0.35}>FAMILY's</Marker> future.
+                </motion.h3>
+
+                <motion.p
+                  initial={{ opacity: 0, y: 18 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: false, margin: "-80px" }}
+                  transition={{ duration: 0.6, delay: 0.15 }}
+                  className="font-serif text-lg sm:text-xl text-slate-500 leading-snug mb-8"
+                >
+                  A boy from a tea garden in <Marker delay={0.5}>ASSAM</Marker>,
+                  chasing a bigger <Marker delay={0.65}>DREAM</Marker> — always
+                  reaching for <Marker delay={0.8}>BETTER</Marker>.
+                </motion.p>
+
+                {/* personal paragraph */}
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: false, margin: "-60px" }}
+                  transition={{ duration: 0.6, delay: 0.25 }}
+                  className="text-slate-600 leading-relaxed mb-10 max-w-md"
+                >
+                  <p>
+                    I didn't have expensive gadgets. I only had curiosity — and
+                    a laptop that struggled to keep up with my ambition. Every
+                    small project taught me something new, and slowly, that
+                    curiosity turned into a craft.
                   </p>
-                </div>
+                </motion.div>
 
-                <h3 className="text-3xl font-serif font-bold mb-6 text-foreground">
-                  <SplitText type="words">Who am I?</SplitText>
-                </h3>
-                <p className="text-lg text-slate-700 leading-relaxed mb-6 font-light">
-                  From learning to edit videos at 16, to building full-stack web apps, this is the story of a creator who never stopped learning.
-                </p>
-                <p className="text-slate-500 leading-relaxed mb-10">
-                  I don't just write code or cut clips. I craft experiences. Whether it's a high-converting e-commerce platform, a stunning portfolio, or a high-retention YouTube reel, my goal is always the same: capture attention and leave a lasting impression.
-                </p>
-
-                <div className="grid grid-cols-3 gap-4">
-                  {statCards.map(({ Icon, color, val, label }, i) => (
-                    <motion.div
-                      key={label}
-                      initial={{ opacity: 0, y: 30 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: false }}
-                      transition={{ duration: 0.5, delay: 0.3 + i * 0.1, type: "spring", stiffness: 200 }}
-                      whileHover={{ scale: 1.08, y: -4 }}
-                      className="glass-card p-4 text-center cursor-default"
+                {/* silhouette + mountains */}
+                <div className="relative mb-10 max-w-xs">
+                  <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: false, margin: "-80px" }}
+                    transition={{ duration: 0.8, ease }}
+                    whileHover={{ y: -4 }}
+                    className="relative rounded-lg overflow-hidden"
+                  >
+                    <div
+                      className="relative aspect-[4/5] w-full overflow-hidden rounded-lg
+                                 shadow-[0_20px_40px_-16px_rgba(70,50,20,0.4)]"
+                      style={{ background: "linear-gradient(180deg,#dfe9f5,#bcd0e6 60%,#9fb8d6)" }}
                     >
-                      <Icon className={`text-3xl ${color} mx-auto mb-2`} />
-                      <div className="text-xl font-bold text-foreground">
-                        <AboutCounter value={val} />
-                      </div>
-                      <div className="text-[10px] uppercase tracking-wider text-slate-400">{label}</div>
-                    </motion.div>
-                  ))}
+                      <img
+                        src={profilePhoto}
+                        alt="A silhouette, looking out over the hills"
+                        loading="lazy"
+                        className="absolute inset-0 w-full h-full object-cover object-top"
+                        style={{
+                          filter: "grayscale(1) contrast(1.35) brightness(0.35)",
+                          mixBlendMode: "multiply",
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-primary/25 via-transparent to-amber-100/20" />
+                      {/* simple line-art mountains along the bottom */}
+                      <svg
+                        className="absolute bottom-0 left-0 w-full h-1/3 opacity-60"
+                        viewBox="0 0 200 60"
+                        preserveAspectRatio="none"
+                        fill="none"
+                      >
+                        <path
+                          d="M0 60 L30 30 L55 45 L85 15 L115 40 L145 20 L175 42 L200 28 L200 60 Z"
+                          fill="#7c93b3"
+                          opacity="0.55"
+                        />
+                      </svg>
+                    </div>
+                    <p className="text-center text-[11px] font-mono uppercase tracking-widest text-slate-400 mt-2">
+                      god's plan
+                    </p>
+                  </motion.div>
                 </div>
 
-                {/* Hand-drawn signature */}
-                <Signature />
-              </motion.div>
-            </Tilt>
-          </div>
+                {/* handwritten note */}
+                <HandwrittenNote className="text-xl sm:text-2xl mb-10 -rotate-1 max-w-xs" delay={0.1}>
+                  "It started as curiosity. Then it became a way of thinking."
+                </HandwrittenNote>
 
+                {/* polaroid */}
+                <motion.div
+                  initial={{ opacity: 0, y: 30, rotate: 0 }}
+                  whileInView={{ opacity: 1, y: 0, rotate: -4 }}
+                  viewport={{ once: false, margin: "-60px" }}
+                  transition={{ duration: 0.7, ease: "backOut" }}
+                  whileHover={{ rotate: 0, scale: 1.03 }}
+                  className="relative w-40 sm:w-48 bg-white p-2.5 pb-8 shadow-[0_16px_32px_-14px_rgba(70,50,20,0.4)]"
+                >
+                  <Tape className="-top-3 left-1/2 -translate-x-1/2" rotate={-3} />
+                  <div className="w-full aspect-square overflow-hidden bg-slate-100">
+                    <img
+                      src={profilePhoto}
+                      alt="Nikhil Paharia"
+                      loading="lazy"
+                      className="w-full h-full object-cover object-top"
+                    />
+                  </div>
+                  <p className="font-hand text-sm text-slate-600 text-center mt-2 leading-tight">
+                    A boy from a small tea garden in Assam.
+                  </p>
+                </motion.div>
+              </div>
+
+              {/* ═══════════ RIGHT PAGE ═══════════ */}
+              <div className="relative px-6 py-10 sm:px-10 sm:py-14 lg:pl-14 lg:pr-12 border-t lg:border-t-0 border-dashed border-slate-300/60">
+                <div className="flex items-center justify-between mb-8 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-slate-400">
+                  <span>Why I Build</span>
+                  <span>What Drives Me</span>
+                </div>
+
+                {/* purpose torn paper */}
+                <TornPaper className="p-5 sm:p-6 mb-8 max-w-md" rotate={-1} delay={0.05}>
+                  <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-primary mb-2">
+                    My Purpose
+                  </p>
+                  <h4 className="font-serif font-bold text-xl sm:text-2xl text-foreground mb-3">
+                    Solving problems, one product at a time.
+                  </h4>
+                  <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                    I build websites because I love watching an idea turn into
+                    something people can actually use. Every bug I fix and
+                    every interface I polish is a small problem solved —
+                    that's what keeps me hooked.
+                  </p>
+                </TornPaper>
+
+                {/* mission */}
+                <motion.blockquote
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: false, margin: "-60px" }}
+                  transition={{ duration: 0.6, delay: 0.1 }}
+                  className="font-hand text-2xl sm:text-3xl text-primary leading-snug mb-10 max-w-md border-l-2 border-primary/40 pl-4"
+                >
+                  "I want to build digital products that improve people's lives."
+                </motion.blockquote>
+
+                {/* tech stack */}
+                <div className="mb-10">
+                  <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-4">
+                    Tech I Reach For
+                  </p>
+                  <TechScatter />
+                </div>
+
+                {/* favorite things */}
+                <div className="mb-10 max-w-sm">
+                  <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-4">
+                    Favorite Things
+                  </p>
+                  <FavoriteThings />
+                </div>
+
+                {/* daily fuel + sticky note row */}
+                <div className="flex flex-wrap items-start gap-6 sm:gap-8">
+                  <DailyFuel />
+                  <StickyNote
+                    title="Note to Self"
+                    color="#fef9c3"
+                    rotate={4}
+                    delay={0.15}
+                    className="mt-2"
+                  >
+                    Focus on improving 1% every day. Let the results take care
+                    of themselves.
+                  </StickyNote>
+                </div>
+              </div>
+
+              {/* connecting hand-drawn arrows (desktop only) */}
+              <DrawnArrow
+                className="top-[420px] left-[46%]"
+                path="M10 10 C 60 20, 90 60, 140 90"
+                delay={0.4}
+              />
+              <ArrowDownRight
+                className="hidden lg:block absolute top-[900px] left-1/2 -translate-x-1/2 w-6 h-6 text-primary/40 pointer-events-none"
+                strokeWidth={1.5}
+              />
+
+              {/* ═══════════ FULL-WIDTH ENDING STRIP ═══════════ */}
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, margin: "-80px" }}
+                transition={{ duration: 0.8, ease }}
+                className="lg:col-span-2 relative px-6 py-12 sm:px-10 sm:py-16 text-center border-t border-dashed border-slate-300/60"
+              >
+                <p className="font-hand text-3xl sm:text-4xl md:text-5xl text-foreground leading-snug mb-3">
+                  Still figuring things out.
+                </p>
+                <p className="text-sm sm:text-base text-slate-500 max-w-md mx-auto">
+                  Because every great story is still being written.
+                </p>
+              </motion.div>
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>
