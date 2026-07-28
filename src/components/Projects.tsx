@@ -391,7 +391,7 @@ const ExpandedFile = memo(function ExpandedFile({ file }: { file: ProjectFile })
 
           <motion.div variants={contentItem} className="flex flex-wrap gap-3 pt-1">
             {file.caseStudy && (
-              
+              <a
                 href={file.caseStudy}
                 className="interactive touch-manipulation inline-flex items-center gap-2 px-5 py-3 rounded-full bg-black/90 text-white text-sm font-bold hover:bg-black active:scale-95 transition-all"
               >
@@ -399,7 +399,7 @@ const ExpandedFile = memo(function ExpandedFile({ file }: { file: ProjectFile })
               </a>
             )}
             {file.live && (
-              
+              <a
                 href={file.live}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -409,7 +409,7 @@ const ExpandedFile = memo(function ExpandedFile({ file }: { file: ProjectFile })
               </a>
             )}
             {file.github && (
-              
+              <a
                 href={file.github}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -464,7 +464,7 @@ export default function Projects() {
         <div className="grid lg:grid-cols-2 gap-8 items-start mb-14">
           <div>
             <span
-              className="inline-block px-3 py-1 mb-4 bg-[#1c4fd6] text-white text-xs font-bold tracking-widest uppercase"
+              className="inline-block px-3 py-1 mb-4 bg-[#1c4fd6] text-[#ffffff] text-xs font-bold tracking-widest uppercase"
               style={{ clipPath: "polygon(0 0, 100% 4%, 98% 100%, 2% 96%)" }}
             >
               Portfolio
