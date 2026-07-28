@@ -4,7 +4,7 @@ import { FaGithub, FaLinkedinIn, FaInstagram, FaYoutube, FaWhatsapp } from "reac
 import { FaXTwitter } from "react-icons/fa6";
 import { motion, useScroll, useTransform, useSpring, useMotionValueEvent, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-import profileImg from "../assets/images/profile-nobg.webp";
+import profileImg from "../assets/images/profile-nobg.png";
 import teaBg from "../assets/images/tea-sunset-landscape.webp";
 import SplitText from "@/components/ui/SplitText";
 import Magnetic from "@/components/ui/Magnetic";
