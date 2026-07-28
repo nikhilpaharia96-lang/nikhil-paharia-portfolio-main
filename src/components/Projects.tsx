@@ -1,1238 +1,565 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef, memo } from "react";
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import {
-  motion,
-  AnimatePresence,
-  useInView,
-  useMotionValue,
-  useSpring,
-  useTransform,
-} from "framer-motion";
-import Tilt from "@/components/ui/Tilt";
-import SplitText from "@/components/ui/SplitText";
-import Magnetic from "@/components/ui/Magnetic";
-import {
-  RiArrowRightLine,
-  RiGridFill,
-  RiShoppingBag3Line,
-  RiAppsLine,
-  RiMovieLine,
-  RiStarLine,
-  RiArrowRightUpLine,
-} from "react-icons/ri";
-import {
+  ArrowRight,
+  ArrowUpRight,
+  Github,
   ExternalLink,
-  PlayCircle,
   FileText,
-  Rocket,
-  Sparkles,
-  X,
+  CheckCircle2,
+  Paperclip,
 } from "lucide-react";
 import {
   SiReact,
-  SiNextdotjs,
   SiNodedotjs,
-  SiExpress,
   SiMongodb,
   SiFirebase,
   SiTailwindcss,
-  SiGit,
-  SiGithub,
-  SiTypescript,
-  SiJavascript,
-  SiChartdotjs,
   SiFramer,
-  SiGreensock,
 } from "react-icons/si";
 
-import img1 from "../assets/images/project-1.webp";
-import img2 from "../assets/images/project-2.webp";
-import img3 from "../assets/images/project-3.webp";
-import img4 from "../assets/images/project-4.webp";
-import img5 from "../assets/images/project-5.webp";
-import img6 from "../assets/images/project-6.webp";
-import teaGardenBg from "../assets/images/tea-sunset-landscape.webp";
+import img1 from "../assets/images/project-1.png";
+import img2 from "../assets/images/project-2.png";
+import img3 from "../assets/images/project-3.png";
+import img4 from "../assets/images/project-4.png";
+import img5 from "../assets/images/project-5.png";
+import img6 from "../assets/images/project-6.png";
 
-/* ── shared easing ──────────────────────────────────────── */
-const ease = [0.16, 1, 0.3, 1] as const;
+/* ── scoped handwritten font for this section only — doesn't touch global type system ── */
+const HANDWRITTEN_FONT_IMPORT = `@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Kalam:wght@400;700&display=swap');`;
+const hand = { fontFamily: "'Caveat', cursive" };
+const handNote = { fontFamily: "'Kalam', cursive" };
 
-/* ── official tech logos, keyed by lowercase tag text ──── */
-type TechIconProps = { size?: number; className?: string; style?: React.CSSProperties };
-
-function DiPremiereProIcon({ size = 14, className, style }: TechIconProps) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width={size} height={size} className={className} style={style} aria-hidden="true">
-      <path fill="#2A0634" d="M50.3 38.5h-7.4v20.7h7.4c5 0 9.1-4.1 9.1-9.1v-2.4c0-5.1-4.1-9.2-9.1-9.2z" />
-      <path fill="#2A0634" d="M0 0v128h128V0H0zm51.2 67.5h-8.3v21.3h-9.6V30.3h18.5c9.4-.1 17.1 7.4 17.2 16.8v2.3c0 9.9-8 18-17.8 18.1zm46.1-14.2s-7 0-10.1 1.3v34.2H77.1V48.9s10.2-5.1 20.2-3.8v8.2z" />
-    </svg>
-  );
-}
-
-function DiAfterEffectsIcon({ size = 14, className, style }: TechIconProps) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width={size} height={size} className={className} style={style} aria-hidden="true">
-      <path fill="#1F0740" d="M87 52.4c-7.5.9-7.5 9.2-7.5 9.2h14.9c.1 0 .8-9.2-7.4-9.2zM38.2 63.1H51l-6.4-24.4z" />
-      <path fill="#1F0740" d="M0 0v128h128V0H0zm57.5 88.6L53 72.5H36.2l-4.4 16.1h-9.4l16-54.9v-3.8h12.2l17.3 58.7H57.5zm46-19.6h-24c1.9 19.2 21.2 10 21.2 10v8s-1.3 2.6-14.8 2.6-16.3-18.3-16.3-18.3v-4.7s1.3-22 17.3-22 16.5 14.6 16.5 14.6V69z" />
-    </svg>
-  );
-}
-
-const TECH_ICONS: Record<string, { Icon: React.ComponentType<TechIconProps>; color: string }> = {
-  react:                 { Icon: SiReact,             color: "#61DAFB" },
-  "react native":        { Icon: SiReact,             color: "#61DAFB" },
-  "next.js":             { Icon: SiNextdotjs,         color: "#000000" },
-  nextjs:                { Icon: SiNextdotjs,         color: "#000000" },
-  "node.js":             { Icon: SiNodedotjs,         color: "#339933" },
-  nodejs:                { Icon: SiNodedotjs,         color: "#339933" },
-  "express.js":          { Icon: SiExpress,           color: "#000000" },
-  express:               { Icon: SiExpress,           color: "#000000" },
-  mongodb:               { Icon: SiMongodb,           color: "#47A248" },
-  firebase:              { Icon: SiFirebase,          color: "#FFCA28" },
-  "tailwind css":        { Icon: SiTailwindcss,       color: "#06B6D4" },
-  tailwind:              { Icon: SiTailwindcss,       color: "#06B6D4" },
-  git:                   { Icon: SiGit,               color: "#F05032" },
-  github:                { Icon: SiGithub,            color: "#181717" },
-  typescript:            { Icon: SiTypescript,        color: "#3178C6" },
-  javascript:            { Icon: SiJavascript,        color: "#F7DF1E" },
-  "chart.js":            { Icon: SiChartdotjs,        color: "#FF6384" },
-  "framer motion":       { Icon: SiFramer,            color: "#0055FF" },
-  framer:                { Icon: SiFramer,            color: "#0055FF" },
-  gsap:                  { Icon: SiGreensock,         color: "#88CE02" },
-  "adobe premiere pro":  { Icon: DiPremiereProIcon,   color: "#2A0634" },
-  "premiere pro":        { Icon: DiPremiereProIcon,   color: "#2A0634" },
-  "after effects":       { Icon: DiAfterEffectsIcon,  color: "#1F0740" },
+const TECH_ICONS: Record<string, { Icon: any; color: string }> = {
+  React: { Icon: SiReact, color: "#61DAFB" },
+  "Node.js": { Icon: SiNodedotjs, color: "#339933" },
+  MongoDB: { Icon: SiMongodb, color: "#47A248" },
+  Firebase: { Icon: SiFirebase, color: "#FFCA28" },
+  Tailwind: { Icon: SiTailwindcss, color: "#06B6D4" },
+  "Framer Motion": { Icon: SiFramer, color: "#0055FF" },
 };
 
-function getTechIcon(tag: string) {
-  return TECH_ICONS[tag.trim().toLowerCase()] ?? null;
-}
+const FILTERS = ["All", "Web Development", "E-Commerce", "Tools"];
 
-/* ── filter tabs — grounded in the categories that actually exist below ── */
-const FILTER_TABS = [
-  { label: "All",         key: "All",      icon: RiGridFill },
-  { label: "Web Apps",    key: "Web",      icon: RiAppsLine },
-  { label: "E-Commerce",  key: "Commerce", icon: RiShoppingBag3Line },
-  { label: "Video",       key: "Video",    icon: RiMovieLine },
-  { label: "Featured",    key: "Featured", icon: RiStarLine },
-];
-
-type Status = "Live" | "Case Study";
-const STATUS_STYLES: Record<Status, { dot: string; bg: string; text: string }> = {
-  Live:          { dot: "bg-emerald-500", bg: "bg-emerald-50/90 border-emerald-200/70", text: "text-emerald-700" },
-  "Case Study":  { dot: "bg-blue-500",    bg: "bg-blue-50/90 border-blue-200/70",       text: "text-blue-700" },
-};
-
-/** Bento shape controls span + internal image aspect — not decoration, it
- *  encodes how much visual weight each project earned (flagship vs. the rest). */
-type Shape = "hero" | "tall" | "wide" | "med";
-
-const PROJECTS: Array<{
-  id: number;
-  shape: Shape;
+interface ProjectFile {
+  number: string;
   title: string;
-  category: string;
-  filter: string[];
-  featured: boolean;
-  status: Status;
-  year: number;
-  domain: string;
-  desc: string;
-  tags: string[];
-  metrics: { screens: string; components: string; apis: string; performance: string };
+  tagline: string;
+  status: "Live" | "Completed" | "In Progress";
+  category: string[];
   image: string;
-  imagePosition: string;
-  live: string;
-  github: string | null;
-  caseStudy: string;
-  liveLabel: string;
-  accentColor: string;
-}> = [
+  overview: string;
+  features: string[];
+  tech: string[];
+  stats: { label: string; value: string }[];
+  live?: string;
+  github?: string;
+  caseStudy?: string;
+  paper: "blueprint" | "cream" | "ink";
+}
+
+/* ── real project data, same underlying facts used elsewhere on the site ── */
+const FILES: ProjectFile[] = [
   {
-    id: 1,
-    shape: "hero",
+    number: "01",
     title: "ApunBazar",
-    category: "E-Commerce",
-    filter: ["All", "Web", "Commerce", "Featured"],
-    featured: true,
+    tagline: "Assam-themed e-commerce for local products and artisans.",
     status: "Live",
-    year: 2025,
-    domain: "apunbazar.in",
-    desc: "A full e-commerce platform for authentic Assamese products — seamless checkout, real-time inventory and an intuitive admin panel built for a real seller, not a demo.",
-    tags: ["React", "Node.js", "MongoDB"],
-    metrics: { screens: "10+", components: "45+", apis: "12+", performance: "98%" },
+    category: ["Web Development", "E-Commerce"],
     image: img1,
-    imagePosition: "object-top",
+    overview:
+      "ApunBazar connects local Assamese artisans, tea gardens and traditional brands with customers across India through a modern, fast storefront.",
+    features: [
+      "Modern & responsive UI",
+      "Product filtering & search",
+      "Secure checkout integration",
+      "Admin dashboard",
+      "Order management",
+      "Coupons & discounts",
+    ],
+    tech: ["React", "Node.js", "MongoDB"],
+    stats: [
+      { label: "Conversion", value: "↑ 40%" },
+      { label: "Lighthouse", value: "98" },
+    ],
     live: "#",
     github: "#",
     caseStudy: "#",
-    liveLabel: "Live Project",
-    accentColor: "#1d6feb",
+    paper: "blueprint",
   },
   {
-    id: 2,
-    shape: "tall",
+    number: "02",
     title: "Campus Unity",
-    category: "Web Application",
-    filter: ["All", "Web"],
-    featured: false,
-    status: "Case Study",
-    year: 2024,
-    domain: "campusunity.app",
-    desc: "A college community platform for notes, papers, chat and updates — one app, one campus, unlimited connections.",
-    tags: ["React", "Firebase", "Tailwind"],
-    metrics: { screens: "08+", components: "30+", apis: "06+", performance: "95%" },
+    tagline: "College students' union platform for better communication.",
+    status: "Live",
+    category: ["Web Development"],
     image: img2,
-    imagePosition: "object-top",
+    overview:
+      "A community platform built for Jagiroad College — notes sharing, event updates and a real-time chat space for the student union.",
+    features: [
+      "Real-time announcements",
+      "Notes & paper sharing",
+      "Event calendar",
+      "Student chat rooms",
+    ],
+    tech: ["React", "Firebase", "Tailwind"],
+    stats: [{ label: "Users", value: "1K+" }],
     live: "#",
     github: "#",
     caseStudy: "#",
-    liveLabel: "Live Project",
-    accentColor: "#7c3aed",
+    paper: "cream",
   },
   {
-    id: 3,
-    shape: "tall",
+    number: "03",
     title: "FitBite",
-    category: "Food Delivery",
-    filter: ["All", "Web", "Featured"],
-    featured: true,
+    tagline: "Food delivery for fitness lovers — healthy meals, fast.",
     status: "Live",
-    year: 2025,
-    domain: "fitbite.in",
-    desc: "A food delivery app for fitness lovers and college students — healthy food, delivered fast, with smart nutrition tracking.",
-    tags: ["React Native", "Node.js", "MongoDB"],
-    metrics: { screens: "12+", components: "25+", apis: "10+", performance: "97%" },
+    category: ["Web Development"],
     image: img3,
-    imagePosition: "object-top",
+    overview:
+      "A food delivery experience built for the health-conscious — smart nutrition tracking layered on top of a familiar ordering flow.",
+    features: [
+      "Nutrition-first menu tagging",
+      "Fast checkout",
+      "Order tracking",
+      "Meal plan subscriptions",
+    ],
+    tech: ["React", "Node.js", "MongoDB"],
+    stats: [{ label: "Rating", value: "4.8★" }],
     live: "#",
     github: "#",
     caseStudy: "#",
-    liveLabel: "Live Project",
-    accentColor: "#059669",
+    paper: "blueprint",
   },
   {
-    id: 4,
-    shape: "wide",
-    title: "Travel Assam",
-    category: "Video Editing",
-    filter: ["All", "Video", "Featured"],
-    featured: true,
-    status: "Live",
-    year: 2024,
-    domain: "watch",
-    desc: "A cinematic travel video showcasing the breathtaking beauty of Assam — misty hills, tea gardens and golden sunsets.",
-    tags: ["Adobe Premiere Pro", "After Effects"],
-    metrics: { screens: "03+", components: "08+", apis: "4K", performance: "96%" },
-    image: img4,
-    imagePosition: "object-center",
-    live: "#",
-    github: null,
-    caseStudy: "#",
-    liveLabel: "Watch Video",
-    accentColor: "#d97706",
-  },
-  {
-    id: 5,
-    shape: "med",
+    number: "04",
     title: "Admin Dashboard",
-    category: "Dashboard",
-    filter: ["All", "Web"],
-    featured: false,
-    status: "Case Study",
-    year: 2023,
-    domain: "dashboard.dev",
-    desc: "A clean, responsive admin dashboard with real-time analytics and data visualizations.",
-    tags: ["React", "Tailwind", "Chart.js"],
-    metrics: { screens: "09+", components: "20+", apis: "08+", performance: "96%" },
+    tagline: "Responsive admin dashboard with real-time analytics.",
+    status: "Completed",
+    category: ["Tools"],
     image: img5,
-    imagePosition: "object-top",
+    overview:
+      "A clean internal tool for tracking KPIs at a glance — built to replace a messy spreadsheet workflow with live charts.",
+    features: [
+      "Real-time data visualizations",
+      "Role-based access",
+      "Exportable reports",
+      "Dark-mode ready",
+    ],
+    tech: ["React", "Tailwind"],
+    stats: [{ label: "Lighthouse", value: "96" }],
     live: "#",
     github: "#",
     caseStudy: "#",
-    liveLabel: "Live Preview",
-    accentColor: "#1d6feb",
-  },
-  {
-    id: 6,
-    shape: "med",
-    title: "Portfolio Website",
-    category: "Personal Site",
-    filter: ["All", "Web", "Commerce", "Featured"],
-    featured: true,
-    status: "Live",
-    year: 2026,
-    domain: "nikhilpaharia.dev",
-    desc: "This very site — built with love, precision and purpose.",
-    tags: ["React", "Tailwind", "Framer Motion"],
-    metrics: { screens: "05+", components: "15+", apis: "03+", performance: "99%" },
-    image: img6,
-    imagePosition: "object-top",
-    live: "#",
-    github: "#",
-    caseStudy: "#",
-    liveLabel: "Live Site",
-    accentColor: "#1d6feb",
+    paper: "ink",
   },
 ];
 
-/* ── real, honest headline numbers (no invented client claims) ── */
-const STATS = [
-  { value: 6,   suffix: "+", label: "Projects Shipped" },
-  { value: 2,   suffix: "+", label: "Years Building" },
-  { value: 15,  suffix: "+", label: "Technologies" },
-  { value: 100, suffix: "%", label: "Responsive" },
-];
-
-const MARQUEE_TECH = [
-  "React", "Next.js", "TypeScript", "Node.js", "MongoDB",
-  "Firebase", "Tailwind CSS", "GSAP", "Framer Motion", "Git", "GitHub",
-];
-
-/* ── respects OS-level "reduce motion" setting ───────────── */
-function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setReduced(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-  return reduced;
+function StatusBadge({ status }: { status: ProjectFile["status"] }) {
+  const dot = status === "Live" ? "bg-emerald-500" : status === "In Progress" ? "bg-amber-500" : "bg-slate-400";
+  return (
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-black/85 text-white text-[10px] font-bold tracking-wide uppercase">
+      <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
+      {status}
+    </span>
+  );
 }
 
-/* ── count-up hook ──────────────────────────────────────── */
-function useCountUp(target: number, active: boolean, duration = 1500) {
-  const [value, setValue] = useState(0);
-  useEffect(() => {
-    if (!active) return;
-    let raf: number;
-    const startTime = performance.now();
-    const tick = (now: number) => {
-      const progress = Math.min((now - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(Math.round(eased * target));
-      if (progress < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [active, target, duration]);
-  return value;
+function paperClasses(paper: ProjectFile["paper"]) {
+  switch (paper) {
+    case "blueprint":
+      return "bg-[#1c4fd6] text-white";
+    case "ink":
+      return "bg-slate-900 text-white";
+    default:
+      return "bg-[#f7f3ea] text-slate-900";
+  }
 }
 
-function ProjectMetricCounter({ value, active }: { value: string; active: boolean }) {
-  const numericValue = parseInt(value.replace(/[^0-9]/g, ""), 10) || 0;
-  const suffix = value.replace(/[0-9]/g, "");
-  const count = useCountUp(numericValue, active, 1100);
-  if (numericValue === 0) return <span>{value}</span>;
-  return <span>{count}{suffix}</span>;
-}
+/* ── collapsed folder header, sits in the stack behind the open one ── */
+const CollapsedFile = memo(function CollapsedFile({ file, onClick, offset }: { file: ProjectFile; onClick: () => void; offset: number }) {
+  const rotate = offset % 2 === 0 ? -0.6 : 0.6;
+  return (
+    <motion.button
+      layout
+      onClick={onClick}
+      initial={{ opacity: 0, y: -12 }}
+      animate={{ opacity: 1, y: 0, rotate }}
+      exit={{ opacity: 0, y: -12 }}
+      whileHover={{ y: -4, rotate: 0, transition: { duration: 0.2 } }}
+      whileTap={{ scale: 0.99 }}
+      transition={{ type: "spring", stiffness: 260, damping: 26 }}
+      style={{ zIndex: 10 - offset }}
+      className={`interactive touch-manipulation relative w-full text-left rounded-t-2xl px-6 py-4 flex items-center justify-between gap-4
+                  shadow-[0_-4px_16px_rgba(0,0,0,0.12)] border border-black/5
+                  ${paperClasses(file.paper)}`}
+    >
+      {/* folded corner (dog-ear) — physical paper detail */}
+      <span
+        className="absolute top-0 right-0 w-4 h-4 pointer-events-none"
+        style={{
+          background: "linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.15) 50%)",
+          borderTopRightRadius: "0.75rem",
+        }}
+        aria-hidden="true"
+      />
+      <div className="flex items-center gap-4 min-w-0">
+        <span className="shrink-0 w-8 h-8 rounded-md bg-black/15 flex items-center justify-center text-xs font-bold">
+          {file.number}
+        </span>
+        <span className="font-extrabold text-base sm:text-lg tracking-tight truncate">{file.title}</span>
+        <span className="hidden sm:block text-sm opacity-80 truncate">{file.tagline}</span>
+      </div>
+      <StatusBadge status={file.status} />
+    </motion.button>
+  );
+});
 
-/* ── ripple-on-click link wrapper ───────────────────────── */
-function RippleLink({
-  href, onClick, className, children,
-}: { href: string; onClick?: () => void; className?: string; children: React.ReactNode }) {
-  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
+/* ── device mockup with mouse parallax + animated scrolling preview ── */
+function DeviceMockup({ file }: { file: ProjectFile }) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const springX = useSpring(mx, { stiffness: 120, damping: 18 });
+  const springY = useSpring(my, { stiffness: 120, damping: 18 });
+  const laptopX = useTransform(springX, [-0.5, 0.5], [-6, 6]);
+  const laptopY = useTransform(springY, [-0.5, 0.5], [-4, 4]);
+  const phoneX = useTransform(springX, [-0.5, 0.5], [8, -8]);
+  const phoneY = useTransform(springY, [-0.5, 0.5], [6, -6]);
 
-  const fire = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.stopPropagation();
-    const rect = e.currentTarget.getBoundingClientRect();
-    const id = Date.now();
-    setRipples((r) => [...r, { id, x: e.clientX - rect.left, y: e.clientY - rect.top }]);
-    setTimeout(() => setRipples((r) => r.filter((rp) => rp.id !== id)), 600);
-    onClick?.();
+  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = wrapRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    mx.set((e.clientX - rect.left) / rect.width - 0.5);
+    my.set((e.clientY - rect.top) / rect.height - 0.5);
+  };
+  const handleLeave = () => {
+    mx.set(0);
+    my.set(0);
   };
 
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      onClick={fire}
-      className={`relative overflow-hidden ${className ?? ""}`}
-    >
-      {children}
-      {ripples.map((r) => (
-        <motion.span
-          key={r.id}
-          initial={{ width: 0, height: 0, opacity: 0.35, x: r.x, y: r.y }}
-          animate={{ width: 140, height: 140, opacity: 0, x: r.x - 70, y: r.y - 70 }}
-          transition={{ duration: 0.6, ease }}
-          className="absolute rounded-full bg-current pointer-events-none"
-          style={{ willChange: "transform, opacity" }}
-        />
-      ))}
-    </a>
-  );
-}
-
-/* ── cinematic tea-garden backdrop (atmosphere, never the focus) ── */
-function ProjectsBackdrop() {
-  const ref = useRef<HTMLDivElement>(null);
-  const mx = useMotionValue(0.5);
-  const my = useMotionValue(0.5);
-  const springX = useSpring(mx, { stiffness: 40, damping: 20 });
-  const springY = useSpring(my, { stiffness: 40, damping: 20 });
-  const bgX = useTransform(springX, [0, 1], ["2%", "-2%"]);
-  const bgY = useTransform(springY, [0, 1], ["2%", "-2%"]);
-
-  useEffect(() => {
-    const handle = (e: MouseEvent) => {
-      if (!ref.current) return;
-      const rect = ref.current.getBoundingClientRect();
-      mx.set((e.clientX - rect.left) / rect.width);
-      my.set((e.clientY - rect.top) / rect.height);
-    };
-    window.addEventListener("mousemove", handle);
-    return () => window.removeEventListener("mousemove", handle);
-  }, [mx, my]);
-
-  return (
-    <div ref={ref} className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+    <div ref={wrapRef} onMouseMove={handleMove} onMouseLeave={handleLeave} className="relative touch-manipulation">
       <motion.div
-        className="absolute inset-[-4%]"
-        style={{
-          x: bgX,
-          y: bgY,
-          backgroundImage: `url(${teaGardenBg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center 60%",
-          opacity: 0.16,
-          filter: "blur(1px) saturate(1.05)",
-        }}
-      />
-      {/* readability wash — soft blue/white so the golden hills stay a texture, not a photo */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white via-white/85 to-white" />
-      <div className="absolute inset-0 bg-gradient-to-r from-sky-50/70 via-transparent to-blue-50/70" />
-
-      {/* ambient gradient blooms */}
-      <motion.div
-        className="absolute top-0 left-1/4 w-[700px] h-[700px] rounded-full"
-        style={{ background: "radial-gradient(circle, rgba(29,111,235,0.08) 0%, transparent 70%)", filter: "blur(60px)" }}
-        animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
-        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute bottom-0 right-1/4 w-[600px] h-[600px] rounded-full"
-        style={{ background: "radial-gradient(circle, rgba(217,164,65,0.07) 0%, transparent 70%)", filter: "blur(60px)" }}
-        animate={{ x: [0, -20, 0], y: [0, 20, 0] }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 3 }}
-      />
-
-      {/* fine dot-grid texture */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{ backgroundImage: "radial-gradient(circle, #1d6feb 1px, transparent 1px)", backgroundSize: "28px 28px" }}
-      />
-
-      {/* floating particles drifting through the fog */}
-      {[
-        { cx: "8%",  cy: "15%", d: 5,   del: 0 },
-        { cx: "92%", cy: "20%", d: 4,   del: 1.5 },
-        { cx: "5%",  cy: "70%", d: 6,   del: 3 },
-        { cx: "95%", cy: "78%", d: 3.5, del: 0.8 },
-        { cx: "50%", cy: "6%",  d: 4,   del: 2 },
-        { cx: "40%", cy: "92%", d: 5,   del: 4 },
-      ].map((dot, i) => (
-        <motion.div
-          key={i}
-          className="absolute rounded-full bg-primary/25"
-          style={{ left: dot.cx, top: dot.cy, width: dot.d, height: dot.d }}
-          animate={{ y: [0, -14, 0], opacity: [0.25, 0.65, 0.25] }}
-          transition={{ duration: 4 + i, repeat: Infinity, ease: "easeInOut", delay: dot.del }}
-        />
-      ))}
-    </div>
-  );
-}
-
-/* ── premium glass stat strip ────────────────────────────── */
-function StatsRow() {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-40px" });
-  return (
-    <div ref={ref} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-      {STATS.map((stat, i) => {
-        const count = useCountUp(stat.value, inView, 1300 + i * 150);
-        return (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 16 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: 0.1 + i * 0.08, ease }}
-            className="rounded-2xl border border-white/60 bg-white/70 backdrop-blur-xl px-4 py-3.5
-                       shadow-[0_4px_20px_rgba(15,23,42,0.05)]"
-          >
-            <p className="text-2xl font-black text-slate-900 tabular-nums leading-none mb-1">
-              {count}{stat.suffix}
-            </p>
-            <p className="text-[11px] font-semibold text-slate-500 leading-tight">{stat.label}</p>
-          </motion.div>
-        );
-      })}
-    </div>
-  );
-}
-
-/* ── animated glass filter pills ─────────────────────────── */
-function FilterPills({
-  active, onChange,
-}: { active: string; onChange: (key: string) => void }) {
-  return (
-    <div className="flex flex-wrap gap-2 lg:justify-end">
-      {FILTER_TABS.map((tab) => {
-        const isActive = active === tab.key;
-        const Icon = tab.icon;
-        const count =
-          tab.key === "All" ? PROJECTS.length
-          : tab.key === "Featured" ? PROJECTS.filter((p) => p.featured).length
-          : PROJECTS.filter((p) => p.filter.includes(tab.key)).length;
-
-        return (
-          <motion.button
-            key={tab.key}
-            onClick={() => onChange(tab.key)}
-            whileHover={{ scale: 1.04, y: -2 }}
-            whileTap={{ scale: 0.96 }}
-            className={`relative inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold
-                        border overflow-hidden transition-colors duration-300
-                        ${isActive
-                          ? "border-primary text-white shadow-[0_4px_20px_rgba(29,111,235,0.35)]"
-                          : "bg-white/70 backdrop-blur-xl border-slate-200/70 text-slate-500 hover:border-primary/40 hover:text-primary hover:shadow-md"}`}
-          >
-            {isActive && (
-              <motion.div
-                layoutId="projectsActivePill"
-                transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                className="absolute inset-0 bg-gradient-to-br from-primary to-blue-600 rounded-full"
-              />
-            )}
-            <Icon size={13} className="relative z-10" />
-            <span className="relative z-10">{tab.label}</span>
-            <span
-              className={`relative z-10 text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center
-                          ${isActive ? "bg-white/25 text-white" : "bg-slate-100 text-slate-400"}`}
-            >
-              {count}
-            </span>
-          </motion.button>
-        );
-      })}
-    </div>
-  );
-}
-
-/* ── tech chip used inside cards ─────────────────────────── */
-function TechChip({ tag, hovered, delay = 0 }: { tag: string; hovered: boolean; delay?: number }) {
-  const tech = getTechIcon(tag);
-  return (
-    <motion.span
-      animate={{ y: hovered ? [0, -3, 0] : 0 }}
-      transition={{ duration: 2.2, repeat: hovered ? Infinity : 0, ease: "easeInOut", delay }}
-      className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold rounded-full
-                 bg-white/70 border border-slate-200/70 text-slate-600 backdrop-blur"
-    >
-      {tech && <tech.Icon size={12} style={{ color: tech.color }} className="shrink-0" />}
-      <span className="leading-none">{tag}</span>
-    </motion.span>
-  );
-}
-
-/* ── action row (Live / Code / Case Study) ───────────────── */
-function ActionRow({ project }: { project: (typeof PROJECTS)[number] }) {
-  return (
-    <div className="grid grid-cols-3 gap-1.5 text-[11px] font-bold">
-      <RippleLink
-        href={project.live}
-        className="inline-flex items-center justify-center gap-1 py-2 rounded-lg text-primary
-                   bg-blue-50/80 hover:bg-blue-50 border border-blue-100 transition-colors"
+        style={{ x: laptopX, y: laptopY }}
+        className="rounded-xl overflow-hidden border border-black/10 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.4)] bg-black/5"
       >
-        {project.category === "Video Editing"
-          ? <PlayCircle size={13} strokeWidth={2.25} />
-          : <ExternalLink size={13} strokeWidth={2.25} />}
-        <span className="truncate">{project.liveLabel.split(" ")[0]}</span>
-      </RippleLink>
-      <RippleLink
-        href={project.github ?? project.live}
-        className="inline-flex items-center justify-center gap-1 py-2 rounded-lg text-slate-600
-                   bg-white/70 hover:bg-white border border-slate-200/70 transition-colors"
-      >
-        {project.github ? <SiGithub size={13} className="shrink-0" /> : <ExternalLink size={13} strokeWidth={2.25} />}
-        <span className="truncate">Code</span>
-      </RippleLink>
-      <RippleLink
-        href={project.caseStudy}
-        className="inline-flex items-center justify-center gap-1 py-2 rounded-lg text-slate-600
-                   bg-white/70 hover:bg-white border border-slate-200/70 transition-colors"
-      >
-        <FileText size={13} strokeWidth={2.25} />
-        <span className="truncate">Case Study</span>
-      </RippleLink>
-    </div>
-  );
-}
-
-/* ── browser-chrome frame — the signature device mockup for the hero ── */
-function BrowserChrome({ domain, accent }: { domain: string; accent: string }) {
-  return (
-    <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-900/95 backdrop-blur">
-      <div className="flex gap-1.5">
-        <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
-        <span className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
-        <span className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
-      </div>
-      <div className="flex-1 flex items-center gap-1.5 mx-2 px-3 py-1 rounded-md bg-white/10">
-        <span className="w-1.5 h-1.5 rounded-full" style={{ background: accent }} />
-        <span className="text-[10px] font-mono text-white/60 truncate">{domain}</span>
-      </div>
-    </div>
-  );
-}
-
-/* ── generic bento card (tall / wide / med shapes) ───────── */
-function BentoCard({
-  project, index, aspect, onOpen,
-}: { project: (typeof PROJECTS)[number]; index: number; aspect: string; onOpen: () => void }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
-  const [hovered, setHovered] = useState(false);
-  const statusStyle = STATUS_STYLES[project.status];
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 40, scale: 0.97 }}
-      animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
-      transition={{ duration: 0.6, delay: index * 0.07, ease }}
-      className="relative h-full"
-      style={{ perspective: 1200 }}
-    >
-      <div
-        className="pointer-events-none absolute -inset-2 rounded-[28px] blur-xl transition-opacity duration-500"
-        style={{ opacity: hovered ? 0.5 : 0, background: `conic-gradient(from 0deg, ${project.accentColor}, transparent 25%, transparent 75%, ${project.accentColor})` }}
-      />
-      <Tilt maxRotate={5} glowColor={project.accentColor} glowOpacity={0.14} className="h-full">
-        <article
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-          onClick={onOpen}
-          onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onOpen())}
-          role="button"
-          tabIndex={0}
-          aria-label={`View details for ${project.title}`}
-          className="group relative flex flex-col h-full rounded-2xl overflow-hidden cursor-pointer
-                     bg-white/80 backdrop-blur-xl border border-white/60
-                     shadow-[0_2px_10px_rgba(15,23,42,0.05)] transition-shadow duration-500
-                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-        >
-          <div
-            className="pointer-events-none absolute inset-0 rounded-2xl z-20 transition-all duration-500"
-            style={{
-              boxShadow: hovered
-                ? `inset 0 0 0 1.5px ${project.accentColor}55, 0 20px 50px -14px ${project.accentColor}35`
-                : `inset 0 0 0 1px rgba(15,23,42,0.06)`,
-            }}
-          />
-
-          {/* image */}
-          <div className={`relative overflow-hidden shrink-0 ${aspect}`}>
-            <motion.img
-              src={project.image}
-              alt={`${project.title} — screenshot`}
-              loading="lazy"
-              className={`w-full h-full object-cover ${project.imagePosition}`}
-              animate={{ scale: hovered ? 1.06 : 1 }}
-              transition={{ duration: 0.6, ease }}
-              style={{ willChange: "transform" }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/5 to-transparent" />
-
-            {/* glass reflection sweep on hover */}
-            <div
-              className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100"
-              style={{
-                background: "linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.35) 50%, transparent 60%)",
-                animation: hovered ? "lightSweep 1.1s ease" : "none",
-              }}
-            />
-
-            {project.category === "Video Editing" && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/90 backdrop-blur shadow-lg">
-                  <PlayCircle size={20} className="text-slate-900 fill-slate-900/10" strokeWidth={1.75} />
-                </span>
-              </div>
-            )}
-
-            {project.featured && (
-              <div className="absolute top-3 left-3">
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold
-                                 bg-white/90 backdrop-blur text-amber-600 border border-amber-200/60 shadow-sm">
-                  <RiStarLine size={10} className="fill-amber-500 text-amber-500" />
-                  Featured
-                </span>
-              </div>
-            )}
-            <div className="absolute top-3 right-3">
-              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border backdrop-blur ${statusStyle.bg} ${statusStyle.text}`}>
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className={`absolute inline-flex h-full w-full rounded-full ${statusStyle.dot} opacity-60 animate-ping`} />
-                  <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${statusStyle.dot}`} />
-                </span>
-                {project.status}
-              </span>
-            </div>
-          </div>
-
-          {/* body */}
-          <div className="relative flex flex-col flex-1 p-5 gap-3">
-            <div>
-              <span
-                className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide border"
-                style={{ background: `${project.accentColor}12`, borderColor: `${project.accentColor}30`, color: project.accentColor }}
-              >
-                {project.category}
-              </span>
-            </div>
-            <h3
-              className="text-[1.05rem] font-black text-slate-900 tracking-tight leading-tight transition-colors duration-300"
-              style={{ color: hovered ? project.accentColor : undefined }}
-            >
-              {project.title}
-            </h3>
-            <p className="text-slate-500 text-[13px] leading-relaxed flex-1">{project.desc}</p>
-
-            <div className="flex flex-wrap gap-1.5">
-              {project.tags.slice(0, 3).map((tag, i) => (
-                <TechChip key={tag} tag={tag} hovered={hovered} delay={i * 0.15} />
-              ))}
-            </div>
-
-            <div className="h-px bg-slate-100 group-hover:bg-blue-100 transition-colors duration-300" />
-            <ActionRow project={project} />
-
-            <div className="flex justify-end">
-              <motion.span
-                className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-400 group-hover:text-primary transition-colors"
-                animate={{ x: hovered ? 3 : 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                Explore <RiArrowRightUpLine size={12} />
-              </motion.span>
-            </div>
-          </div>
-        </article>
-      </Tilt>
-    </motion.div>
-  );
-}
-
-/* ── the hero cell — a full "product launch" treatment ──── */
-function HeroCard({
-  project, onOpen,
-}: { project: (typeof PROJECTS)[number]; onOpen: () => void }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
-  const [hovered, setHovered] = useState(false);
-  const reducedMotion = usePrefersReducedMotion();
-  const statusStyle = STATUS_STYLES[project.status];
-  const metricEntries = [
-    { label: "Screens", value: project.metrics.screens },
-    { label: "Components", value: project.metrics.components },
-    { label: "APIs", value: project.metrics.apis },
-    { label: "Score", value: project.metrics.performance },
-  ];
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 40, scale: 0.97 }}
-      animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
-      transition={{ duration: 0.65, ease }}
-      className="relative h-full"
-      style={{ perspective: 1400 }}
-    >
-      {/* rotating gradient halo — the one bold signature of this section */}
-      <motion.div
-        className="pointer-events-none absolute -inset-3 rounded-[36px] blur-2xl"
-        style={{ background: `conic-gradient(from 0deg, ${project.accentColor}55, transparent 30%, transparent 70%, ${project.accentColor}55)` }}
-        animate={reducedMotion ? {} : { rotate: 360 }}
-        transition={{ duration: 16, repeat: Infinity, ease: "linear" }}
-      />
-
-      <Tilt maxRotate={4} glowColor={project.accentColor} glowOpacity={0.18} className="h-full">
-        <article
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-          onClick={onOpen}
-          onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onOpen())}
-          role="button"
-          tabIndex={0}
-          aria-label={`View details for ${project.title}`}
-          className="group relative flex flex-col h-full rounded-3xl overflow-hidden cursor-pointer
-                     bg-white/85 backdrop-blur-xl border border-white/70
-                     shadow-[0_20px_60px_-15px_rgba(15,23,42,0.18)]
-                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-        >
-          <span className="absolute top-4 left-4 z-30 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full
-                            text-[10px] font-black uppercase tracking-widest bg-slate-900/90 text-white backdrop-blur">
-            <Sparkles size={11} />
-            Flagship Build
-          </span>
-
-          {/* device mockup — browser chrome wraps the real screenshot */}
-          <div className="relative">
-            <BrowserChrome domain={project.domain} accent={project.accentColor} />
-            <div className="relative overflow-hidden aspect-[16/10] sm:aspect-[16/9]">
-              <motion.img
-                src={project.image}
-                alt={`${project.title} — live preview`}
-                loading="lazy"
-                className={`w-full h-full object-cover ${project.imagePosition}`}
-                animate={{ scale: hovered ? 1.045 : 1 }}
-                transition={{ duration: 0.7, ease }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
-              <div
-                className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100"
-                style={{
-                  background: "linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.3) 50%, transparent 60%)",
-                  animation: hovered ? "lightSweep 1.3s ease" : "none",
-                }}
-              />
-              <div className="absolute top-3 right-3">
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border backdrop-blur ${statusStyle.bg} ${statusStyle.text}`}>
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className={`absolute inline-flex h-full w-full rounded-full ${statusStyle.dot} opacity-60 animate-ping`} />
-                    <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${statusStyle.dot}`} />
-                  </span>
-                  {project.status}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* body */}
-          <div className="relative flex flex-col flex-1 p-6 sm:p-7 gap-4">
-            <div className="flex items-start justify-between gap-3 flex-wrap">
-              <div>
-                <span
-                  className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold tracking-wide border mb-3"
-                  style={{ background: `${project.accentColor}12`, borderColor: `${project.accentColor}30`, color: project.accentColor }}
-                >
-                  {project.category}
-                </span>
-                <h3 className="text-2xl sm:text-[1.7rem] font-black text-slate-900 tracking-tight leading-tight">
-                  {project.title}
-                </h3>
-              </div>
-              <span className="text-xs font-bold text-slate-400 mt-1">{project.year}</span>
-            </div>
-
-            <p className="text-slate-500 text-sm leading-relaxed max-w-xl">{project.desc}</p>
-
-            <div className="flex flex-wrap gap-2">
-              {project.tags.map((tag, i) => (
-                <TechChip key={tag} tag={tag} hovered={hovered} delay={i * 0.15} />
-              ))}
-            </div>
-
-            <div className="grid grid-cols-4 gap-2 rounded-2xl bg-slate-50/70 border border-slate-100 py-3 mt-1">
-              {metricEntries.map((m) => (
-                <div key={m.label} className="text-center">
-                  <p className="text-base font-black text-slate-900 tabular-nums">
-                    <ProjectMetricCounter value={m.value} active={inView} />
-                  </p>
-                  <p className="text-[9px] font-bold uppercase tracking-wide text-slate-400">{m.label}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="h-px bg-slate-100" />
-
-            <div className="grid grid-cols-3 gap-2 text-xs font-bold mt-auto">
-              <RippleLink
-                href={project.live}
-                className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-white
-                           bg-gradient-to-br from-primary to-blue-600 shadow-[0_8px_24px_rgba(29,111,235,0.35)]
-                           hover:shadow-[0_10px_32px_rgba(29,111,235,0.45)] transition-shadow"
-              >
-                <ExternalLink size={13} strokeWidth={2.25} />
-                Live Demo
-              </RippleLink>
-              <RippleLink
-                href={project.github ?? project.live}
-                className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-slate-700
-                           bg-white hover:bg-slate-50 border border-slate-200 transition-colors"
-              >
-                <SiGithub size={13} />
-                GitHub
-              </RippleLink>
-              <RippleLink
-                href={project.caseStudy}
-                className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-slate-700
-                           bg-white hover:bg-slate-50 border border-slate-200 transition-colors"
-              >
-                <FileText size={13} strokeWidth={2.25} />
-                Case Study
-              </RippleLink>
-            </div>
-          </div>
-        </article>
-      </Tilt>
-    </motion.div>
-  );
-}
-
-/* ── infinite tech marquee ────────────────────────────────── */
-function TechMarquee({ paused = false }: { paused?: boolean }) {
-  const row = [...MARQUEE_TECH, ...MARQUEE_TECH];
-  return (
-    <div className="relative rounded-2xl border border-white/60 bg-white/70 backdrop-blur-xl
-                    shadow-[0_8px_32px_rgba(15,23,42,0.05)] overflow-hidden py-6">
-      <p className="text-center text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-5">
-        Technologies I Build With
-      </p>
-      <div className="absolute inset-y-0 left-0 w-16 sm:w-28 bg-gradient-to-r from-white via-white/70 to-transparent z-10 pointer-events-none" />
-      <div className="absolute inset-y-0 right-0 w-16 sm:w-28 bg-gradient-to-l from-white via-white/70 to-transparent z-10 pointer-events-none" />
-      <div className="flex overflow-hidden">
-        <div
-          className="flex items-center gap-10 sm:gap-14 whitespace-nowrap w-max pr-10 sm:pr-14"
-          style={{ animation: paused ? "none" : "marqueeScroll 26s linear infinite" }}
-        >
-          {row.map((name, i) => {
-            const tech = getTechIcon(name);
-            return (
-              <div key={`${name}-${i}`} className="flex items-center gap-2 shrink-0">
-                {tech && <tech.Icon size={20} style={{ color: tech.color }} />}
-                <span className="text-sm font-bold text-slate-600">{name}</span>
-              </div>
-            );
-          })}
+        <div className="flex items-center gap-1.5 px-3 py-2 bg-black/10">
+          <span className="w-2 h-2 rounded-full bg-red-400/70" />
+          <span className="w-2 h-2 rounded-full bg-amber-400/70" />
+          <span className="w-2 h-2 rounded-full bg-emerald-400/70" />
         </div>
-      </div>
+        {/* animated "live" preview — slow auto-pan simulates a scrolling site instead of a static screenshot */}
+        <div className="relative w-full h-56 sm:h-72 overflow-hidden">
+          <motion.img
+            key={file.number}
+            src={file.image}
+            alt={file.title}
+            loading="lazy"
+            decoding="async"
+            className="w-full h-auto object-cover object-top absolute inset-x-0 top-0"
+            initial={{ y: 0 }}
+            animate={{ y: [0, -60, 0] }}
+            transition={{ duration: 9, ease: "easeInOut", repeat: Infinity, repeatDelay: 1.5 }}
+          />
+        </div>
+      </motion.div>
+
+      {/* phone mockup peeking bottom-right, with independent parallax */}
+      <motion.div
+        style={{ x: phoneX, y: phoneY }}
+        className="hidden sm:block absolute -bottom-6 -right-6 w-28 rounded-2xl overflow-hidden border-4 border-black/80 shadow-[0_16px_36px_-8px_rgba(0,0,0,0.5)] bg-black"
+      >
+        <div className="relative w-full h-40 overflow-hidden">
+          <motion.img
+            key={`phone-${file.number}`}
+            src={file.image}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            decoding="async"
+            className="w-full h-auto object-cover object-top absolute inset-x-0 top-0"
+            initial={{ y: 0 }}
+            animate={{ y: [0, -40, 0] }}
+            transition={{ duration: 11, ease: "easeInOut", repeat: Infinity, repeatDelay: 2 }}
+          />
+        </div>
+      </motion.div>
     </div>
   );
 }
 
-/* ── full-detail lightbox — opened from any card ─────────── */
-function ProjectModal({
-  project, onClose,
-}: { project: (typeof PROJECTS)[number] | null; onClose: () => void }) {
-  useEffect(() => {
-    if (!project) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [project, onClose]);
+const contentStagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.09, delayChildren: 0.15 } },
+};
+const contentItem = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
+};
 
-  const statusStyle = project ? STATUS_STYLES[project.status] : null;
-
+/* ── expanded folder — the front, fully open project file ── */
+const ExpandedFile = memo(function ExpandedFile({ file }: { file: ProjectFile }) {
   return (
-    <AnimatePresence>
-      {project && statusStyle && (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 30, rotateX: -14, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 20, rotateX: -10, scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 200, damping: 24, mass: 0.9 }}
+      style={{ transformPerspective: 1400, transformOrigin: "top center" }}
+      className={`relative rounded-2xl rounded-t-none p-6 sm:p-8 md:p-10 shadow-[0_30px_70px_-20px_rgba(0,0,0,0.35)] border border-black/5 overflow-hidden ${paperClasses(file.paper)}`}
+    >
+      {/* masking tape, top corners — physical paper detail */}
+      <span className="absolute -top-2 left-8 w-14 h-6 bg-amber-100/70 -rotate-6 shadow-sm pointer-events-none" aria-hidden="true" />
+      <span className="absolute -top-2 right-10 w-14 h-6 bg-amber-100/70 rotate-3 shadow-sm pointer-events-none" aria-hidden="true" />
+      {/* folded corner (dog-ear) */}
+      <span
+        className="absolute top-0 right-0 w-6 h-6 pointer-events-none"
+        style={{ background: "linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.15) 50%)" }}
+        aria-hidden="true"
+      />
+
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-3">
+          <span className="w-9 h-9 rounded-md bg-black/15 flex items-center justify-center text-sm font-bold">
+            {file.number}
+          </span>
+          <h3 className="font-extrabold text-2xl sm:text-3xl tracking-tight">{file.title}</h3>
+        </div>
+        <StatusBadge status={file.status} />
+      </div>
+
+      <div className="grid lg:grid-cols-[1.1fr_1fr] gap-8 lg:gap-10">
+        <DeviceMockup file={file} />
+
+        {/* details — staggered reveal each time a project opens */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6"
-          role="dialog"
-          aria-modal="true"
-          aria-label={`${project.title} details`}
+          key={file.number}
+          initial="hidden"
+          animate="show"
+          variants={contentStagger}
+          className="flex flex-col gap-6"
         >
-          <div
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-            onClick={onClose}
-          />
-          <motion.div
-            initial={{ opacity: 0, y: 24, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 16, scale: 0.97 }}
-            transition={{ duration: 0.35, ease }}
-            className="relative z-10 w-full max-w-3xl max-h-[88vh] overflow-y-auto rounded-3xl
-                       bg-white border border-white/70 shadow-[0_30px_80px_-20px_rgba(15,23,42,0.4)]"
-          >
-            <button
-              onClick={onClose}
-              aria-label="Close project details"
-              className="absolute top-4 right-4 z-20 flex h-11 w-11 items-center justify-center rounded-full
-                         bg-white/90 backdrop-blur border border-slate-200 text-slate-600 hover:text-slate-900
-                         hover:bg-white transition-colors shadow-sm"
-            >
-              <X size={16} />
-            </button>
+          <motion.div variants={contentItem}>
+            <p className="text-xs font-bold uppercase tracking-wider opacity-60 mb-2">Project Overview</p>
+            <p className="text-sm sm:text-[15px] leading-relaxed opacity-90">{file.overview}</p>
+          </motion.div>
 
-            <div className="relative aspect-[16/9] overflow-hidden rounded-t-3xl">
-              <img
-                src={project.image}
-                alt={`${project.title} — full preview`}
-                className={`w-full h-full object-cover ${project.imagePosition}`}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-              <div className="absolute top-4 left-4">
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border backdrop-blur ${statusStyle.bg} ${statusStyle.text}`}>
-                  <span className={`inline-flex rounded-full h-1.5 w-1.5 ${statusStyle.dot}`} />
-                  {project.status}
-                </span>
-              </div>
-            </div>
-
-            <div className="p-6 sm:p-8">
-              <div className="flex items-start justify-between gap-4 flex-wrap mb-3">
-                <div>
-                  <span
-                    className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold tracking-wide border mb-3"
-                    style={{ background: `${project.accentColor}12`, borderColor: `${project.accentColor}30`, color: project.accentColor }}
-                  >
-                    {project.category}
-                  </span>
-                  <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{project.title}</h3>
-                </div>
-                <span className="text-xs font-bold text-slate-400 mt-1">{project.year}</span>
-              </div>
-
-              <p className="text-slate-500 text-sm sm:text-base leading-relaxed mb-6 max-w-2xl">
-                {project.desc}
-              </p>
-
-              <div className="flex flex-wrap gap-2 mb-6">
-                {project.tags.map((tag) => (
-                  <TechChip key={tag} tag={tag} hovered={false} />
-                ))}
-              </div>
-
-              <div className="grid grid-cols-4 gap-2 rounded-2xl bg-slate-50 border border-slate-100 py-3.5 mb-6">
-                {[
-                  { label: "Screens", value: project.metrics.screens },
-                  { label: "Components", value: project.metrics.components },
-                  { label: "APIs", value: project.metrics.apis },
-                  { label: "Score", value: project.metrics.performance },
-                ].map((m) => (
-                  <div key={m.label} className="text-center">
-                    <p className="text-lg font-black text-slate-900 tabular-nums">{m.value}</p>
-                    <p className="text-[9px] font-bold uppercase tracking-wide text-slate-400">{m.label}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-sm font-bold">
-                <RippleLink
-                  href={project.live}
-                  className="inline-flex items-center justify-center gap-2 py-3 rounded-xl text-white
-                             bg-gradient-to-br from-primary to-blue-600 shadow-[0_8px_24px_rgba(29,111,235,0.35)]"
+          <motion.div variants={contentItem}>
+            <p className="text-xs font-bold uppercase tracking-wider opacity-60 mb-2">Key Features</p>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5">
+              {file.features.map((f, i) => (
+                <motion.li
+                  key={f}
+                  variants={contentItem}
+                  transition={{ duration: 0.35, delay: 0.05 * i }}
+                  className="flex items-start gap-1.5 text-sm opacity-90"
                 >
-                  <ExternalLink size={14} strokeWidth={2.25} />
-                  {project.liveLabel}
-                </RippleLink>
-                <RippleLink
-                  href={project.github ?? project.live}
-                  className="inline-flex items-center justify-center gap-2 py-3 rounded-xl text-slate-700
-                             bg-white hover:bg-slate-50 border border-slate-200 transition-colors"
+                  <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0 opacity-70" /> {f}
+                </motion.li>
+              ))}
+            </ul>
+          </motion.div>
+
+          <motion.div variants={contentItem} className="flex flex-wrap gap-2">
+            {file.tech.map((t, i) => {
+              const meta = TECH_ICONS[t];
+              return (
+                <motion.span
+                  key={t}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, delay: 0.4 + i * 0.06 }}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-black/10 text-xs font-semibold"
                 >
-                  <SiGithub size={14} />
-                  GitHub
-                </RippleLink>
-                <RippleLink
-                  href={project.caseStudy}
-                  className="inline-flex items-center justify-center gap-2 py-3 rounded-xl text-slate-700
-                             bg-white hover:bg-slate-50 border border-slate-200 transition-colors"
-                >
-                  <FileText size={14} strokeWidth={2.25} />
-                  Full Case Study
-                </RippleLink>
-              </div>
-            </div>
+                  {meta && <meta.Icon size={12} style={{ color: meta.color }} />}
+                  {t}
+                </motion.span>
+              );
+            })}
+          </motion.div>
+
+          <motion.div variants={contentItem} className="grid grid-cols-2 gap-3 pt-1">
+            {file.stats.map((s, i) => (
+              <motion.div
+                key={s.label}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: 0.5 + i * 0.08 }}
+                className="relative rounded-lg bg-black/10 px-3 py-2"
+              >
+                <div className="font-extrabold text-lg">{s.value}</div>
+                <div className="text-[11px] opacity-70 uppercase tracking-wide">{s.label}</div>
+                {/* blue marker circle on the first stat — notebook doodle */}
+                {i === 0 && (
+                  <svg className="absolute -inset-1.5 pointer-events-none" viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true">
+                    <ellipse cx="50" cy="25" rx="46" ry="20" fill="none" stroke="#1c4fd6" strokeWidth="2" opacity="0.35" />
+                  </svg>
+                )}
+              </motion.div>
+            ))}
+          </motion.div>
+
+          <motion.div variants={contentItem} className="flex flex-wrap gap-3 pt-1">
+            {file.caseStudy && (
+              
+                href={file.caseStudy}
+                className="interactive touch-manipulation inline-flex items-center gap-2 px-5 py-3 rounded-full bg-black/90 text-white text-sm font-bold hover:bg-black active:scale-95 transition-all"
+              >
+                <FileText size={15} /> View Case Study <ArrowRight size={15} />
+              </a>
+            )}
+            {file.live && (
+              
+                href={file.live}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="interactive touch-manipulation inline-flex items-center gap-2 px-5 py-3 rounded-full border border-current text-sm font-bold hover:bg-black/10 active:scale-95 transition-all"
+              >
+                <ExternalLink size={15} /> Live Website
+              </a>
+            )}
+            {file.github && (
+              
+                href={file.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="interactive touch-manipulation inline-flex items-center justify-center w-11 h-11 rounded-full border border-current hover:bg-black/10 active:scale-95 transition-all"
+                aria-label={`GitHub repository for ${file.title}`}
+              >
+                <Github size={17} />
+              </a>
+            )}
           </motion.div>
         </motion.div>
-      )}
-    </AnimatePresence>
+      </div>
+    </motion.div>
   );
-}
+});
 
-/* ── main section ─────────────────────────────────────────── */
 export default function Projects() {
-  const [activeFilter, setActiveFilter] = useState("All");
-  const [selectedProject, setSelectedProject] = useState<(typeof PROJECTS)[number] | null>(null);
-  const reducedMotion = usePrefersReducedMotion();
-  const headerRef = useRef(null);
-  const headerInView = useInView(headerRef, { once: true, margin: "-80px" });
-  const gridRef = useRef<HTMLDivElement>(null);
+  const [filter, setFilter] = useState("All");
+  const [activeNumber, setActiveNumber] = useState(FILES[FILES.length - 1].number);
 
-  const filtered = PROJECTS.filter((p) =>
-    activeFilter === "Featured" ? p.featured : p.filter.includes(activeFilter)
+  const visible = useMemo(
+    () => FILES.filter((f) => filter === "All" || f.category.includes(filter)),
+    [filter]
   );
 
-  const hero = filtered.find((p) => p.shape === "hero");
-  const tallCards = filtered.filter((p) => p.shape === "tall");
-  const wideCards = filtered.filter((p) => p.shape === "wide");
-  const medCards = filtered.filter((p) => p.shape === "med");
-  const rest = filtered.filter((p) => p.shape !== "hero");
+  useEffect(() => {
+    if (!visible.find((f) => f.number === activeNumber) && visible.length > 0) {
+      setActiveNumber(visible[visible.length - 1].number);
+    }
+  }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const active = visible.find((f) => f.number === activeNumber) ?? visible[visible.length - 1];
+  const stacked = visible.filter((f) => f.number !== active?.number);
 
   return (
-    <section id="projects" className="relative py-28 md:py-36 overflow-hidden">
-      <ProjectsBackdrop />
+    <section id="projects" className="section-padding relative overflow-hidden section-wrap max-w-full bg-[#faf7f0]">
+      <style>{HANDWRITTEN_FONT_IMPORT}</style>
 
-      <div className="max-w-[1440px] mx-auto px-6 sm:px-8 lg:px-12">
+      {/* subtle paper grid texture, scoped to this section only */}
+      <div
+        className="absolute inset-0 z-0 opacity-[0.4] pointer-events-none"
+        style={{ backgroundImage: "linear-gradient(#00000008 1px, transparent 1px), linear-gradient(90deg, #00000008 1px, transparent 1px)", backgroundSize: "28px 28px" }}
+      />
+      {/* faint coffee-stain ring, purely decorative */}
+      <div className="absolute top-24 left-[4%] w-28 h-28 rounded-full border-[6px] border-amber-900/[0.06] pointer-events-none hidden md:block" />
+      <div className="absolute bottom-40 right-[6%] w-16 h-16 rounded-full border-[4px] border-amber-900/[0.05] pointer-events-none hidden lg:block" />
 
-        {/* ── Header: intro (left) + filter pills (right) ── */}
-        <div ref={headerRef} className="grid grid-cols-1 lg:grid-cols-[1.1fr_auto] gap-10 lg:gap-8 items-start mb-14">
+      {/* hand-drawn arrow doodle, pointing toward the sticky note */}
+      <svg className="absolute top-20 left-[38%] w-16 h-10 text-[#1c4fd6] opacity-40 pointer-events-none hidden lg:block" viewBox="0 0 60 40" fill="none" aria-hidden="true">
+        <path d="M2 34 Q 20 10, 50 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M42 4 L50 10 L44 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      </svg>
+
+      <div className="container-tight relative z-10 max-w-full">
+        {/* ── header ── */}
+        <div className="grid lg:grid-cols-2 gap-8 items-start mb-14">
           <div>
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={headerInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, ease }}
-              className="inline-flex items-center gap-2 mb-6"
+            <span
+              className="inline-block px-3 py-1 mb-4 bg-[#1c4fd6] text-white text-xs font-bold tracking-widest uppercase"
+              style={{ clipPath: "polygon(0 0, 100% 4%, 98% 100%, 2% 96%)" }}
             >
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest
-                               bg-white/80 backdrop-blur border border-blue-100 text-primary shadow-[0_2px_12px_rgba(29,111,235,0.08)]">
-                <Rocket size={12} />
-                Featured Work
-              </span>
-            </motion.div>
-
-            <h2 className="text-4xl sm:text-5xl md:text-[3.4rem] font-serif font-black tracking-tight text-slate-900 mb-6 leading-[1.05]">
-              <SplitText type="words">Projects That</SplitText>{" "}
-              <span
-                className="relative z-10"
-                style={{
-                  background: "linear-gradient(135deg, #1d6feb 0%, #2563eb 45%, #60a5fa 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
+              Portfolio
+            </span>
+            <div className="relative inline-block mb-3">
+              <h2
+                className="text-6xl sm:text-7xl font-bold text-slate-900"
+                style={{ ...hand, transform: "rotate(-1deg)" }}
               >
-                <SplitText type="words" delay={0.2}>Create Impact.</SplitText>
+                Projects
+              </h2>
+              <svg className="absolute -bottom-2 left-0 w-full" height="10" viewBox="0 0 300 10" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M2,6 Q150,10 298,4" stroke="#1c4fd6" strokeWidth="3" fill="none" strokeLinecap="round" />
+              </svg>
+            </div>
+            <p className="text-lg text-slate-600 max-w-md leading-relaxed" style={handNote}>
+              Each project is a story of problem solving, learning, late nights, and a little bit
+              of{" "}
+              <span className="relative inline-block text-slate-900 font-bold">
+                impact
+                <svg className="absolute -bottom-1 left-0 w-full" height="8" viewBox="0 0 80 8" preserveAspectRatio="none" aria-hidden="true">
+                  <ellipse cx="40" cy="4" rx="38" ry="3" fill="none" stroke="#1c4fd6" strokeWidth="2" />
+                </svg>
               </span>
-            </h2>
-
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={headerInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.55, delay: 0.25, ease }}
-              className="text-slate-500 text-base md:text-lg max-w-xl leading-relaxed mb-8"
-            >
-              A curated collection of products, platforms and digital experiences —
-              built with performance, creativity and modern technology.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={headerInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.55, delay: 0.35, ease }}
-              className="mb-8"
-            >
-              <StatsRow />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={headerInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.55, delay: 0.45, ease }}
-            >
-              <Magnetic range={70} strength={0.35} scaleHover={1.03}>
-                <button
-                  onClick={() => {
-                    setActiveFilter("All");
-                    const el = gridRef.current;
-                    if (!el) return;
-                    const lenis = (window as typeof window & { lenis?: { scrollTo: (target: HTMLElement, opts?: Record<string, unknown>) => void } }).lenis;
-                    if (lenis) {
-                      lenis.scrollTo(el, { offset: -24, duration: 1.2 });
-                    } else {
-                      el.scrollIntoView({ behavior: "smooth", block: "start" });
-                    }
-                  }}
-                  className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl
-                             bg-gradient-to-br from-primary to-blue-600 text-white text-sm font-black
-                             shadow-[0_10px_32px_rgba(29,111,235,0.35)] hover:shadow-[0_14px_40px_rgba(29,111,235,0.45)]
-                             transition-shadow duration-300"
-                >
-                  View All Projects
-                  <RiArrowRightLine size={16} />
-                </button>
-              </Magnetic>
-            </motion.div>
+              .
+            </p>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={headerInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: 0.3, ease }}
-            className="lg:pt-2"
-          >
-            <FilterPills active={activeFilter} onChange={setActiveFilter} />
-          </motion.div>
+          {/* sticky note */}
+          <div className="relative justify-self-start lg:justify-self-end max-w-xs">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-6 bg-amber-100/80 rotate-2 shadow-sm" aria-hidden="true" />
+            <div
+              className="relative bg-[#fdf6d8] p-5 shadow-[0_10px_30px_-8px_rgba(0,0,0,0.25)] rotate-2"
+              style={handNote}
+            >
+              <p className="text-xs font-bold tracking-wider text-slate-500 mb-2">A QUICK NOTE</p>
+              <p className="text-slate-800 leading-snug">
+                Worth a look. Every project below solved a real problem —
+                <Paperclip className="inline w-4 h-4 -mt-1 ml-1 text-slate-400" />
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* ── Bento grid ── */}
-        <div ref={gridRef} className="scroll-mt-24">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeFilter}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="flex flex-col gap-6"
+        {/* ── filters ── */}
+        <div className="flex flex-wrap gap-2 mb-10">
+          {FILTERS.map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`interactive relative px-4 py-2 rounded-full text-sm font-bold transition-colors duration-200 ${
+                filter === f ? "text-white" : "text-slate-600 hover:text-slate-900"
+              }`}
             >
-              {(hero || tallCards.length > 0) && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-                  {hero && (
-                    <div className="sm:col-span-2 lg:col-span-2">
-                      <HeroCard project={hero} onOpen={() => setSelectedProject(hero)} />
-                    </div>
-                  )}
-                  {tallCards.map((p, i) => (
-                    <div key={p.id} className="lg:col-span-1">
-                      <BentoCard project={p} index={i} aspect="aspect-[4/5]" onOpen={() => setSelectedProject(p)} />
-                    </div>
-                  ))}
-                </div>
+              {filter === f && (
+                <motion.span layoutId="proj-filter-pill" className="absolute inset-0 rounded-full bg-[#1c4fd6] -z-10" transition={{ type: "spring", stiffness: 350, damping: 30 }} />
               )}
+              {f}
+            </button>
+          ))}
+        </div>
 
-              {(wideCards.length > 0 || medCards.length > 0) && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-                  {wideCards.map((p, i) => (
-                    <div key={p.id} className="sm:col-span-2 lg:col-span-2">
-                      <BentoCard project={p} index={i} aspect="aspect-video" onOpen={() => setSelectedProject(p)} />
-                    </div>
-                  ))}
-                  {medCards.map((p, i) => (
-                    <div key={p.id} className="lg:col-span-1">
-                      <BentoCard project={p} index={i + wideCards.length} aspect="aspect-video" onOpen={() => setSelectedProject(p)} />
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {!hero && rest.length === 0 && (
-                <div className="py-20 text-center text-slate-400 text-sm font-semibold">
-                  No projects in this category yet — check back soon.
-                </div>
-              )}
-            </motion.div>
+        {/* ── the stack ── */}
+        <div className="max-w-4xl mx-auto">
+          <div className="flex flex-col">
+            <AnimatePresence initial={false}>
+              {stacked
+                .slice()
+                .sort((a, b) => Number(b.number) - Number(a.number))
+                .map((f, i) => (
+                  <CollapsedFile key={f.number} file={f} offset={i} onClick={() => setActiveNumber(f.number)} />
+                ))}
+            </AnimatePresence>
+          </div>
+          <AnimatePresence mode="wait" initial={false}>
+            {active && <ExpandedFile key={active.number} file={active} />}
           </AnimatePresence>
         </div>
-
-        {/* ── Bottom: infinite tech marquee ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.6, ease }}
-          className="mt-16 md:mt-20"
-        >
-          <TechMarquee paused={reducedMotion} />
-        </motion.div>
-
       </div>
-
-      <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
     </section>
   );
 }
