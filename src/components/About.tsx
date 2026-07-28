@@ -1,5 +1,11 @@
 import { useRef, useMemo } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  useReducedMotion,
+} from "framer-motion";
 import {
   SiReact,
   SiNextdotjs,
@@ -14,7 +20,6 @@ import {
   SiFigma,
 } from "react-icons/si";
 import { VscVscode } from "react-icons/vsc";
-import { Paperclip, ArrowDownRight } from "lucide-react";
 import profilePhoto from "../assets/images/profile-nobg.png";
 import SplitText from "@/components/ui/SplitText";
 
@@ -25,6 +30,7 @@ const ease = [0.16, 1, 0.3, 1] as const;
    ──────────────────────────────────────────────────────────── */
 
 function Marker({ children, delay = 0 }: { children: string; delay?: number }) {
+  const rm = useReducedMotion();
   return (
     <span className="relative inline-block px-1 whitespace-nowrap">
       <motion.span
@@ -32,7 +38,7 @@ function Marker({ children, delay = 0 }: { children: string; delay?: number }) {
         initial={{ scaleX: 0 }}
         whileInView={{ scaleX: 1 }}
         viewport={{ once: false, margin: "-60px" }}
-        transition={{ duration: 0.55, delay, ease: "easeOut" }}
+        transition={{ duration: rm ? 0.2 : 0.55, delay: rm ? 0 : delay, ease: "easeOut" }}
         className="absolute inset-x-0 bottom-[0.06em] h-[0.42em] bg-primary/35 rounded-[2px] origin-left -z-[1]"
         style={{ transform: "skewX(-6deg)" }}
       />
@@ -54,12 +60,13 @@ function HandwrittenNote({
   className?: string;
   delay?: number;
 }) {
+  const rm = useReducedMotion();
   return (
     <motion.p
       initial={{ clipPath: "inset(0 100% 0 0)", opacity: 0 }}
       whileInView={{ clipPath: "inset(0 0% 0 0)", opacity: 1 }}
       viewport={{ once: false, margin: "-60px" }}
-      transition={{ duration: 1.1, delay, ease: "easeInOut" }}
+      transition={{ duration: rm ? 0.3 : 1.1, delay: rm ? 0 : delay, ease: "easeInOut" }}
       className={`font-hand text-primary/90 leading-snug ${className}`}
     >
       {children}
@@ -68,20 +75,211 @@ function HandwrittenNote({
 }
 
 /* ────────────────────────────────────────────────────────────
-   Masking tape strip
+   Typewriter caption — small stamped, monospaced label
    ──────────────────────────────────────────────────────────── */
 
-function Tape({ className = "", rotate = -4 }: { className?: string; rotate?: number }) {
+function TypewriterCaption({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div
-      className={`absolute w-16 h-6 sm:w-20 sm:h-7 bg-amber-100/70 border border-amber-200/50 shadow-sm pointer-events-none ${className}`}
+    <span
+      className={`inline-flex items-center gap-1 font-mono text-[9px] sm:text-[10px] uppercase tracking-[0.16em] text-slate-500 bg-white/70 px-2 py-1 border border-slate-200/70 ${className}`}
+    >
+      {children}
+    </span>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   Masking / washi tape strip — now interactive, lifts on hover
+   ──────────────────────────────────────────────────────────── */
+
+function Tape({
+  className = "",
+  rotate = -4,
+  color = "amber",
+}: {
+  className?: string;
+  rotate?: number;
+  color?: "amber" | "blue";
+}) {
+  const bg = color === "blue" ? "rgba(191,219,254,0.55)" : "rgba(253,230,138,0.6)";
+  const border = color === "blue" ? "rgba(147,197,253,0.6)" : "rgba(252,211,77,0.55)";
+  return (
+    <motion.div
+      initial={{ rotate }}
+      whileHover={{ rotate: rotate * 0.3, y: -2, scale: 1.04 }}
+      transition={{ type: "spring", stiffness: 300, damping: 18 }}
+      className={`absolute w-16 h-6 sm:w-20 sm:h-7 shadow-sm pointer-events-auto ${className}`}
       style={{
-        transform: `rotate(${rotate}deg)`,
+        backgroundColor: bg,
+        border: `1px solid ${border}`,
         backdropFilter: "blur(1px)",
         backgroundImage:
-          "repeating-linear-gradient(45deg, rgba(255,255,255,0.25) 0, rgba(255,255,255,0.25) 2px, transparent 2px, transparent 6px)",
+          "repeating-linear-gradient(45deg, rgba(255,255,255,0.3) 0, rgba(255,255,255,0.3) 2px, transparent 2px, transparent 6px)",
       }}
     />
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   Realistic paper clip — silver double-stroke SVG, wiggles on hover
+   ──────────────────────────────────────────────────────────── */
+
+function RealPaperClip({ className = "", rotate = -8 }: { className?: string; rotate?: number }) {
+  return (
+    <motion.svg
+      className={`absolute pointer-events-none drop-shadow-md ${className}`}
+      style={{ rotate }}
+      whileHover={{ rotate: rotate + 10 }}
+      transition={{ type: "spring", stiffness: 260, damping: 12 }}
+      width="20"
+      height="46"
+      viewBox="0 0 22 52"
+      fill="none"
+    >
+      <path
+        d="M11 4C5 4 2 8 2 14v24c0 6 4 10 9 10s9-4 9-9V12.5c0-3.5-2.5-6-6-6s-6 2.5-6 6V36"
+        stroke="#94a3b8"
+        strokeWidth="3.2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M11 4C5 4 2 8 2 14v24c0 6 4 10 9 10s9-4 9-9V12.5c0-3.5-2.5-6-6-6s-6 2.5-6 6V36"
+        stroke="#e2e8f0"
+        strokeWidth="1.1"
+        strokeLinecap="round"
+      />
+    </motion.svg>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   Coffee ring stain & soft ink smudge — pure decoration
+   ──────────────────────────────────────────────────────────── */
+
+function CoffeeStain({ className = "", size = 90 }: { className?: string; size?: number }) {
+  return (
+    <div
+      aria-hidden="true"
+      className={`absolute rounded-full pointer-events-none ${className}`}
+      style={{
+        width: size,
+        height: size,
+        background:
+          "radial-gradient(circle, transparent 54%, rgba(120,72,32,0.16) 58%, rgba(120,72,32,0.1) 64%, transparent 68%)",
+        mixBlendMode: "multiply",
+      }}
+    />
+  );
+}
+
+function InkSmudge({ className = "", size = 44 }: { className?: string; size?: number }) {
+  return (
+    <div
+      aria-hidden="true"
+      className={`absolute rounded-full pointer-events-none blur-[7px] ${className}`}
+      style={{
+        width: size,
+        height: size,
+        background: "radial-gradient(circle, rgba(29,111,235,0.16), transparent 70%)",
+      }}
+    />
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   Hand-drawn doodle — small decorative squiggles & sparks
+   ──────────────────────────────────────────────────────────── */
+
+const doodlePaths: Record<string, string> = {
+  star: "M16 2 L18.5 13 L29 15 L18.5 17 L16 28 L13.5 17 L3 15 L13.5 13 Z",
+  swirl: "M6 20 C 2 12, 14 6, 20 12 C 26 18, 16 24, 12 18 C 9 13, 16 11, 19 15",
+  underline: "M2 20 C 10 14, 22 14, 30 20",
+  spark: "M16 4 L17.5 13 L26 16 L17.5 19 L16 28 L14.5 19 L6 16 L14.5 13 Z",
+};
+
+function Doodle({
+  type = "star",
+  className = "",
+  delay = 0,
+  size = 30,
+}: {
+  type?: keyof typeof doodlePaths;
+  className?: string;
+  delay?: number;
+  size?: number;
+}) {
+  const rm = useReducedMotion();
+  return (
+    <motion.svg
+      aria-hidden="true"
+      className={`absolute pointer-events-none text-primary/35 ${className}`}
+      width={size}
+      height={size}
+      viewBox="0 0 32 32"
+      fill="none"
+      initial={{ opacity: 0, scale: 0.6, rotate: -8 }}
+      whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+      viewport={{ once: false, margin: "-40px" }}
+      transition={{ duration: rm ? 0.2 : 0.6, delay: rm ? 0 : delay, ease: "backOut" }}
+    >
+      <path
+        d={doodlePaths[type]}
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill={type === "star" || type === "spark" ? "currentColor" : "none"}
+        fillOpacity={0.15}
+      />
+    </motion.svg>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   Achievement stamp — passport-style ink stamp badge
+   ──────────────────────────────────────────────────────────── */
+
+function Stamp({
+  label,
+  sub,
+  rotate = -6,
+  color = "#1d6feb",
+  delay = 0,
+}: {
+  label: string;
+  sub?: string;
+  rotate?: number;
+  color?: string;
+  delay?: number;
+}) {
+  const rm = useReducedMotion();
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 1.5, rotate: 0 }}
+      whileInView={{ opacity: 0.88, scale: 1, rotate }}
+      viewport={{ once: false, margin: "-40px" }}
+      transition={{ duration: rm ? 0.25 : 0.5, delay: rm ? 0 : delay, ease: "backOut" }}
+      whileHover={{ scale: 1.08, rotate: rotate * 0.5 }}
+      className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full flex flex-col items-center justify-center text-center select-none"
+      style={{
+        border: `2.5px solid ${color}`,
+        color,
+        mixBlendMode: "multiply",
+      }}
+    >
+      <div
+        className="absolute inset-[6px] rounded-full border border-dashed"
+        style={{ borderColor: `${color}90` }}
+      />
+      <span className="font-mono font-bold uppercase text-[10px] sm:text-[11px] tracking-wider leading-tight px-3">
+        {label}
+      </span>
+      {sub && (
+        <span className="font-mono text-[8px] sm:text-[9px] uppercase tracking-wide mt-1 opacity-80">
+          {sub}
+        </span>
+      )}
+    </motion.div>
   );
 }
 
@@ -104,16 +302,18 @@ function StickyNote({
   className?: string;
   delay?: number;
 }) {
+  const rm = useReducedMotion();
   return (
     <motion.div
-      initial={{ opacity: 0, y: -60, rotate: 0 }}
+      initial={{ opacity: 0, y: rm ? 0 : -60, rotate: 0 }}
       whileInView={{ opacity: 1, y: 0, rotate }}
       viewport={{ once: false, margin: "-60px" }}
-      transition={{ duration: 0.7, delay, ease: "backOut" }}
-      whileHover={{ rotate: rotate * 0.4, scale: 1.03 }}
+      transition={{ duration: rm ? 0.3 : 0.7, delay: rm ? 0 : delay, ease: "backOut" }}
+      whileHover={{ rotate: rotate * 0.4, scale: 1.04, y: -3 }}
       className={`relative w-48 sm:w-56 p-4 shadow-[0_14px_28px_-12px_rgba(70,50,20,0.35)] ${className}`}
       style={{ backgroundColor: color }}
     >
+      <RealPaperClip className="-top-5 -left-1.5" rotate={-14} />
       {title && (
         <p className="font-hand text-lg text-slate-700 mb-1.5 border-b border-slate-400/30 pb-1">
           {title}
@@ -139,12 +339,13 @@ function TornPaper({
   rotate?: number;
   delay?: number;
 }) {
+  const rm = useReducedMotion();
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: rm ? 0 : 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: false, margin: "-60px" }}
-      transition={{ duration: 0.6, delay, ease }}
+      transition={{ duration: rm ? 0.3 : 0.6, delay: rm ? 0 : delay, ease }}
       whileHover={{ rotate: rotate + (rotate >= 0 ? 1.5 : -1.5), y: -3 }}
       className={`relative bg-[#fdfaf3] shadow-[0_10px_24px_-10px_rgba(70,50,20,0.3)] ${className}`}
       style={{
@@ -175,22 +376,36 @@ function FloatingSticker({
   duration?: number;
   rotate?: number;
 }) {
+  const rm = useReducedMotion();
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.6 }}
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: false, margin: "-40px" }}
-      transition={{ duration: 0.6, delay, ease: "backOut" }}
+      transition={{ duration: rm ? 0.25 : 0.6, delay: rm ? 0 : delay, ease: "backOut" }}
       className={`absolute hidden lg:flex items-center justify-center pointer-events-none ${className}`}
     >
       <motion.div
-        animate={{ y: [0, -12, 0], rotate: [rotate, rotate + 6, rotate] }}
-        transition={{ duration, delay, repeat: Infinity, ease: "easeInOut" }}
+        animate={rm ? {} : { y: [0, -12, 0], rotate: [rotate, rotate + 6, rotate] }}
+        transition={{ duration, delay, repeat: rm ? 0 : Infinity, ease: "easeInOut" }}
         className="w-11 h-11 rounded-xl bg-white/85 backdrop-blur-sm border border-slate-200/70 shadow-[0_10px_22px_-8px_rgba(70,50,20,0.35)] flex items-center justify-center"
       >
         {children}
       </motion.div>
     </motion.div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   Layered paper stack — gives the notebook physical thickness
+   ──────────────────────────────────────────────────────────── */
+
+function PaperStack() {
+  return (
+    <>
+      <div className="absolute inset-x-3 -bottom-2 top-3 rounded-[20px] sm:rounded-[28px] bg-[#f3e8cf] -rotate-1 -z-10 shadow-[0_20px_40px_-20px_rgba(70,50,20,0.3)]" />
+      <div className="absolute inset-x-2 -bottom-3 top-2 rounded-[20px] sm:rounded-[28px] bg-[#ede0c2] rotate-[0.6deg] -z-20 shadow-[0_20px_40px_-20px_rgba(70,50,20,0.25)]" />
+    </>
   );
 }
 
@@ -245,7 +460,7 @@ function TechScatter() {
 }
 
 /* ────────────────────────────────────────────────────────────
-   Favorite things — mini torn-paper cards
+   Favorite things — scrapbook stickers (die-cut circles)
    ──────────────────────────────────────────────────────────── */
 
 const favorites = [
@@ -257,24 +472,34 @@ const favorites = [
   { emoji: "🌿", label: "Nature" },
 ];
 
-const favRotate = [-4, 3, -2, 5, -5, 2];
+const favRotate = [-7, 5, -3, 8, -6, 4];
 
 function FavoriteThings() {
   return (
-    <div className="grid grid-cols-3 gap-3 sm:gap-4">
+    <div className="flex flex-wrap gap-4 sm:gap-5">
       {favorites.map((f, i) => (
         <motion.div
           key={f.label}
-          initial={{ opacity: 0, scale: 0.7, y: 16 }}
+          initial={{ opacity: 0, scale: 0.5, y: 16 }}
           whileInView={{ opacity: 1, scale: 1, y: 0 }}
           viewport={{ once: false, margin: "-40px" }}
-          transition={{ duration: 0.45, delay: 0.05 * i, ease: "backOut" }}
-          whileHover={{ scale: 1.06, rotate: 0 }}
+          transition={{ duration: 0.45, delay: 0.06 * i, ease: "backOut" }}
+          whileHover={{ scale: 1.12, rotate: 0, y: -4 }}
           style={{ rotate: favRotate[i] }}
-          className="bg-[#fdfaf3] rounded-sm p-3 text-center shadow-[0_8px_18px_-10px_rgba(70,50,20,0.4)] border border-slate-200/50"
+          className="relative w-[4.5rem] h-[4.5rem] sm:w-20 sm:h-20 rounded-full bg-white p-[3px]
+                     shadow-[0_10px_20px_-8px_rgba(70,50,20,0.45)] ring-1 ring-slate-200/70 cursor-default"
         >
-          <div className="text-xl sm:text-2xl mb-1">{f.emoji}</div>
-          <div className="font-hand text-xs sm:text-sm text-slate-600 leading-tight">{f.label}</div>
+          <div className="w-full h-full rounded-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-white overflow-hidden">
+            <span className="text-lg sm:text-xl leading-none">{f.emoji}</span>
+            <span className="font-hand text-[10px] sm:text-[11px] text-slate-600 mt-0.5 leading-none text-center px-1">
+              {f.label}
+            </span>
+          </div>
+          {/* peeled corner */}
+          <div
+            className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-white shadow-sm"
+            style={{ clipPath: "polygon(100% 0, 0 100%, 100% 100%)" }}
+          />
         </motion.div>
       ))}
     </div>
@@ -290,6 +515,7 @@ const dailyFuel = ["Chai", "Music", "Focus", "Curiosity", "Discipline"];
 function DailyFuel() {
   return (
     <TornPaper rotate={2} delay={0.1} className="p-5 sm:p-6 w-full max-w-[15rem]">
+      <CoffeeStain className="-top-4 -right-4" size={64} />
       <p className="font-hand text-lg text-slate-700 mb-3 border-b border-slate-300/60 pb-1.5">
         Daily Fuel
       </p>
@@ -335,6 +561,7 @@ function DailyFuel() {
    ──────────────────────────────────────────────────────────── */
 
 function DrawnArrow({ className = "", path, delay = 0 }: { className?: string; path: string; delay?: number }) {
+  const rm = useReducedMotion();
   return (
     <svg
       aria-hidden="true"
@@ -353,9 +580,101 @@ function DrawnArrow({ className = "", path, delay = 0 }: { className?: string; p
         initial={{ pathLength: 0, opacity: 0 }}
         whileInView={{ pathLength: 1, opacity: 0.55 }}
         viewport={{ once: false }}
-        transition={{ duration: 1.4, delay, ease: "easeInOut" }}
+        transition={{ duration: rm ? 0.3 : 1.4, delay: rm ? 0 : delay, ease: "easeInOut" }}
       />
     </svg>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   Journey timeline — handcrafted milestone path
+   ──────────────────────────────────────────────────────────── */
+
+const journey = [
+  { emoji: "💻", label: "First Line of Code", note: "curiosity + a slow laptop" },
+  { emoji: "🎨", label: "Learned UI/UX", note: "started designing with intent" },
+  { emoji: "🚀", label: "First Client Project", note: "real problems, real deadlines" },
+  { emoji: "🎬", label: "Picked Up Editing", note: "stories deserve good cuts too" },
+  { emoji: "📦", label: "50+ Projects Shipped", note: "still counting" },
+  { emoji: "🌱", label: "Still Learning", note: "every single day" },
+];
+
+function JourneyTimeline() {
+  const rm = useReducedMotion();
+  return (
+    <div className="lg:col-span-2 relative px-6 sm:px-10 lg:px-14 py-12 sm:py-16 border-t border-dashed border-slate-300/60">
+      <InkSmudge className="top-4 left-10" size={50} />
+      <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-slate-400 mb-10 text-center">
+        The Journey So Far
+      </p>
+
+      {/* Desktop — curved dashed path with alternating milestones */}
+      <div className="hidden lg:block relative h-44">
+        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1000 100" preserveAspectRatio="none" fill="none">
+          <motion.path
+            d="M10 50 C 180 8, 340 92, 500 50 S 820 8, 990 50"
+            stroke="#1d6feb"
+            strokeWidth="1.5"
+            strokeDasharray="2 8"
+            strokeLinecap="round"
+            initial={{ pathLength: 0, opacity: 0 }}
+            whileInView={{ pathLength: 1, opacity: 0.5 }}
+            viewport={{ once: false, margin: "-100px" }}
+            transition={{ duration: rm ? 0.4 : 1.8, ease: "easeInOut" }}
+          />
+        </svg>
+        <div className="absolute inset-0 grid grid-cols-6">
+          {journey.map((step, i) => (
+            <motion.div
+              key={step.label}
+              initial={{ opacity: 0, y: rm ? 0 : i % 2 === 0 ? -14 : 14, scale: 0.7 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: false, margin: "-60px" }}
+              transition={{ duration: rm ? 0.25 : 0.5, delay: rm ? 0 : 0.15 * i, ease: "backOut" }}
+              whileHover={{ scale: 1.08, y: -4 }}
+              className={`flex flex-col items-center gap-2 text-center ${i % 2 === 0 ? "mt-2" : "mt-14"}`}
+            >
+              <div className="w-10 h-10 rounded-full bg-white shadow-[0_8px_16px_-6px_rgba(70,50,20,0.4)] border border-slate-200 flex items-center justify-center text-base">
+                {step.emoji}
+              </div>
+              <div className="max-w-[7.5rem]">
+                <p className="font-hand text-sm text-slate-700 leading-tight">{step.label}</p>
+                <p className="font-mono text-[8px] uppercase tracking-wide text-slate-400 mt-0.5">
+                  {step.note}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Mobile — vertical timeline */}
+      <div className="lg:hidden relative pl-8">
+        <div className="absolute left-[11px] top-2 bottom-2 border-l border-dashed border-primary/40" />
+        <div className="space-y-8">
+          {journey.map((step, i) => (
+            <motion.div
+              key={step.label}
+              initial={{ opacity: 0, x: rm ? 0 : -16 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: false, margin: "-40px" }}
+              transition={{ duration: rm ? 0.25 : 0.5, delay: rm ? 0 : 0.08 * i, ease }}
+              className="relative flex items-start gap-4"
+            >
+              <div className="absolute -left-8 top-0 w-6 h-6 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center text-xs">
+                {step.emoji}
+              </div>
+              <div>
+                <p className="font-hand text-lg text-slate-700 leading-tight">{step.label}</p>
+                <p className="font-mono text-[10px] uppercase tracking-wide text-slate-400 mt-0.5">
+                  {step.note}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -365,6 +684,7 @@ function DrawnArrow({ className = "", path, delay = 0 }: { className?: string; p
 
 export default function About() {
   const notebookRef = useRef<HTMLDivElement>(null);
+  const rm = useReducedMotion();
   const mx = useMotionValue(0.5);
   const my = useMotionValue(0.5);
   const springCfg = { stiffness: 120, damping: 20, mass: 0.7 };
@@ -372,6 +692,7 @@ export default function About() {
   const rotateY = useSpring(useTransform(mx, [0, 1], [-2, 2]), springCfg);
 
   const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (rm) return;
     const rect = notebookRef.current?.getBoundingClientRect();
     if (!rect) return;
     mx.set((e.clientX - rect.left) / rect.width);
@@ -402,8 +723,8 @@ export default function About() {
               width: i % 3 === 0 ? 3 : 2,
               height: i % 3 === 0 ? 3 : 2,
             }}
-            animate={{ y: [0, -22, 0], opacity: [0.1, 0.4, 0.1] }}
-            transition={{ duration: 7 + (i % 4), delay: i * 0.4, repeat: Infinity, ease: "easeInOut" }}
+            animate={rm ? {} : { y: [0, -22, 0], opacity: [0.1, 0.4, 0.1] }}
+            transition={{ duration: 7 + (i % 4), delay: i * 0.4, repeat: rm ? 0 : Infinity, ease: "easeInOut" }}
           />
         ))}
       </div>
@@ -447,8 +768,11 @@ export default function About() {
             <span className="text-lg">🌿</span>
           </FloatingSticker>
           <FloatingSticker className="-bottom-8 left-1/3" delay={0.5} duration={6.8} rotate={3}>
-            <Paperclip className="w-5 h-5 text-slate-400" strokeWidth={1.5} />
+            <RealPaperClip rotate={0} className="static" />
           </FloatingSticker>
+
+          {/* physical page thickness behind the notebook */}
+          <PaperStack />
 
           {/* ── Notebook body ── */}
           <motion.div
@@ -456,30 +780,33 @@ export default function About() {
             onMouseMove={handleMove}
             onMouseLeave={handleLeave}
             style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-            initial={{ opacity: 0, y: 50, scale: 0.98 }}
+            initial={{ opacity: 0, y: rm ? 0 : 50, scale: rm ? 1 : 0.98 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: false, margin: "-100px" }}
-            transition={{ duration: 1, ease }}
+            transition={{ duration: rm ? 0.4 : 1, ease }}
             className="relative rounded-[20px] sm:rounded-[28px] overflow-hidden
                        shadow-[0_2px_0_rgba(0,0,0,0.05)_inset,0_50px_100px_-30px_rgba(70,50,20,0.35)]
                        border border-[#e8dcc4]"
           >
             {/* leather-ish outer frame */}
-            <div className="absolute inset-0 pointer-events-none rounded-[20px] sm:rounded-[28px] ring-1 ring-inset ring-black/5" />
+            <div className="absolute inset-0 pointer-events-none rounded-[20px] sm:rounded-[28px] ring-1 ring-inset ring-black/5 z-30" />
 
             {/* folded corner (top-right) */}
-            <div
-              className="absolute top-0 right-0 w-10 h-10 sm:w-14 sm:h-14 z-20 pointer-events-none"
-              style={{
-                background: "linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.08) 50%)",
-              }}
-            />
             <div
               className="absolute top-0 right-0 w-10 h-10 sm:w-14 sm:h-14 z-20 pointer-events-none"
               style={{
                 clipPath: "polygon(100% 0, 0 0, 100% 100%)",
                 background: "linear-gradient(225deg, #f6ecd6, #e4d5ae)",
                 boxShadow: "-4px 4px 8px rgba(70,50,20,0.25)",
+              }}
+            />
+            {/* folded corner (bottom-left, subtler dog-ear) */}
+            <div
+              className="absolute bottom-0 left-0 w-7 h-7 sm:w-9 sm:h-9 z-20 pointer-events-none opacity-80"
+              style={{
+                clipPath: "polygon(0 100%, 0 0, 100% 100%)",
+                background: "linear-gradient(45deg, #f6ecd6, #e4d5ae)",
+                boxShadow: "4px -4px 8px rgba(70,50,20,0.2)",
               }}
             />
 
@@ -492,14 +819,23 @@ export default function About() {
                   "radial-gradient(circle at 15% 20%, rgba(255,255,255,0.5), transparent 40%), radial-gradient(circle at 85% 80%, rgba(255,255,255,0.4), transparent 40%), repeating-radial-gradient(circle at 50% 50%, rgba(120,90,40,0.025) 0, rgba(120,90,40,0.025) 1px, transparent 1px, transparent 3px)",
               }}
             >
-              {/* center spine */}
-              <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-6 -translate-x-1/2 z-10 pointer-events-none">
-                <div className="w-full h-full bg-gradient-to-r from-black/10 via-black/[0.03] to-black/10" />
-                <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-black/15" />
+              {/* center spine — deeper binding shadow */}
+              <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-10 -translate-x-1/2 z-10 pointer-events-none">
+                <div className="w-full h-full bg-gradient-to-r from-black/[0.14] via-black/[0.02] to-black/[0.14]" />
+                <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-black/20" />
+                {/* stitching dots */}
+                <div className="absolute inset-y-6 left-1/2 -translate-x-1/2 w-px flex flex-col justify-between">
+                  {Array.from({ length: 14 }).map((_, i) => (
+                    <span key={i} className="w-[3px] h-[3px] rounded-full bg-black/15 -ml-[1px]" />
+                  ))}
+                </div>
               </div>
 
               {/* ═══════════ LEFT PAGE ═══════════ */}
               <div className="relative px-6 py-10 sm:px-10 sm:py-14 lg:pr-14 lg:pl-12">
+                <CoffeeStain className="top-2 right-6 sm:right-10" size={70} />
+                <Doodle type="swirl" className="top-24 right-2 sm:right-6" delay={0.3} />
+
                 <div className="flex items-center justify-between mb-8 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-slate-400">
                   <span>01 — About Me</span>
                   <span>The Beginning</span>
@@ -507,10 +843,10 @@ export default function About() {
 
                 {/* headline with marker highlights */}
                 <motion.h3
-                  initial={{ opacity: 0, y: 24 }}
+                  initial={{ opacity: 0, y: rm ? 0 : 24 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: false, margin: "-80px" }}
-                  transition={{ duration: 0.7, ease }}
+                  transition={{ duration: rm ? 0.3 : 0.7, ease }}
                   className="font-serif font-extrabold text-[1.9rem] sm:text-4xl leading-[1.15] text-foreground mb-3"
                 >
                   I started learning <Marker delay={0.15}>CODE</Marker> because I
@@ -518,10 +854,10 @@ export default function About() {
                 </motion.h3>
 
                 <motion.p
-                  initial={{ opacity: 0, y: 18 }}
+                  initial={{ opacity: 0, y: rm ? 0 : 18 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: false, margin: "-80px" }}
-                  transition={{ duration: 0.6, delay: 0.15 }}
+                  transition={{ duration: rm ? 0.3 : 0.6, delay: rm ? 0 : 0.15 }}
                   className="font-serif text-lg sm:text-xl text-slate-500 leading-snug mb-8"
                 >
                   A boy from a tea garden in <Marker delay={0.5}>ASSAM</Marker>,
@@ -531,12 +867,13 @@ export default function About() {
 
                 {/* personal paragraph */}
                 <motion.div
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: rm ? 0 : 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: false, margin: "-60px" }}
-                  transition={{ duration: 0.6, delay: 0.25 }}
-                  className="text-slate-600 leading-relaxed mb-10 max-w-md"
+                  transition={{ duration: rm ? 0.3 : 0.6, delay: rm ? 0 : 0.25 }}
+                  className="relative text-slate-600 leading-relaxed mb-10 max-w-md"
                 >
+                  <InkSmudge className="-left-3 top-2" size={30} />
                   <p>
                     I didn't have expensive gadgets. I only had curiosity — and
                     a laptop that struggled to keep up with my ambition. Every
@@ -545,19 +882,20 @@ export default function About() {
                   </p>
                 </motion.div>
 
-                {/* silhouette + mountains */}
+                {/* silhouette — framed as a proper taped Polaroid */}
                 <div className="relative mb-10 max-w-xs">
                   <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, y: rm ? 0 : 30, rotate: 0 }}
+                    whileInView={{ opacity: 1, y: 0, rotate: -2 }}
                     viewport={{ once: false, margin: "-80px" }}
-                    transition={{ duration: 0.8, ease }}
-                    whileHover={{ y: -4 }}
-                    className="relative rounded-lg overflow-hidden"
+                    transition={{ duration: rm ? 0.3 : 0.8, ease: "backOut" }}
+                    whileHover={{ rotate: 0, y: -4, scale: 1.02 }}
+                    className="relative bg-white p-2.5 pb-9 shadow-[0_20px_40px_-16px_rgba(70,50,20,0.4)]"
                   >
+                    <Tape className="-top-3 left-8" rotate={-6} />
+                    <Tape className="-top-3 right-8" rotate={5} color="blue" />
                     <div
-                      className="relative aspect-[4/5] w-full overflow-hidden rounded-lg
-                                 shadow-[0_20px_40px_-16px_rgba(70,50,20,0.4)]"
+                      className="relative aspect-[4/5] w-full overflow-hidden"
                       style={{ background: "linear-gradient(180deg,#dfe9f5,#bcd0e6 60%,#9fb8d6)" }}
                     >
                       <img
@@ -571,7 +909,6 @@ export default function About() {
                         }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-primary/25 via-transparent to-amber-100/20" />
-                      {/* simple line-art mountains along the bottom */}
                       <svg
                         className="absolute bottom-0 left-0 w-full h-1/3 opacity-60"
                         viewBox="0 0 200 60"
@@ -585,27 +922,31 @@ export default function About() {
                         />
                       </svg>
                     </div>
-                    <p className="text-center text-[11px] font-mono uppercase tracking-widest text-slate-400 mt-2">
+                    <p className="font-hand text-base text-slate-600 text-center mt-2 leading-tight">
                       god's plan
                     </p>
                   </motion.div>
                 </div>
 
                 {/* handwritten note */}
-                <HandwrittenNote className="text-xl sm:text-2xl mb-10 -rotate-1 max-w-xs" delay={0.1}>
-                  "It started as curiosity. Then it became a way of thinking."
-                </HandwrittenNote>
+                <div className="relative mb-10 max-w-xs">
+                  <InkSmudge className="-top-2 left-2" size={26} />
+                  <HandwrittenNote className="text-xl sm:text-2xl -rotate-1" delay={0.1}>
+                    "It started as curiosity. Then it became a way of thinking."
+                  </HandwrittenNote>
+                </div>
 
                 {/* polaroid */}
                 <motion.div
-                  initial={{ opacity: 0, y: 30, rotate: 0 }}
+                  initial={{ opacity: 0, y: rm ? 0 : 30, rotate: 0 }}
                   whileInView={{ opacity: 1, y: 0, rotate: -4 }}
                   viewport={{ once: false, margin: "-60px" }}
-                  transition={{ duration: 0.7, ease: "backOut" }}
-                  whileHover={{ rotate: 0, scale: 1.03 }}
+                  transition={{ duration: rm ? 0.3 : 0.7, ease: "backOut" }}
+                  whileHover={{ rotate: 0, scale: 1.05, y: -3 }}
                   className="relative w-40 sm:w-48 bg-white p-2.5 pb-8 shadow-[0_16px_32px_-14px_rgba(70,50,20,0.4)]"
                 >
                   <Tape className="-top-3 left-1/2 -translate-x-1/2" rotate={-3} />
+                  <RealPaperClip className="-top-3 -right-2" rotate={20} />
                   <div className="w-full aspect-square overflow-hidden bg-slate-100">
                     <img
                       src={profilePhoto}
@@ -617,11 +958,16 @@ export default function About() {
                   <p className="font-hand text-sm text-slate-600 text-center mt-2 leading-tight">
                     A boy from a small tea garden in Assam.
                   </p>
+                  <TypewriterCaption className="absolute -bottom-3 right-2 rotate-2">
+                    est. assam
+                  </TypewriterCaption>
                 </motion.div>
               </div>
 
               {/* ═══════════ RIGHT PAGE ═══════════ */}
               <div className="relative px-6 py-10 sm:px-10 sm:py-14 lg:pl-14 lg:pr-12 border-t lg:border-t-0 border-dashed border-slate-300/60">
+                <Doodle type="spark" className="top-6 right-8" delay={0.2} size={24} />
+
                 <div className="flex items-center justify-between mb-8 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-slate-400">
                   <span>Why I Build</span>
                   <span>What Drives Me</span>
@@ -629,6 +975,7 @@ export default function About() {
 
                 {/* purpose torn paper */}
                 <TornPaper className="p-5 sm:p-6 mb-8 max-w-md" rotate={-1} delay={0.05}>
+                  <RealPaperClip className="-top-6 left-4" rotate={-10} />
                   <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-primary mb-2">
                     My Purpose
                   </p>
@@ -645,12 +992,13 @@ export default function About() {
 
                 {/* mission */}
                 <motion.blockquote
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: rm ? 0 : 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: false, margin: "-60px" }}
-                  transition={{ duration: 0.6, delay: 0.1 }}
-                  className="font-hand text-2xl sm:text-3xl text-primary leading-snug mb-10 max-w-md border-l-2 border-primary/40 pl-4"
+                  transition={{ duration: rm ? 0.3 : 0.6, delay: rm ? 0 : 0.1 }}
+                  className="relative font-hand text-2xl sm:text-3xl text-primary leading-snug mb-10 max-w-md border-l-2 border-primary/40 pl-4"
                 >
+                  <Doodle type="underline" className="-bottom-2 left-4" delay={0.4} size={54} />
                   "I want to build digital products that improve people's lives."
                 </motion.blockquote>
 
@@ -671,7 +1019,7 @@ export default function About() {
                 </div>
 
                 {/* daily fuel + sticky note row */}
-                <div className="flex flex-wrap items-start gap-6 sm:gap-8">
+                <div className="relative flex flex-wrap items-start gap-6 sm:gap-8">
                   <DailyFuel />
                   <StickyNote
                     title="Note to Self"
@@ -692,19 +1040,28 @@ export default function About() {
                 path="M10 10 C 60 20, 90 60, 140 90"
                 delay={0.4}
               />
-              <ArrowDownRight
-                className="hidden lg:block absolute top-[900px] left-1/2 -translate-x-1/2 w-6 h-6 text-primary/40 pointer-events-none"
-                strokeWidth={1.5}
-              />
+
+              {/* ═══════════ JOURNEY TIMELINE ═══════════ */}
+              <JourneyTimeline />
 
               {/* ═══════════ FULL-WIDTH ENDING STRIP ═══════════ */}
               <motion.div
-                initial={{ opacity: 0, y: 24 }}
+                initial={{ opacity: 0, y: rm ? 0 : 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: false, margin: "-80px" }}
-                transition={{ duration: 0.8, ease }}
+                transition={{ duration: rm ? 0.3 : 0.8, ease }}
                 className="lg:col-span-2 relative px-6 py-12 sm:px-10 sm:py-16 text-center border-t border-dashed border-slate-300/60"
               >
+                <Doodle type="star" className="top-6 left-[15%]" delay={0.1} size={22} />
+                <Doodle type="star" className="bottom-8 right-[18%]" delay={0.3} size={18} />
+
+                {/* achievement stamps */}
+                <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mb-10">
+                  <Stamp label="Self-Taught" sub="since day one" rotate={-8} color="#1d6feb" delay={0} />
+                  <Stamp label="50+ Projects" sub="and counting" rotate={5} color="#b91c1c" delay={0.15} />
+                  <Stamp label="3+ Years" sub="of building" rotate={-4} color="#1d6feb" delay={0.3} />
+                </div>
+
                 <p className="font-hand text-3xl sm:text-4xl md:text-5xl text-foreground leading-snug mb-3">
                   Still figuring things out.
                 </p>
