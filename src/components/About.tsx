@@ -4,6 +4,7 @@ import {
   useMotionValue,
   useSpring,
   useTransform,
+  useMotionTemplate,
   useReducedMotion,
 } from "framer-motion";
 import {
@@ -75,6 +76,46 @@ function HandwrittenNote({
 }
 
 /* ────────────────────────────────────────────────────────────
+   Marker underline — a real pen stroke that draws itself
+   left-to-right beneath a quote, instead of a doodle that just
+   pops into place.
+   ──────────────────────────────────────────────────────────── */
+
+function MarkerUnderline({
+  className = "",
+  delay = 0,
+  width = 200,
+}: {
+  className?: string;
+  delay?: number;
+  width?: number;
+}) {
+  const rm = useReducedMotion();
+  return (
+    <svg
+      aria-hidden="true"
+      className={`block pointer-events-none ${className}`}
+      width={width}
+      height={16}
+      viewBox={`0 0 ${width} 16`}
+      fill="none"
+    >
+      <motion.path
+        d={`M2 8 C ${width * 0.25} 2, ${width * 0.6} 13, ${width - 2} 6`}
+        stroke="#1d6feb"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        fill="none"
+        initial={{ pathLength: 0, opacity: 0 }}
+        whileInView={{ pathLength: 1, opacity: 0.6 }}
+        viewport={{ once: false, margin: "-60px" }}
+        transition={{ duration: rm ? 0.3 : 0.9, delay: rm ? 0 : delay, ease: "easeInOut" }}
+      />
+    </svg>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
    Typewriter caption — small stamped, monospaced label
    ──────────────────────────────────────────────────────────── */
 
@@ -96,18 +137,34 @@ function Tape({
   className = "",
   rotate = -4,
   color = "amber",
+  floatDuration = 5,
+  floatDelay = 0,
 }: {
   className?: string;
   rotate?: number;
   color?: "amber" | "blue";
+  floatDuration?: number;
+  floatDelay?: number;
 }) {
+  const rm = useReducedMotion();
   const bg = color === "blue" ? "rgba(191,219,254,0.55)" : "rgba(253,230,138,0.6)";
   const border = color === "blue" ? "rgba(147,197,253,0.6)" : "rgba(252,211,77,0.55)";
   return (
     <motion.div
       initial={{ rotate }}
-      whileHover={{ rotate: rotate * 0.3, y: -2, scale: 1.04 }}
-      transition={{ type: "spring", stiffness: 300, damping: 18 }}
+      animate={rm ? { rotate } : { rotate: [rotate, rotate + 1.4, rotate], y: [0, -2, 0] }}
+      transition={
+        rm
+          ? undefined
+          : { duration: floatDuration, delay: floatDelay, repeat: Infinity, ease: "easeInOut" }
+      }
+      whileHover={{
+        rotate: rotate * 0.3,
+        y: -2,
+        scaleX: 1.08,
+        scaleY: 1.03,
+        transition: { type: "spring", stiffness: 300, damping: 18 },
+      }}
       className={`absolute w-16 h-6 sm:w-20 sm:h-7 shadow-sm pointer-events-auto ${className}`}
       style={{
         backgroundColor: bg,
@@ -124,13 +181,27 @@ function Tape({
    Realistic paper clip — silver double-stroke SVG, wiggles on hover
    ──────────────────────────────────────────────────────────── */
 
-function RealPaperClip({ className = "", rotate = -8 }: { className?: string; rotate?: number }) {
+function RealPaperClip({
+  className = "",
+  rotate = -8,
+  floatDuration = 6,
+  floatDelay = 0,
+}: {
+  className?: string;
+  rotate?: number;
+  floatDuration?: number;
+  floatDelay?: number;
+}) {
+  const rm = useReducedMotion();
   return (
     <motion.svg
       className={`absolute pointer-events-none drop-shadow-md ${className}`}
-      style={{ rotate }}
-      whileHover={{ rotate: rotate + 10 }}
-      transition={{ type: "spring", stiffness: 260, damping: 12 }}
+      initial={{ rotate }}
+      animate={rm ? { rotate } : { rotate: [rotate, rotate + 3, rotate - 1.5, rotate] }}
+      transition={
+        rm ? undefined : { duration: floatDuration, delay: floatDelay, repeat: Infinity, ease: "easeInOut" }
+      }
+      whileHover={{ rotate: rotate + 10, transition: { type: "spring", stiffness: 260, damping: 12 } }}
       width="20"
       height="46"
       viewBox="0 0 22 52"
@@ -210,28 +281,38 @@ function Doodle({
 }) {
   const rm = useReducedMotion();
   return (
-    <motion.svg
+    <motion.div
       aria-hidden="true"
-      className={`absolute pointer-events-none text-primary/35 ${className}`}
-      width={size}
-      height={size}
-      viewBox="0 0 32 32"
-      fill="none"
+      className={`absolute pointer-events-none ${className}`}
       initial={{ opacity: 0, scale: 0.6, rotate: -8 }}
       whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
       viewport={{ once: false, margin: "-40px" }}
       transition={{ duration: rm ? 0.2 : 0.6, delay: rm ? 0 : delay, ease: "backOut" }}
     >
-      <path
-        d={doodlePaths[type]}
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill={type === "star" || type === "spark" ? "currentColor" : "none"}
-        fillOpacity={0.15}
-      />
-    </motion.svg>
+      {/* Nested layer for a very small continuous idle sway, so doodles
+          feel hand-drawn/alive rather than static once they've popped in.
+          Separate element from the entrance transform above, so the two
+          never compete for the same `rotate` value. */}
+      <motion.svg
+        width={size}
+        height={size}
+        viewBox="0 0 32 32"
+        fill="none"
+        className="text-primary/35"
+        animate={rm ? {} : { rotate: [0, 3, -2, 0], y: [0, -1.5, 0] }}
+        transition={rm ? undefined : { duration: 6 + delay * 2, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <path
+          d={doodlePaths[type]}
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill={type === "star" || type === "spark" ? "currentColor" : "none"}
+          fillOpacity={0.15}
+        />
+      </motion.svg>
+    </motion.div>
   );
 }
 
@@ -294,6 +375,7 @@ function StickyNote({
   rotate = -3,
   className = "",
   delay = 0,
+  floatDuration = 5.5,
 }: {
   title?: string;
   children: React.ReactNode;
@@ -301,6 +383,7 @@ function StickyNote({
   rotate?: number;
   className?: string;
   delay?: number;
+  floatDuration?: number;
 }) {
   const rm = useReducedMotion();
   return (
@@ -309,17 +392,32 @@ function StickyNote({
       whileInView={{ opacity: 1, y: 0, rotate }}
       viewport={{ once: false, margin: "-60px" }}
       transition={{ duration: rm ? 0.3 : 0.7, delay: rm ? 0 : delay, ease: "backOut" }}
-      whileHover={{ rotate: rotate * 0.4, scale: 1.04, y: -3 }}
-      className={`relative w-48 sm:w-56 p-4 shadow-[0_14px_28px_-12px_rgba(70,50,20,0.35)] ${className}`}
+      whileHover={{
+        rotate: rm ? rotate : [rotate, rotate * 0.2, rotate * 0.7, rotate * 0.35, rotate * 0.5],
+        scale: 1.04,
+        transition: rm ? undefined : { duration: 0.6, ease: "easeInOut" },
+      }}
+      className={`relative w-48 sm:w-56 shadow-[0_14px_28px_-12px_rgba(70,50,20,0.35)] ${className}`}
       style={{ backgroundColor: color }}
     >
-      <RealPaperClip className="-top-5 -left-1.5" rotate={-14} />
-      {title && (
-        <p className="font-hand text-lg text-slate-700 mb-1.5 border-b border-slate-400/30 pb-1">
-          {title}
-        </p>
-      )}
-      <div className="font-hand text-base text-slate-700 leading-snug">{children}</div>
+      {/* Nested layer for the continuous idle drift — kept separate from
+          the outer entrance/hover transforms above so the two motions
+          compose instead of fighting over the same `y`/`rotate` values
+          (which previously caused a visible snap whenever a hover started
+          mid-float). */}
+      <motion.div
+        className="p-4"
+        animate={rm ? {} : { y: [0, -3, 0, 3, 0] }}
+        transition={rm ? undefined : { duration: floatDuration, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <RealPaperClip className="-top-5 -left-1.5" rotate={-14} />
+        {title && (
+          <p className="font-hand text-lg text-slate-700 mb-1.5 border-b border-slate-400/30 pb-1">
+            {title}
+          </p>
+        )}
+        <div className="font-hand text-base text-slate-700 leading-snug">{children}</div>
+      </motion.div>
     </motion.div>
   );
 }
@@ -438,23 +536,34 @@ const techOffsets = [
 function TechScatter() {
   return (
     <div className="flex flex-wrap gap-x-5 gap-y-7 sm:gap-x-7">
-      {techStack.map(({ Icon, label, color }, i) => (
-        <motion.div
-          key={label}
-          initial={{ opacity: 0, scale: 0.5, y: 20 }}
-          whileInView={{ opacity: 1, scale: 1, y: techOffsets[i].y }}
-          viewport={{ once: false, margin: "-40px" }}
-          transition={{ duration: 0.5, delay: 0.04 * i, ease: "backOut" }}
-          whileHover={{ scale: 1.15, rotate: 0, y: 0 }}
-          style={{ rotate: techOffsets[i].rotate }}
-          className="flex flex-col items-center gap-1.5 cursor-default"
-        >
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white shadow-[0_8px_18px_-8px_rgba(70,50,20,0.4)] border border-slate-200/70 flex items-center justify-center">
-            <Icon className="w-6 h-6" style={{ color }} />
-          </div>
-          <span className="font-hand text-sm text-slate-500">{label}</span>
-        </motion.div>
-      ))}
+      {techStack.map(({ Icon, label, color }, i) => {
+        const baseRotate = techOffsets[i].rotate;
+        return (
+          <motion.div
+            key={label}
+            initial={{ opacity: 0, scale: 0.5, y: 20 }}
+            whileInView={{ opacity: 1, scale: 1, y: techOffsets[i].y }}
+            viewport={{ once: false, margin: "-40px" }}
+            transition={{ duration: 0.5, delay: 0.04 * i, ease: "backOut" }}
+            whileHover={{ scale: 1.12, rotate: baseRotate + (baseRotate >= 0 ? -10 : 10), y: techOffsets[i].y - 4 }}
+            style={{ rotate: baseRotate }}
+            className="group relative flex flex-col items-center gap-1.5 cursor-default"
+          >
+            {/* soft glow behind the active icon — pure opacity fade via
+                Tailwind's group-hover, no continuous animation loop, so
+                it costs nothing until actually hovered */}
+            <div
+              aria-hidden="true"
+              className="absolute top-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-md"
+              style={{ backgroundColor: color }}
+            />
+            <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white shadow-[0_8px_18px_-8px_rgba(70,50,20,0.4)] border border-slate-200/70 flex items-center justify-center">
+              <Icon className="w-6 h-6" style={{ color }} />
+            </div>
+            <span className="relative font-hand text-sm text-slate-500">{label}</span>
+          </motion.div>
+        );
+      })}
     </div>
   );
 }
@@ -691,16 +800,29 @@ export default function About() {
   const rotateX = useSpring(useTransform(my, [0, 1], [2, -2]), springCfg);
   const rotateY = useSpring(useTransform(mx, [0, 1], [-2, 2]), springCfg);
 
+  // Soft cursor-follow light highlight, scoped entirely to the notebook —
+  // reuses the same mx/my tracking already driving the tilt above, so no
+  // extra event listeners or re-renders are introduced. This is the only
+  // "cursor" effect added here; it does not touch or replace the site's
+  // existing global custom cursor component.
+  const spotlightOpacity = useMotionValue(0);
+  const spotlightOpacitySpring = useSpring(spotlightOpacity, { stiffness: 120, damping: 22 });
+  const spotlightX = useTransform(mx, (v) => `${v * 100}%`);
+  const spotlightY = useTransform(my, (v) => `${v * 100}%`);
+  const spotlightBg = useMotionTemplate`radial-gradient(480px circle at ${spotlightX} ${spotlightY}, rgba(255,255,255,0.4), rgba(29,111,235,0.08) 45%, transparent 70%)`;
+
   const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (rm) return;
     const rect = notebookRef.current?.getBoundingClientRect();
     if (!rect) return;
     mx.set((e.clientX - rect.left) / rect.width);
     my.set((e.clientY - rect.top) / rect.height);
+    spotlightOpacity.set(1);
   };
   const handleLeave = () => {
     mx.set(0.5);
     my.set(0.5);
+    spotlightOpacity.set(0);
   };
 
   const dust = useMemo(() => Array.from({ length: 10 }), []);
@@ -779,11 +901,23 @@ export default function About() {
             ref={notebookRef}
             onMouseMove={handleMove}
             onMouseLeave={handleLeave}
-            style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+            style={{ rotateX, rotateY, transformStyle: "preserve-3d", perspective: 1400 }}
             initial={{ opacity: 0, y: rm ? 0 : 50, scale: rm ? 1 : 0.98 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: false, margin: "-100px" }}
-            transition={{ duration: rm ? 0.4 : 1, ease }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={
+              rm
+                ? { duration: 0.4 }
+                : {
+                    opacity: { duration: 0.8, ease },
+                    y: { duration: 0.9, ease },
+                    // A light spring (rather than a tween) on scale gives the
+                    // notebook a small, physical overshoot-then-settle right
+                    // as it lands — the "paper settling" beat requested,
+                    // distinct from the smooth fade/lift above it.
+                    scale: { type: "spring", stiffness: 170, damping: 14, mass: 1 },
+                  }
+            }
             className="relative rounded-[20px] sm:rounded-[28px] overflow-hidden
                        shadow-[0_2px_0_rgba(0,0,0,0.05)_inset,0_50px_100px_-30px_rgba(70,50,20,0.35)]
                        border border-[#e8dcc4]"
@@ -810,15 +944,67 @@ export default function About() {
               }}
             />
 
-            {/* paper grain texture, warm cream base */}
-            <div
-              className="relative grid grid-cols-1 lg:grid-cols-2"
-              style={{
-                backgroundColor: "#fbf5e6",
-                backgroundImage:
-                  "radial-gradient(circle at 15% 20%, rgba(255,255,255,0.5), transparent 40%), radial-gradient(circle at 85% 80%, rgba(255,255,255,0.4), transparent 40%), repeating-radial-gradient(circle at 50% 50%, rgba(120,90,40,0.025) 0, rgba(120,90,40,0.025) 1px, transparent 1px, transparent 3px)",
-              }}
+            {/* soft cursor-follow light highlight — fades in only while the
+                pointer is over the notebook, tracks the same position
+                already computed for the tilt effect above */}
+            {!rm && (
+              <motion.div
+                aria-hidden="true"
+                className="absolute inset-0 pointer-events-none z-40 mix-blend-overlay"
+                style={{ background: spotlightBg, opacity: spotlightOpacitySpring }}
+              />
+            )}
+
+            {/* breathing layer — an almost imperceptible, continuous scale
+                pulse so the pages read as "resting" paper rather than a
+                static image. Kept on its own wrapper (separate from the
+                entrance/tilt transforms on the parent) so it never fights
+                either of those for control of `scale`. */}
+            <motion.div
+              animate={rm ? {} : { scale: [1, 1.004, 1] }}
+              transition={rm ? undefined : { duration: 6, repeat: Infinity, ease: "easeInOut" }}
             >
+              {/* paper grain texture, warm cream base */}
+              <div
+                className="relative grid grid-cols-1 lg:grid-cols-2"
+                style={{
+                  backgroundColor: "#fbf5e6",
+                  backgroundImage:
+                    "radial-gradient(circle at 15% 20%, rgba(255,255,255,0.5), transparent 40%), radial-gradient(circle at 85% 80%, rgba(255,255,255,0.4), transparent 40%)",
+                }}
+              >
+                {/* very subtle grain shimmer — an opacity-only breathe
+                    (never a background-position shift) so it stays on the
+                    transform/opacity-only performance budget */}
+                <motion.div
+                  aria-hidden="true"
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    backgroundImage:
+                      "repeating-radial-gradient(circle at 50% 50%, rgba(120,90,40,0.025) 0, rgba(120,90,40,0.025) 1px, transparent 1px, transparent 3px)",
+                  }}
+                  animate={rm ? {} : { opacity: [0.85, 1, 0.85] }}
+                  transition={rm ? undefined : { duration: 9, repeat: Infinity, ease: "easeInOut" }}
+                />
+
+                {/* gentle light sweep — crosses the paper roughly every
+                    20–30s (a 3s sweep + a 22s pause between sweeps), purely
+                    transform (x) + opacity so it costs nothing at rest */}
+                {!rm && (
+                  <motion.div
+                    aria-hidden="true"
+                    className="absolute inset-y-0 left-0 w-1/3 pointer-events-none"
+                    style={{
+                      background:
+                        "linear-gradient(100deg, transparent 20%, rgba(255,255,255,0.5) 50%, transparent 80%)",
+                      mixBlendMode: "overlay",
+                    }}
+                    initial={{ x: "-140%", opacity: 0 }}
+                    animate={{ x: ["-140%", "340%"], opacity: [0, 0.7, 0.7, 0] }}
+                    transition={{ duration: 3, repeat: Infinity, repeatDelay: 22, ease: "easeInOut" }}
+                  />
+                )}
+
               {/* center spine — deeper binding shadow */}
               <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-10 -translate-x-1/2 z-10 pointer-events-none">
                 <div className="w-full h-full bg-gradient-to-r from-black/[0.14] via-black/[0.02] to-black/[0.14]" />
@@ -832,7 +1018,12 @@ export default function About() {
               </div>
 
               {/* ═══════════ LEFT PAGE ═══════════ */}
-              <div className="relative px-6 py-10 sm:px-10 sm:py-14 lg:pr-14 lg:pl-12">
+              <motion.div
+                whileHover={rm ? undefined : { rotateY: -1.2 }}
+                transition={{ type: "spring", stiffness: 200, damping: 22 }}
+                style={{ transformStyle: "preserve-3d", transformOrigin: "right center" }}
+                className="relative px-6 py-10 sm:px-10 sm:py-14 lg:pr-14 lg:pl-12"
+              >
                 <CoffeeStain className="top-2 right-6 sm:right-10" size={70} />
                 <Doodle type="swirl" className="top-24 right-2 sm:right-6" delay={0.3} />
 
@@ -889,11 +1080,16 @@ export default function About() {
                     whileInView={{ opacity: 1, y: 0, rotate: -2 }}
                     viewport={{ once: false, margin: "-80px" }}
                     transition={{ duration: rm ? 0.3 : 0.8, ease: "backOut" }}
-                    whileHover={{ rotate: 0, y: -4, scale: 1.02 }}
+                    whileHover={{
+                      rotate: 0,
+                      y: -4,
+                      scale: 1.02,
+                      boxShadow: "0 30px 55px -16px rgba(70,50,20,0.5)",
+                    }}
                     className="relative bg-white p-2.5 pb-9 shadow-[0_20px_40px_-16px_rgba(70,50,20,0.4)]"
                   >
-                    <Tape className="-top-3 left-8" rotate={-6} />
-                    <Tape className="-top-3 right-8" rotate={5} color="blue" />
+                    <Tape className="-top-3 left-8" rotate={-6} floatDuration={5.5} floatDelay={0} />
+                    <Tape className="-top-3 right-8" rotate={5} color="blue" floatDuration={4.8} floatDelay={0.8} />
                     <div
                       className="relative aspect-[4/5] w-full overflow-hidden"
                       style={{ background: "linear-gradient(180deg,#dfe9f5,#bcd0e6 60%,#9fb8d6)" }}
@@ -942,11 +1138,16 @@ export default function About() {
                   whileInView={{ opacity: 1, y: 0, rotate: -4 }}
                   viewport={{ once: false, margin: "-60px" }}
                   transition={{ duration: rm ? 0.3 : 0.7, ease: "backOut" }}
-                  whileHover={{ rotate: 0, scale: 1.05, y: -3 }}
+                  whileHover={{
+                    rotate: 0,
+                    scale: 1.05,
+                    y: -3,
+                    boxShadow: "0 24px 44px -14px rgba(70,50,20,0.5)",
+                  }}
                   className="relative w-40 sm:w-48 bg-white p-2.5 pb-8 shadow-[0_16px_32px_-14px_rgba(70,50,20,0.4)]"
                 >
-                  <Tape className="-top-3 left-1/2 -translate-x-1/2" rotate={-3} />
-                  <RealPaperClip className="-top-3 -right-2" rotate={20} />
+                  <Tape className="-top-3 left-1/2 -translate-x-1/2" rotate={-3} floatDuration={5.2} floatDelay={0.4} />
+                  <RealPaperClip className="-top-3 -right-2" rotate={20} floatDuration={6.5} floatDelay={0.2} />
                   <div className="w-full aspect-square overflow-hidden bg-slate-100">
                     <img
                       src={profilePhoto}
@@ -962,10 +1163,15 @@ export default function About() {
                     est. assam
                   </TypewriterCaption>
                 </motion.div>
-              </div>
+              </motion.div>
 
               {/* ═══════════ RIGHT PAGE ═══════════ */}
-              <div className="relative px-6 py-10 sm:px-10 sm:py-14 lg:pl-14 lg:pr-12 border-t lg:border-t-0 border-dashed border-slate-300/60">
+              <motion.div
+                whileHover={rm ? undefined : { rotateY: 1.2 }}
+                transition={{ type: "spring", stiffness: 200, damping: 22 }}
+                style={{ transformStyle: "preserve-3d", transformOrigin: "left center" }}
+                className="relative px-6 py-10 sm:px-10 sm:py-14 lg:pl-14 lg:pr-12 border-t lg:border-t-0 border-dashed border-slate-300/60"
+              >
                 <Doodle type="spark" className="top-6 right-8" delay={0.2} size={24} />
 
                 <div className="flex items-center justify-between mb-8 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-slate-400">
@@ -990,17 +1196,15 @@ export default function About() {
                   </p>
                 </TornPaper>
 
-                {/* mission */}
-                <motion.blockquote
-                  initial={{ opacity: 0, y: rm ? 0 : 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: false, margin: "-60px" }}
-                  transition={{ duration: rm ? 0.3 : 0.6, delay: rm ? 0 : 0.1 }}
-                  className="relative font-hand text-2xl sm:text-3xl text-primary leading-snug mb-10 max-w-md border-l-2 border-primary/40 pl-4"
-                >
-                  <Doodle type="underline" className="-bottom-2 left-4" delay={0.4} size={54} />
-                  "I want to build digital products that improve people's lives."
-                </motion.blockquote>
+                {/* mission — revealed as if written with a pen, with a
+                    genuine left-to-right underline stroke beneath it
+                    (rather than a doodle that just pops into place) */}
+                <blockquote className="relative mb-10 max-w-md border-l-2 border-primary/40 pl-4">
+                  <HandwrittenNote className="text-2xl sm:text-3xl leading-snug" delay={0.1}>
+                    "I want to build digital products that improve people's lives."
+                  </HandwrittenNote>
+                  <MarkerUnderline className="mt-1 ml-1" delay={0.9} width={210} />
+                </blockquote>
 
                 {/* tech stack */}
                 <div className="mb-10">
@@ -1032,7 +1236,7 @@ export default function About() {
                     of themselves.
                   </StickyNote>
                 </div>
-              </div>
+              </motion.div>
 
               {/* connecting hand-drawn arrows (desktop only) */}
               <DrawnArrow
@@ -1070,6 +1274,7 @@ export default function About() {
                 </p>
               </motion.div>
             </div>
+            </motion.div>
           </motion.div>
         </div>
       </div>
