@@ -18,9 +18,11 @@ import {
   SiFramer,
 } from "react-icons/si";
 
+// Temporary fix in src/components/Projects.tsx:
 import img1 from "../assets/images/project-1.png";
 import img2 from "../assets/images/project-2.png";
-import img3 from "../assets/images/project-3.png";
+// If project-3.png doesn't exist yet, reuse img1 or use a placeholder URL:
+const img3 = img1; 
 import img4 from "../assets/images/project-4.png";
 import img5 from "../assets/images/project-5.png";
 import img6 from "../assets/images/project-6.png";
