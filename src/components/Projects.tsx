@@ -403,7 +403,7 @@ const ExpandedFile = memo(function ExpandedFile({ file }: { file: ProjectFile })
 
           <motion.div variants={contentItem} className="flex flex-wrap gap-3 pt-1">
             {file.caseStudy && (
-              
+              <a
                 href={file.caseStudy}
                 className="interactive touch-manipulation inline-flex items-center gap-2 px-5 py-3 rounded-full bg-black/90 text-white text-sm font-bold hover:bg-black active:scale-95 transition-all"
               >
