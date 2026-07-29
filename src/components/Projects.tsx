@@ -25,12 +25,12 @@ import {
   SiFramer,
 } from "react-icons/si";
 
-import img1 from "../assets/images/project-1.png"; // StudyNova
-import img2 from "../assets/images/project-2.png"; // Abodiverse
-import img3 from "../assets/images/project-3.png"; // Xarena
-import img4 from "../assets/images/project-4.png"; // Travel Diaries
-import img5 from "../assets/images/project-5.png"; // CreatorHub
-import img6 from "../assets/images/project-6.png"; // Portfolio Website
+import img1 from "../assets/images/project-1.webp"; // StudyNova
+import img2 from "../assets/images/project-2.webp"; // Abodiverse
+import img3 from "../assets/images/project-3.webp"; // Xarena
+import img4 from "../assets/images/project-4.webp"; // Travel Diaries
+import img5 from "../assets/images/project-5.webp"; // CreatorHub
+import img6 from "../assets/images/project-6.webp"; // Portfolio Website
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const FONT_TITLE = "'Caveat', cursive";
