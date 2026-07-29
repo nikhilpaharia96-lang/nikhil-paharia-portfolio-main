@@ -1,4 +1,4 @@
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useState, useEffect } from "react";
 import {
   motion,
   useMotionValue,
@@ -23,22 +23,50 @@ import {
 import { VscVscode } from "react-icons/vsc";
 import profilePhoto from "../assets/images/profile-nobg.png";
 import SplitText from "@/components/ui/SplitText";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+// Registered once at module load. This only affects this file/section —
+// ScrollTrigger is the single authority for *when* each notebook phase
+// happens as the user scrolls; Framer Motion (used throughout the
+// components above) stays responsible for *how* each element actually
+// animates (hover, idle float, the interpolation curve itself), per the
+// "GSAP for the scroll timeline, Framer for micro-interactions" split.
+gsap.registerPlugin(ScrollTrigger);
 
 const ease = [0.16, 1, 0.3, 1] as const;
+
+/**
+ * The eight beats of the cinematic scroll sequence. Phase 1 is the resting
+ * state right after the notebook itself has appeared (handled separately,
+ * see the notebook body's own one-time `whileInView` below) — at phase 1
+ * the pages are still essentially empty. Each subsequent phase reveals one
+ * more "layer" of the story as the notebook scrolls through the viewport,
+ * and — because it's driven by scroll position rather than a one-shot
+ * trigger — reverses cleanly if the user scrolls back up.
+ */
+const TOTAL_PHASES = 8;
+const PHASE_THRESHOLDS = [0.1, 0.24, 0.38, 0.52, 0.64, 0.76, 0.9]; // 7 boundaries → 8 phases
+
+function progressToPhase(progress: number): number {
+  for (let i = 0; i < PHASE_THRESHOLDS.length; i++) {
+    if (progress < PHASE_THRESHOLDS[i]) return i + 1;
+  }
+  return TOTAL_PHASES;
+}
 
 /* ────────────────────────────────────────────────────────────
    Marker highlight — animated blue highlighter stroke behind text
    ──────────────────────────────────────────────────────────── */
 
-function Marker({ children, delay = 0 }: { children: string; delay?: number }) {
+function Marker({ children, delay = 0, active = true }: { children: string; delay?: number; active?: boolean }) {
   const rm = useReducedMotion();
   return (
     <span className="relative inline-block px-1 whitespace-nowrap">
       <motion.span
         aria-hidden="true"
         initial={{ scaleX: 0 }}
-        whileInView={{ scaleX: 1 }}
-        viewport={{ once: false, margin: "-60px" }}
+        animate={active ? { scaleX: 1 } : { scaleX: 0 }}
         transition={{ duration: rm ? 0.2 : 0.55, delay: rm ? 0 : delay, ease: "easeOut" }}
         className="absolute inset-x-0 bottom-[0.06em] h-[0.42em] bg-primary/35 rounded-[2px] origin-left -z-[1]"
         style={{ transform: "skewX(-6deg)" }}
@@ -56,17 +84,22 @@ function HandwrittenNote({
   children,
   className = "",
   delay = 0,
+  active = true,
 }: {
   children: string;
   className?: string;
   delay?: number;
+  active?: boolean;
 }) {
   const rm = useReducedMotion();
   return (
     <motion.p
       initial={{ clipPath: "inset(0 100% 0 0)", opacity: 0 }}
-      whileInView={{ clipPath: "inset(0 0% 0 0)", opacity: 1 }}
-      viewport={{ once: false, margin: "-60px" }}
+      animate={
+        active
+          ? { clipPath: "inset(0 0% 0 0)", opacity: 1 }
+          : { clipPath: "inset(0 100% 0 0)", opacity: 0 }
+      }
       transition={{ duration: rm ? 0.3 : 1.1, delay: rm ? 0 : delay, ease: "easeInOut" }}
       className={`font-hand text-primary/90 leading-snug ${className}`}
     >
@@ -85,10 +118,12 @@ function MarkerUnderline({
   className = "",
   delay = 0,
   width = 200,
+  active = true,
 }: {
   className?: string;
   delay?: number;
   width?: number;
+  active?: boolean;
 }) {
   const rm = useReducedMotion();
   return (
@@ -107,11 +142,59 @@ function MarkerUnderline({
         strokeLinecap="round"
         fill="none"
         initial={{ pathLength: 0, opacity: 0 }}
-        whileInView={{ pathLength: 1, opacity: 0.6 }}
-        viewport={{ once: false, margin: "-60px" }}
+        animate={active ? { pathLength: 1, opacity: 0.6 } : { pathLength: 0, opacity: 0 }}
         transition={{ duration: rm ? 0.3 : 0.9, delay: rm ? 0 : delay, ease: "easeInOut" }}
       />
     </svg>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   Signature — a small hand-drawn signature that writes itself,
+   the closing beat of the Final Phase
+   ──────────────────────────────────────────────────────────── */
+
+function Signature({ active = true, delay = 0 }: { active?: boolean; delay?: number }) {
+  const rm = useReducedMotion();
+  return (
+    <motion.svg
+      aria-label="Nikhil — signature"
+      className="mx-auto text-primary/80"
+      width="180"
+      height="60"
+      viewBox="0 0 180 60"
+      fill="none"
+      initial={{ opacity: 0 }}
+      animate={active ? { opacity: 1 } : { opacity: 0 }}
+      transition={{ duration: 0.3, delay: rm ? 0 : delay }}
+    >
+      <motion.path
+        d="M8 42 C 14 18, 22 14, 26 30 C 29 40, 24 46, 30 40 C 38 32, 44 16, 50 30
+           C 54 40, 58 44, 64 34 C 70 24, 74 20, 80 32
+           C 84 40, 90 44, 96 30 C 100 20, 106 16, 112 24
+           C 116 30, 118 40, 124 36 C 132 30, 140 20, 148 26
+           C 156 32, 162 40, 170 30"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+        initial={{ pathLength: 0 }}
+        animate={active ? { pathLength: 1 } : { pathLength: 0 }}
+        transition={{ duration: rm ? 0.3 : 1.3, delay: rm ? 0 : delay + 0.1, ease: "easeInOut" }}
+      />
+      <motion.path
+        d="M20 50 C 60 56, 120 56, 160 48"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        fill="none"
+        opacity={0.5}
+        initial={{ pathLength: 0 }}
+        animate={active ? { pathLength: 1 } : { pathLength: 0 }}
+        transition={{ duration: rm ? 0.2 : 0.5, delay: rm ? 0 : delay + 1.2, ease: "easeOut" }}
+      />
+    </motion.svg>
   );
 }
 
@@ -139,41 +222,58 @@ function Tape({
   color = "amber",
   floatDuration = 5,
   floatDelay = 0,
+  active = true,
 }: {
   className?: string;
   rotate?: number;
   color?: "amber" | "blue";
   floatDuration?: number;
   floatDelay?: number;
+  active?: boolean;
 }) {
   const rm = useReducedMotion();
   const bg = color === "blue" ? "rgba(191,219,254,0.55)" : "rgba(253,230,138,0.6)";
   const border = color === "blue" ? "rgba(147,197,253,0.6)" : "rgba(252,211,77,0.55)";
   return (
     <motion.div
-      initial={{ rotate }}
-      animate={rm ? { rotate } : { rotate: [rotate, rotate + 1.4, rotate], y: [0, -2, 0] }}
-      transition={
-        rm
-          ? undefined
-          : { duration: floatDuration, delay: floatDelay, repeat: Infinity, ease: "easeInOut" }
+      initial={{ opacity: 0, scale: 0.7, rotate: rotate - 25 }}
+      animate={
+        active
+          ? { opacity: 1, scale: 1, rotate }
+          : { opacity: 0, scale: 0.7, rotate: rotate - 25 }
       }
-      whileHover={{
-        rotate: rotate * 0.3,
-        y: -2,
-        scaleX: 1.08,
-        scaleY: 1.03,
-        transition: { type: "spring", stiffness: 300, damping: 18 },
-      }}
-      className={`absolute w-16 h-6 sm:w-20 sm:h-7 shadow-sm pointer-events-auto ${className}`}
-      style={{
-        backgroundColor: bg,
-        border: `1px solid ${border}`,
-        backdropFilter: "blur(1px)",
-        backgroundImage:
-          "repeating-linear-gradient(45deg, rgba(255,255,255,0.3) 0, rgba(255,255,255,0.3) 2px, transparent 2px, transparent 6px)",
-      }}
-    />
+      transition={{ duration: rm ? 0.2 : 0.45, delay: rm ? 0 : floatDelay * 0.3, ease: "backOut" }}
+      className={`absolute w-16 h-6 sm:w-20 sm:h-7 pointer-events-auto ${className}`}
+    >
+      {/* Nested layer: once the tape above has "settled" into place, this
+          takes over with its own continuous idle drift + hover stretch —
+          kept separate so the one-time landing settle and the endless
+          idle loop never fight over the same rotate/scale values. Carries
+          all the actual visible tape styling, since transforms on the
+          (invisible) outer wrapper wouldn't otherwise render anything. */}
+      <motion.div
+        className="w-full h-full shadow-sm"
+        initial={{ rotate: 0 }}
+        animate={rm ? {} : { rotate: [0, 1.4, 0], y: [0, -2, 0] }}
+        transition={
+          rm ? undefined : { duration: floatDuration, delay: floatDelay, repeat: Infinity, ease: "easeInOut" }
+        }
+        whileHover={{
+          rotate: -rotate * 0.3,
+          y: -2,
+          scaleX: 1.08,
+          scaleY: 1.03,
+          transition: { type: "spring", stiffness: 300, damping: 18 },
+        }}
+        style={{
+          backgroundColor: bg,
+          border: `1px solid ${border}`,
+          backdropFilter: "blur(1px)",
+          backgroundImage:
+            "repeating-linear-gradient(45deg, rgba(255,255,255,0.3) 0, rgba(255,255,255,0.3) 2px, transparent 2px, transparent 6px)",
+        }}
+      />
+    </motion.div>
   );
 }
 
@@ -186,40 +286,53 @@ function RealPaperClip({
   rotate = -8,
   floatDuration = 6,
   floatDelay = 0,
+  active = true,
 }: {
   className?: string;
   rotate?: number;
   floatDuration?: number;
   floatDelay?: number;
+  active?: boolean;
 }) {
   const rm = useReducedMotion();
   return (
-    <motion.svg
-      className={`absolute pointer-events-none drop-shadow-md ${className}`}
-      initial={{ rotate }}
-      animate={rm ? { rotate } : { rotate: [rotate, rotate + 3, rotate - 1.5, rotate] }}
-      transition={
-        rm ? undefined : { duration: floatDuration, delay: floatDelay, repeat: Infinity, ease: "easeInOut" }
-      }
-      whileHover={{ rotate: rotate + 10, transition: { type: "spring", stiffness: 260, damping: 12 } }}
-      width="20"
-      height="46"
-      viewBox="0 0 22 52"
-      fill="none"
+    <motion.div
+      className={`absolute inline-block pointer-events-none ${className}`}
+      initial={{ opacity: 0, scale: 0.6 }}
+      animate={active ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.6 }}
+      transition={{ duration: rm ? 0.2 : 0.4, delay: rm ? 0 : floatDelay * 0.3, ease: "backOut" }}
     >
-      <path
-        d="M11 4C5 4 2 8 2 14v24c0 6 4 10 9 10s9-4 9-9V12.5c0-3.5-2.5-6-6-6s-6 2.5-6 6V36"
-        stroke="#94a3b8"
-        strokeWidth="3.2"
-        strokeLinecap="round"
-      />
-      <path
-        d="M11 4C5 4 2 8 2 14v24c0 6 4 10 9 10s9-4 9-9V12.5c0-3.5-2.5-6-6-6s-6 2.5-6 6V36"
-        stroke="#e2e8f0"
-        strokeWidth="1.1"
-        strokeLinecap="round"
-      />
-    </motion.svg>
+      {/* Nested layer for the continuous idle sway + hover response, kept
+          separate from the one-time entrance above for the same reason as
+          Tape: two loops targeting the same `rotate` would otherwise
+          visibly fight each other. */}
+      <motion.svg
+        className="drop-shadow-md"
+        initial={{ rotate }}
+        animate={rm ? { rotate } : { rotate: [rotate, rotate + 3, rotate - 1.5, rotate] }}
+        transition={
+          rm ? undefined : { duration: floatDuration, delay: floatDelay, repeat: Infinity, ease: "easeInOut" }
+        }
+        whileHover={{ rotate: rotate + 10, transition: { type: "spring", stiffness: 260, damping: 12 } }}
+        width="20"
+        height="46"
+        viewBox="0 0 22 52"
+        fill="none"
+      >
+        <path
+          d="M11 4C5 4 2 8 2 14v24c0 6 4 10 9 10s9-4 9-9V12.5c0-3.5-2.5-6-6-6s-6 2.5-6 6V36"
+          stroke="#94a3b8"
+          strokeWidth="3.2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M11 4C5 4 2 8 2 14v24c0 6 4 10 9 10s9-4 9-9V12.5c0-3.5-2.5-6-6-6s-6 2.5-6 6V36"
+          stroke="#e2e8f0"
+          strokeWidth="1.1"
+          strokeLinecap="round"
+        />
+      </motion.svg>
+    </motion.div>
   );
 }
 
@@ -273,11 +386,13 @@ function Doodle({
   className = "",
   delay = 0,
   size = 30,
+  active = true,
 }: {
   type?: keyof typeof doodlePaths;
   className?: string;
   delay?: number;
   size?: number;
+  active?: boolean;
 }) {
   const rm = useReducedMotion();
   return (
@@ -285,8 +400,7 @@ function Doodle({
       aria-hidden="true"
       className={`absolute pointer-events-none ${className}`}
       initial={{ opacity: 0, scale: 0.6, rotate: -8 }}
-      whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
-      viewport={{ once: false, margin: "-40px" }}
+      animate={active ? { opacity: 1, scale: 1, rotate: 0 } : { opacity: 0, scale: 0.6, rotate: -8 }}
       transition={{ duration: rm ? 0.2 : 0.6, delay: rm ? 0 : delay, ease: "backOut" }}
     >
       {/* Nested layer for a very small continuous idle sway, so doodles
@@ -326,19 +440,20 @@ function Stamp({
   rotate = -6,
   color = "#1d6feb",
   delay = 0,
+  active = true,
 }: {
   label: string;
   sub?: string;
   rotate?: number;
   color?: string;
   delay?: number;
+  active?: boolean;
 }) {
   const rm = useReducedMotion();
   return (
     <motion.div
       initial={{ opacity: 0, scale: 1.5, rotate: 0 }}
-      whileInView={{ opacity: 0.88, scale: 1, rotate }}
-      viewport={{ once: false, margin: "-40px" }}
+      animate={active ? { opacity: 0.88, scale: 1, rotate } : { opacity: 0, scale: 1.5, rotate: 0 }}
       transition={{ duration: rm ? 0.25 : 0.5, delay: rm ? 0 : delay, ease: "backOut" }}
       whileHover={{ scale: 1.08, rotate: rotate * 0.5 }}
       className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full flex flex-col items-center justify-center text-center select-none"
@@ -376,6 +491,7 @@ function StickyNote({
   className = "",
   delay = 0,
   floatDuration = 5.5,
+  active = true,
 }: {
   title?: string;
   children: React.ReactNode;
@@ -384,13 +500,13 @@ function StickyNote({
   className?: string;
   delay?: number;
   floatDuration?: number;
+  active?: boolean;
 }) {
   const rm = useReducedMotion();
   return (
     <motion.div
       initial={{ opacity: 0, y: rm ? 0 : -60, rotate: 0 }}
-      whileInView={{ opacity: 1, y: 0, rotate }}
-      viewport={{ once: false, margin: "-60px" }}
+      animate={active ? { opacity: 1, y: 0, rotate } : { opacity: 0, y: rm ? 0 : -60, rotate: 0 }}
       transition={{ duration: rm ? 0.3 : 0.7, delay: rm ? 0 : delay, ease: "backOut" }}
       whileHover={{
         rotate: rm ? rotate : [rotate, rotate * 0.2, rotate * 0.7, rotate * 0.35, rotate * 0.5],
@@ -410,7 +526,7 @@ function StickyNote({
         animate={rm ? {} : { y: [0, -3, 0, 3, 0] }}
         transition={rm ? undefined : { duration: floatDuration, repeat: Infinity, ease: "easeInOut" }}
       >
-        <RealPaperClip className="-top-5 -left-1.5" rotate={-14} />
+        <RealPaperClip className="-top-5 -left-1.5" rotate={-14} active={active} />
         {title && (
           <p className="font-hand text-lg text-slate-700 mb-1.5 border-b border-slate-400/30 pb-1">
             {title}
@@ -431,18 +547,19 @@ function TornPaper({
   className = "",
   rotate = 0,
   delay = 0,
+  active = true,
 }: {
   children: React.ReactNode;
   className?: string;
   rotate?: number;
   delay?: number;
+  active?: boolean;
 }) {
   const rm = useReducedMotion();
   return (
     <motion.div
       initial={{ opacity: 0, y: rm ? 0 : 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: false, margin: "-60px" }}
+      animate={active ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 24 }}
       transition={{ duration: rm ? 0.3 : 0.6, delay: rm ? 0 : delay, ease }}
       whileHover={{ rotate: rotate + (rotate >= 0 ? 1.5 : -1.5), y: -3 }}
       className={`relative bg-[#fdfaf3] shadow-[0_10px_24px_-10px_rgba(70,50,20,0.3)] ${className}`}
@@ -533,7 +650,8 @@ const techOffsets = [
   { rotate: -5, y: 2 }, { rotate: 7, y: -2 },
 ];
 
-function TechScatter() {
+function TechScatter({ active = true }: { active?: boolean }) {
+  const rm = useReducedMotion();
   return (
     <div className="flex flex-wrap gap-x-5 gap-y-7 sm:gap-x-7">
       {techStack.map(({ Icon, label, color }, i) => {
@@ -542,9 +660,12 @@ function TechScatter() {
           <motion.div
             key={label}
             initial={{ opacity: 0, scale: 0.5, y: 20 }}
-            whileInView={{ opacity: 1, scale: 1, y: techOffsets[i].y }}
-            viewport={{ once: false, margin: "-40px" }}
-            transition={{ duration: 0.5, delay: 0.04 * i, ease: "backOut" }}
+            animate={
+              active
+                ? { opacity: 1, scale: 1, y: techOffsets[i].y }
+                : { opacity: 0, scale: 0.5, y: 20 }
+            }
+            transition={{ duration: rm ? 0.25 : 0.5, delay: rm ? 0 : 0.06 * i, ease: "backOut" }}
             whileHover={{ scale: 1.12, rotate: baseRotate + (baseRotate >= 0 ? -10 : 10), y: techOffsets[i].y - 4 }}
             style={{ rotate: baseRotate }}
             className="group relative flex flex-col items-center gap-1.5 cursor-default"
@@ -583,16 +704,16 @@ const favorites = [
 
 const favRotate = [-7, 5, -3, 8, -6, 4];
 
-function FavoriteThings() {
+function FavoriteThings({ active = true }: { active?: boolean }) {
+  const rm = useReducedMotion();
   return (
     <div className="flex flex-wrap gap-4 sm:gap-5">
       {favorites.map((f, i) => (
         <motion.div
           key={f.label}
           initial={{ opacity: 0, scale: 0.5, y: 16 }}
-          whileInView={{ opacity: 1, scale: 1, y: 0 }}
-          viewport={{ once: false, margin: "-40px" }}
-          transition={{ duration: 0.45, delay: 0.06 * i, ease: "backOut" }}
+          animate={active ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.5, y: 16 }}
+          transition={{ duration: rm ? 0.25 : 0.45, delay: rm ? 0 : 0.08 * i, ease: "backOut" }}
           whileHover={{ scale: 1.12, rotate: 0, y: -4 }}
           style={{ rotate: favRotate[i] }}
           className="relative w-[4.5rem] h-[4.5rem] sm:w-20 sm:h-20 rounded-full bg-white p-[3px]
@@ -621,9 +742,10 @@ function FavoriteThings() {
 
 const dailyFuel = ["Chai", "Music", "Focus", "Curiosity", "Discipline"];
 
-function DailyFuel() {
+function DailyFuel({ active = true }: { active?: boolean }) {
+  const rm = useReducedMotion();
   return (
-    <TornPaper rotate={2} delay={0.1} className="p-5 sm:p-6 w-full max-w-[15rem]">
+    <TornPaper rotate={2} delay={0.1} active={active} className="p-5 sm:p-6 w-full max-w-[15rem]">
       <CoffeeStain className="-top-4 -right-4" size={64} />
       <p className="font-hand text-lg text-slate-700 mb-3 border-b border-slate-300/60 pb-1.5">
         Daily Fuel
@@ -633,9 +755,8 @@ function DailyFuel() {
           <motion.li
             key={item}
             initial={{ opacity: 0, x: -12 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: false, margin: "-40px" }}
-            transition={{ duration: 0.4, delay: 0.15 + i * 0.12, ease }}
+            animate={active ? { opacity: 1, x: 0 } : { opacity: 0, x: -12 }}
+            transition={{ duration: 0.4, delay: rm ? 0 : 0.15 + i * 0.12, ease }}
             className="flex items-center gap-2"
           >
             <motion.svg
@@ -644,9 +765,8 @@ function DailyFuel() {
               viewBox="0 0 16 16"
               className="shrink-0 text-primary"
               initial={{ pathLength: 0 }}
-              whileInView={{ pathLength: 1 }}
-              viewport={{ once: false }}
-              transition={{ duration: 0.35, delay: 0.25 + i * 0.12 }}
+              animate={active ? { pathLength: 1 } : { pathLength: 0 }}
+              transition={{ duration: 0.35, delay: rm ? 0 : 0.25 + i * 0.12 }}
             >
               <motion.path
                 d="M2 8 L6 12 L14 3"
@@ -669,7 +789,17 @@ function DailyFuel() {
    Hand-drawn arrow connector
    ──────────────────────────────────────────────────────────── */
 
-function DrawnArrow({ className = "", path, delay = 0 }: { className?: string; path: string; delay?: number }) {
+function DrawnArrow({
+  className = "",
+  path,
+  delay = 0,
+  active = true,
+}: {
+  className?: string;
+  path: string;
+  delay?: number;
+  active?: boolean;
+}) {
   const rm = useReducedMotion();
   return (
     <svg
@@ -687,8 +817,7 @@ function DrawnArrow({ className = "", path, delay = 0 }: { className?: string; p
         strokeLinecap="round"
         strokeDasharray="3 5"
         initial={{ pathLength: 0, opacity: 0 }}
-        whileInView={{ pathLength: 1, opacity: 0.55 }}
-        viewport={{ once: false }}
+        animate={active ? { pathLength: 1, opacity: 0.55 } : { pathLength: 0, opacity: 0 }}
         transition={{ duration: rm ? 0.3 : 1.4, delay: rm ? 0 : delay, ease: "easeInOut" }}
       />
     </svg>
@@ -708,7 +837,7 @@ const journey = [
   { emoji: "🌱", label: "Still Learning", note: "every single day" },
 ];
 
-function JourneyTimeline() {
+function JourneyTimeline({ active = true }: { active?: boolean }) {
   const rm = useReducedMotion();
   return (
     <div className="lg:col-span-2 relative px-6 sm:px-10 lg:px-14 py-12 sm:py-16 border-t border-dashed border-slate-300/60">
@@ -727,8 +856,7 @@ function JourneyTimeline() {
             strokeDasharray="2 8"
             strokeLinecap="round"
             initial={{ pathLength: 0, opacity: 0 }}
-            whileInView={{ pathLength: 1, opacity: 0.5 }}
-            viewport={{ once: false, margin: "-100px" }}
+            animate={active ? { pathLength: 1, opacity: 0.5 } : { pathLength: 0, opacity: 0 }}
             transition={{ duration: rm ? 0.4 : 1.8, ease: "easeInOut" }}
           />
         </svg>
@@ -737,8 +865,11 @@ function JourneyTimeline() {
             <motion.div
               key={step.label}
               initial={{ opacity: 0, y: rm ? 0 : i % 2 === 0 ? -14 : 14, scale: 0.7 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: false, margin: "-60px" }}
+              animate={
+                active
+                  ? { opacity: 1, y: 0, scale: 1 }
+                  : { opacity: 0, y: rm ? 0 : i % 2 === 0 ? -14 : 14, scale: 0.7 }
+              }
               transition={{ duration: rm ? 0.25 : 0.5, delay: rm ? 0 : 0.15 * i, ease: "backOut" }}
               whileHover={{ scale: 1.08, y: -4 }}
               className={`flex flex-col items-center gap-2 text-center ${i % 2 === 0 ? "mt-2" : "mt-14"}`}
@@ -765,8 +896,7 @@ function JourneyTimeline() {
             <motion.div
               key={step.label}
               initial={{ opacity: 0, x: rm ? 0 : -16 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: false, margin: "-40px" }}
+              animate={active ? { opacity: 1, x: 0 } : { opacity: 0, x: rm ? 0 : -16 }}
               transition={{ duration: rm ? 0.25 : 0.5, delay: rm ? 0 : 0.08 * i, ease }}
               className="relative flex items-start gap-4"
             >
@@ -792,6 +922,7 @@ function JourneyTimeline() {
    ──────────────────────────────────────────────────────────── */
 
 export default function About() {
+  const sectionRef = useRef<HTMLElement>(null);
   const notebookRef = useRef<HTMLDivElement>(null);
   const rm = useReducedMotion();
   const mx = useMotionValue(0.5);
@@ -799,6 +930,53 @@ export default function About() {
   const springCfg = { stiffness: 120, damping: 20, mass: 0.7 };
   const rotateX = useSpring(useTransform(my, [0, 1], [2, -2]), springCfg);
   const rotateY = useSpring(useTransform(mx, [0, 1], [-2, 2]), springCfg);
+
+  // Single source of truth for the cinematic reveal sequence — replaces the
+  // dozens of independent per-element `whileInView` viewport observers that
+  // previously each decided for themselves when to fire. One GSAP
+  // ScrollTrigger now scrubs a `phase` value (1–8) as the notebook moves
+  // through the viewport; every component below simply asks "is my phase
+  // active yet?" via a boolean prop, and Framer Motion handles the actual
+  // eased transition to/from that state.
+  const [phase, setPhase] = useState(rm ? TOTAL_PHASES : 1);
+
+  useEffect(() => {
+    if (rm) {
+      // Reduced motion: skip scroll-scrubbed choreography entirely and
+      // just show the finished page — each component's own `rm`-aware
+      // transition already collapses to a quick, simple fade.
+      setPhase(TOTAL_PHASES);
+      return;
+    }
+    if (!sectionRef.current) return;
+
+    const lastPhase = { current: 1 };
+    const trigger = ScrollTrigger.create({
+      trigger: sectionRef.current,
+      start: "top 78%",
+      end: "bottom 55%",
+      scrub: 0.6, // smooths the raw scroll input into real "paper inertia" rather than snapping straight to each phase
+      onUpdate: (self) => {
+        const next = progressToPhase(self.progress);
+        if (next !== lastPhase.current) {
+          lastPhase.current = next;
+          setPhase(next);
+        }
+      },
+      onLeaveBack: () => {
+        // Scrolled back above the section entirely — reset to the "pages
+        // almost empty" resting state so scrolling back down replays the
+        // full reveal, matching the site's established reversible-scroll
+        // convention.
+        if (lastPhase.current !== 1) {
+          lastPhase.current = 1;
+          setPhase(1);
+        }
+      },
+    });
+
+    return () => trigger.kill();
+  }, [rm]);
 
   // Soft cursor-follow light highlight, scoped entirely to the notebook —
   // reuses the same mx/my tracking already driving the tilt above, so no
@@ -829,6 +1007,7 @@ export default function About() {
 
   return (
     <section
+      ref={sectionRef}
       id="about"
       className="relative overflow-hidden section-wrap max-w-full py-20 sm:py-28 md:py-32 lg:py-36 bg-white"
       aria-label="About — My Story"
@@ -1025,43 +1204,42 @@ export default function About() {
                 className="relative px-6 py-10 sm:px-10 sm:py-14 lg:pr-14 lg:pl-12"
               >
                 <CoffeeStain className="top-2 right-6 sm:right-10" size={70} />
-                <Doodle type="swirl" className="top-24 right-2 sm:right-6" delay={0.3} />
+                <Doodle type="swirl" className="top-24 right-2 sm:right-6" delay={0.3} active={phase >= 3} />
 
                 <div className="flex items-center justify-between mb-8 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-slate-400">
                   <span>01 — About Me</span>
                   <span>The Beginning</span>
                 </div>
 
-                {/* headline with marker highlights */}
+                {/* headline with marker highlights — Phase 3: builds line
+                    by line as the notebook scrolls, each line's marker
+                    highlights following shortly after */}
                 <motion.h3
                   initial={{ opacity: 0, y: rm ? 0 : 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: false, margin: "-80px" }}
+                  animate={phase >= 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 24 }}
                   transition={{ duration: rm ? 0.3 : 0.7, ease }}
                   className="font-serif font-extrabold text-[1.9rem] sm:text-4xl leading-[1.15] text-foreground mb-3"
                 >
-                  I started learning <Marker delay={0.15}>CODE</Marker> because I
-                  wanted to change my <Marker delay={0.35}>FAMILY's</Marker> future.
+                  I started learning <Marker delay={0.15} active={phase >= 3}>CODE</Marker> because I
+                  wanted to change my <Marker delay={0.35} active={phase >= 3}>FAMILY's</Marker> future.
                 </motion.h3>
 
                 <motion.p
                   initial={{ opacity: 0, y: rm ? 0 : 18 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: false, margin: "-80px" }}
-                  transition={{ duration: rm ? 0.3 : 0.6, delay: rm ? 0 : 0.15 }}
+                  animate={phase >= 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 18 }}
+                  transition={{ duration: rm ? 0.3 : 0.6, delay: rm ? 0 : 0.2 }}
                   className="font-serif text-lg sm:text-xl text-slate-500 leading-snug mb-8"
                 >
-                  A boy from a tea garden in <Marker delay={0.5}>ASSAM</Marker>,
-                  chasing a bigger <Marker delay={0.65}>DREAM</Marker> — always
-                  reaching for <Marker delay={0.8}>BETTER</Marker>.
+                  A boy from a tea garden in <Marker delay={0.5} active={phase >= 3}>ASSAM</Marker>,
+                  chasing a bigger <Marker delay={0.65} active={phase >= 3}>DREAM</Marker> — always
+                  reaching for <Marker delay={0.8} active={phase >= 3}>BETTER</Marker>.
                 </motion.p>
 
-                {/* personal paragraph */}
+                {/* personal paragraph — Phase 4: story blocks fade in one at a time */}
                 <motion.div
                   initial={{ opacity: 0, y: rm ? 0 : 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: false, margin: "-60px" }}
-                  transition={{ duration: rm ? 0.3 : 0.6, delay: rm ? 0 : 0.25 }}
+                  animate={phase >= 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 16 }}
+                  transition={{ duration: rm ? 0.3 : 0.6, delay: rm ? 0 : 0.1 }}
                   className="relative text-slate-600 leading-relaxed mb-10 max-w-md"
                 >
                   <InkSmudge className="-left-3 top-2" size={30} />
@@ -1073,13 +1251,27 @@ export default function About() {
                   </p>
                 </motion.div>
 
-                {/* silhouette — framed as a proper taped Polaroid */}
+                {/* silhouette — framed as a proper taped Polaroid — Phase 2:
+                    photo lands first, with a small physical bounce, before
+                    the headline/paragraphs build on top of it */}
                 <div className="relative mb-10 max-w-xs">
                   <motion.div
-                    initial={{ opacity: 0, y: rm ? 0 : 30, rotate: 0 }}
-                    whileInView={{ opacity: 1, y: 0, rotate: -2 }}
-                    viewport={{ once: false, margin: "-80px" }}
-                    transition={{ duration: rm ? 0.3 : 0.8, ease: "backOut" }}
+                    initial={{ opacity: 0, y: rm ? 0 : 40, scale: 0.9, rotate: 0 }}
+                    animate={
+                      phase >= 2
+                        ? { opacity: 1, y: 0, scale: 1, rotate: -2 }
+                        : { opacity: 0, y: rm ? 0 : 40, scale: 0.9, rotate: 0 }
+                    }
+                    transition={{
+                      duration: rm ? 0.3 : 0.8,
+                      // A spring (rather than a tween) gives the photo a
+                      // genuine small physical bounce as it lands, instead
+                      // of just easing to a stop.
+                      type: rm ? "tween" : "spring",
+                      stiffness: rm ? undefined : 260,
+                      damping: rm ? undefined : 16,
+                      mass: rm ? undefined : 0.9,
+                    }}
                     whileHover={{
                       rotate: 0,
                       y: -4,
@@ -1088,8 +1280,8 @@ export default function About() {
                     }}
                     className="relative bg-white p-2.5 pb-9 shadow-[0_20px_40px_-16px_rgba(70,50,20,0.4)]"
                   >
-                    <Tape className="-top-3 left-8" rotate={-6} floatDuration={5.5} floatDelay={0} />
-                    <Tape className="-top-3 right-8" rotate={5} color="blue" floatDuration={4.8} floatDelay={0.8} />
+                    <Tape className="-top-3 left-8" rotate={-6} floatDuration={5.5} floatDelay={0.5} active={phase >= 2} />
+                    <Tape className="-top-3 right-8" rotate={5} color="blue" floatDuration={4.8} floatDelay={1.1} active={phase >= 2} />
                     <div
                       className="relative aspect-[4/5] w-full overflow-hidden"
                       style={{ background: "linear-gradient(180deg,#dfe9f5,#bcd0e6 60%,#9fb8d6)" }}
@@ -1124,20 +1316,31 @@ export default function About() {
                   </motion.div>
                 </div>
 
-                {/* handwritten note */}
+                {/* handwritten note — Phase 3: draws itself alongside the headline */}
                 <div className="relative mb-10 max-w-xs">
                   <InkSmudge className="-top-2 left-2" size={26} />
-                  <HandwrittenNote className="text-xl sm:text-2xl -rotate-1" delay={0.1}>
+                  <HandwrittenNote className="text-xl sm:text-2xl -rotate-1" delay={0.9} active={phase >= 3}>
                     "It started as curiosity. Then it became a way of thinking."
                   </HandwrittenNote>
                 </div>
 
-                {/* polaroid */}
+                {/* polaroid — Phase 2, staggered slightly after the silhouette
+                    so the two photos don't land in the exact same instant */}
                 <motion.div
-                  initial={{ opacity: 0, y: rm ? 0 : 30, rotate: 0 }}
-                  whileInView={{ opacity: 1, y: 0, rotate: -4 }}
-                  viewport={{ once: false, margin: "-60px" }}
-                  transition={{ duration: rm ? 0.3 : 0.7, ease: "backOut" }}
+                  initial={{ opacity: 0, y: rm ? 0 : 40, scale: 0.85, rotate: 0 }}
+                  animate={
+                    phase >= 2
+                      ? { opacity: 1, y: 0, scale: 1, rotate: -4 }
+                      : { opacity: 0, y: rm ? 0 : 40, scale: 0.85, rotate: 0 }
+                  }
+                  transition={{
+                    duration: rm ? 0.3 : 0.7,
+                    delay: rm ? 0 : 0.18,
+                    type: rm ? "tween" : "spring",
+                    stiffness: rm ? undefined : 280,
+                    damping: rm ? undefined : 17,
+                    mass: rm ? undefined : 0.8,
+                  }}
                   whileHover={{
                     rotate: 0,
                     scale: 1.05,
@@ -1146,8 +1349,8 @@ export default function About() {
                   }}
                   className="relative w-40 sm:w-48 bg-white p-2.5 pb-8 shadow-[0_16px_32px_-14px_rgba(70,50,20,0.4)]"
                 >
-                  <Tape className="-top-3 left-1/2 -translate-x-1/2" rotate={-3} floatDuration={5.2} floatDelay={0.4} />
-                  <RealPaperClip className="-top-3 -right-2" rotate={20} floatDuration={6.5} floatDelay={0.2} />
+                  <Tape className="-top-3 left-1/2 -translate-x-1/2" rotate={-3} floatDuration={5.2} floatDelay={1.6} active={phase >= 2} />
+                  <RealPaperClip className="-top-3 -right-2" rotate={20} floatDuration={6.5} floatDelay={1.4} active={phase >= 2} />
                   <div className="w-full aspect-square overflow-hidden bg-slate-100">
                     <img
                       src={profilePhoto}
@@ -1179,9 +1382,9 @@ export default function About() {
                   <span>What Drives Me</span>
                 </div>
 
-                {/* purpose torn paper */}
-                <TornPaper className="p-5 sm:p-6 mb-8 max-w-md" rotate={-1} delay={0.05}>
-                  <RealPaperClip className="-top-6 left-4" rotate={-10} />
+                {/* purpose torn paper — Phase 4, alongside the personal paragraph on the left page */}
+                <TornPaper className="p-5 sm:p-6 mb-8 max-w-md" rotate={-1} delay={0.05} active={phase >= 4}>
+                  <RealPaperClip className="-top-6 left-4" rotate={-10} active={phase >= 4} />
                   <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-primary mb-2">
                     My Purpose
                   </p>
@@ -1198,39 +1401,42 @@ export default function About() {
 
                 {/* mission — revealed as if written with a pen, with a
                     genuine left-to-right underline stroke beneath it
-                    (rather than a doodle that just pops into place) */}
+                    (rather than a doodle that just pops into place) —
+                    Phase 4, staggered after the purpose card above */}
                 <blockquote className="relative mb-10 max-w-md border-l-2 border-primary/40 pl-4">
-                  <HandwrittenNote className="text-2xl sm:text-3xl leading-snug" delay={0.1}>
+                  <HandwrittenNote className="text-2xl sm:text-3xl leading-snug" delay={0.5} active={phase >= 4}>
                     "I want to build digital products that improve people's lives."
                   </HandwrittenNote>
-                  <MarkerUnderline className="mt-1 ml-1" delay={0.9} width={210} />
+                  <MarkerUnderline className="mt-1 ml-1" delay={1.3} width={210} active={phase >= 4} />
                 </blockquote>
 
-                {/* tech stack */}
+                {/* tech stack — Phase 5: icons pop in one after another */}
                 <div className="mb-10">
                   <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-4">
                     Tech I Reach For
                   </p>
-                  <TechScatter />
+                  <TechScatter active={phase >= 5} />
                 </div>
 
-                {/* favorite things */}
+                {/* favorite things — Phase 6: cards slide into position */}
                 <div className="mb-10 max-w-sm">
                   <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-4">
                     Favorite Things
                   </p>
-                  <FavoriteThings />
+                  <FavoriteThings active={phase >= 6} />
                 </div>
 
-                {/* daily fuel + sticky note row */}
+                {/* daily fuel + sticky note row — Phase 6: sticky note drops
+                    onto the page with a slight rotation */}
                 <div className="relative flex flex-wrap items-start gap-6 sm:gap-8">
-                  <DailyFuel />
+                  <DailyFuel active={phase >= 6} />
                   <StickyNote
                     title="Note to Self"
                     color="#fef9c3"
                     rotate={4}
                     delay={0.15}
                     className="mt-2"
+                    active={phase >= 6}
                   >
                     Focus on improving 1% every day. Let the results take care
                     of themselves.
@@ -1238,40 +1444,57 @@ export default function About() {
                 </div>
               </motion.div>
 
-              {/* connecting hand-drawn arrows (desktop only) */}
+              {/* connecting hand-drawn arrows (desktop only) — Phase 4:
+                  the marker circles/arrows draw progressively, right after
+                  the purpose/mission story blocks land */}
               <DrawnArrow
                 className="top-[420px] left-[46%]"
                 path="M10 10 C 60 20, 90 60, 140 90"
-                delay={0.4}
+                delay={0.7}
+                active={phase >= 4}
               />
 
-              {/* ═══════════ JOURNEY TIMELINE ═══════════ */}
-              <JourneyTimeline />
+              {/* ═══════════ JOURNEY TIMELINE ═══════════ — Phase 7 */}
+              <JourneyTimeline active={phase >= 7} />
 
               {/* ═══════════ FULL-WIDTH ENDING STRIP ═══════════ */}
               <motion.div
                 initial={{ opacity: 0, y: rm ? 0 : 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: false, margin: "-80px" }}
+                animate={phase >= 7 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 24 }}
                 transition={{ duration: rm ? 0.3 : 0.8, ease }}
                 className="lg:col-span-2 relative px-6 py-12 sm:px-10 sm:py-16 text-center border-t border-dashed border-slate-300/60"
               >
-                <Doodle type="star" className="top-6 left-[15%]" delay={0.1} size={22} />
-                <Doodle type="star" className="bottom-8 right-[18%]" delay={0.3} size={18} />
+                {/* doodles drawing around the achievements — Phase 7 */}
+                <Doodle type="star" className="top-6 left-[15%]" delay={0.1} size={22} active={phase >= 7} />
+                <Doodle type="star" className="bottom-8 right-[18%]" delay={0.3} size={18} active={phase >= 7} />
 
-                {/* achievement stamps */}
+                {/* achievement stamps — Phase 7 */}
                 <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mb-10">
-                  <Stamp label="Self-Taught" sub="since day one" rotate={-8} color="#1d6feb" delay={0} />
-                  <Stamp label="50+ Projects" sub="and counting" rotate={5} color="#b91c1c" delay={0.15} />
-                  <Stamp label="3+ Years" sub="of building" rotate={-4} color="#1d6feb" delay={0.3} />
+                  <Stamp label="Self-Taught" sub="since day one" rotate={-8} color="#1d6feb" delay={0} active={phase >= 7} />
+                  <Stamp label="50+ Projects" sub="and counting" rotate={5} color="#b91c1c" delay={0.15} active={phase >= 7} />
+                  <Stamp label="3+ Years" sub="of building" rotate={-4} color="#1d6feb" delay={0.3} active={phase >= 7} />
                 </div>
 
-                <p className="font-hand text-3xl sm:text-4xl md:text-5xl text-foreground leading-snug mb-3">
+                {/* Final Phase — ending quote, then a handwritten signature
+                    writes itself right underneath it */}
+                <motion.p
+                  initial={{ opacity: 0, y: rm ? 0 : 16 }}
+                  animate={phase >= 8 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 16 }}
+                  transition={{ duration: rm ? 0.3 : 0.7, ease }}
+                  className="font-hand text-3xl sm:text-4xl md:text-5xl text-foreground leading-snug mb-3"
+                >
                   Still figuring things out.
-                </p>
-                <p className="text-sm sm:text-base text-slate-500 max-w-md mx-auto">
+                </motion.p>
+                <motion.p
+                  initial={{ opacity: 0, y: rm ? 0 : 12 }}
+                  animate={phase >= 8 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 12 }}
+                  transition={{ duration: rm ? 0.3 : 0.6, delay: rm ? 0 : 0.15 }}
+                  className="text-sm sm:text-base text-slate-500 max-w-md mx-auto mb-6"
+                >
                   Because every great story is still being written.
-                </p>
+                </motion.p>
+
+                <Signature active={phase >= 8} delay={0.5} />
               </motion.div>
             </div>
             </motion.div>
