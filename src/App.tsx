@@ -25,7 +25,7 @@ const Skills = lazy(() => import("@/components/Skills"));
 const Projects = lazy(() => import("@/components/Projects"));
 const VideoShowcase = lazy(() => import("@/components/VideoShowcase"));
 const Services = lazy(() => import("@/components/Services"));
-const Testimonials = lazy(() => import("@/components/Testimonials"));
+const Testimonials = lazy(() => import("@/components/testimonials/Testimonials"));
 const Contact = lazy(() => import("@/components/Contact"));
 const Footer = lazy(() => import("@/components/Footer"));
 
