@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&family=Caveat:wght@500..700&family=Kalam:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
@@ -6,6 +6,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --breakpoint-xs: 480px;
+
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-border: hsl(var(--border));
@@ -154,6 +156,39 @@
   }
 }
 
+/* ── Safe-area utilities for devices with gesture navigation / notches ── */
+.pb-safe { padding-bottom: max(env(safe-area-inset-bottom, 0px), 1rem); }
+.pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+.pl-safe { padding-left: env(safe-area-inset-left, 0px); }
+.pr-safe { padding-right: env(safe-area-inset-right, 0px); }
+
+/* ── Respect prefers-reduced-motion globally ──
+   Components already branch on useReducedMotion()/matchMedia for their JS-driven
+   animations; this is the CSS-level backstop for any keyframe/transition that
+   isn't otherwise gated, so infinite decorative loops (float, pulse, spin,
+   marquee, shimmer) stop for anyone who has asked the OS to reduce motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Ensure every tappable control meets the 44x44px minimum touch target on
+   touch devices, without changing visual size on desktop pointer input. */
+@media (pointer: coarse) {
+  a, button, [role="button"], input[type="submit"], input[type="button"] {
+    min-height: 44px;
+  }
+  a.inline-link, .text-link {
+    min-height: 0; /* inline text links inside paragraphs stay inline */
+  }
+}
+
 html.lenis, html.lenis body {
   height: auto;
 }
@@ -187,6 +222,7 @@ html.lenis, html.lenis body {
 }
 
 .gradient-text {
+  color: hsl(var(--primary)); /* fallback if background-clip:text fails to paint */
   background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -270,7 +306,11 @@ html.lenis, html.lenis body {
 }
 
 .text-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-secondary;
+  color: hsl(var(--primary)); /* fallback if background-clip:text fails to paint (older Safari/WebKit) */
+  background-image: linear-gradient(to right, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--secondary)));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .glow-hover {
