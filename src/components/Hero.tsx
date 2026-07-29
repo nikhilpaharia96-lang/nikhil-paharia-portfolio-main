@@ -910,7 +910,7 @@ export default function Hero() {
 
       {/* Scroll indicator */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2">
-        <span className="text-xs text-slate-500 tracking-widest uppercase font-mono">Scroll to Explore</span>
+        <span className="text-xs text-slate-500 tracking-widest uppercase font-mono">.</span>
         {/* Mouse-shape icon with an animated internal dot ("line animation") */}
         <div className="w-5 h-8 rounded-full border-2 border-primary/50 flex items-start justify-center p-1" aria-hidden="true">
           <span className="w-1 h-1.5 rounded-full bg-primary scroll-dot" />
