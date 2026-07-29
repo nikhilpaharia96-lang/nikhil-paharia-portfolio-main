@@ -3,7 +3,6 @@ import {
   motion,
   AnimatePresence,
   useInView,
-  useReducedMotion,
   type PanInfo,
 } from "framer-motion";
 import {
@@ -351,37 +350,19 @@ function TechChip({ tag }: { tag: string }) {
 
 /* ── compact "peeking" folder tab (shown behind the active one) ── */
 function FolderPeek({
-  project, depth, onSelect,
-}: { project: Project; depth: number; onSelect: () => void }) {
+  project, onSelect,
+}: { project: Project; onSelect: () => void }) {
   const tone = TONE_STYLES[project.tone];
   const statusStyle = STATUS_STYLES[project.status];
-  const reduced = useReducedMotion();
 
   return (
-    <motion.div
-      layoutId={`folder-${project.id}`}
-      layout
+    <button
       onClick={onSelect}
-      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onSelect())}
-      role="button"
-      tabIndex={0}
-      aria-label={`Bring ${project.title} to front`}
-      initial={false}
-      animate={{
-        y: depth * 14,
-        scale: 1 - depth * 0.025,
-        rotate: reduced ? 0 : (depth % 2 === 0 ? -1 : 1) * (depth * 0.6),
-      }}
-      whileHover={reduced ? {} : { y: depth * 14 - 6, rotate: 0 }}
-      transition={{ type: "spring", stiffness: 300, damping: 32 }}
-      className="absolute inset-x-0 top-0 h-16 sm:h-[72px] rounded-t-2xl rounded-b-lg cursor-pointer
+      aria-label={`Expand ${project.title}`}
+      className="w-full h-16 sm:h-[72px] rounded-lg cursor-pointer text-left
                  flex items-center gap-3 sm:gap-4 px-5 sm:px-7 border shadow-[0_10px_24px_-10px_rgba(15,23,42,0.35)]
                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
-      style={{
-        background: tone.bg,
-        borderColor: tone.border,
-        zIndex: 20 - depth,
-      }}
+      style={{ background: tone.bg, borderColor: tone.border }}
     >
       <span
         className="inline-flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-lg text-xs font-black shrink-0"
@@ -399,11 +380,11 @@ function FolderPeek({
         <span className={`h-1.5 w-1.5 rounded-full ${statusStyle.dot}`} />
         {project.status}
       </span>
-    </motion.div>
+    </button>
   );
 }
 
-/* ── the fully expanded, front-of-stack folder ───────────────── */
+/* ── the fully expanded folder, shown wherever it sits in the fixed order ── */
 function FolderExpanded({
   project, onNext, onPrev, total, position,
 }: { project: Project; onNext: () => void; onPrev: () => void; total: number; position: number }) {
@@ -417,15 +398,12 @@ function FolderExpanded({
 
   return (
     <motion.div
-      layoutId={`folder-${project.id}`}
-      layout
       drag={total > 1 ? "x" : false}
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.12}
       onDragEnd={handleDragEnd}
-      transition={{ type: "spring", stiffness: 260, damping: 30 }}
-      className="relative rounded-2xl sm:rounded-3xl overflow-hidden border shadow-[0_30px_70px_-20px_rgba(15,23,42,0.35)] cursor-grab active:cursor-grabbing"
-      style={{ background: tone.bg, borderColor: tone.border, zIndex: 30 }}
+      className={`relative rounded-lg sm:rounded-xl overflow-hidden border shadow-[0_30px_70px_-20px_rgba(15,23,42,0.35)] ${total > 1 ? "cursor-grab active:cursor-grabbing" : ""}`}
+      style={{ background: tone.bg, borderColor: tone.border }}
     >
       {/* folder header strip */}
       <div className="flex items-center gap-3 sm:gap-4 px-5 sm:px-7 pt-5 sm:pt-6 pb-4">
@@ -539,13 +517,13 @@ function FolderExpanded({
         </div>
       </div>
 
-      {/* prev/next controls */}
+      {/* prev/next controls — steps which card is expanded, order never changes */}
       {total > 1 && (
         <div className="flex items-center justify-between px-5 sm:px-7 pb-5 sm:pb-6 pt-1">
           <button
             onClick={onPrev}
             onPointerDown={(e) => e.stopPropagation()}
-            aria-label="Previous project"
+            aria-label="Expand previous project"
             className="inline-flex items-center gap-1 text-xs font-bold rounded-full px-3 py-2"
             style={{ background: "rgba(0,0,0,0.08)", color: tone.text }}
           >
@@ -557,7 +535,7 @@ function FolderExpanded({
           <button
             onClick={onNext}
             onPointerDown={(e) => e.stopPropagation()}
-            aria-label="Next project"
+            aria-label="Expand next project"
             className="inline-flex items-center gap-1 text-xs font-bold rounded-full px-3 py-2"
             style={{ background: "rgba(0,0,0,0.08)", color: tone.text }}
           >
@@ -569,38 +547,52 @@ function FolderExpanded({
   );
 }
 
+/** One row of the stack. Order in the list never changes — only which row is
+ *  expanded. A shared layoutId between the collapsed and expanded states is
+ *  what produces the "growing in place" morph instead of a swap/fade. */
+function FolderRow({
+  project, isActive, idx, onSelect, onNext, onPrev, total, position,
+}: {
+  project: Project; isActive: boolean; idx: number;
+  onSelect: () => void; onNext: () => void; onPrev: () => void; total: number; position: number;
+}) {
+  return (
+    <motion.div
+      layout
+      transition={{ type: "spring", stiffness: 280, damping: 32 }}
+      className="relative"
+      style={{ zIndex: idx, marginTop: idx === 0 ? 0 : -18 }}
+    >
+      <motion.div layoutId={`folder-${project.id}`} layout transition={{ type: "spring", stiffness: 280, damping: 32 }}>
+        <AnimatePresence mode="wait" initial={false}>
+          {isActive ? (
+            <motion.div key="expanded" initial={{ opacity: 0.4 }} animate={{ opacity: 1 }} exit={{ opacity: 0.4 }} transition={{ duration: 0.15 }}>
+              <FolderExpanded project={project} onNext={onNext} onPrev={onPrev} total={total} position={position} />
+            </motion.div>
+          ) : (
+            <motion.div key="collapsed" initial={{ opacity: 0.4 }} animate={{ opacity: 1 }} exit={{ opacity: 0.4 }} transition={{ duration: 0.15 }}>
+              <FolderPeek project={project} onSelect={onSelect} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 /* ── the folder stack itself ─────────────────────────────────── */
 function FolderStack({ projects }: { projects: Project[] }) {
-  const [order, setOrder] = useState<number[]>(() => projects.map((p) => p.id));
+  const [activeId, setActiveId] = useState<number | null>(projects[0]?.id ?? null);
 
-  const orderedIds = order.filter((id) => projects.some((p) => p.id === id));
-  const missing = projects.map((p) => p.id).filter((id) => !orderedIds.includes(id));
-  const activeOrder = [...orderedIds, ...missing];
-  const activeOrderKey = activeOrder.join(",");
-
-  // Persist the corrected order once the filtered list changes (e.g. switching category).
-  // The render below already uses `activeOrder` directly, so this never causes a visible flash —
-  // it just keeps `order` state in sync for the next interaction.
+  // Keep the active id valid whenever the filtered list changes (e.g. switching category).
   useEffect(() => {
-    if (activeOrderKey !== order.join(",") && activeOrder.length) {
-      setOrder(activeOrder);
+    if (!projects.some((p) => p.id === activeId)) {
+      setActiveId(projects[0]?.id ?? null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeOrderKey]);
+  }, [projects.map((p) => p.id).join(",")]);
 
-  const byId = new Map(projects.map((p) => [p.id, p]));
-  const stackOrder = activeOrder.filter((id) => byId.has(id)).map((id) => byId.get(id)!);
-
-  const bringToFront = (id: number) => {
-    setOrder((prev) => [id, ...prev.filter((p) => p !== id)]);
-  };
-  const next = () => setOrder((prev) => (prev.length > 1 ? [...prev.slice(1), prev[0]] : prev));
-  const prev = () => setOrder((prev) => (prev.length > 1 ? [prev[prev.length - 1], ...prev.slice(0, -1)] : prev));
-
-  const front = stackOrder[0];
-  const behind = stackOrder.slice(1, 4); // show up to 3 peeking folders behind
-
-  if (!front) {
+  if (!projects.length) {
     return (
       <div className="py-20 text-center text-slate-400 text-sm font-semibold">
         No projects in this category yet.
@@ -608,37 +600,30 @@ function FolderStack({ projects }: { projects: Project[] }) {
     );
   }
 
-  return (
-    <div className="relative">
-      {/* peeking folders */}
-      <div className="relative h-16 sm:h-[72px]">
-        {behind.slice().reverse().map((p, revIdx) => (
-          <FolderPeek
-            key={p.id}
-            project={p}
-            depth={behind.length - revIdx}
-            onSelect={() => bringToFront(p.id)}
-          />
-        ))}
-      </div>
+  const activeIndex = Math.max(0, projects.findIndex((p) => p.id === activeId));
+  const stepTo = (delta: number) => {
+    const nextIndex = (activeIndex + delta + projects.length) % projects.length;
+    setActiveId(projects[nextIndex].id);
+  };
 
-      {/* the active, expanded folder */}
-      <div className="relative -mt-16 sm:-mt-[72px]">
-        <AnimatePresence mode="popLayout">
-          <FolderExpanded
-            key={front.id}
-            project={front}
-            onNext={next}
-            onPrev={prev}
-            total={stackOrder.length}
-            position={0}
-          />
-        </AnimatePresence>
-      </div>
-    </div>
+  return (
+    <motion.div layout className="flex flex-col">
+      {projects.map((p, idx) => (
+        <FolderRow
+          key={p.id}
+          project={p}
+          idx={idx}
+          isActive={p.id === activeId}
+          onSelect={() => setActiveId(p.id)}
+          onNext={() => stepTo(1)}
+          onPrev={() => stepTo(-1)}
+          total={projects.length}
+          position={activeIndex}
+        />
+      ))}
+    </motion.div>
   );
 }
-
 /* ── main section ─────────────────────────────────────────────── */
 export default function Projects() {
   const [activeFilter, setActiveFilter] = useState("All");
