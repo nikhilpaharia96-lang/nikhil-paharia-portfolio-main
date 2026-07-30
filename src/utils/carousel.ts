@@ -17,6 +17,14 @@ export function loopedDistance(index: number, selected: number, count: number): 
 }
 
 /**
+ * Plain signed distance for non-looped carousels — unlike `loopedDistance`,
+ * this never wraps around, since there's no wrap-around point to smooth over.
+ */
+export function plainDistance(index: number, selected: number): number {
+  return index - selected;
+}
+
+/**
  * Maps a slide's distance from the active slide to a visual weight in the
  * 0..1 range (1 = active, 0 = fully receded). Distances beyond 2 slides are
  * treated the same so far-off slides don't keep shrinking indefinitely.
