@@ -1,4 +1,5 @@
 import { useRef, useMemo, useState, useEffect } from "react";
+
 import {
   motion,
   useMotionValue,
@@ -21,6 +22,7 @@ import {
   SiFigma,
 } from "react-icons/si";
 import { VscVscode } from "react-icons/vsc";
+import myNewPhoto from "../assets/images/my-new-photo.jpg";
 import profilePhoto from "../assets/images/profile-nobg.png";
 import SplitText from "@/components/ui/SplitText";
 import { gsap } from "gsap";
