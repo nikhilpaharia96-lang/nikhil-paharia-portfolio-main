@@ -1501,10 +1501,6 @@ export default function About() {
                         alt="A silhouette, looking out over the hills"
                         loading="lazy"
                         className="absolute inset-0 w-full h-full object-cover object-top"
-                        style={{
-                          filter: "grayscale(1) contrast(1.35) brightness(0.35)",
-                          mixBlendMode: "multiply",
-                        }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-primary/25 via-transparent to-amber-100/20" />
                       <svg
