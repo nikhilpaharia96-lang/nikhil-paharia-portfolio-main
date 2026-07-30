@@ -484,39 +484,46 @@ function BlueprintLines() {
    ──────────────────────────────────────────────────────────── */
 
 /* ────────────────────────────────────────────────────────────
-   Blueprint background art — original wireframe globe, circular
-   geometry guides, corner brackets, pencil-sketch hatch marks,
-   dot matrices and handwritten notes. Pure SVG/CSS, no images.
+   Blueprint background art — engineering-drawing aesthetic:
+   grid, construction geometry, corner brackets, pencil hatch,
+   dot matrices and technical labels. Pure SVG/CSS, no images.
    ──────────────────────────────────────────────────────────── */
 
-const BLUE = "#3B82F6";
-const BLUE_SOFT = "#60A5FA";
+const BLUE = "#2563EB"; // accent
+const BLUE_LINE = "#B7CEFF"; // blueprint line
+const BLUE_LINE_SOFT = "#D8E5FF"; // faintest blueprint line
 
-function WireframeGlobe({ className }: { className?: string }) {
+function TechnicalCircleRig({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 200 200" className={className} aria-hidden="true">
-      <circle cx="100" cy="100" r="72" stroke={BLUE} strokeWidth="1" fill="none" />
-      <ellipse cx="100" cy="100" rx="72" ry="24" stroke={BLUE} strokeWidth="0.7" fill="none" />
-      <ellipse cx="100" cy="100" rx="72" ry="50" stroke={BLUE} strokeWidth="0.6" fill="none" opacity="0.8" />
-      <line x1="100" y1="28" x2="100" y2="172" stroke={BLUE} strokeWidth="0.6" opacity="0.7" />
-      <motion.g
-        style={{ transformOrigin: "100px 100px" }}
-        animate={{ rotate: 360 }}
-        transition={{ duration: 46, repeat: Infinity, ease: "linear" }}
-      >
-        <ellipse cx="100" cy="100" rx="30" ry="72" stroke={BLUE} strokeWidth="0.7" fill="none" />
-        <ellipse cx="100" cy="100" rx="56" ry="72" stroke={BLUE} strokeWidth="0.6" fill="none" opacity="0.7" />
-      </motion.g>
-      <circle
-        cx="100"
-        cy="100"
-        r="86"
-        stroke={BLUE_SOFT}
+    <svg viewBox="0 0 300 300" className={className} aria-hidden="true">
+      <circle cx="150" cy="150" r="110" stroke={BLUE_LINE} strokeWidth="1" fill="none" />
+      <motion.circle
+        cx="150"
+        cy="150"
+        r="82"
+        stroke={BLUE}
         strokeWidth="0.6"
-        strokeDasharray="1.5 6"
+        strokeDasharray="2 6"
         fill="none"
-        opacity="0.6"
+        opacity="0.7"
+        style={{ transformOrigin: "150px 150px" }}
+        animate={{ rotate: 360 }}
+        transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
       />
+      {/* centerlines extending past the circle, ruler-style */}
+      <line x1="0" y1="150" x2="300" y2="150" stroke={BLUE} strokeWidth="0.6" opacity="0.5" />
+      <line x1="150" y1="0" x2="150" y2="300" stroke={BLUE} strokeWidth="0.6" opacity="0.5" />
+      {/* tick marks along the centerlines */}
+      {[40, 80, 220, 260].map((pos) => (
+        <line key={`h${pos}`} x1={pos} y1="145" x2={pos} y2="155" stroke={BLUE} strokeWidth="0.7" opacity="0.55" />
+      ))}
+      {[40, 80, 220, 260].map((pos) => (
+        <line key={`v${pos}`} x1="145" y1={pos} x2="155" y2={pos} stroke={BLUE} strokeWidth="0.7" opacity="0.55" />
+      ))}
+      <circle cx="150" cy="150" r="3" fill={BLUE} opacity="0.6" />
+      {/* small crosses orbiting the rig */}
+      <path d="M150 40 L150 48 M146 44 L154 44" stroke={BLUE} strokeWidth="0.9" opacity="0.5" />
+      <path d="M258 150 L266 150 M262 146 L262 154" stroke={BLUE} strokeWidth="0.9" opacity="0.5" />
     </svg>
   );
 }
@@ -524,8 +531,8 @@ function WireframeGlobe({ className }: { className?: string }) {
 function CircularGuides({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 300 300" className={className} aria-hidden="true">
-      <circle cx="150" cy="150" r="138" stroke={BLUE_SOFT} strokeWidth="1" fill="none" opacity="0.6" />
-      <circle cx="150" cy="150" r="98" stroke={BLUE} strokeWidth="0.7" strokeDasharray="3 6" fill="none" opacity="0.6" />
+      <circle cx="150" cy="150" r="138" stroke={BLUE_LINE} strokeWidth="1" fill="none" opacity="0.7" />
+      <circle cx="150" cy="150" r="98" stroke={BLUE} strokeWidth="0.7" strokeDasharray="3 6" fill="none" opacity="0.55" />
       <motion.circle
         cx="150"
         cy="150"
@@ -534,18 +541,29 @@ function CircularGuides({ className }: { className?: string }) {
         strokeWidth="0.7"
         strokeDasharray="1 5"
         fill="none"
-        opacity="0.55"
+        opacity="0.5"
         style={{ transformOrigin: "150px 150px" }}
         animate={{ rotate: 360 }}
         transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
       />
-      <line x1="8" y1="292" x2="292" y2="8" stroke={BLUE} strokeWidth="0.6" opacity="0.35" />
+      <line x1="8" y1="292" x2="292" y2="8" stroke={BLUE} strokeWidth="0.6" opacity="0.3" />
       <path
         d="M150 6 L150 26 M150 274 L150 294 M6 150 L26 150 M274 150 L294 150"
         stroke={BLUE}
         strokeWidth="0.9"
-        opacity="0.45"
+        opacity="0.4"
       />
+    </svg>
+  );
+}
+
+function ConstructionRect({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 160 100" className={className} aria-hidden="true">
+      <rect x="4" y="4" width="152" height="92" stroke={BLUE_LINE} strokeWidth="1" fill="none" opacity="0.7" />
+      <path d="M4 4 L14 4 M4 4 L4 14 M156 4 L146 4 M156 4 L156 14" stroke={BLUE} strokeWidth="0.9" opacity="0.5" />
+      <path d="M4 96 L14 96 M4 96 L4 86 M156 96 L146 96 M156 96 L156 86" stroke={BLUE} strokeWidth="0.9" opacity="0.5" />
+      <line x1="4" y1="50" x2="156" y2="50" stroke={BLUE} strokeWidth="0.5" strokeDasharray="2 5" opacity="0.4" />
     </svg>
   );
 }
@@ -571,7 +589,7 @@ function PencilHatch({ className }: { className?: string }) {
           y2={80}
           stroke={BLUE}
           strokeWidth="1"
-          opacity={0.1}
+          opacity={0.09}
         />
       ))}
     </svg>
@@ -582,71 +600,39 @@ function DotMatrix({ className }: { className?: string }) {
   return (
     <div className={`absolute grid grid-cols-4 gap-2 ${className}`} aria-hidden="true">
       {Array.from({ length: 16 }).map((_, i) => (
-        <span key={i} className="w-[3px] h-[3px] rounded-full" style={{ background: `${BLUE}40` }} />
+        <span key={i} className="w-[3px] h-[3px] rounded-full" style={{ background: `${BLUE}35` }} />
       ))}
     </div>
   );
 }
 
-function HandNote({
-  className,
-  lines,
-  align = "left",
-  arrow,
-  boxed = false,
-}: {
-  className?: string;
-  lines: string[];
-  align?: "left" | "right";
-  arrow?: "up" | "up-right";
-  boxed?: boolean;
-}) {
+/** Small crosshair / registration mark, e.g. under the identity block */
+function RegistrationMark({ className }: { className?: string }) {
   return (
-    <div className={`absolute select-none ${className}`} style={{ textAlign: align }}>
-      {arrow === "up-right" && (
-        <svg width="28" height="24" viewBox="0 0 28 24" style={{ opacity: 0.4 }}>
-          <path d="M4 21 C 8 10, 15 6, 24 4" stroke={BLUE} strokeWidth="1.3" fill="none" strokeLinecap="round" />
-          <path
-            d="M16 3 L25 3 L23 11"
-            stroke={BLUE}
-            strokeWidth="1.3"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      )}
-      {arrow === "up" && (
-        <svg width="18" height="24" viewBox="0 0 18 24" style={{ opacity: 0.4 }}>
-          <path d="M9 22 L9 4" stroke={BLUE} strokeWidth="1.3" strokeLinecap="round" />
-          <path
-            d="M3 10 L9 3 L15 10"
-            stroke={BLUE}
-            strokeWidth="1.3"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      )}
-      <div
-        className={`font-hand text-[13px] sm:text-sm leading-tight text-primary/60 ${
-          boxed ? "border border-dashed border-primary/25 rounded-md px-3 py-2" : ""
-        }`}
-      >
-        {lines.map((l, i) => (
-          <div key={i}>{l}</div>
-        ))}
-      </div>
-      {!boxed && (
-        <div
-          className="h-px mt-1 bg-primary/25"
-          style={{ width: "72%", marginLeft: align === "right" ? "auto" : 0 }}
-        />
-      )}
-    </div>
+    <svg width="22" height="22" viewBox="0 0 22 22" className={className} aria-hidden="true">
+      <circle cx="11" cy="11" r="7" stroke={BLUE} strokeWidth="0.8" fill="none" opacity="0.45" />
+      <path d="M11 0 L11 22 M0 11 L22 11" stroke={BLUE} strokeWidth="0.6" opacity="0.35" />
+    </svg>
   );
 }
+
+/** Tiny hand-drawn arrow used to point at a technical label */
+function SketchArrow({ className, rotate = 0 }: { className?: string; rotate?: number }) {
+  return (
+    <svg
+      width="30"
+      height="26"
+      viewBox="0 0 30 26"
+      className={`absolute ${className}`}
+      style={{ transform: `rotate(${rotate}deg)`, opacity: 0.4 }}
+      aria-hidden="true"
+    >
+      <path d="M26 22 C 16 22, 8 16, 5 5" stroke={BLUE} strokeWidth="1.2" fill="none" strokeLinecap="round" />
+      <path d="M5 13 L5 4 L14 6" stroke={BLUE} strokeWidth="1.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 
 export default function Skills() {
   const [activeTab, setActiveTab] = useState<"web" | "video">("web");
@@ -685,160 +671,203 @@ export default function Skills() {
       aria-label="Skills — My Arsenal"
     >
       {/* ══════════════════════════════════════════════════════
-          Blueprint / editorial background — paper + grid + sketch
+          Layer 1-6: Blueprint / engineering-drawing background
           ══════════════════════════════════════════════════════ */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        {/* paper base */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#FCFCFD] via-[#FAFAFA] to-[#FCFCFD]" />
-
-        {/* fine blueprint grid */}
+        {/* Layer 1 — paper base + grain */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FFFFFF] via-[#FAFBFF] to-[#F7F9FD]" />
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 opacity-[0.05] mix-blend-multiply"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(59,130,246,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.05) 1px, transparent 1px)",
-            backgroundSize: "42px 42px",
-          }}
-        />
-        {/* major grid lines */}
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(59,130,246,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.07) 1px, transparent 1px)",
-            backgroundSize: "210px 210px",
+              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
           }}
         />
 
-        {/* very subtle gradient corners */}
+        {/* Layer 2 — blueprint grid (fine + major) */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `linear-gradient(${BLUE_LINE_SOFT} 1px, transparent 1px), linear-gradient(90deg, ${BLUE_LINE_SOFT} 1px, transparent 1px)`,
+            backgroundSize: "40px 40px",
+            opacity: 0.35,
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `linear-gradient(${BLUE_LINE} 1px, transparent 1px), linear-gradient(90deg, ${BLUE_LINE} 1px, transparent 1px)`,
+            backgroundSize: "200px 200px",
+            opacity: 0.3,
+          }}
+        />
+
+        {/* thin technical border */}
+        <div className="absolute inset-5 sm:inset-7 rounded-[1.75rem]" style={{ border: `1px solid ${BLUE_LINE}66` }} />
+
+        {/* Layer 3 — blueprint geometry */}
+        <motion.div
+          className="absolute top-[4%] right-[6%] w-[22rem] h-[22rem] lg:w-[28rem] lg:h-[28rem] opacity-[0.07] hidden md:block"
+          style={{ x: parallaxXSoft, y: parallaxYSoft }}
+        >
+          <TechnicalCircleRig className="w-full h-full" />
+        </motion.div>
+        <motion.div
+          className="absolute -bottom-16 -left-16 w-72 h-72 sm:w-96 sm:h-96 opacity-[0.08] hidden sm:block"
+          style={{ x: parallaxXSoft, y: parallaxYSoft }}
+        >
+          <CircularGuides className="w-full h-full" />
+        </motion.div>
+        <ConstructionRect className="absolute top-[38%] left-[6%] w-32 h-20 opacity-[0.08] hidden xl:block rotate-[-3deg]" />
+
+        {/* corner registration brackets */}
+        <CornerBracket className="top-6 left-6" />
+        <CornerBracket className="top-6 right-6 scale-x-[-1]" />
+        <CornerBracket className="bottom-6 left-6 scale-y-[-1]" />
+        <CornerBracket className="bottom-6 right-6 scale-[-1]" />
+
+        {/* pencil-sketch hatch marks */}
+        <PencilHatch className="-top-2 right-[16%] rotate-[8deg] opacity-70 hidden sm:block" />
+        <PencilHatch className="-bottom-2 left-[14%] rotate-[188deg] opacity-70 hidden sm:block" />
+
+        {/* dotted matrices + scattered ticks */}
+        <DotMatrix className="top-[19%] left-6 sm:left-10 hidden sm:grid" />
+        <DotMatrix className="bottom-[16%] right-[6%] hidden lg:grid" />
+        {[
+          { top: "30%", left: "18%" },
+          { top: "62%", left: "34%" },
+          { top: "48%", left: "58%" },
+          { top: "72%", left: "76%" },
+        ].map((pos, i) => (
+          <span
+            key={i}
+            className="absolute w-[5px] h-[5px] hidden md:block"
+            style={{
+              top: pos.top,
+              left: pos.left,
+              background: `${BLUE}25`,
+              transform: "rotate(45deg)",
+            }}
+          />
+        ))}
+
+        {/* Layer 4 — decorative labels */}
+
+        {/* top-left identity mark */}
+        <div className="absolute top-8 sm:top-10 left-6 sm:left-10">
+          <div
+            className="pb-2 mb-3 font-mono text-[11px] sm:text-xs tracking-[0.14em]"
+            style={{ borderBottom: `1px solid ${BLUE_LINE}88`, width: "min(46vw, 168px)", color: `${BLUE}8C` }}
+          >
+            <div className="font-bold">NIKHIL PAHARIA</div>
+            <div className="opacity-80">PORTFOLIO</div>
+          </div>
+          <RegistrationMark className="mb-3" />
+          <div className="hidden sm:block font-mono text-[10px] sm:text-[11px] tracking-[0.12em] leading-relaxed">
+            <div className="opacity-80" style={{ color: `${BLUE}8C` }}>
+              DESIGN — BUILD
+            </div>
+            <div className="opacity-80" style={{ color: `${BLUE}8C` }}>
+              CODE — DEPLOY
+            </div>
+            <div className="opacity-80" style={{ color: `${BLUE}8C` }}>
+              IMPACT — SCALE
+            </div>
+          </div>
+        </div>
+
+        {/* top-right focus frame */}
+        <div className="absolute top-8 sm:top-10 right-6 sm:right-10 hidden sm:block">
+          <div className="relative px-4 py-3">
+            <span
+              className="absolute -top-1 -left-1 w-2.5 h-2.5"
+              style={{ borderTop: `1px solid ${BLUE}66`, borderLeft: `1px solid ${BLUE}66` }}
+            />
+            <span
+              className="absolute -top-1 -right-1 w-2.5 h-2.5"
+              style={{ borderTop: `1px solid ${BLUE}66`, borderRight: `1px solid ${BLUE}66` }}
+            />
+            <span
+              className="absolute -bottom-1 -left-1 w-2.5 h-2.5"
+              style={{ borderBottom: `1px solid ${BLUE}66`, borderLeft: `1px solid ${BLUE}66` }}
+            />
+            <span
+              className="absolute -bottom-1 -right-1 w-2.5 h-2.5"
+              style={{ borderBottom: `1px solid ${BLUE}66`, borderRight: `1px solid ${BLUE}66` }}
+            />
+            <div className="font-mono text-[11px] sm:text-xs tracking-[0.14em] leading-relaxed" style={{ color: `${BLUE}8C` }}>
+              <div className="font-bold">FOCUS</div>
+              <div className="opacity-75">PROBLEM</div>
+              <div className="opacity-75">SOLUTION</div>
+              <div className="opacity-75">IMPACT</div>
+            </div>
+          </div>
+          <PencilHatch className="-top-3 -right-10 w-16 h-14 rotate-[14deg] opacity-60 hidden lg:block" />
+        </div>
+
+        {/* bottom-left — large faded section number */}
+        <div
+          aria-hidden="true"
+          className="absolute -bottom-10 left-[-1rem] sm:left-2 select-none font-serif font-extrabold leading-none hidden sm:block"
+          style={{
+            fontSize: "clamp(9rem, 22vw, 20rem)",
+            color: "transparent",
+            WebkitTextStroke: `1.5px ${BLUE}0D`,
+          }}
+        >
+          02
+        </div>
+
+        {/* bottom-right — closing label with sketch arrow */}
+        <div className="absolute bottom-12 sm:bottom-16 right-8 sm:right-14 hidden lg:block text-right">
+          <div
+            className="font-mono text-[11px] sm:text-xs tracking-[0.14em] leading-relaxed"
+            style={{ color: `${BLUE}8C` }}
+          >
+            <div className="opacity-90">BUILDING</div>
+            <div className="opacity-90">DIGITAL</div>
+            <div className="opacity-90">EXPERIENCES</div>
+            <div className="font-bold">THAT MATTER.</div>
+          </div>
+          <SketchArrow className="-bottom-6 -left-8" rotate={-12} />
+        </div>
+
+        {/* tiny version tag, bottom-right corner */}
+        <div
+          className="absolute bottom-6 right-6 hidden sm:flex items-center gap-2 font-mono text-[10px]"
+          style={{ color: `${BLUE}59` }}
+        >
+          <span className="w-6 h-px" style={{ background: `${BLUE}40` }} />
+          <span>v1.0</span>
+          <span className="flex gap-1">
+            {[0, 1, 2].map((i) => (
+              <span key={i} className="w-[3px] h-[3px] rounded-full" style={{ background: `${BLUE}40` }} />
+            ))}
+          </span>
+        </div>
+
+        {/* Layer 5 — soft blue lighting, almost invisible */}
         <motion.div
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(45% 45% at 100% 0%, rgba(96,165,250,0.12), transparent 70%), radial-gradient(45% 45% at 0% 100%, rgba(59,130,246,0.09), transparent 70%)",
+              "radial-gradient(60% 55% at 50% 42%, rgba(37,99,235,0.05), transparent 72%)",
+          }}
+          animate={{ opacity: [0.6, 1, 0.6] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(40% 40% at 100% 0%, rgba(183,206,255,0.16), transparent 70%), radial-gradient(40% 40% at 0% 100%, rgba(37,99,235,0.08), transparent 70%)",
           }}
           animate={{ opacity: [0.7, 1, 0.7] }}
           transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
         />
 
         {/* cursor-reactive spotlight — light mouse parallax over the paper */}
-        <motion.div
-          className="absolute inset-0 hidden lg:block"
-          style={{ background: spotlightBg }}
-        />
-
-        {/* blueprint outer border */}
-        <div className="absolute inset-4 sm:inset-6 border border-primary/[0.06] rounded-[2rem]" />
-
-        {/* corner brackets (print registration marks) */}
-        <CornerBracket className="top-6 left-6" />
-        <CornerBracket className="top-6 right-6 scale-x-[-1]" />
-        <CornerBracket className="bottom-6 left-6 scale-y-[-1]" />
-        <CornerBracket className="bottom-6 right-6 scale-[-1]" />
-
-        {/* pencil-sketch hatch strokes, tucked in two corners */}
-        <PencilHatch className="-top-2 right-8 sm:right-16 opacity-70" />
-        <PencilHatch className="-bottom-2 left-8 sm:left-16 rotate-180 opacity-70" />
-
-        {/* large faded section number */}
-        <motion.div
-          aria-hidden="true"
-          className="absolute -top-4 sm:top-0 right-[-0.5rem] sm:right-4 select-none font-serif font-extrabold leading-none hidden sm:block"
-          style={{
-            fontSize: "clamp(8rem, 20vw, 18rem)",
-            color: "transparent",
-            WebkitTextStroke: "1.5px rgba(59,130,246,0.08)",
-            x: parallaxXSoft,
-            y: parallaxYSoft,
-          }}
-        >
-          02
-        </motion.div>
-
-        {/* wireframe globe */}
-        <motion.div
-          className="absolute bottom-8 right-4 sm:right-10 w-36 h-36 sm:w-52 sm:h-52 opacity-[0.16]"
-          style={{ x: parallaxXStrong, y: parallaxYStrong }}
-        >
-          <WireframeGlobe className="w-full h-full" />
-        </motion.div>
-
-        {/* circular geometry guides */}
-        <motion.div
-          className="absolute -bottom-20 -left-20 w-72 h-72 sm:w-96 sm:h-96 opacity-[0.12] hidden sm:block"
-          style={{ x: parallaxXSoft, y: parallaxYSoft }}
-        >
-          <CircularGuides className="w-full h-full" />
-        </motion.div>
-
-        {/* dotted matrices */}
-        <DotMatrix className="top-16 left-[30%] hidden md:grid" />
-        <DotMatrix className="bottom-20 right-[32%] hidden lg:grid" />
-
-        {/* handwritten notes — kept to the quiet top/bottom margins */}
-        <HandNote
-          className="top-8 sm:top-10 left-6 sm:left-10"
-          arrow="up-right"
-          lines={["Building Better Solutions", "Everyday."]}
-        />
-        <HandNote
-          className="bottom-8 sm:bottom-10 left-6 sm:left-10"
-          arrow="up"
-          lines={["Always Learning"]}
-        />
-        <HandNote
-          className="top-8 sm:top-10 right-8 sm:right-14 hidden lg:block"
-          align="right"
-          lines={["Problem  →  Solution"]}
-        />
-        <HandNote
-          className="bottom-10 right-8 sm:right-14 hidden lg:block"
-          align="right"
-          boxed
-          lines={["Focus   •   Learn", "Improve   •   Repeat"]}
-        />
-        <div className="hidden xl:block absolute top-14 right-[27%] font-hand text-xs text-primary/45">
-          Clean Code
-        </div>
-        <div className="hidden xl:block absolute bottom-16 left-[42%] font-hand text-xs text-primary/45">
-          Think. Design. Build.
-        </div>
-
-        {/* soft breathing glow — quiet ambient life, no distracting motion */}
-        <motion.div
-          className="absolute top-[12%] left-[8%] w-[24rem] h-[24rem] rounded-full blur-[120px]"
-          style={{ background: "rgba(59,130,246,0.06)" }}
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute bottom-[10%] right-[10%] w-[22rem] h-[22rem] rounded-full blur-[110px]"
-          style={{ background: "rgba(96,165,250,0.06)" }}
-          animate={{ opacity: [0.4, 0.9, 0.4] }}
-          transition={{ duration: 13, delay: 1.5, repeat: Infinity, ease: "easeInOut" }}
-        />
-
-        {/* tiny floating measurement dots */}
-        {Array.from({ length: 10 }).map((_, i) => (
-          <motion.span
-            key={i}
-            className="absolute rounded-full"
-            style={{
-              left: `${(i * 41 + 6) % 100}%`,
-              top: `${(i * 59 + 8) % 100}%`,
-              width: 3,
-              height: 3,
-              background: `${BLUE}30`,
-            }}
-            animate={{ y: [0, -16, 0], opacity: [0.15, 0.5, 0.15] }}
-            transition={{
-              duration: 7 + (i % 5),
-              delay: i * 0.35,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-        ))}
+        <motion.div className="absolute inset-0 hidden lg:block" style={{ background: spotlightBg }} />
       </div>
 
       <div className="container-tight relative z-10 max-w-full">
