@@ -1654,9 +1654,6 @@ export default function About() {
                 <MountainDoodle flip className="hidden sm:block ml-auto opacity-70" />
               </motion.div>
 
-              {/* ═══════════ JOURNEY TIMELINE ═══════════ — Phase 7 */}
-              <JourneyTimeline active={phase >= 7} />
-
               {/* ═══════════ FULL-WIDTH ENDING STRIP ═══════════ */}
               <motion.div
                 initial={{ opacity: 0, y: rm ? 0 : 24 }}
