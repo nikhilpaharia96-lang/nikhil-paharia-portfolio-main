@@ -3,7 +3,6 @@ import {
   motion,
   AnimatePresence,
   useInView,
-  useReducedMotion,
   type PanInfo,
 } from "framer-motion";
 import {
@@ -266,9 +265,9 @@ const STATUS_STYLES: Record<Status, { dot: string; bg: string; text: string }> =
 };
 
 const TONE_STYLES: Record<Tone, { bg: string; text: string; sub: string; border: string }> = {
-  cream: { bg: "#F7F2E7", text: "#1a1a1a", sub: "#6b6456", border: "rgba(0,0,0,0.08)" },
-  blue:  { bg: "#1d6feb", text: "#ffffff", sub: "rgba(255,255,255,0.75)", border: "rgba(255,255,255,0.18)" },
-  ink:   { bg: "#14161c", text: "#ffffff", sub: "rgba(255,255,255,0.6)", border: "rgba(255,255,255,0.1)" },
+  cream: { bg: "#F7F2E7", text: "#1a1a1a", sub: "#6b6456", border: "rgba(255,255,255,0.5)" },
+  blue:  { bg: "#2563eb", text: "#ffffff", sub: "rgba(255,255,255,0.75)", border: "rgba(255,255,255,0.3)" },
+  ink:   { bg: "#14161c", text: "#ffffff", sub: "rgba(255,255,255,0.6)", border: "rgba(255,255,255,0.22)" },
 };
 
 /* ── tiny hand-drawn decorations (kept subtle, used sparingly) ── */
@@ -286,9 +285,9 @@ function TapeStrip({ className = "", rotate = -4 }: { className?: string; rotate
   );
 }
 
-function InkStar({ className = "", style }: { className?: string; style?: React.CSSProperties }) {
+function InkStar({ className = "", style, color = "#7fb2ff" }: { className?: string; style?: React.CSSProperties; color?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className={className} style={style} width="16" height="16" fill="none" stroke="#1d6feb" strokeWidth="1.6" aria-hidden="true">
+    <svg viewBox="0 0 24 24" className={className} style={style} width="16" height="16" fill="none" stroke={color} strokeWidth="1.6" aria-hidden="true">
       <path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2z" strokeLinejoin="round" />
     </svg>
   );
@@ -306,16 +305,26 @@ function SquigglyArrow({ className = "" }: { className?: string }) {
   );
 }
 
-function CoffeeStain({ className = "", style }: { className?: string; style?: React.CSSProperties }) {
+/** Small blueprint corner bracket — a common technical-drawing motif, drawn fresh (not traced from any reference). */
+function CornerBracket({ className = "", flip = false }: { className?: string; flip?: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 28 28" width="22" height="22"
+      className={`pointer-events-none absolute text-white/25 ${className}`}
+      style={{ transform: flip ? "scaleX(-1)" : undefined }}
+      aria-hidden="true"
+    >
+      <path d="M2 14V2h12" stroke="currentColor" strokeWidth="1.5" fill="none" />
+    </svg>
+  );
+}
+
+/** Soft blurred glow orb for atmospheric depth on the blueprint background. */
+function GlowOrb({ className = "", color = "#2563eb", size = 420 }: { className?: string; color?: string; size?: number }) {
   return (
     <div
       className={`pointer-events-none absolute rounded-full ${className}`}
-      style={{
-        width: 90, height: 90,
-        border: "2px solid rgba(120,72,38,0.10)",
-        boxShadow: "inset 0 0 0 6px rgba(120,72,38,0.04)",
-        ...style,
-      }}
+      style={{ width: size, height: size, background: color, opacity: 0.16, filter: "blur(90px)" }}
     />
   );
 }
@@ -351,37 +360,20 @@ function TechChip({ tag }: { tag: string }) {
 
 /* ── compact "peeking" folder tab (shown behind the active one) ── */
 function FolderPeek({
-  project, depth, onSelect,
-}: { project: Project; depth: number; onSelect: () => void }) {
+  project, onSelect,
+}: { project: Project; onSelect: () => void }) {
   const tone = TONE_STYLES[project.tone];
   const statusStyle = STATUS_STYLES[project.status];
-  const reduced = useReducedMotion();
 
   return (
-    <motion.div
-      layoutId={`folder-${project.id}`}
-      layout
+    <button
       onClick={onSelect}
-      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onSelect())}
-      role="button"
-      tabIndex={0}
-      aria-label={`Bring ${project.title} to front`}
-      initial={false}
-      animate={{
-        y: depth * 14,
-        scale: 1 - depth * 0.025,
-        rotate: reduced ? 0 : (depth % 2 === 0 ? -1 : 1) * (depth * 0.6),
-      }}
-      whileHover={reduced ? {} : { y: depth * 14 - 6, rotate: 0 }}
-      transition={{ type: "spring", stiffness: 300, damping: 32 }}
-      className="absolute inset-x-0 top-0 h-16 sm:h-[72px] rounded-t-2xl rounded-b-lg cursor-pointer
-                 flex items-center gap-3 sm:gap-4 px-5 sm:px-7 border shadow-[0_10px_24px_-10px_rgba(15,23,42,0.35)]
+      aria-label={`Expand ${project.title}`}
+      className="group/peek w-full h-16 sm:h-[72px] rounded-lg cursor-pointer text-left
+                 flex items-center gap-3 sm:gap-4 px-5 sm:px-7 border-2 shadow-[0_10px_28px_-8px_rgba(0,0,0,0.5)]
+                 transition-transform duration-200 hover:-translate-y-0.5
                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
-      style={{
-        background: tone.bg,
-        borderColor: tone.border,
-        zIndex: 20 - depth,
-      }}
+      style={{ background: tone.bg, borderColor: tone.border }}
     >
       <span
         className="inline-flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-lg text-xs font-black shrink-0"
@@ -392,18 +384,24 @@ function FolderPeek({
       <span className="font-black text-sm sm:text-base tracking-tight truncate" style={{ color: tone.text }}>
         {project.title}
       </span>
-      <span className="hidden sm:block text-xs truncate flex-1" style={{ color: tone.sub }}>
+      <span className="hidden md:block text-xs truncate flex-1" style={{ color: tone.sub }}>
         {project.tagline}
+      </span>
+      <span
+        className="hidden sm:inline-flex shrink-0 items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wide
+                   bg-slate-900 text-white opacity-0 -translate-x-1 transition-all duration-200 group-hover/peek:opacity-100 group-hover/peek:translate-x-0"
+      >
+        Click to expand
       </span>
       <span className={`ml-auto shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusStyle.bg} ${statusStyle.text}`}>
         <span className={`h-1.5 w-1.5 rounded-full ${statusStyle.dot}`} />
         {project.status}
       </span>
-    </motion.div>
+    </button>
   );
 }
 
-/* ── the fully expanded, front-of-stack folder ───────────────── */
+/* ── the fully expanded folder, shown wherever it sits in the fixed order ── */
 function FolderExpanded({
   project, onNext, onPrev, total, position,
 }: { project: Project; onNext: () => void; onPrev: () => void; total: number; position: number }) {
@@ -417,15 +415,12 @@ function FolderExpanded({
 
   return (
     <motion.div
-      layoutId={`folder-${project.id}`}
-      layout
       drag={total > 1 ? "x" : false}
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.12}
       onDragEnd={handleDragEnd}
-      transition={{ type: "spring", stiffness: 260, damping: 30 }}
-      className="relative rounded-2xl sm:rounded-3xl overflow-hidden border shadow-[0_30px_70px_-20px_rgba(15,23,42,0.35)] cursor-grab active:cursor-grabbing"
-      style={{ background: tone.bg, borderColor: tone.border, zIndex: 30 }}
+      className={`relative rounded-lg sm:rounded-xl overflow-hidden border-2 shadow-[0_30px_70px_-15px_rgba(0,0,0,0.55)] ${total > 1 ? "cursor-grab active:cursor-grabbing" : ""}`}
+      style={{ background: tone.bg, borderColor: tone.border }}
     >
       {/* folder header strip */}
       <div className="flex items-center gap-3 sm:gap-4 px-5 sm:px-7 pt-5 sm:pt-6 pb-4">
@@ -447,15 +442,35 @@ function FolderExpanded({
         </span>
       </div>
 
-      {/* screenshot */}
-      <div className="relative mx-4 sm:mx-6 rounded-xl overflow-hidden aspect-[16/10] sm:aspect-[16/9] bg-slate-900 select-none">
-        <img
-          src={project.image}
-          alt={`${project.title} — screenshot`}
-          draggable={false}
-          className={`w-full h-full object-cover ${project.imagePosition} pointer-events-none`}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+      {/* browser mockup — real chrome, not just a bare screenshot */}
+      <div className="group/shot relative mx-4 sm:mx-6 rounded-xl overflow-hidden bg-slate-900 select-none shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]">
+        <div className="flex items-center gap-2 px-3.5 py-2.5 bg-slate-950">
+          <span className="flex gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+          </span>
+          <span className="flex-1 mx-2 px-3 py-1 rounded-md bg-white/10 text-[10px] font-mono text-white/50 truncate">
+            {project.title.toLowerCase().replace(/\s+/g, "")}.app
+          </span>
+        </div>
+        <div className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden">
+          <img
+            src={project.image}
+            alt={`${project.title} — screenshot`}
+            draggable={false}
+            className={`w-full h-full object-cover ${project.imagePosition} pointer-events-none
+                        transition-transform duration-700 ease-out group-hover/shot:scale-[1.04]`}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+          {/* glass reflection sweep on hover */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-0 group-hover/shot:opacity-100 transition-opacity duration-300"
+            style={{
+              background: "linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.22) 50%, transparent 60%)",
+            }}
+          />
+        </div>
       </div>
 
       {/* body */}
@@ -539,13 +554,13 @@ function FolderExpanded({
         </div>
       </div>
 
-      {/* prev/next controls */}
+      {/* prev/next controls — steps which card is expanded, order never changes */}
       {total > 1 && (
         <div className="flex items-center justify-between px-5 sm:px-7 pb-5 sm:pb-6 pt-1">
           <button
             onClick={onPrev}
             onPointerDown={(e) => e.stopPropagation()}
-            aria-label="Previous project"
+            aria-label="Expand previous project"
             className="inline-flex items-center gap-1 text-xs font-bold rounded-full px-3 py-2"
             style={{ background: "rgba(0,0,0,0.08)", color: tone.text }}
           >
@@ -557,7 +572,7 @@ function FolderExpanded({
           <button
             onClick={onNext}
             onPointerDown={(e) => e.stopPropagation()}
-            aria-label="Next project"
+            aria-label="Expand next project"
             className="inline-flex items-center gap-1 text-xs font-bold rounded-full px-3 py-2"
             style={{ background: "rgba(0,0,0,0.08)", color: tone.text }}
           >
@@ -569,38 +584,52 @@ function FolderExpanded({
   );
 }
 
+/** One row of the stack. Order in the list never changes — only which row is
+ *  expanded. A shared layoutId between the collapsed and expanded states is
+ *  what produces the "growing in place" morph instead of a swap/fade. */
+function FolderRow({
+  project, isActive, idx, onSelect, onNext, onPrev, total, position,
+}: {
+  project: Project; isActive: boolean; idx: number;
+  onSelect: () => void; onNext: () => void; onPrev: () => void; total: number; position: number;
+}) {
+  return (
+    <motion.div
+      layout
+      transition={{ type: "spring", stiffness: 280, damping: 32 }}
+      className="relative"
+      style={{ zIndex: idx, marginTop: idx === 0 ? 0 : -18 }}
+    >
+      <motion.div layoutId={`folder-${project.id}`} layout transition={{ type: "spring", stiffness: 280, damping: 32 }}>
+        <AnimatePresence mode="wait" initial={false}>
+          {isActive ? (
+            <motion.div key="expanded" initial={{ opacity: 0.4 }} animate={{ opacity: 1 }} exit={{ opacity: 0.4 }} transition={{ duration: 0.15 }}>
+              <FolderExpanded project={project} onNext={onNext} onPrev={onPrev} total={total} position={position} />
+            </motion.div>
+          ) : (
+            <motion.div key="collapsed" initial={{ opacity: 0.4 }} animate={{ opacity: 1 }} exit={{ opacity: 0.4 }} transition={{ duration: 0.15 }}>
+              <FolderPeek project={project} onSelect={onSelect} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 /* ── the folder stack itself ─────────────────────────────────── */
 function FolderStack({ projects }: { projects: Project[] }) {
-  const [order, setOrder] = useState<number[]>(() => projects.map((p) => p.id));
+  const [activeId, setActiveId] = useState<number | null>(projects[0]?.id ?? null);
 
-  const orderedIds = order.filter((id) => projects.some((p) => p.id === id));
-  const missing = projects.map((p) => p.id).filter((id) => !orderedIds.includes(id));
-  const activeOrder = [...orderedIds, ...missing];
-  const activeOrderKey = activeOrder.join(",");
-
-  // Persist the corrected order once the filtered list changes (e.g. switching category).
-  // The render below already uses `activeOrder` directly, so this never causes a visible flash —
-  // it just keeps `order` state in sync for the next interaction.
+  // Keep the active id valid whenever the filtered list changes (e.g. switching category).
   useEffect(() => {
-    if (activeOrderKey !== order.join(",") && activeOrder.length) {
-      setOrder(activeOrder);
+    if (!projects.some((p) => p.id === activeId)) {
+      setActiveId(projects[0]?.id ?? null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeOrderKey]);
+  }, [projects.map((p) => p.id).join(",")]);
 
-  const byId = new Map(projects.map((p) => [p.id, p]));
-  const stackOrder = activeOrder.filter((id) => byId.has(id)).map((id) => byId.get(id)!);
-
-  const bringToFront = (id: number) => {
-    setOrder((prev) => [id, ...prev.filter((p) => p !== id)]);
-  };
-  const next = () => setOrder((prev) => (prev.length > 1 ? [...prev.slice(1), prev[0]] : prev));
-  const prev = () => setOrder((prev) => (prev.length > 1 ? [prev[prev.length - 1], ...prev.slice(0, -1)] : prev));
-
-  const front = stackOrder[0];
-  const behind = stackOrder.slice(1, 4); // show up to 3 peeking folders behind
-
-  if (!front) {
+  if (!projects.length) {
     return (
       <div className="py-20 text-center text-slate-400 text-sm font-semibold">
         No projects in this category yet.
@@ -608,37 +637,30 @@ function FolderStack({ projects }: { projects: Project[] }) {
     );
   }
 
-  return (
-    <div className="relative">
-      {/* peeking folders */}
-      <div className="relative h-16 sm:h-[72px]">
-        {behind.slice().reverse().map((p, revIdx) => (
-          <FolderPeek
-            key={p.id}
-            project={p}
-            depth={behind.length - revIdx}
-            onSelect={() => bringToFront(p.id)}
-          />
-        ))}
-      </div>
+  const activeIndex = Math.max(0, projects.findIndex((p) => p.id === activeId));
+  const stepTo = (delta: number) => {
+    const nextIndex = (activeIndex + delta + projects.length) % projects.length;
+    setActiveId(projects[nextIndex].id);
+  };
 
-      {/* the active, expanded folder */}
-      <div className="relative -mt-16 sm:-mt-[72px]">
-        <AnimatePresence mode="popLayout">
-          <FolderExpanded
-            key={front.id}
-            project={front}
-            onNext={next}
-            onPrev={prev}
-            total={stackOrder.length}
-            position={0}
-          />
-        </AnimatePresence>
-      </div>
-    </div>
+  return (
+    <motion.div layout className="flex flex-col">
+      {projects.map((p, idx) => (
+        <FolderRow
+          key={p.id}
+          project={p}
+          idx={idx}
+          isActive={p.id === activeId}
+          onSelect={() => setActiveId(p.id)}
+          onNext={() => stepTo(1)}
+          onPrev={() => stepTo(-1)}
+          total={projects.length}
+          position={activeIndex}
+        />
+      ))}
+    </motion.div>
   );
 }
-
 /* ── main section ─────────────────────────────────────────────── */
 export default function Projects() {
   const [activeFilter, setActiveFilter] = useState("All");
@@ -654,16 +676,35 @@ export default function Projects() {
       id="projects"
       className="relative py-24 md:py-32 overflow-hidden"
       style={{
-        backgroundImage:
-          "radial-gradient(circle at 1px 1px, rgba(15,23,42,0.05) 1px, transparent 0), linear-gradient(180deg, #FBF8F1 0%, #F6F1E6 100%)",
-        backgroundSize: "26px 26px, 100% 100%",
+        background: "#12245c",
+        backgroundImage: `
+          linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px),
+          linear-gradient(155deg, #1a2f78 0%, #12245c 55%, #0d1b4a 100%)
+        `,
+        backgroundSize: "42px 42px, 42px 42px, 100% 100%",
       }}
     >
-      <CoffeeStain className="hidden lg:block" style={{ top: 40, left: "4%" }} />
-      <InkStar className="hidden lg:block absolute" style={{ top: "18%", right: "6%" }} />
-      <InkStar className="hidden sm:block absolute opacity-60" style={{ bottom: "8%", left: "8%" }} />
+      {/* atmospheric depth — soft glows + a slow light sweep, kept subtle */}
+      <GlowOrb className="-top-32 -left-20" color="#3b82f6" size={480} />
+      <GlowOrb className="bottom-0 right-0" color="#60a5fa" size={420} />
+      <motion.div
+        className="pointer-events-none absolute inset-0 opacity-[0.05]"
+        style={{ background: "linear-gradient(100deg, transparent 30%, white 50%, transparent 70%)", backgroundSize: "200% 200%" }}
+        animate={{ backgroundPosition: ["0% 0%", "100% 100%"] }}
+        transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+      />
 
-      <div className="max-w-5xl mx-auto px-6 sm:px-8">
+      {/* technical-drawing corner brackets */}
+      <CornerBracket className="top-6 left-6" />
+      <CornerBracket className="top-6 right-6" flip />
+      <CornerBracket className="bottom-6 left-6 rotate-180" flip />
+      <CornerBracket className="bottom-6 right-6 rotate-180" />
+
+      <InkStar className="hidden lg:block absolute" style={{ top: "20%", right: "8%" }} />
+      <InkStar className="hidden sm:block absolute opacity-50" style={{ bottom: "10%", left: "6%" }} />
+
+      <div className="relative max-w-5xl mx-auto px-6 sm:px-8">
         {/* ── Header ── */}
         <div ref={headerRef} className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-10 items-start mb-14">
           <div>
@@ -672,34 +713,42 @@ export default function Projects() {
               animate={headerInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, ease }}
               className="inline-flex items-center gap-2 mb-5 px-3 py-1.5 rounded-md text-xs font-black uppercase tracking-widest border-2"
-              style={{ borderColor: "#1d6feb", color: "#1d6feb", background: "#fff", transform: "rotate(-2deg)" }}
+              style={{ borderColor: "#7fb2ff", color: "#bcd6ff", background: "rgba(255,255,255,0.06)" }}
             >
-              Portfolio
+              03 — Selected Work
             </motion.div>
 
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               animate={headerInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.1, ease }}
-              className="relative inline-block text-7xl sm:text-8xl font-bold text-slate-900 mb-4"
-              style={{ fontFamily: FONT_TITLE, transform: "rotate(-1.5deg)" }}
+              className="relative inline-block mb-4"
             >
-              Projects
-              <Paperclip className="absolute -top-4 -left-7 text-slate-400 rotate-[-25deg]" size={30} strokeWidth={1.5} />
-              <svg viewBox="0 0 220 14" className="absolute -bottom-1 left-1 w-[85%]" preserveAspectRatio="none" aria-hidden="true">
-                <path d="M2 8c40-8 140-8 216 2" stroke="#1d6feb" strokeWidth="4" strokeLinecap="round" fill="none" />
-              </svg>
+              <span
+                className="absolute inset-0 -m-3 rounded-md"
+                style={{ background: "#0b0d12", transform: "rotate(-2deg)", boxShadow: "0 20px 40px -12px rgba(0,0,0,0.5)" }}
+              />
+              <span
+                className="relative inline-block text-7xl sm:text-8xl font-bold text-white px-1"
+                style={{ fontFamily: FONT_TITLE, transform: "rotate(-1.5deg)" }}
+              >
+                Projects
+                <Paperclip className="absolute -top-4 -left-7 text-white/60 rotate-[-25deg]" size={30} strokeWidth={1.5} />
+                <svg viewBox="0 0 220 14" className="absolute -bottom-1 left-1 w-[85%]" preserveAspectRatio="none" aria-hidden="true">
+                  <path d="M2 8c40-8 140-8 216 2" stroke="#7fb2ff" strokeWidth="4" strokeLinecap="round" fill="none" />
+                </svg>
+              </span>
             </motion.h2>
 
             <motion.p
               initial={{ opacity: 0, y: 14 }}
               animate={headerInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.2, ease }}
-              className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-md mt-3"
+              className="text-slate-200 text-base sm:text-lg leading-relaxed max-w-md mt-3"
               style={{ fontFamily: FONT_NOTE }}
             >
               Every project represents a problem solved, late nights, continuous
-              learning, and real <Highlight>impact</Highlight>.
+              learning, and real <Highlight color="#7fb2ff">impact</Highlight>.
             </motion.p>
           </div>
 
@@ -711,7 +760,7 @@ export default function Projects() {
             className="relative justify-self-start lg:justify-self-end w-full max-w-[280px] rounded-sm p-5"
             style={{
               background: "#FFF6D6",
-              boxShadow: "0 16px 34px -12px rgba(15,23,42,0.25)",
+              boxShadow: "0 20px 45px -12px rgba(0,0,0,0.5)",
             }}
           >
             <TapeStrip className="-top-3 left-8" rotate={-6} />
@@ -726,7 +775,7 @@ export default function Projects() {
         </div>
 
         {/* ── Filter tabs ── */}
-        <div className="flex flex-wrap gap-1 mb-10 border-b border-slate-300/70">
+        <div className="flex flex-wrap gap-1 mb-10 border-b border-white/15">
           {FILTER_TABS.map((tab) => {
             const isActive = activeFilter === tab.key;
             return (
@@ -735,7 +784,7 @@ export default function Projects() {
                 onClick={() => setActiveFilter(tab.key)}
                 className="relative px-4 py-3 text-sm font-bold transition-colors"
                 style={{
-                  color: isActive ? "#1d6feb" : "#64748b",
+                  color: isActive ? "#ffffff" : "rgba(255,255,255,0.5)",
                   fontFamily: FONT_NOTE,
                 }}
               >
@@ -745,7 +794,7 @@ export default function Projects() {
                     layoutId="projectsFilterUnderline"
                     transition={{ type: "spring", stiffness: 400, damping: 32 }}
                     className="absolute left-2 right-2 -bottom-[1px] h-[3px] rounded-full"
-                    style={{ background: "#1d6feb" }}
+                    style={{ background: "#7fb2ff" }}
                   />
                 )}
               </button>
@@ -765,7 +814,7 @@ export default function Projects() {
           className="mt-10 flex items-center justify-center gap-2 text-slate-400 text-sm"
           style={{ fontFamily: FONT_NOTE }}
         >
-          <Star size={14} className="text-blue-400" />
+          <Star size={14} className="text-blue-300" />
           More projects coming soon…
         </motion.div>
       </div>
