@@ -21,7 +21,7 @@ import {
   SiFigma,
   SiDavinciresolve,
 } from "react-icons/si";
-import { CodeXml, ArrowUpRight, CheckCircle2, Sparkles } from "lucide-react";
+import { CheckCircle2, Sparkles, Rocket, GraduationCap, BarChart3 } from "lucide-react";
 import premiereProLogo from "../assets/logos/premiere-pro.svg";
 import afterEffectsLogo from "../assets/logos/after-effects.svg";
 import SplitText from "@/components/ui/SplitText";
@@ -62,9 +62,30 @@ const videoSkills: Skill[] = [
 ];
 
 const stats = [
-  { value: 15, suffix: "+", label: "Technologies" },
-  { value: 3, suffix: "+", label: "Years Learning" },
-  { value: 50, suffix: "+", label: "Projects Built" },
+  {
+    value: 15,
+    suffix: "+",
+    label: "Technologies",
+    icon: Rocket,
+    iconBg: "bg-primary/10",
+    iconColor: "text-primary",
+  },
+  {
+    value: 3,
+    suffix: "+",
+    label: "Years Learning",
+    icon: GraduationCap,
+    iconBg: "bg-violet-500/10",
+    iconColor: "text-violet-500",
+  },
+  {
+    value: 50,
+    suffix: "+",
+    label: "Projects Built",
+    icon: BarChart3,
+    iconBg: "bg-primary/10",
+    iconColor: "text-primary",
+  },
 ];
 
 const features = ["Clean Code", "Performance", "Responsive", "Scalable"];
@@ -849,13 +870,16 @@ export default function Skills() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: false, margin: "-80px" }}
               transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full
+              className="inline-flex items-center gap-2.5 pl-4 pr-3.5 py-2 rounded-full
                          bg-white/60 backdrop-blur-xl border border-white/70
                          shadow-[0_8px_24px_-10px_rgba(15,45,90,0.25)] mb-7"
             >
-              <CodeXml className="w-4 h-4 text-primary" />
-              <span className="text-xs font-mono font-semibold tracking-[0.18em] uppercase text-primary">
-                My Arsenal
+              <span className="text-[13px] font-mono font-medium tracking-tight text-foreground/75">
+                // My Arsenal
+              </span>
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 animate-ping" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
               </span>
             </motion.div>
 
@@ -864,9 +888,19 @@ export default function Skills() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: false, margin: "-80px" }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="font-serif font-bold text-[2.4rem] sm:text-5xl lg:text-[3.1rem] leading-[1.08] text-foreground mb-6"
+              className="font-serif font-bold text-[2.4rem] sm:text-5xl lg:text-[3.1rem] leading-[1.08] mb-6"
             >
-              <SplitText type="words">Skills That Build Solutions.</SplitText>
+              <SplitText type="words" className="text-foreground">
+                Skills That Build
+              </SplitText>
+              <br />
+              <SplitText
+                type="words"
+                delay={0.18}
+                className="bg-gradient-to-r from-primary via-sky-500 to-sky-400 bg-clip-text text-transparent"
+              >
+                Solutions.
+              </SplitText>
             </motion.h2>
 
             <motion.p
@@ -891,28 +925,36 @@ export default function Skills() {
               }}
               className="grid grid-cols-3 lg:grid-cols-1 xl:grid-cols-3 gap-3 sm:gap-4"
             >
-              {stats.map((stat) => (
-                <motion.div
-                  key={stat.label}
-                  variants={{
-                    hidden: { opacity: 0, y: 18 },
-                    visible: { opacity: 1, y: 0 },
-                  }}
-                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                  whileHover={{ y: -4 }}
-                  className="relative rounded-2xl p-4 sm:p-5
-                             bg-white/50 backdrop-blur-xl border border-white/70
-                             shadow-[0_1px_0_rgba(255,255,255,0.6)_inset,0_16px_36px_-16px_rgba(15,45,90,0.28)]"
-                >
-                  <div className="text-2xl sm:text-3xl font-serif font-extrabold text-primary tabular-nums">
-                    <CountUpValue value={stat.value} suffix={stat.suffix} glow />
-                  </div>
-                  <div className="text-[11px] sm:text-xs text-slate-500 mt-1 font-medium tracking-wide">
-                    {stat.label}
-                  </div>
-                  <ArrowUpRight className="absolute top-4 right-4 w-3.5 h-3.5 text-primary/30" />
-                </motion.div>
-              ))}
+              {stats.map((stat) => {
+                const StatIcon = stat.icon;
+                return (
+                  <motion.div
+                    key={stat.label}
+                    variants={{
+                      hidden: { opacity: 0, y: 18 },
+                      visible: { opacity: 1, y: 0 },
+                    }}
+                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                    whileHover={{ y: -4 }}
+                    className="relative rounded-2xl p-4 sm:p-5
+                               bg-white/60 backdrop-blur-xl border border-white/70
+                               shadow-[0_1px_0_rgba(255,255,255,0.6)_inset,0_16px_36px_-16px_rgba(15,45,90,0.28)]"
+                  >
+                    <div
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center mb-3 ${stat.iconBg}`}
+                    >
+                      <StatIcon className={`w-[18px] h-[18px] ${stat.iconColor}`} strokeWidth={2.1} />
+                    </div>
+                    <div className="text-2xl sm:text-3xl font-serif font-extrabold text-primary tabular-nums">
+                      <CountUpValue value={stat.value} suffix={stat.suffix} glow />
+                    </div>
+                    <div className="text-[11px] sm:text-xs text-slate-500 mt-1 font-medium tracking-wide">
+                      {stat.label}
+                    </div>
+                    <span className="absolute top-4 right-4 w-1.5 h-1.5 rounded-full bg-primary/20" />
+                  </motion.div>
+                );
+              })}
             </motion.div>
           </div>
 
