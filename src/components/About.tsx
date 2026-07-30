@@ -1654,43 +1654,6 @@ export default function About() {
                 <MountainDoodle flip className="hidden sm:block ml-auto opacity-70" />
               </motion.div>
 
-              {/* ═══════════ FULL-WIDTH ENDING STRIP ═══════════ */}
-              <motion.div
-                initial={{ opacity: 0, y: rm ? 0 : 24 }}
-                animate={phase >= 7 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 24 }}
-                transition={{ duration: rm ? 0.3 : 0.8, ease }}
-                className="lg:col-span-2 relative px-6 py-12 sm:px-10 sm:py-16 border-t border-dashed border-slate-300/60"
-              >
-                <Doodle type="star" className="top-6 left-[15%]" delay={0.1} size={22} active={phase >= 7} />
-                <Doodle type="star" className="bottom-8 right-[18%]" delay={0.3} size={18} active={phase >= 7} />
-
-                {/* Final Phase — ending banner, then a handwritten signature
-                    writes itself right underneath it */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.96 }}
-                  animate={phase >= 8 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.96 }}
-                  transition={{ duration: rm ? 0.3 : 0.6, ease }}
-                  className="relative bg-white mx-auto max-w-lg px-6 py-6 sm:px-10 sm:py-8 text-center shadow-[0_16px_40px_-20px_rgba(70,50,20,0.4)] -rotate-[0.4deg]"
-                >
-                  <p className="font-hand text-3xl sm:text-4xl md:text-5xl text-foreground leading-snug mb-1 underline decoration-primary decoration-2 underline-offset-4">
-                    Still figuring things out.
-                  </p>
-                  <p className="text-sm sm:text-base text-slate-500 mb-4">
-                    Because every great story is still being written.
-                    <span className="inline-block ml-1.5 text-primary">♥</span>
-                  </p>
-                  <Signature active={phase >= 8} delay={0.5} />
-                </motion.div>
-
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={phase >= 8 ? { opacity: 1 } : { opacity: 0 }}
-                  transition={{ duration: 0.5, delay: rm ? 0 : 1.6 }}
-                  className="text-[10px] font-mono uppercase tracking-[0.2em] text-slate-400 mt-8 text-center"
-                >
-                  Keep Scrolling →
-                </motion.p>
-              </motion.div>
             </div>
             </motion.div>
           </motion.div>
