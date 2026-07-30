@@ -1158,22 +1158,6 @@ export default function About() {
       </div>
 
       <div className="container-tight relative z-10 max-w-full">
-        {/* section intro label */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, margin: "-80px" }}
-          transition={{ duration: 0.7 }}
-          className="text-center mb-12 sm:mb-16"
-        >
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-xs font-mono font-semibold tracking-[0.18em] uppercase text-primary mb-5">
-            📔 My Story
-          </span>
-          <h2 className="font-serif font-bold text-3xl sm:text-4xl md:text-5xl text-foreground">
-            <SplitText type="words">A Page From My Life.</SplitText>
-          </h2>
-        </motion.div>
-
         {/* ═══════════════ THE NOTEBOOK ═══════════════ */}
         <div className="relative max-w-6xl mx-auto">
           {/* floating stickers around the notebook */}
