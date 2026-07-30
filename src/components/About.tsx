@@ -22,6 +22,7 @@ import {
 } from "react-icons/si";
 import { VscVscode } from "react-icons/vsc";
 import profilePhoto from "../assets/images/profile-nobg.png";
+import myNewPhoto from "../assets/images/my-new-photo.jpg"; // ← replace with your actual filename
 import SplitText from "@/components/ui/SplitText";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -1496,7 +1497,7 @@ export default function About() {
                       style={{ background: "linear-gradient(180deg,#dfe9f5,#bcd0e6 60%,#9fb8d6)" }}
                     >
                       <img
-                        src={profilePhoto}
+                        src={myNewPhoto}
                         alt="A silhouette, looking out over the hills"
                         loading="lazy"
                         className="absolute inset-0 w-full h-full object-cover object-top"
