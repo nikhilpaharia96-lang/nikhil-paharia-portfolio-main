@@ -918,6 +918,313 @@ function JourneyTimeline({ active = true }: { active?: boolean }) {
 }
 
 /* ────────────────────────────────────────────────────────────
+   Shared scroll-phase hook — the same "one ScrollTrigger drives a
+   discrete phase number, every child just asks if its phase is
+   active yet" pattern used by the main notebook spread above,
+   factored out so each new chapter below gets its own independent,
+   reversible reveal without duplicating the wiring.
+   ──────────────────────────────────────────────────────────── */
+
+function useScrollPhases(totalPhases: number, thresholds: number[]) {
+  const ref = useRef<HTMLDivElement>(null);
+  const rm = useReducedMotion();
+  const [phase, setPhase] = useState(rm ? totalPhases : 1);
+
+  useEffect(() => {
+    if (rm) {
+      setPhase(totalPhases);
+      return;
+    }
+    if (!ref.current) return;
+
+    const lastPhase = { current: 1 };
+    const trigger = ScrollTrigger.create({
+      trigger: ref.current,
+      start: "top 84%",
+      end: "bottom 55%",
+      scrub: 0.9,
+      onUpdate: (self) => {
+        let next = totalPhases;
+        for (let i = 0; i < thresholds.length; i++) {
+          if (self.progress < thresholds[i]) {
+            next = i + 1;
+            break;
+          }
+        }
+        if (next !== lastPhase.current) {
+          lastPhase.current = next;
+          setPhase(next);
+        }
+      },
+      onLeaveBack: () => {
+        if (lastPhase.current !== 1) {
+          lastPhase.current = 1;
+          setPhase(1);
+        }
+      },
+    });
+
+    return () => trigger.kill();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rm, totalPhases]);
+
+  return { ref, phase };
+}
+
+/* ────────────────────────────────────────────────────────────
+   Fine paper grain — a very light SVG turbulence texture, used to
+   give every new chapter page the same handmade paper surface as
+   the main notebook (which relies on layered radial-gradients);
+   kept as a single static filter so it costs nothing at runtime.
+   ──────────────────────────────────────────────────────────── */
+
+function PaperGrain({ opacity = 0.05 }: { opacity?: number }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className="absolute inset-0 w-full h-full pointer-events-none mix-blend-multiply"
+      style={{ opacity }}
+    >
+      <filter id="paper-grain">
+        <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" />
+        <feColorMatrix type="matrix" values="0 0 0 0 0.34  0 0 0 0 0.25  0 0 0 0 0.1  0 0 0 0.5 0" />
+      </filter>
+      <rect width="100%" height="100%" filter="url(#paper-grain)" />
+    </svg>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   Chapter 04 — Projects: snapshots pinned to the page like
+   workbench Polaroids. Sample entries below — swap in real
+   project data (title/tag/note/link) whenever it's ready.
+   ──────────────────────────────────────────────────────────── */
+
+const sampleProjects = [
+  {
+    title: "Client Storefront",
+    tag: "E-commerce",
+    note: "Cart, checkout & CMS built from a Figma handoff.",
+    rotate: -3,
+  },
+  {
+    title: "SaaS Landing Page",
+    tag: "Marketing Site",
+    note: "Animated hero, pricing table, waitlist form.",
+    rotate: 2,
+  },
+  {
+    title: "Internal Dashboard",
+    tag: "Web App",
+    note: "Charts, auth & role-based views for a small team.",
+    rotate: -2,
+  },
+];
+
+function ProjectsChapter() {
+  const { ref, phase } = useScrollPhases(4, [0.22, 0.5, 0.8]);
+  const rm = useReducedMotion();
+
+  return (
+    <div
+      ref={ref}
+      className="relative rounded-[20px] sm:rounded-[28px] overflow-hidden border border-[#e8dcc4]
+                 shadow-[0_2px_0_rgba(0,0,0,0.05)_inset,0_40px_80px_-28px_rgba(70,50,20,0.32)]
+                 bg-[#fbf5e6] px-6 py-12 sm:px-10 sm:py-16 lg:px-16 lg:py-20 mt-10 sm:mt-14"
+    >
+      <PaperGrain />
+      <Doodle type="swirl" className="top-6 right-8 sm:right-14" delay={0.1} size={26} active={phase >= 1} />
+
+      <motion.div
+        initial={{ opacity: 0, y: rm ? 0 : 16 }}
+        animate={phase >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 16 }}
+        transition={{ duration: rm ? 0.3 : 0.6, ease }}
+        className="text-center mb-10 sm:mb-14"
+      >
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-2">Chapter 04</p>
+        <h3 className="font-serif font-bold text-2xl sm:text-3xl md:text-4xl text-foreground">
+          Snapshots From The Workbench
+        </h3>
+      </motion.div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 max-w-5xl mx-auto">
+        {sampleProjects.map((p, i) => (
+          <motion.div
+            key={p.title}
+            initial={{ opacity: 0, y: rm ? 0 : 30, scale: 0.92, rotate: 0 }}
+            animate={
+              phase >= 2
+                ? { opacity: 1, y: 0, scale: 1, rotate: p.rotate }
+                : { opacity: 0, y: rm ? 0 : 30, scale: 0.92, rotate: 0 }
+            }
+            transition={{ duration: rm ? 0.3 : 0.6, delay: rm ? 0 : 0.12 * i, ease: "backOut" }}
+            whileHover={{ rotate: 0, scale: 1.04, y: -4 }}
+            className="relative bg-white p-3 pb-7 shadow-[0_18px_36px_-16px_rgba(70,50,20,0.4)]"
+          >
+            <Tape className="-top-3 left-1/2 -translate-x-1/2" rotate={p.rotate * 1.5} active={phase >= 2} />
+            <div className="w-full aspect-[4/3] bg-gradient-to-br from-blue-50 to-slate-100 flex items-center justify-center">
+              <span className="font-hand text-slate-400 text-sm">{p.tag}</span>
+            </div>
+            <p className="font-serif font-bold text-base sm:text-lg text-foreground mt-3">{p.title}</p>
+            <p className="font-hand text-sm text-slate-600 mt-1 leading-snug">{p.note}</p>
+          </motion.div>
+        ))}
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={phase >= 3 ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ duration: rm ? 0.3 : 0.6 }}
+        className="text-center mt-10 sm:mt-14"
+      >
+        <HandwrittenNote className="text-lg sm:text-xl inline-block" active={phase >= 3}>
+          Every project taught me something the last one couldn't.
+        </HandwrittenNote>
+      </motion.div>
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   Chapter 05 — Values: short beliefs as index cards
+   ──────────────────────────────────────────────────────────── */
+
+const values = [
+  { emoji: "🔍", title: "Curiosity over comfort", note: "I'd rather not know how something works — yet." },
+  { emoji: "🛠️", title: "Ship, then polish", note: "A working thing beats a perfect plan every time." },
+  { emoji: "🎯", title: "Aesthetic always, logic actually", note: "Looks matter. Function matters more." },
+  { emoji: "🌱", title: "Consistency beats intensity", note: "1% better, most days, for a long time." },
+];
+
+function ValuesChapter() {
+  const { ref, phase } = useScrollPhases(3, [0.3, 0.75]);
+  const rm = useReducedMotion();
+
+  return (
+    <div
+      ref={ref}
+      className="relative rounded-[20px] sm:rounded-[28px] overflow-hidden border border-[#e8dcc4]
+                 shadow-[0_2px_0_rgba(0,0,0,0.05)_inset,0_40px_80px_-28px_rgba(70,50,20,0.32)]
+                 bg-[#fbf5e6] px-6 py-12 sm:px-10 sm:py-16 lg:px-16 lg:py-20 mt-10 sm:mt-14"
+    >
+      <PaperGrain />
+      <InkSmudge className="top-8 right-10" size={54} />
+
+      <motion.div
+        initial={{ opacity: 0, y: rm ? 0 : 16 }}
+        animate={phase >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 16 }}
+        transition={{ duration: rm ? 0.3 : 0.6, ease }}
+        className="text-center mb-10 sm:mb-14"
+      >
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-2">Chapter 05</p>
+        <h3 className="font-serif font-bold text-2xl sm:text-3xl md:text-4xl text-foreground">What I Believe</h3>
+      </motion.div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 max-w-3xl mx-auto">
+        {values.map((v, i) => (
+          <motion.div
+            key={v.title}
+            initial={{ opacity: 0, x: rm ? 0 : i % 2 === 0 ? -20 : 20 }}
+            animate={phase >= 2 ? { opacity: 1, x: 0 } : { opacity: 0, x: rm ? 0 : i % 2 === 0 ? -20 : 20 }}
+            transition={{ duration: rm ? 0.3 : 0.55, delay: rm ? 0 : 0.1 * i, ease }}
+            whileHover={{ y: -3 }}
+            className="flex items-start gap-4 bg-white/80 border border-slate-200/70 rounded-lg p-5
+                       shadow-[0_10px_22px_-12px_rgba(70,50,20,0.3)]"
+          >
+            <span className="text-2xl leading-none">{v.emoji}</span>
+            <div>
+              <p className="font-serif font-bold text-base sm:text-lg text-foreground">{v.title}</p>
+              <p className="font-hand text-sm text-slate-600 mt-1 leading-snug">{v.note}</p>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   Chapter 06 — Future Vision: a short letter + goals checklist
+   ──────────────────────────────────────────────────────────── */
+
+const futureGoals = ["Build something people rely on daily", "Get better at design systems", "Keep learning in public"];
+
+function FutureVisionChapter() {
+  const { ref, phase } = useScrollPhases(3, [0.3, 0.75]);
+  const rm = useReducedMotion();
+
+  return (
+    <div
+      ref={ref}
+      className="relative rounded-[20px] sm:rounded-[28px] overflow-hidden border border-[#e8dcc4]
+                 shadow-[0_2px_0_rgba(0,0,0,0.05)_inset,0_40px_80px_-28px_rgba(70,50,20,0.32)]
+                 bg-[#fbf5e6] px-6 py-12 sm:px-10 sm:py-16 lg:px-16 lg:py-20 mt-10 sm:mt-14 text-center"
+    >
+      <PaperGrain />
+      <Doodle type="star" className="top-8 left-10" delay={0.1} size={22} active={phase >= 1} />
+      <Doodle type="star" className="bottom-10 right-12" delay={0.3} size={18} active={phase >= 1} />
+
+      <motion.p
+        initial={{ opacity: 0, y: rm ? 0 : 16 }}
+        animate={phase >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 16 }}
+        transition={{ duration: rm ? 0.3 : 0.6, ease }}
+        className="font-mono text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-2"
+      >
+        Chapter 06
+      </motion.p>
+      <motion.h3
+        initial={{ opacity: 0, y: rm ? 0 : 16 }}
+        animate={phase >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 16 }}
+        transition={{ duration: rm ? 0.3 : 0.6, delay: rm ? 0 : 0.1, ease }}
+        className="font-serif font-bold text-2xl sm:text-3xl md:text-4xl text-foreground mb-8"
+      >
+        Where I'm Headed
+      </motion.h3>
+
+      <div className="max-w-md mx-auto text-left mb-10">
+        <TornPaper className="p-5 sm:p-6" rotate={-1} active={phase >= 2}>
+          <p className="font-hand text-lg text-slate-700 mb-3 border-b border-slate-300/60 pb-1.5">Goals</p>
+          <ul className="space-y-2">
+            {futureGoals.map((goal, i) => (
+              <motion.li
+                key={goal}
+                initial={{ opacity: 0, x: -12 }}
+                animate={phase >= 2 ? { opacity: 1, x: 0 } : { opacity: 0, x: -12 }}
+                transition={{ duration: 0.4, delay: rm ? 0 : 0.15 + i * 0.12, ease }}
+                className="flex items-center gap-2"
+              >
+                <motion.svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  className="shrink-0 text-primary"
+                  initial={{ pathLength: 0 }}
+                  animate={phase >= 2 ? { pathLength: 1 } : { pathLength: 0 }}
+                  transition={{ duration: 0.35, delay: rm ? 0 : 0.25 + i * 0.12 }}
+                >
+                  <motion.path d="M2 8 L6 12 L14 3" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                </motion.svg>
+                <span className="font-hand text-base text-slate-700">{goal}</span>
+              </motion.li>
+            ))}
+          </ul>
+        </TornPaper>
+      </div>
+
+      <motion.p
+        initial={{ opacity: 0, y: rm ? 0 : 12 }}
+        animate={phase >= 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 12 }}
+        transition={{ duration: rm ? 0.3 : 0.6, ease }}
+        className="font-hand text-xl sm:text-2xl text-slate-600 mb-2"
+      >
+        Still figuring things out.
+      </motion.p>
+      <Signature active={phase >= 3} delay={0.3} />
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
    Main About section — the notebook
    ──────────────────────────────────────────────────────────── */
 
@@ -953,9 +1260,15 @@ export default function About() {
     const lastPhase = { current: 1 };
     const trigger = ScrollTrigger.create({
       trigger: sectionRef.current,
-      start: "top 78%",
-      end: "bottom 55%",
-      scrub: 0.6, // smooths the raw scroll input into real "paper inertia" rather than snapping straight to each phase
+      start: "top 82%",
+      end: "bottom 48%",
+      // A heavier scrub value (was 0.6) lets each phase change lag further
+      // behind the raw scroll input, so the notebook settles into each
+      // beat like real paper catching up to your hand, rather than
+      // tracking the scrollbar 1:1. Combined with the wider start/end
+      // window above, every phase now gets more scroll distance to
+      // breathe in — the main lever for the calmer, more premium pacing.
+      scrub: 1,
       onUpdate: (self) => {
         const next = progressToPhase(self.progress);
         if (next !== lastPhase.current) {
@@ -1499,6 +1812,15 @@ export default function About() {
             </div>
             </motion.div>
           </motion.div>
+
+          {/* ═══════════════ NEW CHAPTERS ═══════════════
+              Each is its own page with an independent, reversible
+              scroll-driven reveal (see useScrollPhases above), so they
+              read as the next entries in the same journal rather than
+              a bolted-on section. */}
+          <ProjectsChapter />
+          <ValuesChapter />
+          <FutureVisionChapter />
         </div>
       </div>
     </section>
