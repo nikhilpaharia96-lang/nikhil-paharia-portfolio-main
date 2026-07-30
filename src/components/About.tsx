@@ -743,8 +743,8 @@ function FloatingSticker({
 function PaperStack() {
   return (
     <>
-      <div className="absolute inset-x-3 -bottom-2 top-3 rounded-[20px] sm:rounded-[28px] bg-[#f3e8cf] -rotate-1 -z-10 shadow-[0_20px_40px_-20px_rgba(70,50,20,0.3)]" />
-      <div className="absolute inset-x-2 -bottom-3 top-2 rounded-[20px] sm:rounded-[28px] bg-[#ede0c2] rotate-[0.6deg] -z-20 shadow-[0_20px_40px_-20px_rgba(70,50,20,0.25)]" />
+      <div className="absolute inset-x-3 -bottom-2 top-3 rounded-[24px] bg-[#f3e8cf] -rotate-1 -z-10 shadow-[0_20px_40px_-20px_rgba(70,50,20,0.3)]" />
+      <div className="absolute inset-x-2 -bottom-3 top-2 rounded-[24px] bg-[#ede0c2] rotate-[0.6deg] -z-20 shadow-[0_20px_40px_-20px_rgba(70,50,20,0.25)]" />
     </>
   );
 }
@@ -1139,6 +1139,18 @@ export default function About() {
       className="relative overflow-hidden section-wrap max-w-full py-12 sm:py-16 md:py-16 lg:py-16 bg-white"
       aria-label="About — My Story"
     >
+      {/* subtle blueprint grid backdrop — keeps the notebook as the focal point */}
+      <div
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.35]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(29,111,235,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(29,111,235,0.06) 1px, transparent 1px)",
+          backgroundSize: "44px 44px",
+          maskImage: "radial-gradient(ellipse 60% 60% at 50% 45%, transparent 40%, black 100%)",
+          WebkitMaskImage: "radial-gradient(ellipse 60% 60% at 50% 45%, transparent 40%, black 100%)",
+        }}
+      />
+
       {/* ambient paper dust */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         {dust.map((_, i) => (
@@ -1159,7 +1171,7 @@ export default function About() {
 
       <div className="container-tight relative z-10 max-w-full">
         {/* ═══════════════ THE NOTEBOOK ═══════════════ */}
-        <div className="relative max-w-6xl mx-auto">
+        <div className="relative max-w-[1200px] mx-auto">
           {/* floating stickers around the notebook */}
           <FloatingSticker className="-top-6 left-4 sm:left-10" delay={0} duration={7}>
             <SiFigma className="w-5 h-5 text-[#F24E1E]" />
@@ -1208,12 +1220,12 @@ export default function About() {
                     scale: { type: "spring", stiffness: 170, damping: 14, mass: 1 },
                   }
             }
-            className="relative rounded-[20px] sm:rounded-[28px] overflow-hidden
+            className="relative rounded-[24px] overflow-hidden
                        shadow-[0_2px_0_rgba(0,0,0,0.05)_inset,0_50px_100px_-30px_rgba(70,50,20,0.35)]
                        border border-[#e8dcc4]"
           >
             {/* leather-ish outer frame */}
-            <div className="absolute inset-0 pointer-events-none rounded-[20px] sm:rounded-[28px] ring-1 ring-inset ring-black/5 z-30" />
+            <div className="absolute inset-0 pointer-events-none rounded-[24px] ring-1 ring-inset ring-black/5 z-30" />
 
             {/* folded corner (top-right) */}
             <div
@@ -1256,9 +1268,9 @@ export default function About() {
             >
               {/* paper grain texture, warm cream base */}
               <div
-                className="relative grid grid-cols-1 lg:grid-cols-2"
+                className="relative grid grid-cols-1 lg:grid-cols-2 lg:h-[780px] lg:overflow-y-auto scrollbar-hide"
                 style={{
-                  backgroundColor: "#fbf5e6",
+                  backgroundColor: "#FFFDF7",
                   backgroundImage:
                     "radial-gradient(circle at 15% 20%, rgba(255,255,255,0.5), transparent 40%), radial-gradient(circle at 85% 80%, rgba(255,255,255,0.4), transparent 40%)",
                 }}
