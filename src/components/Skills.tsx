@@ -22,7 +22,6 @@ import {
   SiDavinciresolve,
 } from "react-icons/si";
 import { CodeXml, ArrowUpRight, CheckCircle2, Sparkles } from "lucide-react";
-import teaBg from "../assets/images/tea-sunset-landscape.webp";
 import premiereProLogo from "../assets/logos/premiere-pro.svg";
 import afterEffectsLogo from "../assets/logos/after-effects.svg";
 import SplitText from "@/components/ui/SplitText";
@@ -463,6 +462,171 @@ function BlueprintLines() {
    Main section
    ──────────────────────────────────────────────────────────── */
 
+/* ────────────────────────────────────────────────────────────
+   Blueprint background art — original wireframe globe, circular
+   geometry guides, corner brackets, pencil-sketch hatch marks,
+   dot matrices and handwritten notes. Pure SVG/CSS, no images.
+   ──────────────────────────────────────────────────────────── */
+
+const BLUE = "#3B82F6";
+const BLUE_SOFT = "#60A5FA";
+
+function WireframeGlobe({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 200 200" className={className} aria-hidden="true">
+      <circle cx="100" cy="100" r="72" stroke={BLUE} strokeWidth="1" fill="none" />
+      <ellipse cx="100" cy="100" rx="72" ry="24" stroke={BLUE} strokeWidth="0.7" fill="none" />
+      <ellipse cx="100" cy="100" rx="72" ry="50" stroke={BLUE} strokeWidth="0.6" fill="none" opacity="0.8" />
+      <line x1="100" y1="28" x2="100" y2="172" stroke={BLUE} strokeWidth="0.6" opacity="0.7" />
+      <motion.g
+        style={{ transformOrigin: "100px 100px" }}
+        animate={{ rotate: 360 }}
+        transition={{ duration: 46, repeat: Infinity, ease: "linear" }}
+      >
+        <ellipse cx="100" cy="100" rx="30" ry="72" stroke={BLUE} strokeWidth="0.7" fill="none" />
+        <ellipse cx="100" cy="100" rx="56" ry="72" stroke={BLUE} strokeWidth="0.6" fill="none" opacity="0.7" />
+      </motion.g>
+      <circle
+        cx="100"
+        cy="100"
+        r="86"
+        stroke={BLUE_SOFT}
+        strokeWidth="0.6"
+        strokeDasharray="1.5 6"
+        fill="none"
+        opacity="0.6"
+      />
+    </svg>
+  );
+}
+
+function CircularGuides({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 300 300" className={className} aria-hidden="true">
+      <circle cx="150" cy="150" r="138" stroke={BLUE_SOFT} strokeWidth="1" fill="none" opacity="0.6" />
+      <circle cx="150" cy="150" r="98" stroke={BLUE} strokeWidth="0.7" strokeDasharray="3 6" fill="none" opacity="0.6" />
+      <motion.circle
+        cx="150"
+        cy="150"
+        r="60"
+        stroke={BLUE}
+        strokeWidth="0.7"
+        strokeDasharray="1 5"
+        fill="none"
+        opacity="0.55"
+        style={{ transformOrigin: "150px 150px" }}
+        animate={{ rotate: 360 }}
+        transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+      />
+      <line x1="8" y1="292" x2="292" y2="8" stroke={BLUE} strokeWidth="0.6" opacity="0.35" />
+      <path
+        d="M150 6 L150 26 M150 274 L150 294 M6 150 L26 150 M274 150 L294 150"
+        stroke={BLUE}
+        strokeWidth="0.9"
+        opacity="0.45"
+      />
+    </svg>
+  );
+}
+
+function CornerBracket({ className }: { className?: string }) {
+  return (
+    <svg width="30" height="30" viewBox="0 0 30 30" className={`absolute ${className}`} aria-hidden="true">
+      <path d="M2 11 L2 2 L11 2" stroke={BLUE} strokeWidth="1" fill="none" opacity="0.4" />
+      <path d="M15 2 L15 5 M2 15 L5 15" stroke={BLUE} strokeWidth="0.8" opacity="0.35" />
+    </svg>
+  );
+}
+
+function PencilHatch({ className }: { className?: string }) {
+  return (
+    <svg width="120" height="80" viewBox="0 0 120 80" className={`absolute ${className}`} aria-hidden="true">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <line
+          key={i}
+          x1={i * 16}
+          y1={0}
+          x2={i * 16 - 34}
+          y2={80}
+          stroke={BLUE}
+          strokeWidth="1"
+          opacity={0.1}
+        />
+      ))}
+    </svg>
+  );
+}
+
+function DotMatrix({ className }: { className?: string }) {
+  return (
+    <div className={`absolute grid grid-cols-4 gap-2 ${className}`} aria-hidden="true">
+      {Array.from({ length: 16 }).map((_, i) => (
+        <span key={i} className="w-[3px] h-[3px] rounded-full" style={{ background: `${BLUE}40` }} />
+      ))}
+    </div>
+  );
+}
+
+function HandNote({
+  className,
+  lines,
+  align = "left",
+  arrow,
+  boxed = false,
+}: {
+  className?: string;
+  lines: string[];
+  align?: "left" | "right";
+  arrow?: "up" | "up-right";
+  boxed?: boolean;
+}) {
+  return (
+    <div className={`absolute select-none ${className}`} style={{ textAlign: align }}>
+      {arrow === "up-right" && (
+        <svg width="28" height="24" viewBox="0 0 28 24" style={{ opacity: 0.4 }}>
+          <path d="M4 21 C 8 10, 15 6, 24 4" stroke={BLUE} strokeWidth="1.3" fill="none" strokeLinecap="round" />
+          <path
+            d="M16 3 L25 3 L23 11"
+            stroke={BLUE}
+            strokeWidth="1.3"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      )}
+      {arrow === "up" && (
+        <svg width="18" height="24" viewBox="0 0 18 24" style={{ opacity: 0.4 }}>
+          <path d="M9 22 L9 4" stroke={BLUE} strokeWidth="1.3" strokeLinecap="round" />
+          <path
+            d="M3 10 L9 3 L15 10"
+            stroke={BLUE}
+            strokeWidth="1.3"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      )}
+      <div
+        className={`font-hand text-[13px] sm:text-sm leading-tight text-primary/60 ${
+          boxed ? "border border-dashed border-primary/25 rounded-md px-3 py-2" : ""
+        }`}
+      >
+        {lines.map((l, i) => (
+          <div key={i}>{l}</div>
+        ))}
+      </div>
+      {!boxed && (
+        <div
+          className="h-px mt-1 bg-primary/25"
+          style={{ width: "72%", marginLeft: align === "right" ? "auto" : 0 }}
+        />
+      )}
+    </div>
+  );
+}
+
 export default function Skills() {
   const [activeTab, setActiveTab] = useState<"web" | "video">("web");
   const activeSkills = useMemo(
@@ -476,7 +640,13 @@ export default function Skills() {
   const spotY = useMotionValue(35);
   const spotXs = useSpring(spotX, { stiffness: 45, damping: 20 });
   const spotYs = useSpring(spotY, { stiffness: 45, damping: 20 });
-  const spotlightBg = useMotionTemplate`radial-gradient(700px circle at ${spotXs}% ${spotYs}%, rgba(255,255,255,0.35), transparent 60%)`;
+  const spotlightBg = useMotionTemplate`radial-gradient(700px circle at ${spotXs}% ${spotYs}%, rgba(96,165,250,0.14), transparent 60%)`;
+
+  // very light mouse parallax for the background art (blueprint globe / guides / number)
+  const parallaxXStrong = useTransform(spotXs, [0, 100], [-10, 10]);
+  const parallaxYStrong = useTransform(spotYs, [0, 100], [-10, 10]);
+  const parallaxXSoft = useTransform(spotXs, [0, 100], [-4, 4]);
+  const parallaxYSoft = useTransform(spotYs, [0, 100], [-4, 4]);
 
   const handleSectionMouseMove = (e: React.MouseEvent<HTMLElement>) => {
     const rect = sectionRef.current?.getBoundingClientRect();
@@ -493,92 +663,156 @@ export default function Skills() {
       className="relative overflow-hidden section-wrap max-w-full py-20 sm:py-28 md:py-36 lg:py-40"
       aria-label="Skills — My Arsenal"
     >
-      {/* ── Cinematic background ── */}
-      <div className="absolute inset-0 z-0">
-        <motion.img
-          src={teaBg}
-          alt=""
+      {/* ══════════════════════════════════════════════════════
+          Blueprint / editorial background — paper + grid + sketch
+          ══════════════════════════════════════════════════════ */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        {/* paper base */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FCFCFD] via-[#FAFAFA] to-[#FCFCFD]" />
+
+        {/* fine blueprint grid */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(59,130,246,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.05) 1px, transparent 1px)",
+            backgroundSize: "42px 42px",
+          }}
+        />
+        {/* major grid lines */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(59,130,246,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.07) 1px, transparent 1px)",
+            backgroundSize: "210px 210px",
+          }}
+        />
+
+        {/* very subtle gradient corners */}
+        <motion.div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(45% 45% at 100% 0%, rgba(96,165,250,0.12), transparent 70%), radial-gradient(45% 45% at 0% 100%, rgba(59,130,246,0.09), transparent 70%)",
+          }}
+          animate={{ opacity: [0.7, 1, 0.7] }}
+          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+        />
+
+        {/* cursor-reactive spotlight — light mouse parallax over the paper */}
+        <motion.div
+          className="absolute inset-0 hidden lg:block"
+          style={{ background: spotlightBg }}
+        />
+
+        {/* blueprint outer border */}
+        <div className="absolute inset-4 sm:inset-6 border border-primary/[0.06] rounded-[2rem]" />
+
+        {/* corner brackets (print registration marks) */}
+        <CornerBracket className="top-6 left-6" />
+        <CornerBracket className="top-6 right-6 scale-x-[-1]" />
+        <CornerBracket className="bottom-6 left-6 scale-y-[-1]" />
+        <CornerBracket className="bottom-6 right-6 scale-[-1]" />
+
+        {/* pencil-sketch hatch strokes, tucked in two corners */}
+        <PencilHatch className="-top-2 right-8 sm:right-16 opacity-70" />
+        <PencilHatch className="-bottom-2 left-8 sm:left-16 rotate-180 opacity-70" />
+
+        {/* large faded section number */}
+        <motion.div
           aria-hidden="true"
-          loading="lazy"
-          decoding="async"
-          className="w-full h-full object-cover object-center scale-110"
-          style={{ filter: "brightness(0.9) saturate(0.9)" }}
-          animate={{ scale: [1.1, 1.16, 1.1], x: [0, -12, 0] }}
-          transition={{ duration: 34, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-4 sm:top-0 right-[-0.5rem] sm:right-4 select-none font-serif font-extrabold leading-none hidden sm:block"
+          style={{
+            fontSize: "clamp(8rem, 20vw, 18rem)",
+            color: "transparent",
+            WebkitTextStroke: "1.5px rgba(59,130,246,0.08)",
+            x: parallaxXSoft,
+            y: parallaxYSoft,
+          }}
+        >
+          02
+        </motion.div>
+
+        {/* wireframe globe */}
+        <motion.div
+          className="absolute bottom-8 right-4 sm:right-10 w-36 h-36 sm:w-52 sm:h-52 opacity-[0.16]"
+          style={{ x: parallaxXStrong, y: parallaxYStrong }}
+        >
+          <WireframeGlobe className="w-full h-full" />
+        </motion.div>
+
+        {/* circular geometry guides */}
+        <motion.div
+          className="absolute -bottom-20 -left-20 w-72 h-72 sm:w-96 sm:h-96 opacity-[0.12] hidden sm:block"
+          style={{ x: parallaxXSoft, y: parallaxYSoft }}
+        >
+          <CircularGuides className="w-full h-full" />
+        </motion.div>
+
+        {/* dotted matrices */}
+        <DotMatrix className="top-16 left-[30%] hidden md:grid" />
+        <DotMatrix className="bottom-20 right-[32%] hidden lg:grid" />
+
+        {/* handwritten notes — kept to the quiet top/bottom margins */}
+        <HandNote
+          className="top-8 sm:top-10 left-6 sm:left-10"
+          arrow="up-right"
+          lines={["Building Better Solutions", "Everyday."]}
         />
-        {/* depth-of-field blur veil */}
-        <div className="absolute inset-0 backdrop-blur-[2px]" />
-        {/* atmosphere + legibility gradients */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/92 via-white/78 to-white/92" />
-        <div className="absolute inset-0 bg-gradient-to-r from-white/85 via-transparent to-blue-50/60" />
-        <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_0%,transparent_20%,rgba(8,20,45,0.06)_100%)]" />
-      </div>
-
-      {/* ── Animated aurora ribbon ── */}
-      <motion.div
-        className="absolute inset-0 z-0 pointer-events-none opacity-40 mix-blend-soft-light"
-        style={{
-          background:
-            "linear-gradient(120deg, rgba(125,211,252,0.35), rgba(167,139,250,0.3), rgba(244,114,182,0.25), rgba(125,211,252,0.35))",
-          backgroundSize: "300% 300%",
-        }}
-        animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      {/* ── Cursor-reactive spotlight over the whole section ── */}
-      <motion.div
-        className="absolute inset-0 z-0 pointer-events-none mix-blend-overlay hidden lg:block"
-        style={{ background: spotlightBg }}
-      />
-
-      {/* ── Animated golden light sweep ── */}
-      <motion.div
-        className="absolute inset-0 z-0 pointer-events-none mix-blend-overlay"
-        style={{
-          background:
-            "linear-gradient(115deg, transparent 20%, rgba(255,214,140,0.35) 45%, transparent 65%)",
-        }}
-        animate={{ x: ["-30%", "30%", "-30%"] }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      {/* ── Soft fog orbs ── */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        <div
-          className="absolute top-[8%] left-[6%] w-[28rem] h-[28rem] bg-blue-200/20 rounded-full blur-[130px]"
-          style={{ animation: "fogDrift 14s ease-in-out infinite" }}
+        <HandNote
+          className="bottom-8 sm:bottom-10 left-6 sm:left-10"
+          arrow="up"
+          lines={["Always Learning"]}
         />
-        <div
-          className="absolute bottom-[6%] right-[8%] w-[24rem] h-[24rem] bg-amber-100/25 rounded-full blur-[110px]"
-          style={{ animation: "fogDrift 17s ease-in-out infinite reverse" }}
+        <HandNote
+          className="top-8 sm:top-10 right-8 sm:right-14 hidden lg:block"
+          align="right"
+          lines={["Problem  →  Solution"]}
         />
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[36rem] h-[36rem] bg-sky-100/10 rounded-full blur-[160px]"
-          style={{ animation: "fogDrift 22s ease-in-out infinite" }}
+        <HandNote
+          className="bottom-10 right-8 sm:right-14 hidden lg:block"
+          align="right"
+          boxed
+          lines={["Focus   •   Learn", "Improve   •   Repeat"]}
         />
-      </div>
+        <div className="hidden xl:block absolute top-14 right-[27%] font-hand text-xs text-primary/45">
+          Clean Code
+        </div>
+        <div className="hidden xl:block absolute bottom-16 left-[42%] font-hand text-xs text-primary/45">
+          Think. Design. Build.
+        </div>
 
-      {/* ── Floating particles ── */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        {Array.from({ length: 16 }).map((_, i) => (
+        {/* soft breathing glow — quiet ambient life, no distracting motion */}
+        <motion.div
+          className="absolute top-[12%] left-[8%] w-[24rem] h-[24rem] rounded-full blur-[120px]"
+          style={{ background: "rgba(59,130,246,0.06)" }}
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute bottom-[10%] right-[10%] w-[22rem] h-[22rem] rounded-full blur-[110px]"
+          style={{ background: "rgba(96,165,250,0.06)" }}
+          animate={{ opacity: [0.4, 0.9, 0.4] }}
+          transition={{ duration: 13, delay: 1.5, repeat: Infinity, ease: "easeInOut" }}
+        />
+
+        {/* tiny floating measurement dots */}
+        {Array.from({ length: 10 }).map((_, i) => (
           <motion.span
             key={i}
-            className="absolute rounded-full bg-white/70"
+            className="absolute rounded-full"
             style={{
-              left: `${(i * 37) % 100}%`,
-              top: `${(i * 53) % 100}%`,
-              width: i % 3 === 0 ? 3 : 2,
-              height: i % 3 === 0 ? 3 : 2,
-              boxShadow: "0 0 6px rgba(255,255,255,0.8)",
+              left: `${(i * 41 + 6) % 100}%`,
+              top: `${(i * 59 + 8) % 100}%`,
+              width: 3,
+              height: 3,
+              background: `${BLUE}30`,
             }}
-            animate={{
-              y: [0, -30, 0],
-              opacity: [0.15, 0.6, 0.15],
-            }}
+            animate={{ y: [0, -16, 0], opacity: [0.15, 0.5, 0.15] }}
             transition={{
-              duration: 6 + (i % 5),
-              delay: i * 0.3,
+              duration: 7 + (i % 5),
+              delay: i * 0.35,
               repeat: Infinity,
               ease: "easeInOut",
             }}
