@@ -1136,7 +1136,7 @@ export default function About() {
     <section
       ref={sectionRef}
       id="about"
-      className="relative overflow-hidden section-wrap max-w-full py-20 sm:py-28 md:py-32 lg:py-36 bg-white"
+      className="relative overflow-hidden section-wrap max-w-full py-12 sm:py-16 md:py-16 lg:py-16 bg-white"
       aria-label="About — My Story"
     >
       {/* ambient paper dust */}
@@ -1328,7 +1328,7 @@ export default function About() {
                 whileHover={rm ? undefined : { rotateY: -1.2 }}
                 transition={{ type: "spring", stiffness: 200, damping: 22 }}
                 style={{ transformStyle: "preserve-3d", transformOrigin: "right center" }}
-                className="relative px-6 py-10 sm:px-10 sm:py-14 lg:pr-14 lg:pl-12"
+                className="relative px-6 py-6 sm:px-10 sm:py-8 lg:pr-14 lg:pl-12"
               >
                 <CoffeeStain className="top-2 right-6 sm:right-10" size={70} />
                 <Doodle type="swirl" className="top-24 right-2 sm:right-6" delay={0.3} active={phase >= 3} />
@@ -1373,7 +1373,7 @@ export default function About() {
                   initial={{ opacity: 0, y: rm ? 0 : 18 }}
                   animate={phase >= 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 18 }}
                   transition={{ duration: rm ? 0.3 : 0.6, delay: rm ? 0 : 0.2 }}
-                  className="font-serif text-lg sm:text-xl text-slate-500 leading-snug mb-8"
+                  className="font-serif text-lg sm:text-xl text-slate-500 leading-snug mb-5"
                 >
                   A boy from a tea garden in <Marker delay={0.5} active={phase >= 3}>ASSAM</Marker>,
                   chasing a bigger <Marker delay={0.65} active={phase >= 3}>DREAM</Marker> — always
@@ -1385,7 +1385,7 @@ export default function About() {
                   initial={{ opacity: 0, y: rm ? 0 : 16 }}
                   animate={phase >= 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 16 }}
                   transition={{ duration: rm ? 0.3 : 0.6, delay: rm ? 0 : 0.1 }}
-                  className="relative text-slate-600 leading-relaxed mb-10 max-w-md"
+                  className="relative text-slate-600 leading-relaxed mb-6 max-w-md"
                 >
                   <InkSmudge className="-left-3 top-2" size={30} />
                   <p>
@@ -1408,7 +1408,7 @@ export default function About() {
 
                 {/* photo + name tag — Phase 2: lands first, with a small
                     physical bounce, before the headline/paragraphs build */}
-                <div className="relative mb-10 max-w-[15rem]">
+                <div className="relative mb-6 max-w-[15rem]">
                   <motion.div
                     initial={{ opacity: 0, y: rm ? 0 : 40, scale: 0.9, rotate: 0 }}
                     animate={
@@ -1466,7 +1466,7 @@ export default function About() {
 
                 {/* silhouette — Phase 2, staggered slightly after the tagged
                     photo above */}
-                <div className="relative mb-10 max-w-xs">
+                <div className="relative mb-6 max-w-xs">
                   <motion.div
                     initial={{ opacity: 0, y: rm ? 0 : 40, scale: 0.9, rotate: 0 }}
                     animate={
@@ -1523,7 +1523,7 @@ export default function About() {
                 </div>
 
                 {/* handwritten note — Phase 3: draws itself alongside the headline */}
-                <div className="relative mb-10 max-w-xs">
+                <div className="relative mb-6 max-w-xs">
                   <InkSmudge className="-top-2 left-2" size={26} />
                   <HandwrittenNote className="text-xl sm:text-2xl -rotate-1" delay={0.9} active={phase >= 3}>
                     "It started as curiosity. Then it became a way of thinking."
@@ -1552,7 +1552,7 @@ export default function About() {
                 whileHover={rm ? undefined : { rotateY: 1.2 }}
                 transition={{ type: "spring", stiffness: 200, damping: 22 }}
                 style={{ transformStyle: "preserve-3d", transformOrigin: "left center" }}
-                className="relative px-6 py-10 sm:px-10 sm:py-14 lg:pl-14 lg:pr-12 border-t lg:border-t-0 border-dashed border-slate-300/60"
+                className="relative px-6 py-6 sm:px-10 sm:py-8 lg:pl-14 lg:pr-12 border-t lg:border-t-0 border-dashed border-slate-300/60"
               >
                 <Doodle type="spark" className="top-6 right-8" delay={0.2} size={24} />
 
@@ -1563,7 +1563,7 @@ export default function About() {
 
                 {/* purpose torn paper + hanging tag, connected by a small
                     drawn arrow — Phase 4, alongside the story on the left page */}
-                <div className="relative flex items-start justify-between gap-4 mb-8">
+                <div className="relative flex items-start justify-between gap-4 mb-5">
                   <TornPaper className="p-5 sm:p-6 max-w-sm flex-1" rotate={-1} delay={0.05} active={phase >= 4}>
                     <RealPaperClip className="-top-6 left-4" rotate={-10} active={phase >= 4} />
                     <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-primary mb-2">
@@ -1606,7 +1606,7 @@ export default function About() {
                 {/* mission — revealed as if written with a pen, with a
                     genuine left-to-right underline stroke beneath it —
                     Phase 4, staggered after the purpose card above */}
-                <blockquote className="relative mb-10 max-w-md border-l-2 border-primary/40 pl-4">
+                <blockquote className="relative mb-6 max-w-md border-l-2 border-primary/40 pl-4">
                   <HandwrittenNote className="text-2xl sm:text-3xl leading-snug" delay={0.5} active={phase >= 4}>
                     "I want to build digital products that improve people's lives."
                   </HandwrittenNote>
@@ -1614,7 +1614,7 @@ export default function About() {
                 </blockquote>
 
                 {/* highlights row — Phase 4, the real numbers behind the story */}
-                <div className="grid grid-cols-3 gap-3 mb-10 max-w-md">
+                <div className="grid grid-cols-3 gap-3 mb-6 max-w-md">
                   {[
                     { value: "Self-Taught", sub: "since day one", color: "#1d6feb" },
                     { value: "50+", sub: "projects shipped", color: "#b91c1c" },
@@ -1639,7 +1639,7 @@ export default function About() {
                 </div>
 
                 {/* tech stack — Phase 5: icons pop in one after another, in a tidy row */}
-                <div className="mb-10">
+                <div className="mb-6">
                   <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-4">
                     Tech I Reach For
                   </p>
@@ -1647,7 +1647,7 @@ export default function About() {
                 </div>
 
                 {/* daily fuel — Phase 6: torn checklist, ticks in one by one */}
-                <div className="mb-10 max-w-[15rem]">
+                <div className="mb-6 max-w-[15rem]">
                   <DailyFuel active={phase >= 6} />
                 </div>
 
