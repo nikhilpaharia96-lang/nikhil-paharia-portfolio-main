@@ -285,14 +285,6 @@ function TapeStrip({ className = "", rotate = -4 }: { className?: string; rotate
   );
 }
 
-function InkStar({ className = "", style, color = "#7fb2ff" }: { className?: string; style?: React.CSSProperties; color?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} style={style} width="16" height="16" fill="none" stroke={color} strokeWidth="1.6" aria-hidden="true">
-      <path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2z" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 function SquigglyArrow({ className = "" }: { className?: string }) {
   return (
     <svg viewBox="0 0 90 40" className={className} width="90" height="40" fill="none" aria-hidden="true">
@@ -310,7 +302,7 @@ function CornerBracket({ className = "", flip = false }: { className?: string; f
   return (
     <svg
       viewBox="0 0 28 28" width="22" height="22"
-      className={`pointer-events-none absolute text-white/25 ${className}`}
+      className={`pointer-events-none absolute text-[#C9DCFF] ${className}`}
       style={{ transform: flip ? "scaleX(-1)" : undefined }}
       aria-hidden="true"
     >
@@ -319,13 +311,93 @@ function CornerBracket({ className = "", flip = false }: { className?: string; f
   );
 }
 
-/** Soft blurred glow orb for atmospheric depth on the blueprint background. */
-function GlowOrb({ className = "", color = "#2563eb", size = 420 }: { className?: string; color?: string; size?: number }) {
+/** Top-left blueprint title block — name, small construction lines, alignment mark. */
+function BlueprintTitleBlock() {
   return (
-    <div
-      className={`pointer-events-none absolute rounded-full ${className}`}
-      style={{ width: size, height: size, background: color, opacity: 0.16, filter: "blur(90px)" }}
-    />
+    <div className="pointer-events-none absolute top-6 left-6 select-none" aria-hidden="true">
+      <div className="font-mono text-[11px] tracking-widest text-[#7fa6e8] opacity-40 leading-tight border-b border-[#C9DCFF]/60 pb-1 mb-1">
+        NIKHIL PAHARIA
+        <br />
+        PORTFOLIO
+      </div>
+      <svg width="26" height="26" viewBox="0 0 26 26" className="text-[#C9DCFF] opacity-60 mt-2">
+        <circle cx="13" cy="13" r="6" stroke="currentColor" strokeWidth="1" fill="none" />
+        <path d="M13 2v6M13 18v6M2 13h6M18 13h6" stroke="currentColor" strokeWidth="1" />
+      </svg>
+    </div>
+  );
+}
+
+/** Top-right blueprint annotation — small technical note block with hatch marks. */
+function BlueprintFocusNote() {
+  return (
+    <div className="pointer-events-none absolute top-6 right-6 text-right select-none" aria-hidden="true">
+      <div className="font-mono text-[10px] tracking-widest text-[#7fa6e8] opacity-40 leading-relaxed">
+        FOCUS
+        <br />PROBLEM
+        <br />SOLUTION
+        <br />IMPACT
+      </div>
+      <svg width="60" height="16" viewBox="0 0 60 16" className="ml-auto mt-2 opacity-40">
+        {[...Array(8)].map((_, i) => (
+          <line key={i} x1={i * 8} y1="0" x2={i * 8 - 6} y2="16" stroke="#C9DCFF" strokeWidth="1" />
+        ))}
+      </svg>
+    </div>
+  );
+}
+
+/** Faint drafting circles + crosses on the right edge — pure geometry, no illustration. */
+function DraftingGeometry() {
+  return (
+    <svg
+      className="pointer-events-none absolute top-1/4 -right-16 opacity-[0.18] hidden lg:block"
+      width="360" height="360" viewBox="0 0 360 360" aria-hidden="true"
+    >
+      <circle cx="180" cy="180" r="140" stroke="#B9CFFA" strokeWidth="1" fill="none" />
+      <circle cx="180" cy="180" r="90" stroke="#B9CFFA" strokeWidth="1" fill="none" />
+      <line x1="0" y1="180" x2="360" y2="180" stroke="#B9CFFA" strokeWidth="1" />
+      <line x1="180" y1="0" x2="180" y2="360" stroke="#B9CFFA" strokeWidth="1" />
+      <path d="M170 30l10-10 10 10M170 330l10 10 10-10" stroke="#B9CFFA" strokeWidth="1" fill="none" />
+    </svg>
+  );
+}
+
+/** Huge faded page number + handwritten section tag, bottom-left. */
+function BlueprintPageMark() {
+  return (
+    <div className="pointer-events-none absolute bottom-0 left-0 select-none hidden md:block" aria-hidden="true">
+      <span
+        className="block leading-none text-[#B9CFFA] opacity-[0.05] font-black"
+        style={{ fontSize: "min(22vw, 320px)" }}
+      >
+        03
+      </span>
+      <span
+        className="absolute bottom-10 left-6 text-2xl text-[#5b86d6] opacity-50 -rotate-3"
+        style={{ fontFamily: FONT_TITLE }}
+      >
+        Projects
+        <svg viewBox="0 0 100 10" className="w-full -mt-1" preserveAspectRatio="none">
+          <path d="M2 5c30-4 60-4 96 1" stroke="#8fb3ec" strokeWidth="1.5" fill="none" />
+        </svg>
+      </span>
+    </div>
+  );
+}
+
+/** Small handwritten closing note, bottom-right, with a tiny arrow. */
+function BlueprintClosingNote() {
+  return (
+    <div className="pointer-events-none absolute bottom-16 right-10 text-right hidden lg:block select-none" aria-hidden="true">
+      <p className="font-mono text-[11px] tracking-widest text-[#7fa6e8] opacity-40 leading-relaxed">
+        BUILDING
+        <br />DIGITAL
+        <br />EXPERIENCES
+        <br />THAT MATTER.
+      </p>
+      <SquigglyArrow className="ml-auto mt-1 opacity-40 -scale-x-100" />
+    </div>
   );
 }
 
@@ -676,23 +748,19 @@ export default function Projects() {
       id="projects"
       className="relative py-24 md:py-32 overflow-hidden"
       style={{
-        background: "#12245c",
         backgroundImage: `
-          linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px),
-          linear-gradient(155deg, #1a2f78 0%, #12245c 55%, #0d1b4a 100%)
+          linear-gradient(rgba(201,220,255,0.16) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(201,220,255,0.16) 1px, transparent 1px),
+          radial-gradient(circle at 1px 1px, rgba(15,23,42,0.035) 1px, transparent 0),
+          linear-gradient(135deg, #FCFCFB 0%, #F8FAFF 100%)
         `,
-        backgroundSize: "42px 42px, 42px 42px, 100% 100%",
+        backgroundSize: "40px 40px, 40px 40px, 6px 6px, 100% 100%",
       }}
     >
-      {/* atmospheric depth — soft glows + a slow light sweep, kept subtle */}
-      <GlowOrb className="-top-32 -left-20" color="#3b82f6" size={480} />
-      <GlowOrb className="bottom-0 right-0" color="#60a5fa" size={420} />
-      <motion.div
-        className="pointer-events-none absolute inset-0 opacity-[0.05]"
-        style={{ background: "linear-gradient(100deg, transparent 30%, white 50%, transparent 70%)", backgroundSize: "200% 200%" }}
-        animate={{ backgroundPosition: ["0% 0%", "100% 100%"] }}
-        transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+      {/* soft blue fade at the corners, per spec — no blur blobs, just a gentle vignette */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{ background: "radial-gradient(circle at 100% 0%, rgba(191,214,255,0.35), transparent 45%), radial-gradient(circle at 0% 100%, rgba(191,214,255,0.25), transparent 45%)" }}
       />
 
       {/* technical-drawing corner brackets */}
@@ -701,8 +769,12 @@ export default function Projects() {
       <CornerBracket className="bottom-6 left-6 rotate-180" flip />
       <CornerBracket className="bottom-6 right-6 rotate-180" />
 
-      <InkStar className="hidden lg:block absolute" style={{ top: "20%", right: "8%" }} />
-      <InkStar className="hidden sm:block absolute opacity-50" style={{ bottom: "10%", left: "6%" }} />
+      {/* blueprint annotations — kept faint, tucked into the empty margins */}
+      <BlueprintTitleBlock />
+      <BlueprintFocusNote />
+      <DraftingGeometry />
+      <BlueprintPageMark />
+      <BlueprintClosingNote />
 
       <div className="relative max-w-5xl mx-auto px-6 sm:px-8">
         {/* ── Header ── */}
@@ -713,7 +785,7 @@ export default function Projects() {
               animate={headerInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, ease }}
               className="inline-flex items-center gap-2 mb-5 px-3 py-1.5 rounded-md text-xs font-black uppercase tracking-widest border-2"
-              style={{ borderColor: "#7fb2ff", color: "#bcd6ff", background: "rgba(255,255,255,0.06)" }}
+              style={{ borderColor: "#1d6feb", color: "#1d6feb", background: "#fff" }}
             >
               03 — Selected Work
             </motion.div>
@@ -722,33 +794,25 @@ export default function Projects() {
               initial={{ opacity: 0, y: 20 }}
               animate={headerInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.1, ease }}
-              className="relative inline-block mb-4"
+              className="relative inline-block text-7xl sm:text-8xl font-bold text-slate-900 mb-4"
+              style={{ fontFamily: FONT_TITLE, transform: "rotate(-1.5deg)" }}
             >
-              <span
-                className="absolute inset-0 -m-3 rounded-md"
-                style={{ background: "#0b0d12", transform: "rotate(-2deg)", boxShadow: "0 20px 40px -12px rgba(0,0,0,0.5)" }}
-              />
-              <span
-                className="relative inline-block text-7xl sm:text-8xl font-bold text-white px-1"
-                style={{ fontFamily: FONT_TITLE, transform: "rotate(-1.5deg)" }}
-              >
-                Projects
-                <Paperclip className="absolute -top-4 -left-7 text-white/60 rotate-[-25deg]" size={30} strokeWidth={1.5} />
-                <svg viewBox="0 0 220 14" className="absolute -bottom-1 left-1 w-[85%]" preserveAspectRatio="none" aria-hidden="true">
-                  <path d="M2 8c40-8 140-8 216 2" stroke="#7fb2ff" strokeWidth="4" strokeLinecap="round" fill="none" />
-                </svg>
-              </span>
+              Projects
+              <Paperclip className="absolute -top-4 -left-7 text-slate-400 rotate-[-25deg]" size={30} strokeWidth={1.5} />
+              <svg viewBox="0 0 220 14" className="absolute -bottom-1 left-1 w-[85%]" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M2 8c40-8 140-8 216 2" stroke="#1d6feb" strokeWidth="4" strokeLinecap="round" fill="none" />
+              </svg>
             </motion.h2>
 
             <motion.p
               initial={{ opacity: 0, y: 14 }}
               animate={headerInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.2, ease }}
-              className="text-slate-200 text-base sm:text-lg leading-relaxed max-w-md mt-3"
+              className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-md mt-3"
               style={{ fontFamily: FONT_NOTE }}
             >
               Every project represents a problem solved, late nights, continuous
-              learning, and real <Highlight color="#7fb2ff">impact</Highlight>.
+              learning, and real <Highlight>impact</Highlight>.
             </motion.p>
           </div>
 
@@ -760,7 +824,7 @@ export default function Projects() {
             className="relative justify-self-start lg:justify-self-end w-full max-w-[280px] rounded-sm p-5"
             style={{
               background: "#FFF6D6",
-              boxShadow: "0 20px 45px -12px rgba(0,0,0,0.5)",
+              boxShadow: "0 16px 34px -12px rgba(15,23,42,0.25)",
             }}
           >
             <TapeStrip className="-top-3 left-8" rotate={-6} />
@@ -775,7 +839,7 @@ export default function Projects() {
         </div>
 
         {/* ── Filter tabs ── */}
-        <div className="flex flex-wrap gap-1 mb-10 border-b border-white/15">
+        <div className="flex flex-wrap gap-1 mb-10 border-b border-slate-300/70">
           {FILTER_TABS.map((tab) => {
             const isActive = activeFilter === tab.key;
             return (
@@ -784,7 +848,7 @@ export default function Projects() {
                 onClick={() => setActiveFilter(tab.key)}
                 className="relative px-4 py-3 text-sm font-bold transition-colors"
                 style={{
-                  color: isActive ? "#ffffff" : "rgba(255,255,255,0.5)",
+                  color: isActive ? "#1d6feb" : "#64748b",
                   fontFamily: FONT_NOTE,
                 }}
               >
@@ -794,7 +858,7 @@ export default function Projects() {
                     layoutId="projectsFilterUnderline"
                     transition={{ type: "spring", stiffness: 400, damping: 32 }}
                     className="absolute left-2 right-2 -bottom-[1px] h-[3px] rounded-full"
-                    style={{ background: "#7fb2ff" }}
+                    style={{ background: "#1d6feb" }}
                   />
                 )}
               </button>
@@ -814,7 +878,7 @@ export default function Projects() {
           className="mt-10 flex items-center justify-center gap-2 text-slate-400 text-sm"
           style={{ fontFamily: FONT_NOTE }}
         >
-          <Star size={14} className="text-blue-300" />
+          <Star size={14} className="text-blue-400" />
           More projects coming soon…
         </motion.div>
       </div>
