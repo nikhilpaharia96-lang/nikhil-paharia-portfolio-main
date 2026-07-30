@@ -212,6 +212,14 @@ html.lenis, html.lenis body {
 .section-padding { @apply py-16 sm:py-20 md:py-28 lg:py-32; }
 .container-tight { @apply container mx-auto px-4 sm:px-6 max-w-7xl; }
 
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 .section-wrap {
   position: relative;
   overflow: hidden;
