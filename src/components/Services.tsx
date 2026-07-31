@@ -1,72 +1,15 @@
 import { motion } from "framer-motion";
 import { RiCodeSSlashLine, RiLayoutMasonryLine, RiSmartphoneLine, RiVideoChatLine, RiMovieLine, RiDashboard3Line, RiInstagramLine, RiBrushLine } from "react-icons/ri";
-import ServicesMobileStack from "@/components/ServicesMobileStack";
 
-export const services = [
-  {
-    title: "Full Stack Web Dev",
-    desc: "End-to-end web applications with React, Node.js, and databases.",
-    icon: RiCodeSSlashLine,
-    price: "From $500",
-    tech: ["React", "Node.js", "MongoDB", "TypeScript", "Tailwind CSS"],
-    features: ["Custom backend APIs", "Database design & integration", "Scalable architecture"],
-  },
-  {
-    title: "Responsive Design",
-    desc: "Websites that look perfect on every device and screen size.",
-    icon: RiSmartphoneLine,
-    price: "From $300",
-    tech: ["Figma", "HTML", "CSS", "JavaScript", "Tailwind CSS"],
-    features: ["Mobile-first layouts", "Cross-browser testing", "Pixel-perfect breakpoints"],
-  },
-  {
-    title: "Landing Pages",
-    desc: "High-converting, beautiful landing pages that drive sales.",
-    icon: RiLayoutMasonryLine,
-    price: "From $200",
-    tech: ["Next.js", "Tailwind CSS", "Framer Motion", "GSAP"],
-    features: ["Conversion-focused layout", "Fast load times", "SEO-friendly structure"],
-  },
-  {
-    title: "Admin Dashboards",
-    desc: "Complex data visualization and management panels.",
-    icon: RiDashboard3Line,
-    price: "From $600",
-    tech: ["React", "Node.js", "MongoDB", "Tailwind CSS", "Recharts"],
-    features: ["Real-time data visualization", "Role-based access", "Custom reporting tools"],
-  },
-  {
-    title: "UI/UX Design",
-    desc: "Wireframes, prototypes, and stunning user interfaces in Figma.",
-    icon: RiBrushLine,
-    price: "From $250",
-    tech: ["Figma", "Illustrator", "Photoshop"],
-    features: ["Wireframes & prototypes", "User flow mapping", "Design systems"],
-  },
-  {
-    title: "Cinematic Editing",
-    desc: "Premium video editing for YouTube, commercials, and events.",
-    icon: RiMovieLine,
-    price: "From $150",
-    tech: ["Premiere Pro", "After Effects", "DaVinci Resolve"],
-    features: ["Color grading", "Sound design", "Story-driven cuts"],
-  },
-  {
-    title: "Social Media Reels",
-    desc: "Fast-paced, engaging short-form content for TikTok and IG.",
-    icon: RiInstagramLine,
-    price: "From $50",
-    tech: ["Premiere Pro", "CapCut", "After Effects"],
-    features: ["Fast-paced editing", "Platform-optimized formats", "Trend-aware pacing"],
-  },
-  {
-    title: "Motion Graphics",
-    desc: "Custom animations, intros, and visual effects for videos.",
-    icon: RiVideoChatLine,
-    price: "From $100",
-    tech: ["After Effects", "Illustrator"],
-    features: ["Custom animations", "Logo reveals", "Visual effects"],
-  },
+const services = [
+  { title: "Full Stack Web Dev", desc: "End-to-end web applications with React, Node.js, and databases.", icon: RiCodeSSlashLine, price: "From $500" },
+  { title: "Responsive Design", desc: "Websites that look perfect on every device and screen size.", icon: RiSmartphoneLine, price: "From $300" },
+  { title: "Landing Pages", desc: "High-converting, beautiful landing pages that drive sales.", icon: RiLayoutMasonryLine, price: "From $200" },
+  { title: "Admin Dashboards", desc: "Complex data visualization and management panels.", icon: RiDashboard3Line, price: "From $600" },
+  { title: "UI/UX Design", desc: "Wireframes, prototypes, and stunning user interfaces in Figma.", icon: RiBrushLine, price: "From $250" },
+  { title: "Cinematic Editing", desc: "Premium video editing for YouTube, commercials, and events.", icon: RiMovieLine, price: "From $150" },
+  { title: "Social Media Reels", desc: "Fast-paced, engaging short-form content for TikTok and IG.", icon: RiInstagramLine, price: "From $50" },
+  { title: "Motion Graphics", desc: "Custom animations, intros, and visual effects for videos.", icon: RiVideoChatLine, price: "From $100" },
 ];
 
 export default function Services() {
@@ -88,8 +31,7 @@ export default function Services() {
           <div className="section-divider mx-auto" />
         </motion.div>
 
-        {/* Desktop / tablet — unchanged grid, lg+ only */}
-        <div className="hidden lg:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
           {services.map((service, index) => {
             const Icon = service.icon;
             const num = (index + 1).toString().padStart(2, '0');
@@ -134,11 +76,6 @@ export default function Services() {
               </motion.div>
             );
           })}
-        </div>
-
-        {/* Mobile / tablet — scroll-driven stacked accordion */}
-        <div className="lg:hidden">
-          <ServicesMobileStack services={services} />
         </div>
       </div>
     </section>
