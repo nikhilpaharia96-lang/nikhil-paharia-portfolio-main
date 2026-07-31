@@ -56,6 +56,25 @@ function progressToPhase(progress: number): number {
   return TOTAL_PHASES;
 }
 
+/**
+ * The notebook's cover — closed the moment the section is reached, swung
+ * open (hinged on the left edge) as the reader scrolls into the story, held
+ * open through the whole two-page reveal, then swung shut again as the
+ * section finishes scrolling past. `progress` is the same 0–1 scroll value
+ * driving `progressToPhase` above, so opening/closing and the page content
+ * stay perfectly in sync with one another and with scroll direction.
+ */
+const COVER_OPEN_END = 0.12; // cover finishes opening by 12% through the section
+const COVER_CLOSE_START = 0.9; // cover starts closing again for the last 10%
+
+function progressToCoverOpen(progress: number): number {
+  if (progress <= COVER_OPEN_END) return progress / COVER_OPEN_END;
+  if (progress >= COVER_CLOSE_START) {
+    return Math.max(0, 1 - (progress - COVER_CLOSE_START) / (1 - COVER_CLOSE_START));
+  }
+  return 1;
+}
+
 /* ────────────────────────────────────────────────────────────
    Marker highlight — animated blue highlighter stroke behind text
    ──────────────────────────────────────────────────────────── */
@@ -1067,11 +1086,21 @@ export default function About() {
   // eased transition to/from that state.
   const [phase, setPhase] = useState(rm ? TOTAL_PHASES : 1);
 
+  // How open the cover is, 0 (fully closed) → 1 (fully open). Driven every
+  // scroll frame directly as a motion value (not React state) so the cover
+  // swing stays perfectly smooth — it never triggers a re-render.
+  const coverOpen = useMotionValue(rm ? 1 : 0);
+  const coverRotateY = useTransform(coverOpen, [0, 1], [0, -115]);
+  const coverOpacity = useTransform(coverOpen, [0, 0.15, 1], [1, 1, 0]);
+  const coverPointerEvents = useTransform(coverOpen, (v) => (v > 0.05 ? "none" : "auto"));
+
   useEffect(() => {
     if (rm) {
       // Reduced motion: skip scroll-scrubbed choreography entirely and
       // just show the finished page — each component's own `rm`-aware
-      // transition already collapses to a quick, simple fade.
+      // transition already collapses to a quick, simple fade. The cover
+      // stays open (see the initial coverOpen value above) rather than
+      // animating shut, since there's no scrub to drive it back closed.
       setPhase(TOTAL_PHASES);
       return;
     }
@@ -1089,16 +1118,19 @@ export default function About() {
           lastPhase.current = next;
           setPhase(next);
         }
+        coverOpen.set(progressToCoverOpen(self.progress));
       },
       onLeaveBack: () => {
         // Scrolled back above the section entirely — reset to the "pages
         // almost empty" resting state so scrolling back down replays the
         // full reveal, matching the site's established reversible-scroll
-        // convention.
+        // convention. The cover swings shut again too, so re-entering the
+        // section always starts from a closed notebook.
         if (lastPhase.current !== 1) {
           lastPhase.current = 1;
           setPhase(1);
         }
+        coverOpen.set(0);
       },
     });
 
@@ -1226,6 +1258,49 @@ export default function About() {
           >
             {/* leather-ish outer frame */}
             <div className="absolute inset-0 pointer-events-none rounded-[24px] ring-1 ring-inset ring-black/5 z-30" />
+
+            {/* ── Notebook cover ── closed by default, swings open on the
+                left hinge as the section scrolls in, swings shut again as
+                the section finishes scrolling past. Purely a rotateY +
+                opacity tween off the `coverOpen` motion value, so it stays
+                in lockstep with scroll direction with no extra state. */}
+            {!rm && (
+              <motion.div
+                aria-hidden="true"
+                style={{
+                  rotateY: coverRotateY,
+                  opacity: coverOpacity,
+                  pointerEvents: coverPointerEvents,
+                  transformOrigin: "left center",
+                  transformStyle: "preserve-3d",
+                  backfaceVisibility: "hidden",
+                }}
+                className="absolute inset-0 z-50 flex items-center justify-center overflow-hidden rounded-[24px]"
+              >
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background: "linear-gradient(135deg, #2b3a55 0%, #1d2b42 55%, #16233a 100%)",
+                    boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06), inset 0 30px 70px rgba(0,0,0,0.3)",
+                  }}
+                />
+                {/* hinge shadow along the left (spine) edge */}
+                <div className="absolute left-0 top-0 bottom-0 w-3 sm:w-4 bg-black/30" />
+                {/* gold clasp on the opposite edge, sold as the "closed" latch */}
+                <div className="absolute right-5 sm:right-8 top-1/2 -translate-y-1/2 w-2 h-12 rounded-full bg-amber-300/70 shadow-[0_0_12px_rgba(255,200,120,0.55)]" />
+                <div className="relative z-10 text-center px-6">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-amber-200/70 mb-3">
+                    Personal Notebook
+                  </p>
+                  <h3 className="font-serif font-extrabold text-3xl sm:text-5xl text-white mb-2">
+                    About Me
+                  </h3>
+                  <p className="font-hand text-lg sm:text-xl text-amber-100/80">
+                    keep scrolling to open →
+                  </p>
+                </div>
+              </motion.div>
+            )}
 
             {/* folded corner (top-right) */}
             <div
