@@ -5,11 +5,10 @@ import { FaXTwitter } from "react-icons/fa6";
 import { motion, useScroll, useTransform, useSpring, useMotionValueEvent, useInView, useReducedMotion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import profileImg from "../assets/images/profile-nobg.png";
+import teaBg from "../assets/images/tea-sunset-landscape.webp";
 import SplitText from "@/components/ui/SplitText";
 import Magnetic from "@/components/ui/Magnetic";
 import Tilt from "@/components/ui/Tilt";
-import { CinematicBackdrop, CinematicForeground } from "@/components/hero/CinematicScene";
-import { useReducedFx } from "@/hooks/use-reduced-fx";
 
 const cloudImg = "https://www.gopalkrishnatea.com/static/media/cloud2.895414a23f99e60c66ea.webp";
 
@@ -98,7 +97,6 @@ const socials = [
 export default function Hero() {
   const ref = useRef<HTMLElement>(null);
   const prefersReducedMotion = useReducedMotion();
-  const reducedFx = useReducedFx();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
 
   const rawPlaneY  = useTransform(scrollYProgress, [0, 1], [0, -120]);
@@ -200,28 +198,55 @@ export default function Hero() {
   return (
     <section ref={ref} className="relative min-h-screen flex items-center overflow-hidden w-full max-w-full section-wrap" id="home">
 
-      {/* ── Cinematic 12-layer Assam tea-garden sunrise environment ──
-          Layers 1–9 (sky, sun, mountains x3, fog, trees, birds, particles).
-          Mouse parallax reads --mx/--my (set below); scroll drives an
-          independent per-layer "camera push" via scrollYProgress. Layer 10
-          (portrait) and layers 11–12 (foreground tea bushes + ultra-foreground)
-          render further down so they correctly stack in front of this. */}
-      <CinematicBackdrop scrollYProgress={scrollYProgress} reducedFx={!!reducedFx} />
+      {/* Fixed background — absolutely positioned, filling the Hero section's own
+          bounds (the section is exactly viewport height), with zero scroll-linked
+          transform. It never moves; only the foreground content above it scrolls.
+          This intentionally is NOT `background-attachment: fixed` (that's the classic
+          iOS Safari jank/repaint trap) — it's a plain absolute layer, GPU-cheap and
+          jitter-free on both iOS Safari and Android Chrome. */}
+      <div className="absolute inset-0 z-0">
+        <img src={teaBg} alt="" className="w-full h-full object-cover" style={{ filter: 'brightness(0.95) saturate(0.9)' }} />
+        <div className="absolute inset-0 bg-gradient-to-r from-white/45 via-white/20 to-blue-50/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-white/50 via-transparent to-white/15" />
+      </div>
 
       {/* Cursor spotlight — very soft, follows the pointer, mouse-only (never scroll-linked) */}
       <div
-        className="absolute inset-0 z-[9] pointer-events-none hidden md:block"
+        className="absolute inset-0 z-[1] pointer-events-none hidden md:block"
         style={{
-          background: "radial-gradient(600px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255,255,255,0.28), transparent 60%)",
+          background: "radial-gradient(600px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255,255,255,0.35), transparent 60%)",
           mixBlendMode: "soft-light",
         }}
         aria-hidden="true"
       />
 
+      {/* Distant mist layer — drifts slowest with the cursor, adds depth behind the fog orbs */}
+      <div
+        className="parallax-slow absolute inset-0 z-0 pointer-events-none overflow-hidden"
+        aria-hidden="true"
+      >
+        <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent blur-2xl" />
+      </div>
+
+      {/* Fog orbs */}
+      <div className="parallax-mid absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-200/15 rounded-full blur-[120px]" style={{ animation: 'fogDrift 12s ease-in-out infinite' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-sky-200/20 rounded-full blur-[100px]" style={{ animation: 'fogDrift 16s ease-in-out infinite reverse' }} />
+      </div>
+
+      {/* Particles */}
+      <div className="parallax-fast absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[20%] left-[10%] w-1.5 h-1.5 rounded-full bg-primary/40" style={{ animation: 'floatY 4s ease-in-out infinite' }} />
+        <div className="absolute top-[40%] right-[20%] w-1.5 h-1.5 rounded-full bg-primary/40" style={{ animation: 'floatY 5s ease-in-out infinite 1s' }} />
+        <div className="absolute bottom-[30%] left-[30%] w-1.5 h-1.5 rounded-full bg-primary/40" style={{ animation: 'floatY 6s ease-in-out infinite 0.5s' }} />
+        <div className="absolute top-[60%] left-[80%] w-1.5 h-1.5 rounded-full bg-primary/40" style={{ animation: 'floatY 4.5s ease-in-out infinite 2s' }} />
+        <div className="absolute bottom-[10%] right-[10%] w-1.5 h-1.5 rounded-full bg-primary/40" style={{ animation: 'floatY 5.5s ease-in-out infinite 1.5s' }} />
+      </div>
+
       {/* Decorative side clouds — LHS/RHS, vertically centered in the middle of the Hero section;
           cross over to opposite sides (slowly) on scroll-up, reverse on scroll-down. Also gets a
           light mouse-parallax nudge on top of the crossover. */}
-      <div className="parallax-mid absolute inset-x-0 top-1/2 -translate-y-1/2 z-[9] flex justify-between px-1 sm:px-4 pointer-events-none opacity-60">
+      <div className="parallax-mid absolute inset-x-0 top-1/2 -translate-y-1/2 z-0 flex justify-between px-1 sm:px-4 pointer-events-none">
         {isScrollingUp ? [cloudRight, cloudLeft] : [cloudLeft, cloudRight]}
       </div>
 
@@ -883,14 +908,8 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Layer 11 (foreground tea bushes, overlapping the portrait's lower body) +
-          Layer 12 (ultra-foreground grass/insects/lens dust) — rendered above the
-          main content's z-10 so they read as true foreground, pointer-events-none
-          throughout so nothing underneath ever becomes unclickable. */}
-      <CinematicForeground scrollYProgress={scrollYProgress} reducedFx={!!reducedFx} />
-
       {/* Scroll indicator */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2">
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2">
         <span className="text-xs text-slate-500 tracking-widest uppercase font-mono">.</span>
         {/* Mouse-shape icon with an animated internal dot ("line animation") */}
         <div className="w-5 h-8 rounded-full border-2 border-primary/50 flex items-start justify-center p-1" aria-hidden="true">
