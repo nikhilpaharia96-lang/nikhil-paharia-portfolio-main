@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { RiCodeSSlashLine, RiLayoutMasonryLine, RiSmartphoneLine, RiVideoChatLine, RiMovieLine, RiDashboard3Line, RiInstagramLine, RiBrushLine } from "react-icons/ri";
+import ServicesMobileStack from "@/components/ServicesMobileStack";
 
-const services = [
+export const services = [
   { title: "Full Stack Web Dev", desc: "End-to-end web applications with React, Node.js, and databases.", icon: RiCodeSSlashLine, price: "From $500" },
   { title: "Responsive Design", desc: "Websites that look perfect on every device and screen size.", icon: RiSmartphoneLine, price: "From $300" },
   { title: "Landing Pages", desc: "High-converting, beautiful landing pages that drive sales.", icon: RiLayoutMasonryLine, price: "From $200" },
@@ -31,7 +32,8 @@ export default function Services() {
           <div className="section-divider mx-auto" />
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+        {/* Desktop — unchanged grid, lg+ only */}
+        <div className="hidden lg:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
           {services.map((service, index) => {
             const Icon = service.icon;
             const num = (index + 1).toString().padStart(2, '0');
@@ -76,6 +78,11 @@ export default function Services() {
               </motion.div>
             );
           })}
+        </div>
+
+        {/* Mobile / tablet — fanned overlapping card stack */}
+        <div className="lg:hidden">
+          <ServicesMobileStack services={services} />
         </div>
       </div>
     </section>
