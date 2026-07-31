@@ -81,6 +81,7 @@ interface Project {
   id: number;
   number: string;
   title: string;
+  headline: string; // the big handwritten line, shown in both collapsed and expanded states
   category: string;
   filterKey: string;
   tagline: string;
@@ -108,6 +109,7 @@ const PROJECTS: Project[] = [
     id: 1,
     number: "01",
     title: "StudyNova",
+    headline: "AI Study Companion",
     category: "AI & EdTech",
     filterKey: "AI",
     tagline: "AI study companion that turns lectures into exam-ready notes.",
@@ -133,6 +135,7 @@ const PROJECTS: Project[] = [
     id: 2,
     number: "02",
     title: "Abodiverse",
+    headline: "Verified Stays, Zero Brokerage",
     category: "PropTech / Web App",
     filterKey: "Web",
     tagline: "Verified rooms, PGs & rentals in Jagiroad, Assam — zero brokerage.",
@@ -158,6 +161,7 @@ const PROJECTS: Project[] = [
     id: 3,
     number: "03",
     title: "Xarena",
+    headline: "Tournament Hub for Gamers",
     category: "Gaming / Web App",
     filterKey: "Gaming",
     tagline: "Tournament hub for gamers and organizers.",
@@ -183,6 +187,7 @@ const PROJECTS: Project[] = [
     id: 4,
     number: "04",
     title: "Travel Diaries",
+    headline: "Cinematic Travel Stories",
     category: "Video Editing",
     filterKey: "Video",
     tagline: "A cinematic travel series — this episode: Cherrapunji, Meghalaya.",
@@ -205,6 +210,7 @@ const PROJECTS: Project[] = [
     id: 5,
     number: "05",
     title: "CreatorHub",
+    headline: "Sell. Track. Grow.",
     category: "Marketplace / Dashboard",
     filterKey: "Web",
     tagline: "A digital marketplace concept for creators, with a sales dashboard.",
@@ -230,6 +236,7 @@ const PROJECTS: Project[] = [
     id: 6,
     number: "06",
     title: "Portfolio Website",
+    headline: "Built From Scratch",
     category: "Personal Site",
     filterKey: "Web",
     tagline: "This very site — built with love, precision and purpose.",
@@ -431,44 +438,75 @@ function TechChip({ tag }: { tag: string }) {
 }
 
 /* ── compact "peeking" folder tab (shown behind the active one) ── */
+/** Shared header block — identical markup in both collapsed and expanded states,
+ *  so growing from one to the other reads as continuous rather than a swap. */
+function FolderHeader({ project, showHint }: { project: Project; showHint: boolean }) {
+  const tone = TONE_STYLES[project.tone];
+  const statusStyle = STATUS_STYLES[project.status];
+
+  return (
+    <div>
+      <div className="flex items-center gap-3 sm:gap-4 px-5 sm:px-7 pt-4 sm:pt-5">
+        <span
+          className="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-[11px] font-black shrink-0"
+          style={{ background: "rgba(0,0,0,0.08)", color: tone.text }}
+        >
+          {project.number}
+        </span>
+        <span className="font-black text-sm sm:text-base tracking-tight truncate" style={{ color: tone.text }}>
+          {project.title}
+        </span>
+        <span className="hidden md:block text-xs truncate flex-1" style={{ color: tone.sub }}>
+          {project.tagline}
+        </span>
+        <span className={`ml-auto shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusStyle.bg} ${statusStyle.text}`}>
+          <span className={`h-1.5 w-1.5 rounded-full ${statusStyle.dot}`} />
+          {project.status}
+        </span>
+      </div>
+      <div className="h-px mx-5 sm:mx-7 mt-3" style={{ background: tone.border }} />
+      <div className="relative flex items-end justify-between gap-3 px-5 sm:px-7 pt-2 pb-4 sm:pb-5">
+        <h3
+          className="text-3xl sm:text-5xl leading-none truncate"
+          style={{ color: tone.text, fontFamily: FONT_TITLE }}
+        >
+          {project.headline}
+        </h3>
+        <span className="hidden sm:block shrink-0 text-[11px] font-bold whitespace-nowrap" style={{ color: tone.sub, fontFamily: FONT_NOTE }}>
+          // {project.timeline}
+        </span>
+
+        {showHint && (
+          <span
+            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+                       hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wide
+                       bg-slate-900 text-white opacity-0 scale-90 transition-all duration-200 group-hover/peek:opacity-100 group-hover/peek:scale-100"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-white" />
+            Click to expand
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function FolderPeek({
   project, onSelect,
 }: { project: Project; onSelect: () => void }) {
   const tone = TONE_STYLES[project.tone];
-  const statusStyle = STATUS_STYLES[project.status];
 
   return (
     <button
       onClick={onSelect}
       aria-label={`Expand ${project.title}`}
-      className="group/peek w-full h-16 sm:h-[72px] rounded-lg cursor-pointer text-left
-                 flex items-center gap-3 sm:gap-4 px-5 sm:px-7 border-2 shadow-[0_10px_28px_-8px_rgba(0,0,0,0.5)]
+      className="group/peek block w-full rounded-lg cursor-pointer text-left overflow-hidden
+                 border-2 shadow-[0_10px_28px_-8px_rgba(0,0,0,0.5)]
                  transition-transform duration-200 hover:-translate-y-0.5
                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
       style={{ background: tone.bg, borderColor: tone.border }}
     >
-      <span
-        className="inline-flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-lg text-xs font-black shrink-0"
-        style={{ background: "rgba(0,0,0,0.08)", color: tone.text }}
-      >
-        {project.number}
-      </span>
-      <span className="font-black text-sm sm:text-base tracking-tight truncate" style={{ color: tone.text }}>
-        {project.title}
-      </span>
-      <span className="hidden md:block text-xs truncate flex-1" style={{ color: tone.sub }}>
-        {project.tagline}
-      </span>
-      <span
-        className="hidden sm:inline-flex shrink-0 items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wide
-                   bg-slate-900 text-white opacity-0 -translate-x-1 transition-all duration-200 group-hover/peek:opacity-100 group-hover/peek:translate-x-0"
-      >
-        Click to expand
-      </span>
-      <span className={`ml-auto shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusStyle.bg} ${statusStyle.text}`}>
-        <span className={`h-1.5 w-1.5 rounded-full ${statusStyle.dot}`} />
-        {project.status}
-      </span>
+      <FolderHeader project={project} showHint />
     </button>
   );
 }
@@ -478,7 +516,6 @@ function FolderExpanded({
   project, onNext, onPrev, total, position,
 }: { project: Project; onNext: () => void; onPrev: () => void; total: number; position: number }) {
   const tone = TONE_STYLES[project.tone];
-  const statusStyle = STATUS_STYLES[project.status];
 
   const handleDragEnd = useCallback((_: unknown, info: PanInfo) => {
     if (info.offset.x < -80 || info.velocity.x < -500) onNext();
@@ -494,25 +531,7 @@ function FolderExpanded({
       className={`relative rounded-lg sm:rounded-xl overflow-hidden border-2 shadow-[0_30px_70px_-15px_rgba(0,0,0,0.55)] ${total > 1 ? "cursor-grab active:cursor-grabbing" : ""}`}
       style={{ background: tone.bg, borderColor: tone.border }}
     >
-      {/* folder header strip */}
-      <div className="flex items-center gap-3 sm:gap-4 px-5 sm:px-7 pt-5 sm:pt-6 pb-4">
-        <span
-          className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg text-sm font-black shrink-0"
-          style={{ background: "rgba(0,0,0,0.08)", color: tone.text }}
-        >
-          {project.number}
-        </span>
-        <div className="min-w-0">
-          <h3 className="font-black text-lg sm:text-2xl tracking-tight leading-none" style={{ color: tone.text }}>
-            {project.title}
-          </h3>
-          <p className="text-[11px] sm:text-xs mt-1 truncate" style={{ color: tone.sub }}>{project.category}</p>
-        </div>
-        <span className={`ml-auto shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border ${statusStyle.bg} ${statusStyle.text}`}>
-          <span className={`h-1.5 w-1.5 rounded-full ${statusStyle.dot}`} />
-          {project.status}
-        </span>
-      </div>
+      <FolderHeader project={project} showHint={false} />
 
       {/* browser mockup — real chrome, not just a bare screenshot */}
       <div className="group/shot relative mx-4 sm:mx-6 rounded-xl overflow-hidden bg-slate-900 select-none shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]">
