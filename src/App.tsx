@@ -1,10 +1,9 @@
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Lenis from "lenis";
-import gsap from "gsap";
-import { motion, MotionConfig, useReducedMotion } from "framer-motion";
+import Lenis from "@studio-freight/lenis";
+import { motion, useReducedMotion } from "framer-motion";
 
 import LoadingScreen from "@/components/LoadingScreen";
 import Cursor from "@/components/Cursor";
@@ -14,25 +13,14 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Marquee from "@/components/Marquee";
 import About from "@/components/About";
+import Skills from "@/components/Skills";
+import Projects from "@/components/Projects";
+import VideoShowcase from "@/components/VideoShowcase";
+import Services from "@/components/Services";
+import Testimonials from "@/components/Testimonials";
+import Contact from "@/components/Contact";
+import Footer from "@/components/Footer";
 import CinematicSection from "@/components/CinematicSection";
-
-// Below-the-fold sections are code-split so the initial bundle only has to
-// download/parse/execute what's needed to render the first screen. Each
-// chunk is fetched as the user approaches it while scrolling (React lazy +
-// Suspense), which keeps time-to-interactive low on slower mobile networks
-// and low-end CPUs without changing what eventually renders.
-const Skills = lazy(() => import("@/components/Skills"));
-const Projects = lazy(() => import("@/components/Projects"));
-const VideoShowcase = lazy(() => import("@/components/video-showcase/VideoShowcase"));
-const Services = lazy(() => import("@/components/Services"));
-const Testimonials = lazy(() => import("@/components/testimonials/Testimonials"));
-const Contact = lazy(() => import("@/components/Contact"));
-const Footer = lazy(() => import("@/components/Footer"));
-
-/** Minimal, layout-neutral placeholder shown while a section chunk loads. */
-function SectionFallback() {
-  return <div className="w-full min-h-[40vh]" aria-hidden="true" />;
-}
 
 const queryClient = new QueryClient();
 
@@ -43,36 +31,25 @@ function App() {
   useEffect(() => {
     // Cinematic smooth scroll — slower duration for that filmic feel
     const lenis = new Lenis({
-      duration: shouldReduceMotion ? 0.1 : 1.2, // Instant scroll if user prefers reduced motion
+      duration: shouldReduceMotion ? 0.1 : 1.4, // Instant scroll if user prefers reduced motion
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: !shouldReduceMotion,
-      wheelMultiplier: 1,
+      wheelMultiplier: 0.85,
       touchMultiplier: 1.8,
-      autoRaf: false, // gsap.ticker below is the single RAF loop driving Lenis — never let Lenis start its own
     });
 
-    // Make Lenis reachable from anywhere (Navbar anchor links, in-page "scroll to" CTAs)
-    // so every programmatic scroll goes through the same smooth-scroll engine instead of
-    // fighting the native scrollIntoView, which is what caused jumpy nav clicks.
-    (window as typeof window & { lenis?: Lenis }).lenis = lenis;
-
-    // Drive Lenis off GSAP's ticker instead of a separate requestAnimationFrame loop.
-    // Both Lenis (scroll) and GSAP (cursor, any future ScrollTrigger work) now share a
-    // single timing source, so they can never drift out of sync with each other.
-    const update = (time: number) => {
-      lenis.raf(time * 1000);
-    };
-    gsap.ticker.add(update);
-    gsap.ticker.lagSmoothing(0); // don't let GSAP "catch up" with a jump after a stalled frame (tab switch, etc.)
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
 
     const timer = setTimeout(() => setLoading(false), 4200);
 
     return () => {
-      gsap.ticker.remove(update);
       lenis.destroy();
-      delete (window as typeof window & { lenis?: Lenis }).lenis;
       clearTimeout(timer);
     };
   }, [shouldReduceMotion]);
@@ -80,7 +57,6 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <MotionConfig reducedMotion="user">
         {loading && <LoadingScreen />}
         <Cursor />
         <GlobalBackground />
@@ -110,57 +86,42 @@ function App() {
 
             {/* Skills — scene with depth */}
             <CinematicSection parallax={35} delay={0.05}>
-              <Suspense fallback={<SectionFallback />}>
-                <Skills />
-              </Suspense>
+              <Skills />
             </CinematicSection>
 
             {/* Projects — dramatic entrance */}
             <CinematicSection parallax={30} delay={0.05}>
-              <Suspense fallback={<SectionFallback />}>
-                <Projects />
-              </Suspense>
+              <Projects />
             </CinematicSection>
 
             {/* Video — immersive pull-in */}
             <CinematicSection parallax={25} delay={0}>
-              <Suspense fallback={<SectionFallback />}>
-                <VideoShowcase />
-              </Suspense>
+              <VideoShowcase />
             </CinematicSection>
 
             {/* Services — lateral wipe feel */}
             <CinematicSection parallax={35} delay={0.05}>
-              <Suspense fallback={<SectionFallback />}>
-                <Services />
-              </Suspense>
+              <Services />
             </CinematicSection>
 
             {/* Testimonials — soft fade */}
             <CinematicSection parallax={30} delay={0.05}>
-              <Suspense fallback={<SectionFallback />}>
-                <Testimonials />
-              </Suspense>
+              <Testimonials />
             </CinematicSection>
 
             {/* Contact — final scene */}
             <CinematicSection parallax={40} delay={0.05}>
-              <Suspense fallback={<SectionFallback />}>
-                <Contact />
-              </Suspense>
+              <Contact />
             </CinematicSection>
 
           </main>
 
           <CinematicSection parallax={20} delay={0}>
-            <Suspense fallback={<SectionFallback />}>
-              <Footer />
-            </Suspense>
+            <Footer />
           </CinematicSection>
         </motion.div>
 
         <Toaster theme="light" position="bottom-right" />
-        </MotionConfig>
       </TooltipProvider>
     </QueryClientProvider>
   );
