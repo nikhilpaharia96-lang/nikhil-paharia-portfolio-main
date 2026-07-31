@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Lenis from "@studio-freight/lenis";
-import { motion, useReducedMotion } from "framer-motion";
+import Lenis from "lenis";
+import gsap from "gsap";
+import { motion, MotionConfig, useReducedMotion } from "framer-motion";
 
 import LoadingScreen from "@/components/LoadingScreen";
 import Cursor from "@/components/Cursor";
@@ -31,25 +32,35 @@ function App() {
   useEffect(() => {
     // Cinematic smooth scroll — slower duration for that filmic feel
     const lenis = new Lenis({
-      duration: shouldReduceMotion ? 0.1 : 1.4, // Instant scroll if user prefers reduced motion
+      duration: shouldReduceMotion ? 0.1 : 1.2, // Instant scroll if user prefers reduced motion
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: !shouldReduceMotion,
-      wheelMultiplier: 0.85,
+      wheelMultiplier: 1,
       touchMultiplier: 1.8,
     });
 
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
+    // Make Lenis reachable from anywhere (Navbar anchor links, in-page "scroll to" CTAs)
+    // so every programmatic scroll goes through the same smooth-scroll engine instead of
+    // fighting the native scrollIntoView, which is what caused jumpy nav clicks.
+    (window as typeof window & { lenis?: Lenis }).lenis = lenis;
+
+    // Drive Lenis off GSAP's ticker instead of a separate requestAnimationFrame loop.
+    // Both Lenis (scroll) and GSAP (cursor, any future ScrollTrigger work) now share a
+    // single timing source, so they can never drift out of sync with each other.
+    const update = (time: number) => {
+      lenis.raf(time * 1000);
+    };
+    gsap.ticker.add(update);
+    gsap.ticker.lagSmoothing(0); // don't let GSAP "catch up" with a jump after a stalled frame (tab switch, etc.)
 
     const timer = setTimeout(() => setLoading(false), 4200);
 
     return () => {
+      gsap.ticker.remove(update);
       lenis.destroy();
+      delete (window as typeof window & { lenis?: Lenis }).lenis;
       clearTimeout(timer);
     };
   }, [shouldReduceMotion]);
@@ -57,6 +68,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
+        <MotionConfig reducedMotion="user">
         {loading && <LoadingScreen />}
         <Cursor />
         <GlobalBackground />
@@ -122,6 +134,7 @@ function App() {
         </motion.div>
 
         <Toaster theme="light" position="bottom-right" />
+        </MotionConfig>
       </TooltipProvider>
     </QueryClientProvider>
   );
