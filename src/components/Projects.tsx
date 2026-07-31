@@ -725,12 +725,12 @@ function FolderRow({
 
 /* ── the folder stack itself ─────────────────────────────────── */
 function FolderStack({ projects }: { projects: Project[] }) {
-  const [activeId, setActiveId] = useState<number | null>(projects[0]?.id ?? null);
+  const [activeId, setActiveId] = useState<number | null>(projects[projects.length - 1]?.id ?? null);
 
   // Keep the active id valid whenever the filtered list changes (e.g. switching category).
   useEffect(() => {
     if (!projects.some((p) => p.id === activeId)) {
-      setActiveId(projects[0]?.id ?? null);
+      setActiveId(projects[projects.length - 1]?.id ?? null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projects.map((p) => p.id).join(",")]);
