@@ -56,10 +56,10 @@ function FanDeckCard({ service, index, total }: { service: ServiceItem; index: n
       style={{ top: BASE_TOP_PX + index * PEEK_PX, zIndex: index + 1 }}
     >
       <motion.article
-        initial={{ opacity: 0, y: 40, rotate: 0 }}
-        whileInView={{ opacity: 1, y: 0, rotate: isLast ? 0 : tilt }}
+        initial={{ opacity: 0, x: rm ? 0 : index % 2 === 0 ? -90 : 90, y: rm ? 0 : 16, rotate: 0 }}
+        whileInView={{ opacity: 1, x: 0, y: 0, rotate: isLast ? 0 : tilt }}
         viewport={{ once: false, margin: "-40px" }}
-        transition={{ duration: rm ? 0.2 : 0.6, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: rm ? 0.2 : 0.65, ease: [0.16, 1, 0.3, 1] }}
         whileHover={{ rotate: 0, scale: 1.02 }}
         style={{ scale, filter, transformOrigin: "top center" }}
         className={`interactive relative rounded-2xl sm:rounded-3xl border-2 border-black/10 overflow-hidden mb-5
