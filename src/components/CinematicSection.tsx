@@ -1,131 +1,115 @@
+/**
+ * CinematicSection — wraps any section with a cinematic scroll-driven reveal:
+ *   • Opacity fade in/out as the section crosses the viewport edges
+ *   • Subtle upward parallax drift (crane-shot feel)
+ *   • Gentle scale breathing (dolly-in / dolly-out)
+ *
+ * Everything here is a pure function of scroll position (useScroll + useTransform),
+ * not a threshold-triggered spring animation. That's what makes it look identical
+ * scrolling up or down — there's no "replay" to trigger, no snapping, and no drift
+ * out of sync with the scrollbar. Lenis already smooths the raw scroll input, so we
+ * avoid re-smoothing it again here (double smoothing is what causes that laggy,
+ * trailing-behind-the-scroll feeling) — the only spring is a light one to remove
+ * high-frequency micro-jitter, tuned stiff enough to feel immediate.
+ */
 import { useRef } from "react";
-import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } from "framer-motion";
-import { Eye } from "lucide-react";
-import type { CardVariant, Project } from "@/types/video";
-import { ease, cardSpring, tiltSpring } from "@/animations/videoShowcase.motion";
+import { motion, useScroll, useTransform, useSpring, useReducedMotion, useInView } from "framer-motion";
 
-type ProjectCardProps = {
-  project: Project;
-  variant: CardVariant;
-  distance: number;
-  index: number;
-  onSelect: () => void;
-};
+interface CinematicSectionProps {
+  children: React.ReactNode;
+  className?: string;
+  /** Extra Y offset for parallax feel (default 30) */
+  parallax?: number;
+  /** Kept for API compatibility; entrance is scroll-driven, not delayed. */
+  delay?: number;
+}
 
-export default function ProjectCard({ project, variant, distance, index, onSelect }: ProjectCardProps) {
-  const prefersReducedMotion = useReducedMotion();
-  const isActive = variant === "active";
+// Tight spring: smooths micro-jitter without introducing perceptible lag behind the scrollbar.
+const TIGHT_SPRING = { stiffness: 380, damping: 42, mass: 0.4 };
+
+export default function CinematicSection({
+  children,
+  className = "",
+  parallax = 30,
+}: CinematicSectionProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
 
-  const mx = useMotionValue(0.5);
-  const my = useMotionValue(0.5);
-  const rotateX = useSpring(useTransform(my, [0, 1], [7, -7]), tiltSpring);
-  const rotateY = useSpring(useTransform(mx, [0, 1], [-7, 7]), tiltSpring);
-  const glowX = useTransform(mx, (v) => `${v * 100}%`);
-  const glowY = useTransform(my, (v) => `${v * 100}%`);
-  const glowBg = useTransform(
-    [glowX, glowY],
-    ([x, y]) => `radial-gradient(240px circle at ${x} ${y}, rgba(29,111,235,0.3), transparent 70%)`,
-  );
+  // 0 = section top enters bottom of viewport, 1 = section bottom exits top of viewport.
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
 
-  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (prefersReducedMotion) return;
-    const rect = ref.current?.getBoundingClientRect();
-    if (!rect) return;
-    mx.set((e.clientX - rect.left) / rect.width);
-    my.set((e.clientY - rect.top) / rect.height);
-  };
+  const rawY = useTransform(scrollYProgress, [0, 1], [parallax, -parallax]);
+  const rawOpacity = useTransform(scrollYProgress, [0, 0.15, 0.85, 1], [0, 1, 1, 0]);
+  const rawScale = useTransform(scrollYProgress, [0, 0.15, 0.85, 1], [0.97, 1, 1, 0.97]);
 
-  const handleLeave = () => {
-    mx.set(0.5);
-    my.set(0.5);
-  };
+  const y = useSpring(rawY, TIGHT_SPRING);
+  const opacity = useSpring(rawOpacity, TIGHT_SPRING);
+  const scale = useSpring(rawScale, TIGHT_SPRING);
 
-  const weight = 1 - Math.min(Math.abs(distance), 2) / 2;
-  const scale = isActive ? 1.05 : 0.92 + weight * 0.05;
-  const opacity = isActive ? 1 : 0.55 + weight * 0.25;
+  // Only promote a section to its own composited GPU layer while it's near the
+  // viewport (one screen-height above/below). With 8-9 of these mounted on the
+  // page at once, leaving `will-change` on permanently for every one of them
+  // (including sections scrolled far out of view) pins that many layers in the
+  // compositor for the whole session — wasted GPU memory that's a real
+  // contributor to scroll jank on mid-range/mobile GPUs on a long page.
+  const isNearViewport = useInView(ref, { margin: "100% 0px 100% 0px" });
+
+  if (prefersReducedMotion) {
+    return (
+      <div ref={ref} className={`relative ${className}`}>
+        {children}
+      </div>
+    );
+  }
 
   return (
-    <motion.div
-      initial={prefersReducedMotion ? undefined : { opacity: 0, y: 30 }}
-      whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.6, delay: index * 0.06, ease }}
-      className="shrink-0 w-[78vw] xs:w-[300px] sm:w-[320px] snap-start"
-    >
-      <motion.div
-        ref={ref}
-        onMouseMove={handleMove}
-        onMouseLeave={handleLeave}
-        animate={{ scale, opacity }}
-        transition={cardSpring}
-        whileHover={{ y: -10 }}
-        style={{
-          rotateX: prefersReducedMotion ? 0 : rotateX,
-          rotateY: prefersReducedMotion ? 0 : rotateY,
-          transformStyle: "preserve-3d",
-        }}
-        className="group relative rounded-[26px] p-[1px] transition-transform duration-300"
-      >
-        <div
-          className="absolute inset-0 rounded-[26px] opacity-50 group-hover:opacity-100 transition-opacity duration-500"
-          style={{
-            background: "linear-gradient(140deg, rgba(29,111,235,0.55), rgba(255,255,255,0.15) 45%, rgba(29,111,235,0.35))",
-          }}
-        />
-
-        <div
-          className={`relative rounded-[25px] overflow-hidden bg-[#0a1220]
-                     shadow-[0_1px_0_rgba(255,255,255,0.12)_inset,0_24px_50px_-18px_rgba(8,20,45,0.5)]
-                     group-hover:shadow-[0_1px_0_rgba(255,255,255,0.18)_inset,0_30px_60px_-16px_rgba(8,20,45,0.6)]
-                     transition-shadow duration-500 ${isActive ? "ring-1 ring-primary/40" : ""}`}
-        >
-          <div className="aspect-[4/5] relative w-full overflow-hidden">
-            <motion.img
-              src={project.image}
-              alt=""
-              aria-hidden="true"
-              loading="lazy"
-              decoding="async"
-              className="absolute inset-0 w-full h-full object-cover"
-              whileHover={{ scale: 1.08 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-            />
-
-            <div className="absolute inset-0 bg-white/0 group-hover:bg-white/[0.04] backdrop-blur-0 group-hover:backdrop-blur-[1px] transition-all duration-500" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/15 to-black/10" />
-
-            <motion.div
-              className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              style={{ background: glowBg }}
-            />
-
-            <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
-              <span className="px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold uppercase tracking-wider">
-                {project.category}
-              </span>
-              <span className="text-white/85 text-[11px] font-mono font-semibold">{project.duration}</span>
-            </div>
-
-            {/* Preview control — a real button now, focusable and clickable
-                (centers this card in the carousel), not just a decorative div. */}
-            <div className="absolute inset-0 flex items-center justify-center z-10">
-              <button
-                type="button"
-                onClick={onSelect}
-                aria-label={`Bring "${project.title}" to focus`}
-                className="interactive w-14 h-14 rounded-full bg-white/90 backdrop-blur flex items-center justify-center shadow-lg opacity-90 scale-100 md:opacity-0 md:group-hover:opacity-100 md:scale-90 md:group-hover:scale-100 transition-all duration-400 focus-visible:opacity-100 focus-visible:scale-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40"
-              >
-                <Eye className="w-5 h-5 text-primary" aria-hidden="true" />
-              </button>
-            </div>
-
-            <div className="absolute bottom-0 left-0 right-0 p-5 z-10">
-              <h4 className="font-serif font-bold text-lg text-white leading-snug">{project.title}</h4>
-            </div>
-          </div>
-        </div>
+    <div ref={ref} className={`relative ${className}`}>
+      <motion.div style={{ y, opacity, scale, willChange: isNearViewport ? "transform, opacity" : "auto" }}>
+        {children}
       </motion.div>
-    </motion.div>
+    </div>
   );
 }
+
+/* ── Reusable stagger container (unchanged, cheap — IntersectionObserver only) ── */
+export const staggerContainer = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+/* ── Cinematic child variants — opacity/position only, no filter animation ── */
+export const cinChild = {
+  hidden: { opacity: 0, y: 40, scale: 0.97 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+  },
+};
+
+export const cinChildLeft = {
+  hidden: { opacity: 0, x: -60 },
+  show: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+  },
+};
+
+export const cinChildRight = {
+  hidden: { opacity: 0, x: 60 },
+  show: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+  },
+};
