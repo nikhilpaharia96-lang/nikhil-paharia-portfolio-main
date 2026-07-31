@@ -1,16 +1,64 @@
 import { motion } from "framer-motion";
-import { RiCodeSSlashLine, RiLayoutMasonryLine, RiSmartphoneLine, RiVideoChatLine, RiMovieLine, RiDashboard3Line, RiInstagramLine, RiBrushLine } from "react-icons/ri";
+import { SiReact, SiCss, SiNextdotjs, SiMongodb, SiFigma, SiInstagram } from "react-icons/si";
 import ServicesMobileStack from "@/components/ServicesMobileStack";
+import premiereProLogo from "../assets/logos/premiere-pro.svg";
+import afterEffectsLogo from "../assets/logos/after-effects.svg";
 
 export const services = [
-  { title: "Full Stack Web Dev", desc: "End-to-end web applications with React, Node.js, and databases.", icon: RiCodeSSlashLine, price: "From $500" },
-  { title: "Responsive Design", desc: "Websites that look perfect on every device and screen size.", icon: RiSmartphoneLine, price: "From $300" },
-  { title: "Landing Pages", desc: "High-converting, beautiful landing pages that drive sales.", icon: RiLayoutMasonryLine, price: "From $200" },
-  { title: "Admin Dashboards", desc: "Complex data visualization and management panels.", icon: RiDashboard3Line, price: "From $600" },
-  { title: "UI/UX Design", desc: "Wireframes, prototypes, and stunning user interfaces in Figma.", icon: RiBrushLine, price: "From $250" },
-  { title: "Cinematic Editing", desc: "Premium video editing for YouTube, commercials, and events.", icon: RiMovieLine, price: "From $150" },
-  { title: "Social Media Reels", desc: "Fast-paced, engaging short-form content for TikTok and IG.", icon: RiInstagramLine, price: "From $50" },
-  { title: "Motion Graphics", desc: "Custom animations, intros, and visual effects for videos.", icon: RiVideoChatLine, price: "From $100" },
+  {
+    title: "Full Stack Web Dev",
+    desc: "End-to-end web applications with React, Node.js, and databases.",
+    icon: SiReact,
+    color: "#61DAFB",
+    price: "From $500",
+  },
+  {
+    title: "Responsive Design",
+    desc: "Websites that look perfect on every device and screen size.",
+    icon: SiCss,
+    color: "#1572B6",
+    price: "From $300",
+  },
+  {
+    title: "Landing Pages",
+    desc: "High-converting, beautiful landing pages that drive sales.",
+    icon: SiNextdotjs,
+    color: "#111827",
+    price: "From $200",
+  },
+  {
+    title: "Admin Dashboards",
+    desc: "Complex data visualization and management panels.",
+    icon: SiMongodb,
+    color: "#47A248",
+    price: "From $600",
+  },
+  {
+    title: "UI/UX Design",
+    desc: "Wireframes, prototypes, and stunning user interfaces in Figma.",
+    icon: SiFigma,
+    color: "#F24E1E",
+    price: "From $250",
+  },
+  {
+    title: "Cinematic Editing",
+    desc: "Premium video editing for YouTube, commercials, and events.",
+    logo: premiereProLogo,
+    price: "From $150",
+  },
+  {
+    title: "Social Media Reels",
+    desc: "Fast-paced, engaging short-form content for TikTok and IG.",
+    icon: SiInstagram,
+    color: "#E1306C",
+    price: "From $50",
+  },
+  {
+    title: "Motion Graphics",
+    desc: "Custom animations, intros, and visual effects for videos.",
+    logo: afterEffectsLogo,
+    price: "From $100",
+  },
 ];
 
 export default function Services() {
@@ -62,9 +110,13 @@ export default function Services() {
                 <motion.div
                   whileHover={{ rotate: -8, scale: 1.15 }}
                   transition={{ type: "spring", stiffness: 300 }}
-                  className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-sky-400/10 flex items-center justify-center mb-8 relative z-10 shadow-inner"
+                  className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-sky-400/10 flex items-center justify-center mb-8 relative z-10 shadow-inner overflow-hidden"
                 >
-                  <Icon className="text-3xl text-primary group-hover:text-accent transition-colors duration-500" />
+                  {service.logo ? (
+                    <img src={service.logo} alt="" className="w-9 h-9 rounded-md" />
+                  ) : Icon ? (
+                    <Icon className="text-3xl transition-colors duration-500" style={{ color: service.color }} />
+                  ) : null}
                 </motion.div>
 
                 <h3 className="text-2xl font-serif font-bold text-foreground mb-4 relative z-10 group-hover:text-primary transition-colors">{service.title}</h3>
