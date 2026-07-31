@@ -114,7 +114,7 @@ export default function ProjectCard({ project, variant, distance, index, onSelec
                 type="button"
                 onClick={onSelect}
                 aria-label={`Bring "${project.title}" to focus`}
-                className="interactive w-14 h-14 rounded-full bg-white/90 backdrop-blur flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all duration-400 focus-visible:opacity-100 focus-visible:scale-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40"
+                className="interactive w-14 h-14 rounded-full bg-white/90 backdrop-blur flex items-center justify-center shadow-lg opacity-90 scale-100 md:opacity-0 md:group-hover:opacity-100 md:scale-90 md:group-hover:scale-100 transition-all duration-400 focus-visible:opacity-100 focus-visible:scale-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40"
               >
                 <Eye className="w-5 h-5 text-primary" aria-hidden="true" />
               </button>
