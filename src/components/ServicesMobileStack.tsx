@@ -4,18 +4,20 @@ import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion
 export type ServiceItem = {
   title: string;
   desc: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon?: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+  logo?: string;
+  color?: string;
   price: string;
 };
 
 type CardColor = "blue" | "cream" | "navy" | "sky";
 const colorCycle: CardColor[] = ["blue", "cream", "navy", "sky"];
 
-const palette: Record<CardColor, { bg: string; text: string; sub: string; chip: string; chipIcon: string; border: string; priceBg: string; priceText: string }> = {
-  blue: { bg: "bg-primary", text: "text-white", sub: "text-blue-100", chip: "bg-white/20", chipIcon: "text-white", border: "border-primary", priceBg: "bg-white/15", priceText: "text-white" },
-  sky: { bg: "bg-sky-500", text: "text-white", sub: "text-sky-50", chip: "bg-white/20", chipIcon: "text-white", border: "border-sky-500", priceBg: "bg-white/15", priceText: "text-white" },
-  navy: { bg: "bg-slate-900", text: "text-white", sub: "text-slate-300", chip: "bg-white/10", chipIcon: "text-white", border: "border-slate-900", priceBg: "bg-white/10", priceText: "text-white" },
-  cream: { bg: "bg-[#fdfaf3]", text: "text-slate-900", sub: "text-slate-500", chip: "bg-slate-900/10", chipIcon: "text-slate-900", border: "border-slate-200", priceBg: "bg-slate-900/10", priceText: "text-slate-900" },
+const palette: Record<CardColor, { bg: string; text: string; sub: string; priceBg: string; priceText: string }> = {
+  blue: { bg: "bg-primary", text: "text-white", sub: "text-blue-100", priceBg: "bg-white/15", priceText: "text-white" },
+  sky: { bg: "bg-sky-500", text: "text-white", sub: "text-sky-50", priceBg: "bg-white/15", priceText: "text-white" },
+  navy: { bg: "bg-slate-900", text: "text-white", sub: "text-slate-300", priceBg: "bg-white/10", priceText: "text-white" },
+  cream: { bg: "bg-[#fdfaf3]", text: "text-slate-900", sub: "text-slate-500", priceBg: "bg-slate-900/10", priceText: "text-slate-900" },
 };
 
 const BASE_TOP_PX = 84; // clears the fixed navbar
@@ -60,9 +62,9 @@ function FanDeckCard({ service, index, total }: { service: ServiceItem; index: n
         transition={{ duration: rm ? 0.2 : 0.6, ease: [0.16, 1, 0.3, 1] }}
         whileHover={{ rotate: 0, scale: 1.02 }}
         style={{ scale, filter, transformOrigin: "top center" }}
-        className={`interactive relative rounded-2xl sm:rounded-3xl border-2 overflow-hidden mb-5
+        className={`interactive relative rounded-2xl sm:rounded-3xl border-2 border-black/10 overflow-hidden mb-5
                     shadow-[0_28px_55px_-18px_rgba(15,23,42,0.4)] cursor-default
-                    ${p.bg} ${p.border}`}
+                    ${p.bg}`}
       >
         {/* huge translucent background number, deck-style */}
         <span
@@ -74,8 +76,12 @@ function FanDeckCard({ service, index, total }: { service: ServiceItem; index: n
 
         <div className="relative p-6 sm:p-7">
           <div className="flex items-start justify-between mb-5">
-            <span className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center ${p.chip}`}>
-              <Icon className={`text-2xl sm:text-3xl ${p.chipIcon}`} />
+            <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white flex items-center justify-center shadow-sm overflow-hidden">
+              {service.logo ? (
+                <img src={service.logo} alt="" className="w-7 h-7 sm:w-8 sm:h-8 rounded-md" />
+              ) : Icon ? (
+                <Icon className="text-2xl sm:text-3xl" style={{ color: service.color }} />
+              ) : null}
             </span>
           </div>
 
