@@ -684,6 +684,16 @@ function FolderRow({
   project: Project; isActive: boolean; idx: number;
   onSelect: () => void; onNext: () => void; onPrev: () => void; total: number; position: number;
 }) {
+  // A small repeating pattern of horizontal drift, tilt and width so the stack reads like
+  // real papers thrown down slightly off-true — not a perfectly symmetric block.
+  const ASYMMETRY = [
+    { x: 0, rotate: 0, inset: 0 },
+    { x: -10, rotate: -0.7, inset: 10 },
+    { x: 14, rotate: 0.6, inset: 22 },
+    { x: -6, rotate: -0.5, inset: 6 },
+  ];
+  const a = isActive ? { x: 0, rotate: 0, inset: 0 } : ASYMMETRY[idx % ASYMMETRY.length];
+
   return (
     <motion.div
       layout
@@ -691,7 +701,12 @@ function FolderRow({
       className="relative"
       style={{ zIndex: idx, marginTop: idx === 0 ? 0 : -18 }}
     >
-      <motion.div layoutId={`folder-${project.id}`} layout transition={{ type: "spring", stiffness: 280, damping: 32 }}>
+      <motion.div
+        layoutId={`folder-${project.id}`}
+        layout
+        transition={{ type: "spring", stiffness: 280, damping: 32 }}
+        animate={{ x: a.x, rotate: a.rotate, marginRight: a.inset }}
+      >
         <AnimatePresence mode="wait" initial={false}>
           {isActive ? (
             <motion.div key="expanded" initial={{ opacity: 0.4 }} animate={{ opacity: 1 }} exit={{ opacity: 0.4 }} transition={{ duration: 0.15 }}>
