@@ -220,6 +220,20 @@ html.lenis, html.lenis body {
   display: none;
 }
 
+@keyframes feature-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    /* Track is duplicated content, so -50% is exactly one full cycle. */
+    transform: translateX(-50%);
+  }
+}
+
+.animate-feature-marquee {
+  animation: feature-marquee 16s linear infinite;
+}
+
 .section-wrap {
   position: relative;
   overflow: hidden;
