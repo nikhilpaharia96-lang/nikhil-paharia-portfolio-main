@@ -1,5 +1,12 @@
 import { useRef } from "react";
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useMotionValue,
+  useSpring,
+  useMotionValueEvent,
+} from "framer-motion";
 import { SiReact, SiCss, SiNextdotjs, SiMongodb, SiFigma, SiInstagram } from "react-icons/si";
 import ServicesMobileStack from "@/components/ServicesMobileStack";
 import premiereProLogo from "../assets/logos/premiere-pro.svg";
@@ -65,12 +72,21 @@ export const services = [
 export default function Services() {
   const headerRef = useRef<HTMLDivElement>(null);
   const rm = useReducedMotion();
-  const { scrollYProgress } = useScroll({
-    target: headerRef,
-    offset: ["start end", "end start"],
+  const { scrollY } = useScroll();
+
+  // text grows while scrolling UP, shrinks while scrolling DOWN — reverses with direction
+  const scaleRaw = useMotionValue(1);
+  const scale = useSpring(scaleRaw, { stiffness: 120, damping: 22, mass: 0.5 });
+  const lastY = useRef(0);
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    if (rm) return;
+    const diff = latest - lastY.current;
+    lastY.current = latest;
+    const step = diff * 0.0022; // scroll sensitivity
+    const next = Math.min(1.4, Math.max(0.7, scaleRaw.get() - step));
+    scaleRaw.set(next);
   });
-  // text grows bigger as it scrolls through the viewport, both directions
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], rm ? [1, 1, 1] : [0.75, 1.15, 0.75]);
 
   return (
     <section id="services" className="section-padding relative">
@@ -78,7 +94,7 @@ export default function Services() {
 
       <div className="container-tight relative z-10">
 
-        {/* Header — enters from the RIGHT, grows bigger while it scrolls through */}
+        {/* Header — enters from the RIGHT; grows on scroll-up, shrinks on scroll-down */}
         <motion.div
           ref={headerRef}
           initial={{ opacity: 0, x: rm ? 0 : 140 }}
