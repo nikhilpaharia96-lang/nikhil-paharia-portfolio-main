@@ -1,6 +1,5 @@
-import { Users, Layers, Star, ThumbsUp, Globe2 } from "lucide-react";
 import apunbazarLogo from "@/assets/images/testimonials/apunbazar-logo.png";
-import type { Testimonial, TrustStat } from "@/types/testimonial";
+import type { Testimonial } from "@/types/testimonial";
 
 /**
  * The hero/featured testimonial, shown large above the carousel.
@@ -133,13 +132,4 @@ export const testimonials: Testimonial[] = [
     content:
       "Rare to find someone who edits with this much taste. Every cut, transition and grade felt intentional. The campaign outperformed everything we've run before.",
   },
-];
-
-/** Trust bar stats — `value` is numeric so it can be counted up on scroll-into-view. */
-export const trustStats: TrustStat[] = [
-  { icon: Users, value: 30, suffix: "+", label: "Trusted by Clients" },
-  { icon: Layers, value: 40, suffix: "+", label: "Projects Delivered" },
-  { icon: Star, value: 5, decimals: 0, suffix: " Star", label: "Rated by Clients" },
-  { icon: ThumbsUp, value: 98, suffix: "%", label: "Client Satisfaction" },
-  { icon: Globe2, value: 0, staticText: "Global", label: "Remote Work" },
 ];
