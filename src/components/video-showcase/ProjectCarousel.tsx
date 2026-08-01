@@ -1,10 +1,15 @@
 import { projects } from "@/constants/videoShowcase";
 import { useProjectCarousel } from "@/hooks/useProjectCarousel";
+import type { Project } from "@/types/video";
 import ProjectCard from "./ProjectCard";
 import CarouselControls from "./CarouselControls";
 import Pagination from "./Pagination";
 
-export default function ProjectCarousel() {
+type ProjectCarouselProps = {
+  onPlay?: (project: Project) => void;
+};
+
+export default function ProjectCarousel({ onPlay }: ProjectCarouselProps) {
   const {
     emblaRef,
     selectedIndex,
@@ -45,6 +50,7 @@ export default function ProjectCarousel() {
                   distance={distance}
                   index={index}
                   onSelect={() => scrollTo(index)}
+                  onPlay={onPlay}
                 />
               </div>
             );
