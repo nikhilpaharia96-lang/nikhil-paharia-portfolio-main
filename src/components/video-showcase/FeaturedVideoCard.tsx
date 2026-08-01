@@ -5,7 +5,11 @@ import bgVideo from "@/assets/videos/loading-bg-desktop.mp4";
 import { featuredVideo } from "@/constants/videoShowcase";
 import { ease, tiltSpring } from "@/animations/videoShowcase.motion";
 
-export default function FeaturedVideoCard() {
+type FeaturedVideoCardProps = {
+  onPlay?: (url: string) => void;
+};
+
+export default function FeaturedVideoCard({ onPlay }: FeaturedVideoCardProps) {
   const prefersReducedMotion = useReducedMotion();
   const [hovered, setHovered] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -127,8 +131,20 @@ export default function FeaturedVideoCard() {
             <div className="absolute inset-0 flex items-center justify-center z-20">
               <motion.button
                 type="button"
-                onClick={() => setPlaying((p) => !p)}
-                aria-label={playing ? `Pause preview of ${featuredVideo.title}` : `Play preview of ${featuredVideo.title}`}
+                onClick={() => {
+                  if (featuredVideo.videoUrl) {
+                    onPlay?.(featuredVideo.videoUrl);
+                    return;
+                  }
+                  setPlaying((p) => !p);
+                }}
+                aria-label={
+                  featuredVideo.videoUrl
+                    ? `Play ${featuredVideo.title}`
+                    : playing
+                      ? `Pause preview of ${featuredVideo.title}`
+                      : `Play preview of ${featuredVideo.title}`
+                }
                 aria-pressed={playing}
                 className="interactive relative focus-visible:outline-none"
                 animate={{ scale: active ? 1.15 : 1 }}
@@ -143,7 +159,7 @@ export default function FeaturedVideoCard() {
                   />
                 )}
                 <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white/95 backdrop-blur flex items-center justify-center shadow-[0_20px_45px_-10px_rgba(0,0,0,0.5)] group-focus-visible:ring-4 group-focus-visible:ring-primary/40 focus-visible:ring-4 focus-visible:ring-primary/50">
-                  {playing ? (
+                  {playing && !featuredVideo.videoUrl ? (
                     <Pause className="w-8 h-8 sm:w-9 sm:h-9 text-primary" fill="currentColor" aria-hidden="true" />
                   ) : (
                     <Play className="w-8 h-8 sm:w-9 sm:h-9 text-primary ml-1" fill="currentColor" aria-hidden="true" />
