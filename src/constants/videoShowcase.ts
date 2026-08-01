@@ -21,7 +21,7 @@ export const featuredVideo: FeaturedVideo = {
 
 export const projects: Project[] = [
   { id: 1, title: "Golden Hour Escape", category: "Travel Film", duration: "2:34", image: vid2, videoUrl: "https://youtu.be/tKdIRLkFs2E?si=akz7-HbQuhqJQUm0" },
-  { id: 2, title: "Whispers of the Highlands", category: "Documentary", duration: "4:12", image: vid1, videoUrl: undefined },
+  { id: 2, title: "Whispers of the Highlands", category: "Documentary", duration: "4:12", image: vid1, videoUrl: "https://youtube.com/shorts/iGaGXO3tmW8?si=Rk60aPOjmkCgJBip" },
   { id: 3, title: "Launch Reel — Aurum", category: "Commercial", duration: "1:15", image: vid3, videoUrl: undefined },
   { id: 4, title: "Anaya & Rohan", category: "Wedding Film", duration: "3:48", image: teaHero, videoUrl: undefined },
   { id: 5, title: "Valley From Above", category: "Drone Film", duration: "2:02", image: teaWide, videoUrl: undefined },
