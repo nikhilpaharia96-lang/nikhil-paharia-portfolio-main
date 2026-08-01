@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { SiReact, SiCss, SiNextdotjs, SiMongodb, SiFigma, SiInstagram } from "react-icons/si";
 import ServicesMobileStack from "@/components/ServicesMobileStack";
 import premiereProLogo from "../assets/logos/premiere-pro.svg";
@@ -62,21 +63,33 @@ export const services = [
 ];
 
 export default function Services() {
+  const headerRef = useRef<HTMLDivElement>(null);
+  const rm = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: headerRef,
+    offset: ["start end", "end start"],
+  });
+  // text grows bigger as it scrolls through the viewport, both directions
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], rm ? [1, 1, 1] : [0.75, 1.15, 0.75]);
+
   return (
     <section id="services" className="section-padding relative">
       <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 to-white -z-10" />
 
       <div className="container-tight relative z-10">
 
-        {/* Header — slides in from RIGHT this time (reverse vs other sections) */}
+        {/* Header — enters from the RIGHT, grows bigger while it scrolls through */}
         <motion.div
-          initial={{ opacity: 0, x: 60 }}
+          ref={headerRef}
+          initial={{ opacity: 0, x: rm ? 0 : 140 }}
           whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: false }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
+          viewport={{ once: false, margin: "-80px" }}
+          transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
           className="text-center mb-20"
         >
-          <h2 className="section-title mb-4">What I <span className="text-gradient">Offer</span></h2>
+          <motion.h2 style={{ scale }} className="section-title mb-4 inline-block">
+            What I <span className="text-gradient">Offer</span>
+          </motion.h2>
           <div className="section-divider mx-auto" />
         </motion.div>
 
