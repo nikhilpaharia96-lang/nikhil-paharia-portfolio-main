@@ -1,217 +1,135 @@
-import { motion, useReducedMotion } from "framer-motion";
-import { Quote } from "lucide-react";
-import SplitText from "@/components/ui/SplitText";
-import { featuredTestimonial, testimonials, trustStats } from "@/constants/testimonials";
-import { ease } from "@/animations/testimonials.motion";
-import { useTestimonialsCarousel } from "@/hooks/useTestimonialsCarousel";
-import BackgroundGlow from "./BackgroundGlow";
-import TestimonialCard from "./TestimonialCard";
-import CarouselControls from "./CarouselControls";
-import Pagination from "./Pagination";
-import StatsCard from "./StatsCard";
+import apunbazarLogo from "@/assets/images/testimonials/apunbazar-logo.png";
+import type { Testimonial } from "@/types/testimonial";
 
-function TestimonialCarousel() {
-  const {
-    emblaRef,
-    selectedIndex,
-    scrollPrev,
-    scrollNext,
-    scrollTo,
-    getDistance,
-    onKeyDown,
-    onMouseEnter,
-    onMouseLeave,
-    onFocus,
-    onBlur,
-  } = useTestimonialsCarousel(testimonials.length);
+/**
+ * The hero/featured testimonial, shown large above the carousel.
+ * NOTE: this is intentionally *not* repeated inside `testimonials` below —
+ * the previous implementation duplicated it as the carousel's first slide,
+ * which meant visitors saw the exact same quote twice in a row.
+ */
+export const featuredTestimonial: Testimonial = {
+  id: 0,
+  name: "Rohan Sharma",
+  role: "Founder",
+  company: "ApunBazar",
+  companyShort: "AB",
+  companyColor: "#1d6feb",
+  avatarFrom: "#1d6feb",
+  avatarTo: "#3b82f6",
+  initials: "RS",
+  avatarImg:
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTr7vL5Zw5rT5ojGVEJqaziZD5Jmi8l5K_BtahvYUh6Rw&s=10",
+  companyLogo: apunbazarLogo,
+  flag: "🇮🇳",
+  country: "India",
+  projectType: "E-Commerce Platform",
+  result: "↑ 40% Conversion",
+  content:
+    "Nikhil is a highly skilled developer who delivers clean, modern and scalable solutions. He understood our vision instantly and shipped a platform that genuinely moved the needle on our business. Professional, dedicated and a pleasure to work with from day one.",
+};
 
-  return (
-    <div
-      className="relative mt-10 sm:mt-12"
-      role="region"
-      aria-roledescription="carousel"
-      aria-label="More client testimonials"
-      tabIndex={0}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      onFocus={onFocus}
-      onBlur={onBlur}
-      onKeyDown={onKeyDown}
-    >
-      <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex gap-5 sm:gap-6 -ml-5 sm:-ml-6 py-2">
-          {testimonials.map((t, index) => {
-            const distance = getDistance(index);
-            const isActive = distance === 0;
-            return (
-              <div
-                key={t.id}
-                role="group"
-                aria-roledescription="slide"
-                aria-label={`${index + 1} of ${testimonials.length}`}
-                aria-hidden={!isActive}
-                className="pl-5 sm:pl-6 shrink-0 grow-0 basis-[85%] xs:basis-[75%] sm:basis-[55%] lg:basis-[38%]"
-              >
-                <TestimonialCard t={t} variant={isActive ? "active" : "side"} distance={distance} index={index} />
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Screen-reader-only live announcement of the current slide */}
-      <p className="sr-only" role="status" aria-live="polite">
-        Showing testimonial {selectedIndex + 1} of {testimonials.length}: {testimonials[selectedIndex]?.name}
-      </p>
-
-      <div className="flex items-center justify-between mt-8">
-        <Pagination count={testimonials.length} selectedIndex={selectedIndex} onSelect={scrollTo} />
-        <CarouselControls onPrev={scrollPrev} onNext={scrollNext} />
-      </div>
-    </div>
-  );
-}
-
-function TrustBar() {
-  const prefersReducedMotion = useReducedMotion();
-  return (
-    <motion.div
-      initial={prefersReducedMotion ? undefined : { opacity: 0, y: 28 }}
-      whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.7 }}
-      className="mt-16 sm:mt-20 rounded-3xl p-6 sm:p-8
-                 bg-white/45 backdrop-blur-2xl border border-white/70
-                 shadow-[0_1px_0_rgba(255,255,255,0.7)_inset,0_24px_55px_-22px_rgba(15,45,90,0.28)]
-                 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-6 gap-y-8 sm:gap-x-8"
-    >
-      {trustStats.map((stat, i) => (
-        <StatsCard key={stat.label} stat={stat} index={i} isLast={i === trustStats.length - 1} />
-      ))}
-    </motion.div>
-  );
-}
-
-export default function Testimonials() {
-  const prefersReducedMotion = useReducedMotion();
-
-  return (
-    <section
-      id="testimonials"
-      className="relative overflow-hidden section-wrap max-w-full py-20 sm:py-28 md:py-36 lg:py-40"
-      aria-label="Testimonials — Client Stories"
-    >
-      <BackgroundGlow />
-
-      <div className="container-tight relative z-10 max-w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-10 items-start mb-4">
-          {/* ═══════════════ LEFT COLUMN ═══════════════ */}
-          <div className="lg:col-span-4 lg:sticky lg:top-32 relative">
-            <motion.div
-              animate={prefersReducedMotion ? undefined : { y: [0, -16, 0] }}
-              transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -top-8 -left-2 hidden lg:block opacity-10 pointer-events-none"
-              aria-hidden="true"
-            >
-              <Quote className="w-28 h-28 text-primary" fill="currentColor" />
-            </motion.div>
-
-            <div className="absolute top-24 right-2 w-14 h-14 rounded-2xl border border-primary/20 hidden lg:block pointer-events-none" aria-hidden="true" />
-            <motion.div
-              animate={prefersReducedMotion ? undefined : { rotate: [0, 360] }}
-              transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-              className="absolute bottom-16 right-10 w-8 h-8 rounded-full border border-dashed border-primary/30 hidden lg:block pointer-events-none"
-              aria-hidden="true"
-            />
-
-            <svg
-              aria-hidden="true"
-              className="absolute left-full top-52 hidden lg:block opacity-40 pointer-events-none -ml-4"
-              width="140"
-              height="90"
-              viewBox="0 0 140 90"
-              fill="none"
-            >
-              <motion.path
-                d="M4 10 C 60 10, 60 70, 130 70"
-                stroke="url(#arrowGradient)"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                initial={{ pathLength: 0 }}
-                whileInView={{ pathLength: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 2, ease: "easeInOut" }}
-              />
-              <motion.path
-                d="M116 62 L130 70 L118 78"
-                stroke="url(#arrowGradient)"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 1.6 }}
-              />
-              <defs>
-                <linearGradient id="arrowGradient" x1="0" y1="0" x2="140" y2="90">
-                  <stop offset="0%" stopColor="#1d6feb" stopOpacity="0" />
-                  <stop offset="50%" stopColor="#1d6feb" stopOpacity="0.6" />
-                  <stop offset="100%" stopColor="#1d6feb" stopOpacity="0.3" />
-                </linearGradient>
-              </defs>
-            </svg>
-
-            <motion.div
-              initial={prefersReducedMotion ? undefined : { opacity: 0, y: 24 }}
-              whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.7, ease }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full
-                         bg-white/60 backdrop-blur-xl border border-white/70
-                         shadow-[0_8px_24px_-10px_rgba(15,45,90,0.25)] mb-7"
-            >
-              <span aria-hidden="true">💬</span>
-              <span className="text-xs font-mono font-semibold tracking-[0.18em] uppercase text-primary">
-                Client Stories
-              </span>
-            </motion.div>
-
-            <motion.h2
-              initial={prefersReducedMotion ? undefined : { opacity: 0, y: 28 }}
-              whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.8, ease }}
-              className="font-serif font-bold text-[2.4rem] sm:text-5xl lg:text-[3.1rem] leading-[1.08] text-foreground mb-6"
-            >
-              <SplitText type="words">Loved by Clients.</SplitText>
-              <br />
-              <SplitText type="words" delay={0.15}>
-                Built on Trust.
-              </SplitText>
-            </motion.h2>
-
-            <motion.p
-              initial={prefersReducedMotion ? undefined : { opacity: 0, y: 20 }}
-              whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.7, delay: 0.15 }}
-              className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-md"
-            >
-              Real stories from founders, creators and businesses I've worked with. Every
-              project is crafted with attention to detail, performance and long-term impact.
-            </motion.p>
-          </div>
-
-          {/* ═══════════════ RIGHT COLUMN ═══════════════ */}
-          <div className="lg:col-span-8">
-            <TestimonialCard t={featuredTestimonial} variant="featured" />
-            <TestimonialCarousel />
-          </div>
-        </div>
-
-        <TrustBar />
-      </div>
-    </section>
-  );
-}
+/** Carousel testimonials — the featured quote above is deliberately excluded. */
+export const testimonials: Testimonial[] = [
+  {
+    id: 1,
+    name: "Anjan Kalita",
+    role: "Student Leader",
+    company: "Jagiroad College",
+    companyShort: "JC",
+    companyColor: "#7c3aed",
+    avatarFrom: "#7c3aed",
+    avatarTo: "#a78bfa",
+    initials: "AK",
+    avatarImg:
+      "https://api.dicebear.com/9.x/avataaars/svg?seed=Anjan-Kalita-JagiroadCollege&backgroundColor=e0d4fd,f1e4fd",
+    companyLogo:
+      "https://api.dicebear.com/9.x/initials/svg?seed=JagiroadCollege&backgroundType=gradientLinear&backgroundColor=7c3aed,a78bfa&fontFamily=Arial&fontWeight=700&radius=20",
+    flag: "🇮🇳",
+    country: "India",
+    projectType: "Community Web Platform",
+    result: "3x More Engagement",
+    content:
+      "Working with Nikhil was a smooth experience from start to finish. He understood the requirements perfectly and built a fantastic platform for our entire college community.",
+  },
+  {
+    id: 2,
+    name: "Priya Deka",
+    role: "Co-Founder",
+    company: "FitBite",
+    companyShort: "FB",
+    companyColor: "#059669",
+    avatarFrom: "#059669",
+    avatarTo: "#34d399",
+    initials: "PD",
+    avatarImg: "https://api.dicebear.com/9.x/avataaars/svg?seed=Priya-Deka-FitBite&backgroundColor=c7f2dc,d4f7e5",
+    companyLogo:
+      "https://api.dicebear.com/9.x/initials/svg?seed=FitBite&backgroundType=gradientLinear&backgroundColor=059669,34d399&fontFamily=Arial&fontWeight=700&radius=20",
+    flag: "🇮🇳",
+    country: "India",
+    projectType: "Mobile App Landing",
+    result: "500K+ Views",
+    content:
+      "Nikhil is not just a developer but a genuine problem solver. He has a great eye for detail and consistently delivers results before the deadline.",
+  },
+  {
+    id: 3,
+    name: "Meera Bora",
+    role: "Marketing Head",
+    company: "Travel Assam",
+    companyShort: "TA",
+    companyColor: "#f59e0b",
+    avatarFrom: "#f59e0b",
+    avatarTo: "#fbbf24",
+    initials: "MB",
+    avatarImg: "https://api.dicebear.com/9.x/avataaars/svg?seed=Meera-Bora-TravelAssam&backgroundColor=fde7c4,ffe9c7",
+    companyLogo:
+      "https://api.dicebear.com/9.x/initials/svg?seed=TravelAssam&backgroundType=gradientLinear&backgroundColor=f59e0b,fbbf24&fontFamily=Arial&fontWeight=700&radius=20",
+    flag: "🇮🇳",
+    country: "India",
+    projectType: "Travel Website",
+    result: "2x More Leads",
+    content:
+      "The website Nikhil built captured the soul of Assam perfectly. Bookings picked up almost immediately after launch, and clients keep complimenting the design.",
+  },
+  {
+    id: 4,
+    name: "Kabir Singh",
+    role: "Product Manager",
+    company: "Nexlify",
+    companyShort: "NX",
+    companyColor: "#0ea5e9",
+    avatarFrom: "#0ea5e9",
+    avatarTo: "#38bdf8",
+    initials: "KS",
+    avatarImg: "https://api.dicebear.com/9.x/avataaars/svg?seed=Kabir-Singh-Nexlify&backgroundColor=c5eefc,d6f2fd",
+    companyLogo:
+      "https://api.dicebear.com/9.x/initials/svg?seed=Nexlify&backgroundType=gradientLinear&backgroundColor=0ea5e9,38bdf8&fontFamily=Arial&fontWeight=700&radius=20",
+    flag: "🇦🇪",
+    country: "UAE",
+    projectType: "SaaS Dashboard",
+    result: "↑ 55% Retention",
+    content:
+      "Even working across time zones, Nikhil was responsive, sharp and precise. The dashboard he shipped is faster and cleaner than what our last agency delivered.",
+  },
+  {
+    id: 5,
+    name: "Ishita Bhattacharya",
+    role: "Creative Director",
+    company: "PixelCraft Studio",
+    companyShort: "PC",
+    companyColor: "#e1306c",
+    avatarFrom: "#e1306c",
+    avatarTo: "#f472b6",
+    initials: "IB",
+    avatarImg:
+      "https://api.dicebear.com/9.x/avataaars/svg?seed=Ishita-Bhattacharya-PixelCraft&backgroundColor=fbd5e4,fde2ec",
+    companyLogo:
+      "https://api.dicebear.com/9.x/initials/svg?seed=PixelCraftStudio&backgroundType=gradientLinear&backgroundColor=e1306c,f472b6&fontFamily=Arial&fontWeight=700&radius=20",
+    flag: "🇬🇧",
+    country: "UK",
+    projectType: "Brand Video Campaign",
+    result: "1M+ Impressions",
+    content:
+      "Rare to find someone who edits with this much taste. Every cut, transition and grade felt intentional. The campaign outperformed everything we've run before.",
+  },
+];
