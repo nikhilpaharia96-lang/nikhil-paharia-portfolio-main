@@ -1,3 +1,4 @@
+import npLogo from "../assets/logos/np-logo.webp";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RiMenuLine, RiCloseLine } from "react-icons/ri";
@@ -19,50 +20,79 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
-  const tickingRef = useRef(false);
+
+  // Section offsets are read from the DOM once (and on resize), never inside the
+  // scroll handler itself — reading offsetTop on every scroll tick forces a
+  // layout/reflow on whatever frame the browser is trying to paint a scroll on,
+  // which is exactly the kind of jank a smooth-scroll setup can't hide.
+  const sectionOffsets = useRef<{ id: string; top: number }[]>([]);
 
   useEffect(() => {
-    // Cache section elements once instead of calling getElementById on every scroll event.
-    const sectionIds = navLinks.map((link) => link.href.substring(1));
-    const sectionEls = sectionIds
-      .map((id) => document.getElementById(id))
-      .filter((el): el is HTMLElement => el !== null);
+    const measure = () => {
+      sectionOffsets.current = navLinks.map((link) => {
+        const id = link.href.substring(1);
+        const el = document.getElementById(id);
+        return { id, top: el ? el.offsetTop : Infinity };
+      });
+    };
 
-    const updateFromScroll = () => {
-      tickingRef.current = false;
-      const y = window.scrollY;
-      setIsScrolled(y > 40);
+    measure();
+
+    // Re-measure on resize (debounced) and once more after everything (fonts,
+    // below-the-fold lazy chunks, images) has settled and may have shifted layout.
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    const handleResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(measure, 150);
+    };
+    window.addEventListener("resize", handleResize, { passive: true });
+    const settleTimer = setTimeout(measure, 1500);
+
+    const handleScroll = (scrollY: number) => {
+      setIsScrolled(scrollY > 40);
 
       let current = "";
-      for (const el of sectionEls) {
-        if (y >= el.offsetTop - 220) current = el.id;
+      for (const { id, top } of sectionOffsets.current) {
+        if (scrollY >= top - 220) current = id;
       }
-      if (current) setActiveSection((prev) => (prev === current ? prev : current));
+      if (current) setActiveSection(current);
     };
 
-    // rAF-throttle: at most one layout read + state update per animation frame,
-    // no matter how many scroll events Lenis/the browser fires in between.
-    const handleScroll = () => {
-      if (tickingRef.current) return;
-      tickingRef.current = true;
-      requestAnimationFrame(updateFromScroll);
-    };
+    // Ride the app's single Lenis instance (already RAF-synced) instead of adding
+    // a second, independent native scroll listener competing for the same frame.
+    const lenis = (window as typeof window & { lenis?: Lenis }).lenis;
+    if (lenis) {
+      const onLenisScroll = ({ scroll }: { scroll: number }) => handleScroll(scroll);
+      lenis.on("scroll", onLenisScroll);
+      handleScroll(lenis.scroll);
+      return () => {
+        lenis.off("scroll", onLenisScroll);
+        window.removeEventListener("resize", handleResize);
+        clearTimeout(resizeTimer);
+        clearTimeout(settleTimer);
+      };
+    }
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    updateFromScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+    // Fallback (Lenis not mounted yet, e.g. reduced-motion instant scroll edge case)
+    const onNativeScroll = () => handleScroll(window.scrollY);
+    window.addEventListener("scroll", onNativeScroll, { passive: true });
+    onNativeScroll();
+    return () => {
+      window.removeEventListener("scroll", onNativeScroll);
+      window.removeEventListener("resize", handleResize);
+      clearTimeout(resizeTimer);
+      clearTimeout(settleTimer);
+    };
   }, []);
 
   const scrollTo = (href: string) => {
     setMobileMenuOpen(false);
-    const element = document.querySelector(href);
+    const element = document.querySelector<HTMLElement>(href);
     if (!element) return;
 
-    // Route through Lenis so nav clicks use the same smooth-scroll engine as wheel/touch
-    // input, instead of native scrollIntoView fighting Lenis for control of the scroll position.
     const lenis = (window as typeof window & { lenis?: Lenis }).lenis;
     if (lenis) {
-      lenis.scrollTo(element as HTMLElement, { offset: 0, duration: 1.2 });
+      lenis.scrollTo(element, { offset: -24, duration: 1.2 });
     } else {
       element.scrollIntoView({ behavior: "smooth" });
     }
@@ -90,13 +120,14 @@ export default function Navbar() {
     >
       <div className="container-tight flex items-center justify-between h-11">
         <Magnetic range={50} strength={0.3}>
-          <a 
-            href="#home" 
-            onClick={(e) => { e.preventDefault(); scrollTo("#home"); }}
-            className="font-mono text-lg sm:text-xl lg:text-2xl font-bold tracking-wider flex items-center gap-1 text-foreground transition-all duration-300 hover:text-primary hover:drop-shadow-[0_0_12px_rgba(29,111,235,0.4)]"
-          >
-            Nikhil <span className="text-primary">Paharia</span>
-          </a>
+         <a 
+  href="#home" 
+  onClick={(e) => { e.preventDefault(); scrollTo("#home"); }}
+  className="font-mono text-lg sm:text-xl lg:text-2xl font-bold tracking-wider flex items-center gap-2 text-foreground transition-all duration-300 hover:text-primary hover:drop-shadow-[0_0_12px_rgba(29,111,235,0.4)]"
+>
+  <img src={npLogo} alt="NP logo" className="h-7 sm:h-8 lg:h-9 w-auto" />
+  𝐍𝐢𝐤𝐡𝐢𝐥 <span className="text-primary">𝐏𝐚𝐡𝐚𝐫𝐢𝐚 </span>
+</a>
         </Magnetic>
 
         {/* Desktop Nav */}
@@ -141,7 +172,7 @@ export default function Navbar() {
 
         {/* Mobile Toggle — vertically centered, properly sized */}
         <button 
-          className="lg:hidden text-slate-800 hover:text-slate-900 transition-colors w-10 h-10 flex items-center justify-center bg-blue-50/50 rounded-full border border-blue-100/60 z-[210] relative self-center flex-shrink-0"
+          className="lg:hidden text-slate-800 hover:text-slate-900 transition-colors w-11 h-11 flex items-center justify-center bg-blue-50/50 rounded-full border border-blue-100/60 z-[210] relative self-center flex-shrink-0"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
         >
@@ -157,16 +188,17 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 bg-white/95 backdrop-blur-xl z-[200] flex flex-col items-center justify-center lg:hidden overflow-hidden h-[100dvh]"
+            className="fixed inset-0 bg-white/95 backdrop-blur-xl z-[200] flex flex-col items-center justify-center lg:hidden overflow-y-auto h-[100dvh] py-20 pb-safe"
           >
-            <div className="absolute top-8 left-0 right-0 px-4 sm:px-6 flex justify-between items-center z-[210] max-w-7xl mx-auto w-full">
+            <div className="absolute top-0 left-0 right-0 px-4 sm:px-6 pt-safe flex justify-between items-center z-[210] max-w-7xl mx-auto w-full" style={{ paddingTop: 'max(env(safe-area-inset-top, 0px), 2rem)' }}>
               <a 
-                href="#home" 
-                onClick={(e) => { e.preventDefault(); scrollTo("#home"); }}
-                className="font-mono text-2xl font-bold tracking-wider flex items-center gap-1 text-foreground"
-              >
-                Nikhil <span className="text-primary">Paharia</span>
-              </a>
+  href="#home" 
+  onClick={(e) => { e.preventDefault(); scrollTo("#home"); }}
+  className="font-mono text-2xl font-bold tracking-wider flex items-center gap-2 text-foreground"
+>
+  <img src={npLogo} alt="NP logo" className="h-8 w-auto" />
+  Nikhil <span className="text-primary">Paharia</span>
+</a>
             </div>
             <div className="flex flex-col items-center gap-6 mt-10">
               {navLinks.map((link, i) => {
