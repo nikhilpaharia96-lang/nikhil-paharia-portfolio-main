@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } from "framer-motion";
-import { Eye } from "lucide-react";
+import { Eye, Play } from "lucide-react";
 import type { CardVariant, Project } from "@/types/video";
 import { ease, cardSpring, tiltSpring } from "@/animations/videoShowcase.motion";
 
@@ -10,9 +10,10 @@ type ProjectCardProps = {
   distance: number;
   index: number;
   onSelect: () => void;
+  onPlay?: (project: Project) => void;
 };
 
-export default function ProjectCard({ project, variant, distance, index, onSelect }: ProjectCardProps) {
+export default function ProjectCard({ project, variant, distance, index, onSelect, onPlay }: ProjectCardProps) {
   const prefersReducedMotion = useReducedMotion();
   const isActive = variant === "active";
   const ref = useRef<HTMLDivElement>(null);
@@ -112,11 +113,18 @@ export default function ProjectCard({ project, variant, distance, index, onSelec
             <div className="absolute inset-0 flex items-center justify-center z-10">
               <button
                 type="button"
-                onClick={onSelect}
-                aria-label={`Bring "${project.title}" to focus`}
+                onClick={() => {
+                  onSelect();
+                  if (project.videoUrl) onPlay?.(project);
+                }}
+                aria-label={project.videoUrl ? `Play "${project.title}"` : `Bring "${project.title}" to focus`}
                 className="interactive w-14 h-14 rounded-full bg-white/90 backdrop-blur flex items-center justify-center shadow-lg opacity-90 scale-100 md:opacity-0 md:group-hover:opacity-100 md:scale-90 md:group-hover:scale-100 transition-all duration-400 focus-visible:opacity-100 focus-visible:scale-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40"
               >
-                <Eye className="w-5 h-5 text-primary" aria-hidden="true" />
+                {project.videoUrl ? (
+                  <Play className="w-5 h-5 text-primary ml-0.5" fill="currentColor" aria-hidden="true" />
+                ) : (
+                  <Eye className="w-5 h-5 text-primary" aria-hidden="true" />
+                )}
               </button>
             </div>
 
