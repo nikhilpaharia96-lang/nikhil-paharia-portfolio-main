@@ -6,19 +6,25 @@ import teaHero from "@/assets/images/tea-garden-about.webp";
 import teaWide from "@/assets/images/tea-sunset-person-wide.webp";
 import type { FeaturedVideo, Project, ShowcaseFeature } from "@/types/video";
 
+// To make a video actually playable, paste a normal YouTube or Instagram
+// share link into `videoUrl` — e.g.
+//   videoUrl: "https://youtu.be/dQw4w9WgXcQ"
+//   videoUrl: "https://www.instagram.com/reel/CxAbCdEfGh/"
+// Leave it out (or undefined) to keep the current hover-preview-only behaviour.
 export const featuredVideo: FeaturedVideo = {
   title: "Whispers of the Highlands",
   category: "Documentary Film",
   duration: "4:12",
   image: vid1,
+  videoUrl: undefined, // e.g. "https://youtu.be/dQw4w9WgXcQ"
 };
 
 export const projects: Project[] = [
-  { id: 1, title: "Golden Hour Escape", category: "Travel Film", duration: "2:34", image: vid2 },
-  { id: 2, title: "Whispers of the Highlands", category: "Documentary", duration: "4:12", image: vid1 },
-  { id: 3, title: "Launch Reel — Aurum", category: "Commercial", duration: "1:15", image: vid3 },
-  { id: 4, title: "Anaya & Rohan", category: "Wedding Film", duration: "3:48", image: teaHero },
-  { id: 5, title: "Valley From Above", category: "Drone Film", duration: "2:02", image: teaWide },
+  { id: 1, title: "Golden Hour Escape", category: "Travel Film", duration: "2:34", image: vid2, videoUrl: undefined },
+  { id: 2, title: "Whispers of the Highlands", category: "Documentary", duration: "4:12", image: vid1, videoUrl: undefined },
+  { id: 3, title: "Launch Reel — Aurum", category: "Commercial", duration: "1:15", image: vid3, videoUrl: undefined },
+  { id: 4, title: "Anaya & Rohan", category: "Wedding Film", duration: "3:48", image: teaHero, videoUrl: undefined },
+  { id: 5, title: "Valley From Above", category: "Drone Film", duration: "2:02", image: teaWide, videoUrl: undefined },
 ];
 
 export const showcaseFeatures: ShowcaseFeature[] = [
