@@ -1,5 +1,4 @@
-import { useRef, useMemo, useState, useEffect, forwardRef } from "react";
-import HTMLFlipBook from "react-pageflip";
+import { useRef, useMemo, useState, useEffect } from "react";
 import {
   motion,
   useMotionValue,
@@ -39,23 +38,6 @@ gsap.registerPlugin(ScrollTrigger);
 const ease = [0.16, 1, 0.3, 1] as const;
 
 /**
- * react-pageflip requires every direct child of <HTMLFlipBook> to forward a
- * ref to its outer DOM node (that's how the library grabs each page to
- * animate the curl/turn). Defined once at module scope — rather than inline
- * inside the About component — so its identity is stable across renders;
- * an inline forwardRef would get a new identity every render and force
- * React to remount (and replay every animation on) both pages constantly.
- */
-const NotebookPage = forwardRef<HTMLDivElement, { className?: string; children: React.ReactNode }>(
-  ({ className, children }, ref) => (
-    <div ref={ref} className={`page bg-[#FFFDF7] overflow-y-auto scrollbar-hide ${className ?? ""}`}>
-      {children}
-    </div>
-  )
-);
-NotebookPage.displayName = "NotebookPage";
-
-/**
  * The eight beats of the cinematic scroll sequence. Phase 1 is the resting
  * state right after the notebook itself has appeared (handled separately,
  * see the notebook body's own one-time `whileInView` below) — at phase 1
@@ -75,21 +57,20 @@ function progressToPhase(progress: number): number {
 }
 
 /**
- * Page 1 (left) and page 2 (right) start folded shut against the spine —
- * like the notebook's just been picked up closed — then fan open around
- * that spine hinge as the reader scrolls into the story, stay open through
- * the whole two-page reveal, then fold shut again as the section finishes
- * scrolling past. `progress` is the same 0–1 scroll value driving
- * `progressToPhase` above, so the turn and the page content stay perfectly
- * in sync with one another and with scroll direction.
+ * The notebook's cover — closed the moment the section is reached, swung
+ * open (hinged on the left edge) as the reader scrolls into the story, held
+ * open through the whole two-page reveal, then swung shut again as the
+ * section finishes scrolling past. `progress` is the same 0–1 scroll value
+ * driving `progressToPhase` above, so opening/closing and the page content
+ * stay perfectly in sync with one another and with scroll direction.
  */
-const PAGE_TURN_OPEN_END = 0.12; // pages finish turning open by 12% through the section
-const PAGE_TURN_CLOSE_START = 0.9; // pages start turning shut again for the last 10%
+const COVER_OPEN_END = 0.12; // cover finishes opening by 12% through the section
+const COVER_CLOSE_START = 0.9; // cover starts closing again for the last 10%
 
-function progressToPageTurn(progress: number): number {
-  if (progress <= PAGE_TURN_OPEN_END) return progress / PAGE_TURN_OPEN_END;
-  if (progress >= PAGE_TURN_CLOSE_START) {
-    return Math.max(0, 1 - (progress - PAGE_TURN_CLOSE_START) / (1 - PAGE_TURN_CLOSE_START));
+function progressToCoverOpen(progress: number): number {
+  if (progress <= COVER_OPEN_END) return progress / COVER_OPEN_END;
+  if (progress >= COVER_CLOSE_START) {
+    return Math.max(0, 1 - (progress - COVER_CLOSE_START) / (1 - COVER_CLOSE_START));
   }
   return 1;
 }
@@ -1105,24 +1086,21 @@ export default function About() {
   // eased transition to/from that state.
   const [phase, setPhase] = useState(rm ? TOTAL_PHASES : 1);
 
-  // The actual page-1 → page-2 turn is now handled by react-pageflip
-  // (the same library behind the drag-to-turn brochure reference) rather
-  // than a hand-rolled rotateY tween — it gives a real paper curl, corner
-  // shadow, and drag physics for free. `flipBook` is the imperative handle
-  // react-pageflip exposes; `flippedRef` just remembers which of the two
-  // pages is currently showing so the scroll handler below only calls
-  // flipNext/flipPrev when a flip is actually needed, instead of spamming
-  // the library every scroll frame.
-  const flipBook = useRef<{ pageFlip: () => { flipNext: () => void; flipPrev: () => void } } | null>(null);
-  const flippedRef = useRef(false);
+  // How open the cover is, 0 (fully closed) → 1 (fully open). Driven every
+  // scroll frame directly as a motion value (not React state) so the cover
+  // swing stays perfectly smooth — it never triggers a re-render.
+  const coverOpen = useMotionValue(rm ? 1 : 0);
+  const coverRotateY = useTransform(coverOpen, [0, 1], [0, -115]);
+  const coverOpacity = useTransform(coverOpen, [0, 0.15, 1], [1, 1, 0]);
+  const coverPointerEvents = useTransform(coverOpen, (v) => (v > 0.05 ? "none" : "auto"));
 
   useEffect(() => {
     if (rm) {
       // Reduced motion: skip scroll-scrubbed choreography entirely and
       // just show the finished page — each component's own `rm`-aware
-      // transition already collapses to a quick, simple fade. The
-      // flip-book still renders (so page 2's content stays reachable via
-      // its own click/drag corners), it just isn't auto-flipped by scroll.
+      // transition already collapses to a quick, simple fade. The cover
+      // stays open (see the initial coverOpen value above) rather than
+      // animating shut, since there's no scrub to drive it back closed.
       setPhase(TOTAL_PHASES);
       return;
     }
@@ -1140,31 +1118,19 @@ export default function About() {
           lastPhase.current = next;
           setPhase(next);
         }
-        // Turn page 1 → page 2 once the reader is past the section's
-        // midpoint, and turn it back once they scroll back above it —
-        // so the physical page-turn tracks scroll direction exactly like
-        // the rest of the reveal does.
-        const shouldBeFlipped = self.progress > 0.5;
-        if (shouldBeFlipped !== flippedRef.current) {
-          flippedRef.current = shouldBeFlipped;
-          const api = flipBook.current?.pageFlip();
-          if (api) shouldBeFlipped ? api.flipNext() : api.flipPrev();
-        }
+        coverOpen.set(progressToCoverOpen(self.progress));
       },
       onLeaveBack: () => {
         // Scrolled back above the section entirely — reset to the "pages
         // almost empty" resting state so scrolling back down replays the
         // full reveal, matching the site's established reversible-scroll
-        // convention. Page 1 and 2 fold shut against the spine again too,
-        // so re-entering the section always starts from a closed notebook.
+        // convention. The cover swings shut again too, so re-entering the
+        // section always starts from a closed notebook.
         if (lastPhase.current !== 1) {
           lastPhase.current = 1;
           setPhase(1);
         }
-        if (flippedRef.current) {
-          flippedRef.current = false;
-          flipBook.current?.pageFlip()?.flipPrev();
-        }
+        coverOpen.set(0);
       },
     });
 
@@ -1293,6 +1259,49 @@ export default function About() {
             {/* leather-ish outer frame */}
             <div className="absolute inset-0 pointer-events-none rounded-[24px] ring-1 ring-inset ring-black/5 z-30" />
 
+            {/* ── Notebook cover ── closed by default, swings open on the
+                left hinge as the section scrolls in, swings shut again as
+                the section finishes scrolling past. Purely a rotateY +
+                opacity tween off the `coverOpen` motion value, so it stays
+                in lockstep with scroll direction with no extra state. */}
+            {!rm && (
+              <motion.div
+                aria-hidden="true"
+                style={{
+                  rotateY: coverRotateY,
+                  opacity: coverOpacity,
+                  pointerEvents: coverPointerEvents,
+                  transformOrigin: "left center",
+                  transformStyle: "preserve-3d",
+                  backfaceVisibility: "hidden",
+                }}
+                className="absolute inset-0 z-50 flex items-center justify-center overflow-hidden rounded-[24px]"
+              >
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background: "linear-gradient(135deg, #2b3a55 0%, #1d2b42 55%, #16233a 100%)",
+                    boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06), inset 0 30px 70px rgba(0,0,0,0.3)",
+                  }}
+                />
+                {/* hinge shadow along the left (spine) edge */}
+                <div className="absolute left-0 top-0 bottom-0 w-3 sm:w-4 bg-black/30" />
+                {/* gold clasp on the opposite edge, sold as the "closed" latch */}
+                <div className="absolute right-5 sm:right-8 top-1/2 -translate-y-1/2 w-2 h-12 rounded-full bg-amber-300/70 shadow-[0_0_12px_rgba(255,200,120,0.55)]" />
+                <div className="relative z-10 text-center px-6">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-amber-200/70 mb-3">
+                    Personal Notebook
+                  </p>
+                  <h3 className="font-serif font-extrabold text-3xl sm:text-5xl text-white mb-2">
+                    About Me
+                  </h3>
+                  <p className="font-hand text-lg sm:text-xl text-amber-100/80">
+                    keep scrolling to open →
+                  </p>
+                </div>
+              </motion.div>
+            )}
+
             {/* folded corner (top-right) */}
             <div
               className="absolute top-0 right-0 w-10 h-10 sm:w-14 sm:h-14 z-20 pointer-events-none"
@@ -1334,7 +1343,7 @@ export default function About() {
             >
               {/* paper grain texture, warm cream base */}
               <div
-                className="relative"
+                className="relative grid grid-cols-1 lg:grid-cols-2"
                 style={{
                   backgroundColor: "#FFFDF7",
                   backgroundImage:
@@ -1373,41 +1382,25 @@ export default function About() {
                   />
                 )}
 
-                {/* ═══════════ PAGE-TURN NOTEBOOK ═══════════
-                    Real page-flip (react-pageflip / StPageFlip — the same
-                    library behind the drag-to-turn brochure reference)
-                    rather than a hand-rolled CSS hinge: page 1 turns to
-                    reveal page 2 with an actual paper curl, corner shadow,
-                    and drag physics. Driven forward/back by scroll via the
-                    `flipBook` ref set up above, and also click/drag-able
-                    by hand at any time, same as the reference. */}
-                <HTMLFlipBook
-                  ref={flipBook as never}
-                  width={550}
-                  height={780}
-                  size="stretch"
-                  minWidth={280}
-                  maxWidth={900}
-                  minHeight={420}
-                  maxHeight={900}
-                  drawShadow
-                  flippingTime={700}
-                  usePortrait={false}
-                  startPage={0}
-                  startZIndex={10}
-                  autoSize
-                  maxShadowOpacity={0.4}
-                  showCover={false}
-                  mobileScrollSupport
-                  clickEventForward
-                  useMouseEvents
-                  swipeDistance={30}
-                  showPageCorners
-                  disableFlipByClick={false}
-                  className="notebook-flipbook"
-                  style={{}}
-                >
-                  <NotebookPage className="px-6 py-6 sm:px-10 sm:py-8 lg:pr-14 lg:pl-12">
+              {/* center spine — deeper binding shadow */}
+              <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-10 -translate-x-1/2 z-10 pointer-events-none">
+                <div className="w-full h-full bg-gradient-to-r from-black/[0.14] via-black/[0.02] to-black/[0.14]" />
+                <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-black/20" />
+                {/* stitching dots */}
+                <div className="absolute inset-y-6 left-1/2 -translate-x-1/2 w-px flex flex-col justify-between">
+                  {Array.from({ length: 14 }).map((_, i) => (
+                    <span key={i} className="w-[3px] h-[3px] rounded-full bg-black/15 -ml-[1px]" />
+                  ))}
+                </div>
+              </div>
+
+              {/* ═══════════ LEFT PAGE ═══════════ */}
+              <motion.div
+                whileHover={rm ? undefined : { rotateY: -1.2 }}
+                transition={{ type: "spring", stiffness: 200, damping: 22 }}
+                style={{ transformStyle: "preserve-3d", transformOrigin: "right center" }}
+                className="relative px-6 py-6 sm:px-10 sm:py-8 lg:pr-14 lg:pl-12"
+              >
                 <CoffeeStain className="top-2 right-6 sm:right-10" size={70} />
                 <Doodle type="swirl" className="top-24 right-2 sm:right-6" delay={0.3} active={phase >= 3} />
 
@@ -1623,10 +1616,15 @@ export default function About() {
                 </StickyNote>
 
                 <MountainDoodle className="hidden sm:block mx-auto mt-10 opacity-70" />
-                  </NotebookPage>
+              </motion.div>
 
-                  {/* ═══════════ PAGE 2 ═══════════ */}
-                  <NotebookPage className="px-6 py-6 sm:px-10 sm:py-8 lg:pl-14 lg:pr-12">
+              {/* ═══════════ RIGHT PAGE ═══════════ */}
+              <motion.div
+                whileHover={rm ? undefined : { rotateY: 1.2 }}
+                transition={{ type: "spring", stiffness: 200, damping: 22 }}
+                style={{ transformStyle: "preserve-3d", transformOrigin: "left center" }}
+                className="relative px-6 py-6 sm:px-10 sm:py-8 lg:pl-14 lg:pr-12 border-t lg:border-t-0 border-dashed border-slate-300/60"
+              >
                 <Doodle type="spark" className="top-6 right-8" delay={0.2} size={24} />
 
                 <div className="flex items-center justify-between mb-6 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-slate-400">
@@ -1751,8 +1749,7 @@ export default function About() {
                 >
                   Keep Scrolling →
                 </motion.p>
-                  </NotebookPage>
-                </HTMLFlipBook>
+              </motion.div>
 
             </div>
             </motion.div>
