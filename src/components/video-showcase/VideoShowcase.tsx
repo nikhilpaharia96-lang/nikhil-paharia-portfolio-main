@@ -1,15 +1,24 @@
+import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Clapperboard, Film, Camera } from "lucide-react";
 import SplitText from "@/components/ui/SplitText";
 import { ease } from "@/animations/videoShowcase.motion";
+import type { Project } from "@/types/video";
+import { featuredVideo } from "@/constants/videoShowcase";
 import BackgroundGlow from "./BackgroundGlow";
 import FloatingChip from "./FloatingChip";
 import FeaturedVideoCard from "./FeaturedVideoCard";
 import ProjectCarousel from "./ProjectCarousel";
 import FeatureStrip from "./FeatureStrip";
+import VideoLightbox from "./VideoLightbox";
 
 export default function VideoShowcase() {
   const prefersReducedMotion = useReducedMotion();
+  const [activeVideo, setActiveVideo] = useState<{ url: string; title: string } | null>(null);
+
+  const handlePlayProject = (project: Project) => {
+    if (project.videoUrl) setActiveVideo({ url: project.videoUrl, title: project.title });
+  };
 
   return (
     <section
@@ -93,13 +102,19 @@ export default function VideoShowcase() {
 
           {/* ═══════════════ RIGHT COLUMN ═══════════════ */}
           <div className="lg:col-span-8">
-            <FeaturedVideoCard />
-            <ProjectCarousel />
+            <FeaturedVideoCard onPlay={(url) => setActiveVideo({ url, title: featuredVideo.title })} />
+            <ProjectCarousel onPlay={handlePlayProject} />
           </div>
         </div>
 
         <FeatureStrip />
       </div>
+
+      <VideoLightbox
+        url={activeVideo?.url ?? null}
+        title={activeVideo?.title}
+        onClose={() => setActiveVideo(null)}
+      />
     </section>
   );
 }
