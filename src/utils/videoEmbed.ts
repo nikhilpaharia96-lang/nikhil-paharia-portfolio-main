@@ -12,6 +12,8 @@ export type ParsedEmbed = {
   embedUrl: string;
   /** Original URL — used as a "watch on..." fallback link. */
   sourceUrl: string;
+  /** True for YouTube Shorts / Instagram Reels — rendered as a tall 9:16 player. */
+  isVertical: boolean;
 };
 
 function extractYouTubeId(url: URL): string | null {
@@ -41,11 +43,13 @@ export function parseVideoUrl(rawUrl: string | undefined | null): ParsedEmbed | 
 
   if (host === "youtube.com" || host === "m.youtube.com" || host === "youtu.be") {
     const id = extractYouTubeId(url);
-    if (!id) return { kind: "unknown", embedUrl: "", sourceUrl: rawUrl };
+    const isShort = url.pathname.includes("/shorts/");
+    if (!id) return { kind: "unknown", embedUrl: "", sourceUrl: rawUrl, isVertical: isShort };
     return {
       kind: "youtube",
       embedUrl: `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`,
       sourceUrl: rawUrl,
+      isVertical: isShort,
     };
   }
 
@@ -56,8 +60,9 @@ export function parseVideoUrl(rawUrl: string | undefined | null): ParsedEmbed | 
       kind: "instagram",
       embedUrl: `https://www.instagram.com${cleanPath}/embed`,
       sourceUrl: rawUrl,
+      isVertical: true,
     };
   }
 
-  return { kind: "unknown", embedUrl: "", sourceUrl: rawUrl };
+  return { kind: "unknown", embedUrl: "", sourceUrl: rawUrl, isVertical: false };
 }
