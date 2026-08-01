@@ -75,7 +75,7 @@ export default function Services() {
   const rm = useReducedMotion();
   const { scrollY } = useScroll();
 
-  // text grows while scrolling UP, shrinks while scrolling DOWN — reverses with direction
+  // text grows while scrolling DOWN, shrinks while scrolling UP — reverses with direction
   const scaleRaw = useMotionValue(1);
   const scale = useSpring(scaleRaw, { stiffness: 120, damping: 22, mass: 0.5 });
   const lastY = useRef(0);
@@ -85,7 +85,7 @@ export default function Services() {
     const diff = latest - lastY.current;
     lastY.current = latest;
     const step = diff * 0.0022; // scroll sensitivity
-    const next = Math.min(1.4, Math.max(0.7, scaleRaw.get() - step));
+    const next = Math.min(1.4, Math.max(0.7, scaleRaw.get() + step));
     scaleRaw.set(next);
   });
 
@@ -95,7 +95,7 @@ export default function Services() {
 
       <div className="container-tight relative z-10">
 
-        {/* Header — enters from the RIGHT; grows on scroll-up, shrinks on scroll-down */}
+        {/* Header — enters from the RIGHT; grows on scroll-down, shrinks on scroll-up */}
         <motion.div
           ref={headerRef}
           initial={{ opacity: 0, x: rm ? 0 : 140 }}
