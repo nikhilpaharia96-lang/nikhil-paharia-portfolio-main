@@ -16,7 +16,7 @@ export const featuredVideo: FeaturedVideo = {
   category: "Documentary Film",
   duration: "4:12",
   image: vid1,
-  videoUrl: https://youtu.be/-pc8cTYXnYs?si=hLxZ6exxzasbL1UH, // e.g. "https://youtu.be/dQw4w9WgXcQ"
+  videoUrl: "https://youtu.be/-pc8cTYXnYs?si=hLxZ6exxzasbL1UH", // e.g. "https://youtu.be/dQw4w9WgXcQ"
 };
 
 export const projects: Project[] = [
