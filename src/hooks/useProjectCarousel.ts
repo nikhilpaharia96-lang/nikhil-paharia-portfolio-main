@@ -1,14 +1,25 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
 import { plainDistance } from "@/utils/carousel";
 
 export function useProjectCarousel(slideCount: number) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    loop: false,
-    align: "center",
-    duration: 22,
-    containScroll: "trimSnaps",
-  });
+  const prefersReducedMotion =
+    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const autoplayRef = useRef(
+    Autoplay({ delay: 3200, stopOnInteraction: false, stopOnMouseEnter: true, stopOnFocusIn: true }),
+  );
+
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    {
+      loop: true,
+      align: "center",
+      duration: 22,
+      containScroll: "trimSnaps",
+    },
+    prefersReducedMotion ? [] : [autoplayRef.current],
+  );
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
