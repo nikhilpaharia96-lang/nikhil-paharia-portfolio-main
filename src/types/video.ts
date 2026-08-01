@@ -5,6 +5,8 @@ export type FeaturedVideo = {
   category: string;
   duration: string;
   image: string;
+  /** Optional YouTube or Instagram link — paste a normal share URL here. */
+  videoUrl?: string;
 };
 
 export type Project = {
@@ -13,6 +15,8 @@ export type Project = {
   category: string;
   duration: string;
   image: string;
+  /** Optional YouTube or Instagram link — paste a normal share URL here. */
+  videoUrl?: string;
 };
 
 export type ShowcaseFeature = {
