@@ -1,4 +1,5 @@
-import { useRef, useMemo, useState, useEffect } from "react";
+import { useRef, useMemo, useState, useEffect, forwardRef } from "react";
+import HTMLFlipBook from "react-pageflip";
 import {
   motion,
   useMotionValue,
@@ -6,6 +7,7 @@ import {
   useTransform,
   useMotionTemplate,
   useReducedMotion,
+  useInView,
 } from "framer-motion";
 import {
   SiReact,
@@ -23,6 +25,7 @@ import {
 import { VscVscode } from "react-icons/vsc";
 import profilePhoto from "../assets/images/profile-nobg.png";
 import myNewPhoto from "../assets/images/my-new-photo.jpg";
+import teaGardenAbout from "../assets/images/tea-garden-about.webp";
 import SplitText from "@/components/ui/SplitText";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -36,6 +39,23 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const ease = [0.16, 1, 0.3, 1] as const;
+
+/**
+ * react-pageflip requires every direct child of <HTMLFlipBook> to forward a
+ * ref to its outer DOM node (that's how the library grabs each page to
+ * animate the curl/turn). Defined once at module scope — rather than inline
+ * inside the About component — so its identity is stable across renders;
+ * an inline forwardRef would get a new identity every render and force
+ * React to remount (and replay every animation on) both pages constantly.
+ */
+const NotebookPage = forwardRef<HTMLDivElement, { className?: string; children: React.ReactNode }>(
+  ({ className, children }, ref) => (
+    <div ref={ref} className={`page bg-[#FFFDF7] overflow-y-auto scrollbar-hide ${className ?? ""}`}>
+      {children}
+    </div>
+  )
+);
+NotebookPage.displayName = "NotebookPage";
 
 /**
  * The eight beats of the cinematic scroll sequence. Phase 1 is the resting
@@ -57,20 +77,21 @@ function progressToPhase(progress: number): number {
 }
 
 /**
- * The notebook's cover — closed the moment the section is reached, swung
- * open (hinged on the left edge) as the reader scrolls into the story, held
- * open through the whole two-page reveal, then swung shut again as the
- * section finishes scrolling past. `progress` is the same 0–1 scroll value
- * driving `progressToPhase` above, so opening/closing and the page content
- * stay perfectly in sync with one another and with scroll direction.
+ * Page 1 (left) and page 2 (right) start folded shut against the spine —
+ * like the notebook's just been picked up closed — then fan open around
+ * that spine hinge as the reader scrolls into the story, stay open through
+ * the whole two-page reveal, then fold shut again as the section finishes
+ * scrolling past. `progress` is the same 0–1 scroll value driving
+ * `progressToPhase` above, so the turn and the page content stay perfectly
+ * in sync with one another and with scroll direction.
  */
-const COVER_OPEN_END = 0.12; // cover finishes opening by 12% through the section
-const COVER_CLOSE_START = 0.9; // cover starts closing again for the last 10%
+const PAGE_TURN_OPEN_END = 0.12; // pages finish turning open by 12% through the section
+const PAGE_TURN_CLOSE_START = 0.9; // pages start turning shut again for the last 10%
 
-function progressToCoverOpen(progress: number): number {
-  if (progress <= COVER_OPEN_END) return progress / COVER_OPEN_END;
-  if (progress >= COVER_CLOSE_START) {
-    return Math.max(0, 1 - (progress - COVER_CLOSE_START) / (1 - COVER_CLOSE_START));
+function progressToPageTurn(progress: number): number {
+  if (progress <= PAGE_TURN_OPEN_END) return progress / PAGE_TURN_OPEN_END;
+  if (progress >= PAGE_TURN_CLOSE_START) {
+    return Math.max(0, 1 - (progress - PAGE_TURN_CLOSE_START) / (1 - PAGE_TURN_CLOSE_START));
   }
   return 1;
 }
@@ -1064,6 +1085,314 @@ function JourneyTimeline({ active = true }: { active?: boolean }) {
 }
 
 /* ────────────────────────────────────────────────────────────
+   Reveal — tiny useInView wrapper so the reused notebook pieces
+   below (which all take a simple `active` boolean) get a real
+   scroll-triggered entrance on mobile instead of just being
+   already-settled the moment they mount off-screen.
+   ──────────────────────────────────────────────────────────── */
+
+function Reveal({
+  children,
+  className = "",
+  margin = "-80px",
+}: {
+  children: (active: boolean) => React.ReactNode;
+  className?: string;
+  margin?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: margin as `${number}px` });
+  return (
+    <div ref={ref} className={className}>
+      {children(inView)}
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   Mobile About story — a completely separate, purpose-built
+   experience (see the comment where it's used). Reuses every
+   character/prop/voice already established by the notebook above
+   — same fonts, same ink, same Assam-tea-garden story — just told
+   as one continuous scroll instead of a two-page spread you'd
+   need a mouse to turn.
+   ──────────────────────────────────────────────────────────── */
+
+function MobileAboutStory() {
+  const rm = useReducedMotion();
+
+  const scrollToSection = (id: string) => {
+    const el = document.querySelector(id);
+    if (!el) return;
+    const lenis = (window as typeof window & { lenis?: { scrollTo: (t: Element, o?: object) => void } }).lenis;
+    if (lenis) lenis.scrollTo(el, { offset: 0, duration: 1.2 });
+    else el.scrollIntoView({ behavior: rm ? "auto" : "smooth" });
+  };
+
+  return (
+    <div className="lg:hidden max-w-lg mx-auto">
+      {/* ── Chapter opener — full-bleed photo, the one moment on this
+            page that leads with image over text, because this is the
+            single fact everything else explains: where the story starts. */}
+      <Reveal margin="-40px">
+        {(active) => (
+          <motion.div
+            initial={{ opacity: 0, y: rm ? 0 : 20 }}
+            animate={active ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 20 }}
+            transition={{ duration: rm ? 0.3 : 0.7, ease }}
+            className="relative rounded-[28px] overflow-hidden shadow-[0_24px_50px_-24px_rgba(29,111,235,0.35)]"
+          >
+            <div className="relative aspect-[4/5] w-full">
+              <img
+                src={teaGardenAbout}
+                alt="Tea garden hills in Assam"
+                loading="lazy"
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/5" />
+            </div>
+            <div className="absolute top-4 left-4 right-4 flex items-center justify-between text-[10px] font-mono uppercase tracking-[0.2em] text-white/70">
+              <span>02 — About Me</span>
+              <span>The Beginning</span>
+            </div>
+            <div className="absolute -top-2 -right-2">
+              <Stamp label="Self-Taught" sub="since day one" rotate={8} delay={0.3} active={active} />
+            </div>
+            <div className="absolute inset-x-5 bottom-5">
+              <h3 className="font-serif font-extrabold text-[1.7rem] leading-[1.15] text-white mb-2">
+                I started learning <Marker delay={0.15} active={active}>CODE</Marker> to change my{" "}
+                <Marker delay={0.35} active={active}>FAMILY's</Marker> future.
+              </h3>
+              <p className="text-sm text-white/75 leading-snug">
+                A boy from a tea garden in Assam, chasing a bigger dream.
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </Reveal>
+
+      {/* ── Portrait + name card — a single, confident polaroid rather
+            than the desktop's two side-by-side photos; one clear intro,
+            not a scrapbook to sort through on a 6-inch screen. */}
+      <Reveal className="mt-8 flex justify-center">
+        {(active) => (
+          <motion.div
+            initial={{ opacity: 0, y: rm ? 0 : 30, scale: 0.94 }}
+            animate={active ? { opacity: 1, y: 0, scale: 1, rotate: -1.5 } : { opacity: 0, y: rm ? 0 : 30, scale: 0.94 }}
+            transition={{ duration: rm ? 0.3 : 0.7, type: rm ? "tween" : "spring", stiffness: 220, damping: 18 }}
+            className="relative bg-white p-2.5 shadow-[0_20px_40px_-16px_rgba(70,50,20,0.4)] w-48"
+          >
+            <Tape className="-top-3 left-1/2 -translate-x-1/2" rotate={-3} active={active} />
+            <div
+              className="relative aspect-[4/5] w-full overflow-hidden"
+              style={{ background: "linear-gradient(180deg,#dfe9f5,#bcd0e6 60%,#9fb8d6)" }}
+            >
+              <img
+                src={profilePhoto}
+                alt="Nikhil Paharia"
+                loading="lazy"
+                className="absolute inset-0 w-full h-full object-cover object-top"
+              />
+            </div>
+            <div className="pt-2 text-center">
+              <p className="font-serif font-bold text-sm text-foreground leading-tight">Nikhil Paharia</p>
+              <p className="font-hand text-primary text-base leading-tight">Full-Stack Developer</p>
+              <p className="text-[11px] text-slate-400">Assam, India</p>
+            </div>
+          </motion.div>
+        )}
+      </Reveal>
+
+      {/* ── Story paragraph + quote ── */}
+      <Reveal className="mt-9 px-1">
+        {(active) => (
+          <motion.div
+            initial={{ opacity: 0, y: rm ? 0 : 16 }}
+            animate={active ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 16 }}
+            transition={{ duration: rm ? 0.3 : 0.6, ease }}
+            className="relative"
+          >
+            <InkSmudge className="-left-3 -top-2" size={30} />
+            <p className="text-slate-600 leading-relaxed">
+              I didn't have expensive gadgets. I only had curiosity — and a
+              laptop that struggled to keep up with my ambition. Every small
+              project taught me something new, and slowly, that curiosity
+              turned into a craft.
+            </p>
+            <HandwrittenNote className="text-xl mt-4 -rotate-1" delay={0.3} active={active}>
+              "It started as curiosity. Then it became a way of thinking."
+            </HandwrittenNote>
+          </motion.div>
+        )}
+      </Reveal>
+
+      {/* ── Purpose card ── */}
+      <Reveal className="mt-9">
+        {(active) => (
+          <TornPaper className="p-5 w-full" rotate={-1} active={active}>
+            <RealPaperClip className="-top-6 left-4" rotate={-10} active={active} />
+            <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-primary mb-2">My Purpose</p>
+            <h4 className="font-serif font-bold text-xl text-foreground mb-3 underline decoration-primary/40 decoration-2 underline-offset-4">
+              Building with purpose.
+            </h4>
+            <p className="text-sm text-slate-600 leading-relaxed mb-3">
+              I build websites because I love watching an idea turn into
+              something people can actually use. Every bug I fix and every
+              interface I polish is a small problem solved — that's what
+              keeps me hooked.
+            </p>
+            <p className="font-hand text-primary text-base">☆ Function first, always with care.</p>
+          </TornPaper>
+        )}
+      </Reveal>
+
+      {/* ── Mission quote ── */}
+      <Reveal className="mt-9 px-1">
+        {(active) => (
+          <blockquote className="border-l-2 border-primary/40 pl-4">
+            <HandwrittenNote className="text-2xl leading-snug" delay={0.1} active={active}>
+              "I want to build digital products that improve people's lives."
+            </HandwrittenNote>
+            <MarkerUnderline className="mt-1 ml-1" delay={0.9} width={190} active={active} />
+          </blockquote>
+        )}
+      </Reveal>
+
+      {/* ── Stats — a horizontal, snap-scrolling strip rather than a
+            static grid: on a phone, swiping sideways through three quick
+            facts reads faster and feels more native than a squeezed
+            three-column row ever would. */}
+      <Reveal className="mt-9 -mx-6 px-6">
+        {(active) => (
+          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-1">
+            {[
+              { value: "Self-Taught", sub: "since day one", color: "#1d6feb" },
+              { value: "50+", sub: "projects shipped", color: "#b91c1c" },
+              { value: "3+ yrs", sub: "of building", color: "#15803d" },
+            ].map((h, i) => (
+              <motion.div
+                key={h.value}
+                initial={{ opacity: 0, x: rm ? 0 : 20 }}
+                animate={active ? { opacity: 1, x: 0 } : { opacity: 0, x: rm ? 0 : 20 }}
+                transition={{ duration: rm ? 0.25 : 0.5, delay: rm ? 0 : 0.1 * i, ease: "backOut" }}
+                className="snap-center shrink-0 rounded-md border-2 px-5 py-4 text-center bg-white/80 min-w-[8.5rem]"
+                style={{ borderColor: h.color }}
+              >
+                <p className="font-serif font-extrabold text-base leading-tight" style={{ color: h.color }}>
+                  {h.value}
+                </p>
+                <p className="text-[10px] text-slate-500 uppercase tracking-wide mt-1 leading-tight">{h.sub}</p>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </Reveal>
+
+      {/* ── The journey — a proper milestone timeline, previously built
+            for this page but never actually shown anywhere; a phone's
+            single column is exactly the shape it was designed for. */}
+      <Reveal className="mt-9" margin="-60px">
+        {(active) => <JourneyTimeline active={active} />}
+      </Reveal>
+
+      {/* ── Tech stack ── */}
+      <Reveal className="mt-2">
+        {(active) => (
+          <div>
+            <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-4">Tech I Reach For</p>
+            <TechScatter active={active} />
+          </div>
+        )}
+      </Reveal>
+
+      {/* ── Favorite things — another finished-but-unused piece; a
+            horizontal scroller of scrapbook stickers is a much better
+            fit for a thumb than the desktop's wrapped grid. */}
+      <Reveal className="mt-9 -mx-6 px-6">
+        {(active) => (
+          <div>
+            <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-4">A Few Favorite Things</p>
+            <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-1">
+              {favorites.map((f, i) => (
+                <div key={f.label} className="snap-center shrink-0">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.5, y: rm ? 0 : 16 }}
+                    animate={active ? { opacity: 1, scale: 1, y: 0, rotate: favRotate[i] } : { opacity: 0, scale: 0.5, y: rm ? 0 : 16 }}
+                    transition={{ duration: rm ? 0.25 : 0.45, delay: rm ? 0 : 0.08 * i, ease: "backOut" }}
+                    className="relative w-[4.5rem] h-[4.5rem] rounded-full bg-white p-[3px] shadow-[0_10px_20px_-8px_rgba(70,50,20,0.45)] ring-1 ring-slate-200/70"
+                  >
+                    <div className="w-full h-full rounded-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-white overflow-hidden">
+                      <span className="text-lg leading-none">{f.emoji}</span>
+                      <span className="font-hand text-[10px] text-slate-600 mt-0.5 leading-none text-center px-1">
+                        {f.label}
+                      </span>
+                    </div>
+                  </motion.div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </Reveal>
+
+      {/* ── Daily fuel ── */}
+      <Reveal className="mt-9 flex justify-center">{(active) => <DailyFuel active={active} />}</Reveal>
+
+      {/* ── Closing note + signature ── */}
+      <Reveal className="mt-9" margin="-40px">
+        {(active) => (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={active ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.96 }}
+            transition={{ duration: rm ? 0.3 : 0.6, ease }}
+            className="relative bg-white px-6 py-6 text-center shadow-[0_16px_40px_-20px_rgba(70,50,20,0.4)] -rotate-[0.4deg]"
+          >
+            <p className="font-hand text-2xl text-foreground leading-snug mb-1 underline decoration-primary decoration-2 underline-offset-4">
+              Still figuring things out.
+            </p>
+            <p className="text-sm text-slate-500 mb-4">
+              And that's the best part.
+              <span className="inline-block ml-1.5 text-primary">♥</span>
+            </p>
+            <Signature active={active} delay={0.4} />
+          </motion.div>
+        )}
+      </Reveal>
+
+      {/* ── Where to next — the one thing the desktop notebook never
+            actually offers either: a clear, confident handoff back to the
+            rest of the site, in its real voice (not the paper one), for
+            whoever's just finished reading and is ready to act. */}
+      <Reveal className="mt-8 mb-2">
+        {(active) => (
+          <motion.div
+            initial={{ opacity: 0, y: rm ? 0 : 16 }}
+            animate={active ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 16 }}
+            transition={{ duration: rm ? 0.3 : 0.5, ease }}
+            className="flex items-center gap-3"
+          >
+            <button
+              type="button"
+              onClick={() => scrollToSection("#projects")}
+              className="flex-1 inline-flex items-center justify-center gap-2 bg-primary text-white font-bold text-sm px-5 py-3 rounded-full shadow-lg active:scale-[0.98] transition-transform"
+            >
+              See My Work
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollToSection("#contact")}
+              className="flex-1 inline-flex items-center justify-center gap-2 bg-white border border-blue-200 text-primary font-bold text-sm px-5 py-3 rounded-full active:scale-[0.98] transition-transform"
+            >
+              Say Hello
+            </button>
+          </motion.div>
+        )}
+      </Reveal>
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
    Main About section — the notebook
    ──────────────────────────────────────────────────────────── */
 
@@ -1086,21 +1415,24 @@ export default function About() {
   // eased transition to/from that state.
   const [phase, setPhase] = useState(rm ? TOTAL_PHASES : 1);
 
-  // How open the cover is, 0 (fully closed) → 1 (fully open). Driven every
-  // scroll frame directly as a motion value (not React state) so the cover
-  // swing stays perfectly smooth — it never triggers a re-render.
-  const coverOpen = useMotionValue(rm ? 1 : 0);
-  const coverRotateY = useTransform(coverOpen, [0, 1], [0, -115]);
-  const coverOpacity = useTransform(coverOpen, [0, 0.15, 1], [1, 1, 0]);
-  const coverPointerEvents = useTransform(coverOpen, (v) => (v > 0.05 ? "none" : "auto"));
+  // The actual page-1 → page-2 turn is now handled by react-pageflip
+  // (the same library behind the drag-to-turn brochure reference) rather
+  // than a hand-rolled rotateY tween — it gives a real paper curl, corner
+  // shadow, and drag physics for free. `flipBook` is the imperative handle
+  // react-pageflip exposes; `flippedRef` just remembers which of the two
+  // pages is currently showing so the scroll handler below only calls
+  // flipNext/flipPrev when a flip is actually needed, instead of spamming
+  // the library every scroll frame.
+  const flipBook = useRef<{ pageFlip: () => { flipNext: () => void; flipPrev: () => void } } | null>(null);
+  const flippedRef = useRef(false);
 
   useEffect(() => {
     if (rm) {
       // Reduced motion: skip scroll-scrubbed choreography entirely and
       // just show the finished page — each component's own `rm`-aware
-      // transition already collapses to a quick, simple fade. The cover
-      // stays open (see the initial coverOpen value above) rather than
-      // animating shut, since there's no scrub to drive it back closed.
+      // transition already collapses to a quick, simple fade. The
+      // flip-book still renders (so page 2's content stays reachable via
+      // its own click/drag corners), it just isn't auto-flipped by scroll.
       setPhase(TOTAL_PHASES);
       return;
     }
@@ -1118,19 +1450,31 @@ export default function About() {
           lastPhase.current = next;
           setPhase(next);
         }
-        coverOpen.set(progressToCoverOpen(self.progress));
+        // Turn page 1 → page 2 once the reader is past the section's
+        // midpoint, and turn it back once they scroll back above it —
+        // so the physical page-turn tracks scroll direction exactly like
+        // the rest of the reveal does.
+        const shouldBeFlipped = self.progress > 0.5;
+        if (shouldBeFlipped !== flippedRef.current) {
+          flippedRef.current = shouldBeFlipped;
+          const api = flipBook.current?.pageFlip();
+          if (api) shouldBeFlipped ? api.flipNext() : api.flipPrev();
+        }
       },
       onLeaveBack: () => {
         // Scrolled back above the section entirely — reset to the "pages
         // almost empty" resting state so scrolling back down replays the
         // full reveal, matching the site's established reversible-scroll
-        // convention. The cover swings shut again too, so re-entering the
-        // section always starts from a closed notebook.
+        // convention. Page 1 and 2 fold shut against the spine again too,
+        // so re-entering the section always starts from a closed notebook.
         if (lastPhase.current !== 1) {
           lastPhase.current = 1;
           setPhase(1);
         }
-        coverOpen.set(0);
+        if (flippedRef.current) {
+          flippedRef.current = false;
+          flipBook.current?.pageFlip()?.flipPrev();
+        }
       },
     });
 
@@ -1202,8 +1546,13 @@ export default function About() {
       </div>
 
       <div className="container-tight relative z-10 max-w-full">
-        {/* ═══════════════ THE NOTEBOOK ═══════════════ */}
-        <div className="relative max-w-[1200px] mx-auto">
+        {/* ═══════════════ THE NOTEBOOK (desktop / lg+) ═══════════════
+            The drag-to-turn flip-book, cursor-tilt, and floating stickers
+            all assume a mouse and real estate to breathe in — exactly the
+            things a touch screen doesn't have. Below `lg` this entire
+            experience is swapped for a purpose-built mobile flow (right
+            below), rather than just letting this shrink and reflow. */}
+        <div className="hidden lg:block relative max-w-[1200px] mx-auto">
           {/* floating stickers around the notebook */}
           <FloatingSticker className="-top-6 left-4 sm:left-10" delay={0} duration={7}>
             <SiFigma className="w-5 h-5 text-[#F24E1E]" />
@@ -1259,49 +1608,6 @@ export default function About() {
             {/* leather-ish outer frame */}
             <div className="absolute inset-0 pointer-events-none rounded-[24px] ring-1 ring-inset ring-black/5 z-30" />
 
-            {/* ── Notebook cover ── closed by default, swings open on the
-                left hinge as the section scrolls in, swings shut again as
-                the section finishes scrolling past. Purely a rotateY +
-                opacity tween off the `coverOpen` motion value, so it stays
-                in lockstep with scroll direction with no extra state. */}
-            {!rm && (
-              <motion.div
-                aria-hidden="true"
-                style={{
-                  rotateY: coverRotateY,
-                  opacity: coverOpacity,
-                  pointerEvents: coverPointerEvents,
-                  transformOrigin: "left center",
-                  transformStyle: "preserve-3d",
-                  backfaceVisibility: "hidden",
-                }}
-                className="absolute inset-0 z-50 flex items-center justify-center overflow-hidden rounded-[24px]"
-              >
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background: "linear-gradient(135deg, #2b3a55 0%, #1d2b42 55%, #16233a 100%)",
-                    boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06), inset 0 30px 70px rgba(0,0,0,0.3)",
-                  }}
-                />
-                {/* hinge shadow along the left (spine) edge */}
-                <div className="absolute left-0 top-0 bottom-0 w-3 sm:w-4 bg-black/30" />
-                {/* gold clasp on the opposite edge, sold as the "closed" latch */}
-                <div className="absolute right-5 sm:right-8 top-1/2 -translate-y-1/2 w-2 h-12 rounded-full bg-amber-300/70 shadow-[0_0_12px_rgba(255,200,120,0.55)]" />
-                <div className="relative z-10 text-center px-6">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-amber-200/70 mb-3">
-                    Personal Notebook
-                  </p>
-                  <h3 className="font-serif font-extrabold text-3xl sm:text-5xl text-white mb-2">
-                    About Me
-                  </h3>
-                  <p className="font-hand text-lg sm:text-xl text-amber-100/80">
-                    keep scrolling to open →
-                  </p>
-                </div>
-              </motion.div>
-            )}
-
             {/* folded corner (top-right) */}
             <div
               className="absolute top-0 right-0 w-10 h-10 sm:w-14 sm:h-14 z-20 pointer-events-none"
@@ -1343,7 +1649,7 @@ export default function About() {
             >
               {/* paper grain texture, warm cream base */}
               <div
-                className="relative grid grid-cols-1 lg:grid-cols-2"
+                className="relative"
                 style={{
                   backgroundColor: "#FFFDF7",
                   backgroundImage:
@@ -1382,25 +1688,41 @@ export default function About() {
                   />
                 )}
 
-              {/* center spine — deeper binding shadow */}
-              <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-10 -translate-x-1/2 z-10 pointer-events-none">
-                <div className="w-full h-full bg-gradient-to-r from-black/[0.14] via-black/[0.02] to-black/[0.14]" />
-                <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-black/20" />
-                {/* stitching dots */}
-                <div className="absolute inset-y-6 left-1/2 -translate-x-1/2 w-px flex flex-col justify-between">
-                  {Array.from({ length: 14 }).map((_, i) => (
-                    <span key={i} className="w-[3px] h-[3px] rounded-full bg-black/15 -ml-[1px]" />
-                  ))}
-                </div>
-              </div>
-
-              {/* ═══════════ LEFT PAGE ═══════════ */}
-              <motion.div
-                whileHover={rm ? undefined : { rotateY: -1.2 }}
-                transition={{ type: "spring", stiffness: 200, damping: 22 }}
-                style={{ transformStyle: "preserve-3d", transformOrigin: "right center" }}
-                className="relative px-6 py-6 sm:px-10 sm:py-8 lg:pr-14 lg:pl-12"
-              >
+                {/* ═══════════ PAGE-TURN NOTEBOOK ═══════════
+                    Real page-flip (react-pageflip / StPageFlip — the same
+                    library behind the drag-to-turn brochure reference)
+                    rather than a hand-rolled CSS hinge: page 1 turns to
+                    reveal page 2 with an actual paper curl, corner shadow,
+                    and drag physics. Driven forward/back by scroll via the
+                    `flipBook` ref set up above, and also click/drag-able
+                    by hand at any time, same as the reference. */}
+                <HTMLFlipBook
+                  ref={flipBook as never}
+                  width={550}
+                  height={780}
+                  size="stretch"
+                  minWidth={280}
+                  maxWidth={900}
+                  minHeight={420}
+                  maxHeight={900}
+                  drawShadow
+                  flippingTime={700}
+                  usePortrait={false}
+                  startPage={0}
+                  startZIndex={10}
+                  autoSize
+                  maxShadowOpacity={0.4}
+                  showCover={false}
+                  mobileScrollSupport
+                  clickEventForward
+                  useMouseEvents
+                  swipeDistance={30}
+                  showPageCorners
+                  disableFlipByClick={false}
+                  className="notebook-flipbook"
+                  style={{}}
+                >
+                  <NotebookPage className="px-6 py-6 sm:px-10 sm:py-8 lg:pr-14 lg:pl-12">
                 <CoffeeStain className="top-2 right-6 sm:right-10" size={70} />
                 <Doodle type="swirl" className="top-24 right-2 sm:right-6" delay={0.3} active={phase >= 3} />
 
@@ -1616,15 +1938,10 @@ export default function About() {
                 </StickyNote>
 
                 <MountainDoodle className="hidden sm:block mx-auto mt-10 opacity-70" />
-              </motion.div>
+                  </NotebookPage>
 
-              {/* ═══════════ RIGHT PAGE ═══════════ */}
-              <motion.div
-                whileHover={rm ? undefined : { rotateY: 1.2 }}
-                transition={{ type: "spring", stiffness: 200, damping: 22 }}
-                style={{ transformStyle: "preserve-3d", transformOrigin: "left center" }}
-                className="relative px-6 py-6 sm:px-10 sm:py-8 lg:pl-14 lg:pr-12 border-t lg:border-t-0 border-dashed border-slate-300/60"
-              >
+                  {/* ═══════════ PAGE 2 ═══════════ */}
+                  <NotebookPage className="px-6 py-6 sm:px-10 sm:py-8 lg:pl-14 lg:pr-12">
                 <Doodle type="spark" className="top-6 right-8" delay={0.2} size={24} />
 
                 <div className="flex items-center justify-between mb-6 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-slate-400">
@@ -1749,12 +2066,24 @@ export default function About() {
                 >
                   Keep Scrolling →
                 </motion.p>
-              </motion.div>
+                  </NotebookPage>
+                </HTMLFlipBook>
 
             </div>
             </motion.div>
           </motion.div>
         </div>
+
+        {/* ═══════════════ THE STORY (mobile / below lg) ═══════════════
+            Not a shrunk-down notebook — there's no cursor to tilt toward,
+            no corner to drag, and a fixed-height flip-book fighting a
+            phone's own scroll is a bad combination. So below `lg` this is
+            a completely different, purpose-built experience: one full-bleed
+            chapter, told top to bottom, each beat revealing as it's
+            scrolled to — the same "documentary crane shot" personality as
+            the rest of the site on mobile, just told in the same warm,
+            handwritten voice as the notebook above it. */}
+        <MobileAboutStory />
       </div>
     </section>
   );
