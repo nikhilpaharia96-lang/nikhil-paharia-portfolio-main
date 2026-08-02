@@ -1,4 +1,4 @@
-import { Users, Layers, Star, ThumbsUp, Globe2, ShoppingBag, ShieldCheck, Utensils, Mountain, Users as UsersIcon } from "lucide-react";
+import { Users, Layers, Star, ThumbsUp, Globe2 } from "lucide-react";
 import apunbazarLogo from "@/assets/images/testimonials/apunbazar-logo.png";
 import type { Testimonial, TrustStat, TrustedBrand } from "@/types/testimonial";
 
@@ -151,11 +151,16 @@ export const trustStats: TrustStat[] = [
   { icon: Globe2, value: 0, staticText: "Global", label: "Remote Work" },
 ];
 
-/** "Trusted by People & Brands" strip — one entry per client/brand logo. */
-export const trustedBrands: TrustedBrand[] = [
-  { icon: ShoppingBag, label: "ApunBazar", color: "#059669" },
-  { icon: ShieldCheck, label: "Campus Unity", color: "#4f46e5" },
-  { icon: Utensils, label: "FitBite", color: "#f97316" },
-  { icon: Mountain, label: "Travel Assam", color: "#111827" },
-  { icon: UsersIcon, label: "Various Clients", color: "#1d6feb" },
-];
+/**
+ * "Trusted by People & Brands" — derived directly from the real clients
+ * already in `allTestimonials` above, so this can never drift out of sync
+ * with actual testimonial data or list a brand/company that isn't real.
+ * Each entry reuses that client's existing logo (a real asset for ApunBazar,
+ * a generated initials badge for the rest — same as their avatar system).
+ */
+export const trustedBrands: TrustedBrand[] = allTestimonials.map((t) => ({
+  name: t.company,
+  logo: t.companyLogo,
+  shortName: t.companyShort,
+  color: t.companyColor,
+}));
