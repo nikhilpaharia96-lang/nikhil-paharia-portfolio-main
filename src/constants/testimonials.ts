@@ -1,5 +1,6 @@
+import { Users, Layers, Star, ThumbsUp, Globe2, ShoppingBag, ShieldCheck, Utensils, Mountain, Users as UsersIcon } from "lucide-react";
 import apunbazarLogo from "@/assets/images/testimonials/apunbazar-logo.png";
-import type { Testimonial } from "@/types/testimonial";
+import type { Testimonial, TrustStat, TrustedBrand } from "@/types/testimonial";
 
 /**
  * The hero/featured testimonial, shown large above the carousel.
@@ -132,4 +133,29 @@ export const testimonials: Testimonial[] = [
     content:
       "Rare to find someone who edits with this much taste. Every cut, transition and grade felt intentional. The campaign outperformed everything we've run before.",
   },
+];
+
+/**
+ * Flat list combining the featured quote with the rest — used to render every
+ * testimonial as an equal-weight card in a single row/carousel (no
+ * "one big card + smaller ones" split).
+ */
+export const allTestimonials: Testimonial[] = [featuredTestimonial, ...testimonials];
+
+/** Trust bar stats — `value` is numeric so it can be counted up on scroll-into-view. */
+export const trustStats: TrustStat[] = [
+  { icon: Users, value: 30, suffix: "+", label: "Trusted by Clients" },
+  { icon: Layers, value: 40, suffix: "+", label: "Projects Delivered" },
+  { icon: Star, value: 5, decimals: 0, suffix: " Star", label: "Rated by Clients" },
+  { icon: ThumbsUp, value: 98, suffix: "%", label: "Client Satisfaction" },
+  { icon: Globe2, value: 0, staticText: "Global", label: "Remote Work" },
+];
+
+/** "Trusted by People & Brands" strip — one entry per client/brand logo. */
+export const trustedBrands: TrustedBrand[] = [
+  { icon: ShoppingBag, label: "ApunBazar", color: "#059669" },
+  { icon: ShieldCheck, label: "Campus Unity", color: "#4f46e5" },
+  { icon: Utensils, label: "FitBite", color: "#f97316" },
+  { icon: Mountain, label: "Travel Assam", color: "#111827" },
+  { icon: UsersIcon, label: "Various Clients", color: "#1d6feb" },
 ];
