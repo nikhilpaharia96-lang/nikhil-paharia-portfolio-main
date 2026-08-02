@@ -50,7 +50,7 @@ function TestimonialCarousel() {
                 aria-roledescription="slide"
                 aria-label={`${index + 1} of ${allTestimonials.length}`}
                 aria-hidden={!isActive}
-                className="pl-5 sm:pl-6 shrink-0 grow-0 basis-[85%] xs:basis-[75%] sm:basis-[52%] lg:basis-[31.5%]"
+                className="pl-5 sm:pl-6 shrink-0 grow-0 basis-[86%] xs:basis-[78%] sm:basis-[68%] lg:basis-[78%]"
               >
                 <TestimonialCard t={t} variant={isActive ? "active" : "side"} distance={distance} index={index} />
               </div>
@@ -66,7 +66,9 @@ function TestimonialCarousel() {
 
       <div className="flex items-center justify-between mt-8">
         <Pagination count={allTestimonials.length} selectedIndex={selectedIndex} onSelect={scrollTo} />
-        <CarouselControls onPrev={scrollPrev} onNext={scrollNext} />
+        <div className="hidden sm:block">
+          <CarouselControls onPrev={scrollPrev} onNext={scrollNext} />
+        </div>
       </div>
     </div>
   );
@@ -166,9 +168,30 @@ export default function Testimonials() {
             >
               <SplitText type="words">Loved by Clients.</SplitText>
               <br />
-              <SplitText type="words" delay={0.15}>
-                Built on Trust.
-              </SplitText>
+              Built on{" "}
+              <span className="relative inline-block">
+                Trust.
+                <svg
+                  aria-hidden="true"
+                  className="absolute left-0 -bottom-1 sm:-bottom-1.5 w-full pointer-events-none"
+                  height="10"
+                  viewBox="0 0 140 10"
+                  preserveAspectRatio="none"
+                  fill="none"
+                >
+                  <motion.path
+                    d="M2 7 C 30 2, 60 9, 90 4 C 105 1.5, 120 6, 138 3"
+                    stroke="#1d6feb"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    fill="none"
+                    initial={prefersReducedMotion ? undefined : { pathLength: 0, opacity: 0 }}
+                    whileInView={prefersReducedMotion ? undefined : { pathLength: 1, opacity: 0.55 }}
+                    viewport={{ once: true, margin: "-80px" }}
+                    transition={{ duration: 0.8, delay: 0.5, ease: "easeInOut" }}
+                  />
+                </svg>
+              </span>
             </motion.h2>
 
             <motion.p
