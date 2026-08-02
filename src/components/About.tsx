@@ -26,6 +26,8 @@ import { VscVscode } from "react-icons/vsc";
 import profilePhoto from "../assets/images/profile-nobg.png";
 import myNewPhoto from "../assets/images/my-new-photo.jpg";
 import teaGardenAbout from "../assets/images/tea-garden-about.webp";
+import teaSunsetLandscape from "../assets/images/tea-sunset-landscape.webp";
+import teaSunsetPortrait from "../assets/images/tea-sunset-portrait.webp";
 import SplitText from "@/components/ui/SplitText";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -1725,25 +1727,25 @@ export default function About() {
                   className="notebook-flipbook"
                   style={{}}
                 >
-                  <NotebookPage className="px-6 py-6 sm:px-10 sm:py-8 lg:pr-14 lg:pl-12">
+                  <NotebookPage className="px-6 py-5 sm:px-10 sm:py-6 lg:pr-14 lg:pl-12">
                 <CoffeeStain className="top-2 right-6 sm:right-10" size={70} />
                 <Doodle type="swirl" className="top-24 right-2 sm:right-6" delay={0.3} active={phase >= 3} />
 
-                <div className="flex items-center justify-between mb-6 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-slate-400">
+                <div className="flex items-center justify-between mb-3 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-slate-400">
                   <span>02 — About Me</span>
                   <span>The Beginning</span>
                 </div>
 
                 {/* small handwritten lead-in — Phase 3, just ahead of the headline */}
-                <HandwrittenNote className="text-lg sm:text-xl mb-2" delay={0} active={phase >= 3}>
+                <HandwrittenNote className="text-base sm:text-lg mb-1" delay={0} active={phase >= 3}>
                   how it all started.
                 </HandwrittenNote>
 
                 {/* checklist sticky note, tucked beside the headline like a
                     note pinned to the page — Phase 3 */}
-                <div className="hidden sm:block absolute top-16 right-2 lg:right-4 z-10">
-                  <StickyNote color="#fdf8ee" rotate={3} delay={0.2} active={phase >= 3} className="w-44">
-                    <ul className="space-y-1 text-sm">
+                <div className="hidden sm:block absolute top-14 right-2 lg:right-4 z-10">
+                  <StickyNote color="#fdf8ee" rotate={3} delay={0.2} active={phase >= 3} className="w-36">
+                    <ul className="space-y-0.5 text-xs">
                       <li className="flex items-center gap-1.5">✓ No formal training</li>
                       <li className="flex items-center gap-1.5">✓ No big resources</li>
                       <li className="flex items-center gap-1.5">
@@ -1759,7 +1761,7 @@ export default function About() {
                   initial={{ opacity: 0, y: rm ? 0 : 24 }}
                   animate={phase >= 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 24 }}
                   transition={{ duration: rm ? 0.3 : 0.7, ease }}
-                  className="font-serif font-extrabold text-[1.9rem] sm:text-4xl leading-[1.15] text-foreground mb-3 max-w-sm sm:max-w-none"
+                  className="font-serif font-extrabold text-xl sm:text-2xl leading-[1.15] text-foreground mb-1.5 max-w-sm sm:max-w-none"
                 >
                   I started learning <Marker delay={0.15} active={phase >= 3}>CODE</Marker> because I
                   wanted to change my <Marker delay={0.35} active={phase >= 3}>FAMILY's</Marker> future.
@@ -1769,7 +1771,7 @@ export default function About() {
                   initial={{ opacity: 0, y: rm ? 0 : 18 }}
                   animate={phase >= 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 18 }}
                   transition={{ duration: rm ? 0.3 : 0.6, delay: rm ? 0 : 0.2 }}
-                  className="font-serif text-lg sm:text-xl text-slate-500 leading-snug mb-5"
+                  className="font-serif text-sm sm:text-base text-slate-500 leading-snug mb-2.5"
                 >
                   A boy from a tea garden in <Marker delay={0.5} active={phase >= 3}>ASSAM</Marker>,
                   chasing a bigger <Marker delay={0.65} active={phase >= 3}>DREAM</Marker> — always
@@ -1781,7 +1783,7 @@ export default function About() {
                   initial={{ opacity: 0, y: rm ? 0 : 16 }}
                   animate={phase >= 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 16 }}
                   transition={{ duration: rm ? 0.3 : 0.6, delay: rm ? 0 : 0.1 }}
-                  className="relative text-slate-600 leading-relaxed mb-6 max-w-md"
+                  className="relative text-sm text-slate-600 leading-relaxed mb-3 max-w-md"
                 >
                   <InkSmudge className="-left-3 top-2" size={30} />
                   <p>
@@ -1802,9 +1804,13 @@ export default function About() {
                   active={phase >= 3}
                 />
 
-                {/* photo + name tag — Phase 2: lands first, with a small
-                    physical bounce, before the headline/paragraphs build */}
-                <div className="relative mb-6 max-w-[15rem]">
+                {/* photo + silhouette, side by side — Phase 2: land first,
+                    with a small physical bounce, before the headline builds.
+                    Sitting side by side (rather than stacked) keeps this
+                    beat compact enough that the whole page fits without
+                    needing its own scroll. */}
+                <div className="flex items-start gap-4 mb-3">
+                <div className="relative w-28 sm:w-32 shrink-0">
                   <motion.div
                     initial={{ opacity: 0, y: rm ? 0 : 40, scale: 0.9, rotate: 0 }}
                     animate={
@@ -1828,7 +1834,7 @@ export default function About() {
                       scale: 1.02,
                       boxShadow: "0 30px 55px -16px rgba(70,50,20,0.5)",
                     }}
-                    className="relative bg-white p-2.5 shadow-[0_20px_40px_-16px_rgba(70,50,20,0.4)]"
+                    className="relative bg-white p-1.5 shadow-[0_20px_40px_-16px_rgba(70,50,20,0.4)]"
                   >
                     <Tape className="-top-3 left-1/2 -translate-x-1/2" rotate={-3} floatDuration={5.5} floatDelay={0.5} active={phase >= 2} />
                     <div
@@ -1848,21 +1854,21 @@ export default function About() {
                     initial={{ opacity: 0, y: rm ? 0 : 12 }}
                     animate={phase >= 2 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 12 }}
                     transition={{ duration: rm ? 0.2 : 0.5, delay: rm ? 0 : 0.35 }}
-                    className="mt-2"
+                    className="mt-1"
                   >
-                    <p className="font-serif font-bold text-base text-foreground leading-tight">
+                    <p className="font-serif font-bold text-xs text-foreground leading-tight">
                       Nikhil Paharia
                     </p>
-                    <p className="font-hand text-primary text-base leading-tight">
+                    <p className="font-hand text-primary text-sm leading-tight">
                       Full-Stack Developer
                     </p>
-                    <p className="text-xs text-slate-400">Assam, India</p>
+                    <p className="text-[10px] text-slate-400">Assam, India</p>
                   </motion.div>
                 </div>
 
                 {/* silhouette — Phase 2, staggered slightly after the tagged
                     photo above */}
-                <div className="relative mb-6 max-w-xs">
+                <div className="relative w-28 sm:w-32 shrink-0">
                   <motion.div
                     initial={{ opacity: 0, y: rm ? 0 : 40, scale: 0.9, rotate: 0 }}
                     animate={
@@ -1884,10 +1890,10 @@ export default function About() {
                       scale: 1.02,
                       boxShadow: "0 30px 55px -16px rgba(70,50,20,0.5)",
                     }}
-                    className="relative bg-white p-2.5 pb-9 shadow-[0_20px_40px_-16px_rgba(70,50,20,0.4)]"
+                    className="relative bg-white p-1.5 pb-5 shadow-[0_20px_40px_-16px_rgba(70,50,20,0.4)]"
                   >
-                    <Tape className="-top-3 left-8" rotate={-6} floatDuration={5.5} floatDelay={1.1} active={phase >= 2} />
-                    <Tape className="-top-3 right-8" rotate={5} color="blue" floatDuration={4.8} floatDelay={1.7} active={phase >= 2} />
+                    <Tape className="-top-3 left-6" rotate={-6} floatDuration={5.5} floatDelay={1.1} active={phase >= 2} />
+                    <Tape className="-top-3 right-6" rotate={5} color="blue" floatDuration={4.8} floatDelay={1.7} active={phase >= 2} />
                     <div
                       className="relative aspect-[4/5] w-full overflow-hidden"
                       style={{ background: "linear-gradient(180deg,#dfe9f5,#bcd0e6 60%,#9fb8d6)" }}
@@ -1912,16 +1918,17 @@ export default function About() {
                         />
                       </svg>
                     </div>
-                    <p className="font-hand text-base text-slate-600 text-center mt-2 leading-tight underline decoration-slate-300">
+                    <p className="font-hand text-xs text-slate-600 text-center mt-1 leading-tight underline decoration-slate-300">
                       god's plan
                     </p>
                   </motion.div>
                 </div>
+                </div>
 
                 {/* handwritten note — Phase 3: draws itself alongside the headline */}
-                <div className="relative mb-6 max-w-xs">
+                <div className="relative mb-3 max-w-xs">
                   <InkSmudge className="-top-2 left-2" size={26} />
-                  <HandwrittenNote className="text-xl sm:text-2xl -rotate-1" delay={0.9} active={phase >= 3}>
+                  <HandwrittenNote className="text-base sm:text-lg -rotate-1" delay={0.9} active={phase >= 3}>
                     "It started as curiosity. Then it became a way of thinking."
                   </HandwrittenNote>
                 </div>
@@ -1934,42 +1941,44 @@ export default function About() {
                   rotate={-3}
                   delay={0.15}
                   active={phase >= 6}
-                  className="w-52"
+                  className="w-44"
                 >
-                  Focus on improving 1% every day. Let the results take care
-                  of themselves.
+                  <span className="text-xs">
+                    Focus on improving 1% every day. Let the results take care
+                    of themselves.
+                  </span>
                 </StickyNote>
 
-                <MountainDoodle className="hidden sm:block mx-auto mt-10 opacity-70" />
+                <MountainDoodle className="hidden sm:block mx-auto mt-4 opacity-70 scale-75" />
                   </NotebookPage>
 
                   {/* ═══════════ PAGE 2 ═══════════ */}
-                  <NotebookPage className="px-6 py-6 sm:px-10 sm:py-8 lg:pl-14 lg:pr-12">
+                  <NotebookPage className="px-6 py-5 sm:px-10 sm:py-6 lg:pl-14 lg:pr-12">
                 <Doodle type="spark" className="top-6 right-8" delay={0.2} size={24} />
 
-                <div className="flex items-center justify-between mb-6 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-slate-400">
+                <div className="flex items-center justify-between mb-3 text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-slate-400">
                   <span>One Yes Led To The Next</span>
                   <span>Things That Happened</span>
                 </div>
 
                 {/* purpose torn paper + hanging tag, connected by a small
                     drawn arrow — Phase 4, alongside the story on the left page */}
-                <div className="relative flex items-start justify-between gap-4 mb-5">
-                  <TornPaper className="p-5 sm:p-6 max-w-sm flex-1" rotate={-1} delay={0.05} active={phase >= 4}>
+                <div className="relative flex items-start justify-between gap-3 mb-3">
+                  <TornPaper className="p-3.5 sm:p-4 max-w-sm flex-1" rotate={-1} delay={0.05} active={phase >= 4}>
                     <RealPaperClip className="-top-6 left-4" rotate={-10} active={phase >= 4} />
-                    <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-primary mb-2">
+                    <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-primary mb-1">
                       My Purpose
                     </p>
-                    <h4 className="font-serif font-bold text-xl sm:text-2xl text-foreground mb-3 underline decoration-primary/40 decoration-2 underline-offset-4">
+                    <h4 className="font-serif font-bold text-base sm:text-lg text-foreground mb-1.5 underline decoration-primary/40 decoration-2 underline-offset-4">
                       Building with purpose.
                     </h4>
-                    <p className="text-sm sm:text-base text-slate-600 leading-relaxed mb-3">
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-1.5">
                       I build websites because I love watching an idea turn into
                       something people can actually use. Every bug I fix and
                       every interface I polish is a small problem solved —
                       that's what keeps me hooked.
                     </p>
-                    <p className="font-hand text-primary text-base">
+                    <p className="font-hand text-primary text-sm">
                       ☆ Function first, always with care.
                     </p>
                   </TornPaper>
@@ -1997,15 +2006,15 @@ export default function About() {
                 {/* mission — revealed as if written with a pen, with a
                     genuine left-to-right underline stroke beneath it —
                     Phase 4, staggered after the purpose card above */}
-                <blockquote className="relative mb-6 max-w-md border-l-2 border-primary/40 pl-4">
-                  <HandwrittenNote className="text-2xl sm:text-3xl leading-snug" delay={0.5} active={phase >= 4}>
+                <blockquote className="relative mb-3 max-w-md border-l-2 border-primary/40 pl-3">
+                  <HandwrittenNote className="text-lg sm:text-xl leading-snug" delay={0.5} active={phase >= 4}>
                     "I want to build digital products that improve people's lives."
                   </HandwrittenNote>
                   <MarkerUnderline className="mt-1 ml-1" delay={1.3} width={210} active={phase >= 4} />
                 </blockquote>
 
                 {/* highlights row — Phase 4, the real numbers behind the story */}
-                <div className="grid grid-cols-3 gap-3 mb-6 max-w-md">
+                <div className="grid grid-cols-3 gap-2 mb-3 max-w-md">
                   {[
                     { value: "Self-Taught", sub: "since day one", color: "#1d6feb" },
                     { value: "50+", sub: "projects shipped", color: "#b91c1c" },
@@ -2016,13 +2025,13 @@ export default function About() {
                       initial={{ opacity: 0, y: rm ? 0 : 14 }}
                       animate={phase >= 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 14 }}
                       transition={{ duration: rm ? 0.25 : 0.5, delay: rm ? 0 : 0.5 + i * 0.1, ease: "backOut" }}
-                      className="rounded-md border-2 px-2.5 py-2.5 text-center bg-white/70"
+                      className="rounded-md border-2 px-2 py-1.5 text-center bg-white/70"
                       style={{ borderColor: h.color }}
                     >
-                      <p className="font-serif font-extrabold text-sm sm:text-base leading-tight" style={{ color: h.color }}>
+                      <p className="font-serif font-extrabold text-xs sm:text-sm leading-tight" style={{ color: h.color }}>
                         {h.value}
                       </p>
-                      <p className="text-[9px] text-slate-500 uppercase tracking-wide mt-0.5 leading-tight">
+                      <p className="text-[8px] text-slate-500 uppercase tracking-wide mt-0.5 leading-tight">
                         {h.sub}
                       </p>
                     </motion.div>
@@ -2030,19 +2039,19 @@ export default function About() {
                 </div>
 
                 {/* tech stack — Phase 5: icons pop in one after another, in a tidy row */}
-                <div className="mb-6">
-                  <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-4">
+                <div className="mb-3">
+                  <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-2">
                     Tech I Reach For
                   </p>
                   <TechScatter active={phase >= 5} />
                 </div>
 
                 {/* daily fuel — Phase 6: torn checklist, ticks in one by one */}
-                <div className="mb-6 max-w-[15rem]">
+                <div className="mb-3 max-w-[13rem] scale-90 origin-left">
                   <DailyFuel active={phase >= 6} />
                 </div>
 
-                <MountainDoodle flip className="hidden sm:block ml-auto opacity-70 mb-6" />
+                <MountainDoodle flip className="hidden sm:block ml-auto opacity-70 mb-3 scale-75" />
 
                 {/* ending banner — kept inside this page so the notebook
                     stays exactly two pages, no separate full-width strip */}
@@ -2050,12 +2059,12 @@ export default function About() {
                   initial={{ opacity: 0, scale: 0.96 }}
                   animate={phase >= 8 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.96 }}
                   transition={{ duration: rm ? 0.3 : 0.6, ease }}
-                  className="relative bg-white mx-auto max-w-md px-5 py-5 sm:px-8 sm:py-6 text-center shadow-[0_16px_40px_-20px_rgba(70,50,20,0.4)] -rotate-[0.4deg] mb-4"
+                  className="relative bg-white mx-auto max-w-md px-4 py-3 sm:px-6 sm:py-4 text-center shadow-[0_16px_40px_-20px_rgba(70,50,20,0.4)] -rotate-[0.4deg] mb-2"
                 >
-                  <p className="font-hand text-2xl sm:text-3xl text-foreground leading-snug mb-1 underline decoration-primary decoration-2 underline-offset-4">
+                  <p className="font-hand text-lg sm:text-xl text-foreground leading-snug mb-1 underline decoration-primary decoration-2 underline-offset-4">
                     Still figuring things out.
                   </p>
-                  <p className="text-sm sm:text-base text-slate-500">
+                  <p className="text-xs sm:text-sm text-slate-500">
                     And that's the best part.
                     <span className="inline-block ml-1.5 text-primary">♥</span>
                   </p>
@@ -2071,14 +2080,81 @@ export default function About() {
                 </motion.p>
                   </NotebookPage>
 
-                  {/* ═══════════ PAGE 3 — closing spread, left half ═══════════
+                  {/* ═══════════ PAGE 3 — a place, not just a story ═══════════
+                      The tea garden itself, full-bleed — the one page that
+                      lets the setting speak without any text competing with it. */}
+                  <NotebookPage className="p-0 flex items-center justify-center overflow-hidden">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 1.06 }}
+                      animate={phase >= 6 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.06 }}
+                      transition={{ duration: rm ? 0.3 : 1, ease }}
+                      className="relative w-full h-full"
+                    >
+                      <img
+                        src={teaGardenAbout}
+                        alt="Tea garden hills in Assam"
+                        loading="lazy"
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
+                      <div className="absolute top-6 left-6 right-6 sm:top-10 sm:left-10 sm:right-10 flex items-center justify-between text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-white/70">
+                        <span>03 — Home</span>
+                        <span>Where It Started</span>
+                      </div>
+                      <p className="absolute bottom-6 left-6 right-6 sm:bottom-10 sm:left-10 sm:right-10 font-hand text-white text-2xl sm:text-3xl leading-snug">
+                        A tea garden in Assam. Still home.
+                      </p>
+                    </motion.div>
+                  </NotebookPage>
+
+                  {/* ═══════════ PAGE 4 — golden hour ═══════════ */}
+                  <NotebookPage className="p-0 flex items-center justify-center overflow-hidden">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 1.06 }}
+                      animate={phase >= 6 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.06 }}
+                      transition={{ duration: rm ? 0.3 : 1, delay: rm ? 0 : 0.15, ease }}
+                      className="relative w-full h-full"
+                    >
+                      <img
+                        src={teaSunsetLandscape}
+                        alt="Sunset over the tea garden"
+                        loading="lazy"
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
+                      <div className="absolute top-6 left-6 right-6 sm:top-10 sm:left-10 sm:right-10 flex items-center justify-end text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-white/70">
+                        <span>Golden Hour</span>
+                      </div>
+                      <p className="absolute bottom-6 left-6 right-6 sm:bottom-10 sm:left-10 sm:right-10 font-hand text-white text-2xl sm:text-3xl leading-snug text-right">
+                        Every sunset here still slows me down.
+                      </p>
+                    </motion.div>
+                  </NotebookPage>
+
+                  {/* ═══════════ PAGE 5 — closing spread, left half ═══════════
                       One final, quiet beat: just the signature. Everything
                       else on this page has been building toward this — it's
                       the one moment that gets to be almost empty. */}
-                  <NotebookPage className="px-6 py-6 sm:px-10 sm:py-8 lg:pr-14 lg:pl-12 flex items-center justify-end">
+                  <NotebookPage className="px-6 py-6 sm:px-10 sm:py-8 lg:pr-14 lg:pl-12 flex flex-col items-end justify-center">
                     <div className="absolute top-6 left-6 right-6 sm:top-10 sm:left-10 sm:right-10 flex items-center justify-between text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-slate-400">
-                      <span>03 — Closing</span>
+                      <span>05 — Closing</span>
                     </div>
+                    <motion.div
+                      initial={{ opacity: 0, y: rm ? 0 : 30, scale: 0.94 }}
+                      animate={phase >= 8 ? { opacity: 1, y: 0, scale: 1, rotate: -2 } : { opacity: 0, y: rm ? 0 : 30, scale: 0.94 }}
+                      transition={{ duration: rm ? 0.3 : 0.7, type: rm ? "tween" : "spring", stiffness: 220, damping: 18 }}
+                      className="relative bg-white p-2 shadow-[0_20px_40px_-16px_rgba(70,50,20,0.4)] w-28 mb-6"
+                    >
+                      <Tape className="-top-3 left-1/2 -translate-x-1/2" rotate={-4} active={phase >= 8} />
+                      <div className="relative aspect-[4/5] w-full overflow-hidden">
+                        <img
+                          src={profilePhoto}
+                          alt="Nikhil Paharia"
+                          loading="lazy"
+                          className="absolute inset-0 w-full h-full object-cover object-top"
+                        />
+                      </div>
+                    </motion.div>
                     <motion.p
                       initial={{ opacity: 0, y: rm ? 0 : 16 }}
                       animate={phase >= 8 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 16 }}
@@ -2089,7 +2165,7 @@ export default function About() {
                     </motion.p>
                   </NotebookPage>
 
-                  {/* ═══════════ PAGE 4 — closing spread, right half ═══════════ */}
+                  {/* ═══════════ PAGE 6 — closing spread, right half ═══════════ */}
                   <NotebookPage className="px-6 py-6 sm:px-10 sm:py-8 lg:pl-14 lg:pr-12 flex flex-col items-start justify-center">
                     <div className="absolute top-6 left-6 right-6 sm:top-10 sm:left-10 sm:right-10 flex items-center justify-end text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-slate-400">
                       <span>Thank You</span>
@@ -2098,10 +2174,26 @@ export default function About() {
                       initial={{ opacity: 0, y: rm ? 0 : 16 }}
                       animate={phase >= 8 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 16 }}
                       transition={{ duration: rm ? 0.3 : 0.9, delay: rm ? 0 : 0.45, ease }}
-                      className="font-hand text-foreground text-6xl sm:text-7xl leading-none mb-8"
+                      className="font-hand text-foreground text-6xl sm:text-7xl leading-none mb-6"
                     >
                       Paharia
                     </motion.p>
+                    <motion.div
+                      initial={{ opacity: 0, y: rm ? 0 : 30, scale: 0.94 }}
+                      animate={phase >= 8 ? { opacity: 1, y: 0, scale: 1, rotate: 2 } : { opacity: 0, y: rm ? 0 : 30, scale: 0.94 }}
+                      transition={{ duration: rm ? 0.3 : 0.7, delay: rm ? 0 : 0.2, type: rm ? "tween" : "spring", stiffness: 220, damping: 18 }}
+                      className="relative bg-white p-2 shadow-[0_20px_40px_-16px_rgba(70,50,20,0.4)] w-24 mb-6"
+                    >
+                      <Tape className="-top-3 left-1/2 -translate-x-1/2" rotate={4} color="blue" active={phase >= 8} />
+                      <div className="relative aspect-[4/5] w-full overflow-hidden">
+                        <img
+                          src={teaSunsetPortrait}
+                          alt="Golden hour, Assam"
+                          loading="lazy"
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                      </div>
+                    </motion.div>
                     <motion.blockquote
                       initial={{ opacity: 0 }}
                       animate={phase >= 8 ? { opacity: 1 } : { opacity: 0 }}
