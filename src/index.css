@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&family=Caveat:wght@400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
@@ -61,7 +61,6 @@
 
   --font-sans: 'Space Grotesk', sans-serif;
   --font-serif: 'Syne', sans-serif;
-  --font-hand: 'Caveat', cursive;
   --font-mono: Menlo, monospace;
 
   --radius-sm: calc(var(--radius) - 4px);
@@ -233,6 +232,19 @@ html.lenis, html.lenis body {
 
 .animate-feature-marquee {
   animation: feature-marquee 16s linear infinite;
+}
+
+@keyframes brands-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-brands-marquee {
+  animation: brands-marquee 30s linear infinite;
 }
 
 .section-wrap {
