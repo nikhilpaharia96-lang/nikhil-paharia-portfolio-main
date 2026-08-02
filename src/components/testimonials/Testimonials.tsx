@@ -1,13 +1,14 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { Quote } from "lucide-react";
 import SplitText from "@/components/ui/SplitText";
-import { featuredTestimonial, testimonials } from "@/constants/testimonials";
+import { allTestimonials } from "@/constants/testimonials";
 import { ease } from "@/animations/testimonials.motion";
 import { useTestimonialsCarousel } from "@/hooks/useTestimonialsCarousel";
 import BackgroundGlow from "./BackgroundGlow";
 import TestimonialCard from "./TestimonialCard";
 import CarouselControls from "./CarouselControls";
 import Pagination from "./Pagination";
+import TrustedByBrands from "./TrustedByBrands";
 
 function TestimonialCarousel() {
   const {
@@ -22,14 +23,14 @@ function TestimonialCarousel() {
     onMouseLeave,
     onFocus,
     onBlur,
-  } = useTestimonialsCarousel(testimonials.length);
+  } = useTestimonialsCarousel(allTestimonials.length);
 
   return (
     <div
-      className="relative mt-10 sm:mt-12"
+      className="relative"
       role="region"
       aria-roledescription="carousel"
-      aria-label="More client testimonials"
+      aria-label="Client testimonials"
       tabIndex={0}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -39,7 +40,7 @@ function TestimonialCarousel() {
     >
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex gap-5 sm:gap-6 -ml-5 sm:-ml-6 py-2">
-          {testimonials.map((t, index) => {
+          {allTestimonials.map((t, index) => {
             const distance = getDistance(index);
             const isActive = distance === 0;
             return (
@@ -47,9 +48,9 @@ function TestimonialCarousel() {
                 key={t.id}
                 role="group"
                 aria-roledescription="slide"
-                aria-label={`${index + 1} of ${testimonials.length}`}
+                aria-label={`${index + 1} of ${allTestimonials.length}`}
                 aria-hidden={!isActive}
-                className="pl-5 sm:pl-6 shrink-0 grow-0 basis-[85%] xs:basis-[75%] sm:basis-[55%] lg:basis-[38%]"
+                className="pl-5 sm:pl-6 shrink-0 grow-0 basis-[85%] xs:basis-[75%] sm:basis-[52%] lg:basis-[31.5%]"
               >
                 <TestimonialCard t={t} variant={isActive ? "active" : "side"} distance={distance} index={index} />
               </div>
@@ -60,11 +61,11 @@ function TestimonialCarousel() {
 
       {/* Screen-reader-only live announcement of the current slide */}
       <p className="sr-only" role="status" aria-live="polite">
-        Showing testimonial {selectedIndex + 1} of {testimonials.length}: {testimonials[selectedIndex]?.name}
+        Showing testimonial {selectedIndex + 1} of {allTestimonials.length}: {allTestimonials[selectedIndex]?.name}
       </p>
 
       <div className="flex items-center justify-between mt-8">
-        <Pagination count={testimonials.length} selectedIndex={selectedIndex} onSelect={scrollTo} />
+        <Pagination count={allTestimonials.length} selectedIndex={selectedIndex} onSelect={scrollTo} />
         <CarouselControls onPrev={scrollPrev} onNext={scrollNext} />
       </div>
     </div>
@@ -184,10 +185,11 @@ export default function Testimonials() {
 
           {/* ═══════════════ RIGHT COLUMN ═══════════════ */}
           <div className="lg:col-span-8">
-            <TestimonialCard t={featuredTestimonial} variant="featured" />
             <TestimonialCarousel />
           </div>
         </div>
+
+        <TrustedByBrands />
       </div>
     </section>
   );
