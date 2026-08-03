@@ -26,7 +26,6 @@ import { VscVscode } from "react-icons/vsc";
 import profilePhoto from "../assets/images/profile-nobg.png";
 import myNewPhoto from "../assets/images/my-new-photo.jpg";
 import teaGardenAbout from "../assets/images/tea-garden-about.webp";
-import teaSunsetLandscape from "../assets/images/tea-sunset-landscape.webp";
 import teaSunsetPortrait from "../assets/images/tea-sunset-portrait.webp";
 import SplitText from "@/components/ui/SplitText";
 import { gsap } from "gsap";
@@ -1431,6 +1430,21 @@ export default function About() {
   const flipBook = useRef<{ pageFlip: () => { flipNext: () => void; flipPrev: () => void } } | null>(null);
   const flippedRef = useRef(false);
 
+  // Pages 3–10: a straight photo gallery, one full-bleed image per page —
+  // deliberately no story text competing with them, just a short caption.
+  // URLs rather than bundled assets, so swapping any one of these later is
+  // a one-line change here rather than a re-import + rebuild.
+  const galleryPages = [
+    { src: "https://www.gopalkrishnatea.com/static/media/Brochure2.fffe0aadeb5725549632.webp", label: "03", caption: "The garden, as it's always looked." },
+    { src: "https://www.gopalkrishnatea.com/static/media/Brochure3.1bbd6be736527cebd0f1.webp", label: "04", caption: "Where the mornings start." },
+    { src: "https://www.gopalkrishnatea.com/static/media/Brochure4.39118e0077fb90e90be1.webp", label: "05", caption: "Still my favorite view." },
+    { src: "https://www.gopalkrishnatea.com/static/media/Brochure7.993bd0c86c8cd0f40c24.webp", label: "06", caption: "Home, from every angle." },
+    { src: "https://www.gopalkrishnatea.com/static/media/Brochure11.b8524a9ef142de897823.webp", label: "07", caption: "The hills don't change much." },
+    { src: "https://www.gopalkrishnatea.com/static/media/Brochure12.214390bf5cd20d1cb55e.webp", label: "08", caption: "This is what I'm building toward." },
+    { src: "https://www.gopalkrishnatea.com/static/media/Brochure5.6a73e6331e62e365caec.webp", label: "09", caption: "A little further down the road." },
+    { src: "https://www.gopalkrishnatea.com/static/media/Brochure10.d942bbc39eaebfc165dd.webp", label: "10", caption: "Almost there." },
+  ];
+
   useEffect(() => {
     if (rm) {
       // Reduced motion: skip scroll-scrubbed choreography entirely and
@@ -2080,64 +2094,50 @@ export default function About() {
                 </motion.p>
                   </NotebookPage>
 
-                  {/* ═══════════ PAGE 3 — a place, not just a story ═══════════
-                      The tea garden itself, full-bleed — the one page that
-                      lets the setting speak without any text competing with it. */}
-                  <NotebookPage className="p-0 flex items-center justify-center overflow-hidden">
-                    <motion.div
-                      initial={{ opacity: 0, scale: 1.06 }}
-                      animate={phase >= 6 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.06 }}
-                      transition={{ duration: rm ? 0.3 : 1, ease }}
-                      className="relative w-full h-full"
-                    >
-                      <img
-                        src={teaGardenAbout}
-                        alt="Tea garden hills in Assam"
-                        loading="lazy"
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
-                      <div className="absolute top-6 left-6 right-6 sm:top-10 sm:left-10 sm:right-10 flex items-center justify-between text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-white/70">
-                        <span>03 — Home</span>
-                        <span>Where It Started</span>
-                      </div>
-                      <p className="absolute bottom-6 left-6 right-6 sm:bottom-10 sm:left-10 sm:right-10 font-hand text-white text-2xl sm:text-3xl leading-snug">
-                        A tea garden in Assam. Still home.
-                      </p>
-                    </motion.div>
-                  </NotebookPage>
+                  {/* ═══════════ PAGES 3–10 — the photo gallery ═══════════
+                      One full-bleed image per page, straight from the URLs
+                      given — no story text competing with them, just a
+                      short caption. */}
+                  {galleryPages.map((g, i) => (
+                    <NotebookPage key={g.src} className="p-0 flex items-center justify-center overflow-hidden">
+                      <motion.div
+                        initial={{ opacity: 0, scale: 1.06 }}
+                        animate={phase >= 6 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.06 }}
+                        transition={{ duration: rm ? 0.3 : 1, delay: rm ? 0 : i * 0.05, ease }}
+                        className="relative w-full h-full"
+                      >
+                        <img
+                          src={g.src}
+                          alt={g.caption}
+                          loading="lazy"
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
+                        <div
+                          className={`absolute top-6 left-6 right-6 sm:top-10 sm:left-10 sm:right-10 flex items-center text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-white/70 ${
+                            i % 2 === 0 ? "justify-between" : "justify-end"
+                          }`}
+                        >
+                          <span>{g.label}</span>
+                        </div>
+                        <p
+                          className={`absolute bottom-6 left-6 right-6 sm:bottom-10 sm:left-10 sm:right-10 font-hand text-white text-2xl sm:text-3xl leading-snug ${
+                            i % 2 === 1 ? "text-right" : ""
+                          }`}
+                        >
+                          {g.caption}
+                        </p>
+                      </motion.div>
+                    </NotebookPage>
+                  ))}
 
-                  {/* ═══════════ PAGE 4 — golden hour ═══════════ */}
-                  <NotebookPage className="p-0 flex items-center justify-center overflow-hidden">
-                    <motion.div
-                      initial={{ opacity: 0, scale: 1.06 }}
-                      animate={phase >= 6 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.06 }}
-                      transition={{ duration: rm ? 0.3 : 1, delay: rm ? 0 : 0.15, ease }}
-                      className="relative w-full h-full"
-                    >
-                      <img
-                        src={teaSunsetLandscape}
-                        alt="Sunset over the tea garden"
-                        loading="lazy"
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
-                      <div className="absolute top-6 left-6 right-6 sm:top-10 sm:left-10 sm:right-10 flex items-center justify-end text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-white/70">
-                        <span>Golden Hour</span>
-                      </div>
-                      <p className="absolute bottom-6 left-6 right-6 sm:bottom-10 sm:left-10 sm:right-10 font-hand text-white text-2xl sm:text-3xl leading-snug text-right">
-                        Every sunset here still slows me down.
-                      </p>
-                    </motion.div>
-                  </NotebookPage>
-
-                  {/* ═══════════ PAGE 5 — closing spread, left half ═══════════
+                  {/* ═══════════ PAGE 11 — closing spread, left half ═══════════
                       One final, quiet beat: just the signature. Everything
                       else on this page has been building toward this — it's
                       the one moment that gets to be almost empty. */}
                   <NotebookPage className="px-6 py-6 sm:px-10 sm:py-8 lg:pr-14 lg:pl-12 flex flex-col items-end justify-center">
                     <div className="absolute top-6 left-6 right-6 sm:top-10 sm:left-10 sm:right-10 flex items-center justify-between text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-slate-400">
-                      <span>05 — Closing</span>
+                      <span>11 — Closing</span>
                     </div>
                     <motion.div
                       initial={{ opacity: 0, y: rm ? 0 : 30, scale: 0.94 }}
@@ -2165,7 +2165,7 @@ export default function About() {
                     </motion.p>
                   </NotebookPage>
 
-                  {/* ═══════════ PAGE 6 — closing spread, right half ═══════════ */}
+                  {/* ═══════════ PAGE 12 — closing spread, right half ═══════════ */}
                   <NotebookPage className="px-6 py-6 sm:px-10 sm:py-8 lg:pl-14 lg:pr-12 flex flex-col items-start justify-center">
                     <div className="absolute top-6 left-6 right-6 sm:top-10 sm:left-10 sm:right-10 flex items-center justify-end text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-slate-400">
                       <span>Thank You</span>
