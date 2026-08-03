@@ -1123,6 +1123,10 @@ function Reveal({
    ──────────────────────────────────────────────────────────── */
 
 function MobileAboutStory() {
+  // Disabled: the notebook/diary section above now renders on all
+  // breakpoints, so this separate mobile-only fallback is no longer used.
+  return null;
+  // eslint-disable-next-line no-unreachable
   const rm = useReducedMotion();
 
   const scrollToSection = (id: string) => {
@@ -1571,7 +1575,7 @@ export default function About() {
             things a touch screen doesn't have. Below `lg` this entire
             experience is swapped for a purpose-built mobile flow (right
             below), rather than just letting this shrink and reflow. */}
-        <div className="hidden lg:block relative max-w-[1200px] mx-auto">
+        <div className="block relative max-w-[1200px] mx-auto">
           {/* floating stickers around the notebook */}
           <FloatingSticker className="-top-6 left-4 sm:left-10" delay={0} duration={7}>
             <SiFigma className="w-5 h-5 text-[#F24E1E]" />
