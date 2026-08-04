@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { RiArrowUpLine, RiGithubFill, RiLinkedinFill, RiInstagramLine, RiYoutubeFill } from "react-icons/ri";
-import teaBg from "../assets/images/tea-garden-bg.webp";
+import teaBg from "../assets/images/tea-sunset-person-wide.webp";
 import Magnetic from "@/components/ui/Magnetic";
 import SplitText from "@/components/ui/SplitText";
 
