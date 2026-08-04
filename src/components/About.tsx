@@ -25,7 +25,7 @@ import {
 import { VscVscode } from "react-icons/vsc";
 import profilePhoto from "../assets/images/profile-nobg.png";
 import myNewPhoto from "../assets/images/my-new-photo.jpg";
-import teaGardenAbout from "../assets/images/tea-garden-about.webp";
+import teaGardenAbout from "../assets/tea-sunset-portrait.webp";
 import teaSunsetPortrait from "../assets/images/tea-sunset-portrait.webp";
 import SplitText from "@/components/ui/SplitText";
 import { gsap } from "gsap";
