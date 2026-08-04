@@ -2,7 +2,7 @@ import { Camera, Palette, Headphones, Sparkles } from "lucide-react";
 import vid1 from "@/assets/images/video-1.png";
 import vid2 from "@/assets/images/video-2.png";
 import vid3 from "@/assets/images/video-3.png";
-import teaHero from "@/assets/images/tea-garden-about.webp";
+import teaHero from "@/assets/images/tea-sunset-portrait.webp";
 import teaWide from "@/assets/images/tea-sunset-person-wide.webp";
 import type { FeaturedVideo, Project, ShowcaseFeature } from "@/types/video";
 
