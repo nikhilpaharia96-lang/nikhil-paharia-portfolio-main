@@ -1,13 +1,34 @@
-import { RiArrowRightLine, RiArrowDownLine, RiMapPinLine, RiCodeSSlashLine, RiVideoLine, RiPencilLine, RiSendPlaneLine, RiFolderOpenLine, RiFolderChartLine, RiGroupLine, RiTimeLine } from "react-icons/ri";
+import { RiArrowRightLine, RiArrowDownLine, RiMapPinLine, RiCodeSSlashLine, RiVideoLine, RiPencilLine, RiSendPlaneLine, RiFolderOpenLine, RiFolderChartLine, RiGroupLine, RiTimeLine, RiStarLine } from "react-icons/ri";
 import { SiReact, SiNodedotjs, SiJavascript, SiTailwindcss } from "react-icons/si";
 import { FaGithub, FaLinkedinIn, FaInstagram, FaYoutube, FaWhatsapp } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-import { motion, useScroll, useTransform, useSpring, useVelocity, useMotionValueEvent, useInView } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring, useVelocity, useMotionValueEvent, useInView, useReducedMotion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import profileImg from "../assets/images/profile-nobg.png";
-import teaBg from "../assets/images/file_0000000066b08207b18b1ec1e8269869.png";
+import teaBg from "../assets/images/file_00000000cba071faad0a7577f42dd911.png";
 import SplitText from "@/components/ui/SplitText";
 import Magnetic from "@/components/ui/Magnetic";
+
+// ── Desktop-only Hero assets ──────────────────────────────────────────────
+import desktopPortrait from "../assets/images/Desktop Nikhil Paharia profile photo.png";
+import brushStroke from "../assets/images/blue-brush-stroke.png";
+import ovalLandscape from "../assets/images/Assam landscape.png";
+import threeStrokes from "../assets/images/three-strokes.png.png";
+// assam-map-clean.webp ships with its "transparent" background baked in as an
+// opaque checkerboard (no real alpha channel) — assam-map-transparent.png is
+// a chroma-keyed export of the same artwork with a real alpha channel.
+import assamMapImg from "../assets/images/assam-map-transparent.png";
+// paper-airplane.png has the same baked-checkerboard problem; this Picsart
+// export of the identical artwork has genuine transparency.
+import cleanPaperPlane from "../assets/images/Picsart_26-08-04_10-20-09-507.png";
+
+// NOTE: "Desktop Background 01" (the intended white-left / tea-garden-right
+// composition) was uploaded to the repo as a 0-byte/corrupted file, so it
+// cannot be used yet. `teaBg` (the same landscape photo already used by the
+// mobile Hero) is used below as a TEMPORARY stand-in with adjusted
+// object-position — swap this for the real asset the moment it's
+// re-uploaded with valid image data; no other code needs to change.
+const desktopBg = teaBg;
 
 const cloudImg = "https://www.gopalkrishnatea.com/static/media/cloud2.895414a23f99e60c66ea.webp";
 
@@ -84,6 +105,16 @@ const stats = [
   { value: "1096+", label: "Days",       sub: "Experience", Icon: RiTimeLine,         color: "#0891b2", bg: "from-cyan-50 to-cyan-100/60" },
 ];
 
+// Desktop-only — same values as the mobile `stats` array, plus the 4th
+// "Commitment to Quality" card called for in the desktop spec. Kept as its
+// own array so the mobile 3-card scroller above is never touched.
+const desktopStats = [
+  { value: "96+",   label: "Projects Completed",     Icon: RiFolderChartLine, color: "#1d6feb", bg: "from-blue-50 to-blue-100/60" },
+  { value: "30+",   label: "Happy Clients",          Icon: RiGroupLine,       color: "#7c3aed", bg: "from-violet-50 to-violet-100/60" },
+  { value: "1096+", label: "Days of Experience",     Icon: RiTimeLine,        color: "#0891b2", bg: "from-cyan-50 to-cyan-100/60" },
+  { value: "100%",  label: "Commitment to Quality",  Icon: RiStarLine,        color: "#d97706", bg: "from-amber-50 to-amber-100/60" },
+];
+
 const socials = [
   { icon: <FaGithub />,     href: "#", label: "GitHub",    color: "text-slate-800" },
   { icon: <FaLinkedinIn />, href: "#", label: "LinkedIn",  color: "text-blue-600"  },
@@ -115,6 +146,8 @@ export default function Hero() {
   // Background landscape parallax
   const bgY = useTransform(scrollYProgress, [0, 1], [0, 120]);
   const smoothBgY = useSpring(bgY, { stiffness: 45, damping: 20 });
+
+  const rm = useReducedMotion();
 
 
   /* ── Scroll-direction tracking — drives CTA converge AND the LHS/RHS cloud crossover ── */
@@ -159,11 +192,28 @@ export default function Hero() {
   return (
     <section ref={ref} className="relative min-h-screen flex items-center overflow-hidden w-full max-w-full section-wrap" id="home">
 
-      {/* Background with scroll parallax */}
-      <motion.div style={{ y: smoothBgY }} className="absolute inset-0 z-0">
+      {/* Background with scroll parallax — MOBILE/TABLET ONLY, untouched */}
+      <motion.div style={{ y: smoothBgY }} className="absolute inset-0 z-0 lg:hidden">
         <img src={teaBg} alt="" className="w-full h-full object-cover" style={{ filter: 'brightness(0.95) saturate(0.9)' }} />
         <div className="absolute inset-0 bg-gradient-to-r from-white/45 via-white/20 to-blue-50/10" />
         <div className="absolute inset-0 bg-gradient-to-t from-white/50 via-transparent to-white/15" />
+      </motion.div>
+
+      {/* Background — DESKTOP ONLY (1024px+). Uses the "Desktop Background 01"
+          composition (white-left / tea-garden-right) once that asset is
+          re-uploaded; see the desktopBg note near the imports above. */}
+      <motion.div style={{ y: smoothBgY }} className="absolute inset-0 z-0 hidden lg:block">
+        <img
+          src={desktopBg}
+          alt=""
+          className="w-full h-full object-cover"
+          style={{ objectPosition: '68% 50%', filter: 'brightness(0.97) saturate(0.92)' }}
+        />
+        {/* Minimal left-side readability scrim only — the real background
+            already bakes its own white-left area in, so this stays light
+            and will likely shrink further (or be removed) once swapped in. */}
+        <div className="absolute inset-0 bg-gradient-to-r from-white/70 via-white/25 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-white/30 via-transparent to-transparent" />
       </motion.div>
 
 
@@ -348,7 +398,7 @@ export default function Hero() {
 
       {/* ── MAIN CONTENT ── */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 lg:px-6">
-        <div className="grid lg:grid-cols-[1fr_auto_auto] gap-6 lg:gap-12 items-center pt-24 pb-16 lg:pt-0 lg:pb-0 lg:min-h-screen">
+        <div className="grid lg:hidden lg:grid-cols-[1fr_auto_auto] gap-6 lg:gap-12 items-center pt-24 pb-16 lg:pt-0 lg:pb-0 lg:min-h-screen">
 
           {/* ── LEFT: Text Content — order-2 on mobile (below profile) ── */}
           <motion.div
@@ -779,6 +829,344 @@ export default function Hero() {
               </motion.div>
             ))}
           </motion.div>
+
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════════════
+            DESKTOP HERO (1024px and up) — fully independent markup.
+            The mobile grid above is `lg:hidden`; this block is `hidden`
+            below `lg:`, so mobile/tablet renders exactly as before and
+            never downloads any of these desktop-only images.
+            Sizes below intentionally use fixed lg:/xl:/2xl: breakpoint
+            classes rather than vw-based fluid clamps, because the content
+            container is capped at max-w-7xl (1280px) — vw units would keep
+            growing past that cap on wide monitors and overflow their box.
+           ═══════════════════════════════════════════════════════════════ */}
+        <div className="hidden lg:grid grid-cols-12 gap-6 xl:gap-10 items-center min-h-screen py-16">
+
+          {/* ── LEFT: content ── */}
+          <motion.div
+            initial={{ opacity: 0, x: rm ? 0 : -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: rm ? 0.3 : 0.7, ease: "easeOut" }}
+            className="col-span-5 relative z-20"
+          >
+            {/* Availability pill */}
+            <motion.div
+              initial={{ opacity: 0, y: rm ? 0 : -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.5 }}
+              className="inline-flex items-center gap-2 bg-white/80 backdrop-blur border border-blue-200 rounded-full px-4 py-1.5 mb-6 shadow-sm"
+            >
+              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
+              <span className="text-xs font-mono text-primary uppercase tracking-widest whitespace-nowrap">Available for Hire</span>
+            </motion.div>
+
+            {/* Hi, I'm */}
+            <motion.p
+              initial={{ opacity: 0, x: rm ? 0 : -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.16, duration: 0.6 }}
+              className="text-foreground font-bold mb-1 text-3xl xl:text-4xl"
+              style={{ letterSpacing: '-0.02em' }}
+            >
+              Hi, I'm
+            </motion.p>
+
+            {/* Name + hand-drawn underline + three-strokes accent */}
+            <motion.div
+              initial={{ opacity: 0, x: rm ? 0 : -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.22, duration: 0.65 }}
+              className="relative mb-2"
+              style={{ display: 'inline-block', maxWidth: '100%' }}
+            >
+              <img
+                src={threeStrokes}
+                alt=""
+                aria-hidden="true"
+                className="absolute pointer-events-none select-none w-10 xl:w-12"
+                style={{ top: '-20px', right: '-30px', opacity: 0.9 }}
+              />
+              <h1
+                className="font-bold text-4xl xl:text-5xl 2xl:text-6xl"
+                style={{ lineHeight: 1.0, letterSpacing: '-0.02em' }}
+              >
+                <SplitText type="chars" delay={0.3} className="gradient-text">Nikhil Paharia</SplitText>
+              </h1>
+              <motion.svg
+                viewBox="60 4 640 29"
+                initial={{ clipPath: 'inset(0 100% 0 0)' }}
+                animate={{ clipPath: 'inset(0 0% 0 0)' }}
+                transition={{ duration: 0.8, ease: 'easeOut', delay: 0.85 }}
+                style={{ display: 'block', width: '100%', maxWidth: '380px', height: 'auto', marginTop: '2px' }}
+                aria-hidden="true"
+              >
+                <path
+                  d="M 34 30 C 30 21, 160 10, 270 9.5 C 350 9, 439 12, 500 30 C 452 25, 50 9.0, 270 24.5 C 290 24.5, 96 23.5, 14 29 Z"
+                  fill="#2563EB"
+                />
+              </motion.svg>
+            </motion.div>
+
+            {/* Subtitle */}
+            <motion.p
+              initial={{ opacity: 0, y: rm ? 0 : 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.34, duration: 0.55 }}
+              className="flex items-center gap-2.5 text-slate-800 font-semibold mb-5 text-lg xl:text-xl"
+            >
+              Full-Stack Developer <span className="text-primary font-bold">&</span> Video Editor
+            </motion.p>
+
+            {/* Location line */}
+            <motion.div
+              initial={{ opacity: 0, x: rm ? 0 : -16 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+              className="relative mb-5"
+              style={{ paddingRight: '64px' }}
+            >
+              <div className="flex items-center gap-1 flex-wrap">
+                <RiMapPinLine className="text-primary flex-shrink-0 text-lg" />
+                <p className="text-slate-700 font-medium flex items-center gap-2 flex-wrap text-base xl:text-lg">
+                  <span className="whitespace-nowrap">From the Hills of</span>
+                  <span className="relative inline-block assam-text gradient-text font-bold whitespace-nowrap" style={{ fontSize: '1.85em', lineHeight: 1, paddingBottom: '4px' }}>
+                    Assam
+                    <svg viewBox="5 0 58 5" fill="none" aria-hidden="true" style={{ position: 'absolute', bottom: 0, left: 4, width: '100%' }}>
+                      <path d="M1 3 Q29 -1 76 3" stroke="#1d6feb" strokeWidth="1.6" strokeLinecap="round" />
+                    </svg>
+                  </span>
+                  <span className="whitespace-nowrap">to the world</span>
+                </p>
+              </div>
+
+              {/* Real-transparency paper airplane, subtle float-in */}
+              <motion.img
+                src={cleanPaperPlane}
+                alt=""
+                aria-hidden="true"
+                className="absolute pointer-events-none select-none w-32 xl:w-36"
+                style={{ right: '-56px', top: '-42px' }}
+                initial={{ opacity: 0, y: rm ? 0 : 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.9, duration: 0.7 }}
+              />
+            </motion.div>
+
+            {/* Description */}
+            <motion.div
+              initial={{ opacity: 0, x: rm ? 0 : -16 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.46, duration: 0.6 }}
+              className="flex gap-3 mb-5 max-w-md"
+            >
+              <div className="w-[3px] rounded-full bg-primary flex-shrink-0 self-stretch" />
+              <p className="text-slate-600 leading-relaxed text-base">
+                I build fast, modern and scalable web experiences that help businesses grow and stand out.
+              </p>
+            </motion.div>
+
+            {/* Capabilities */}
+            <motion.div
+              initial={{ opacity: 0, y: rm ? 0 : 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.52, duration: 0.5 }}
+              className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-7"
+            >
+              <span className="inline-flex items-center gap-1.5 text-sm text-slate-600 font-medium whitespace-nowrap">
+                <RiCodeSSlashLine className="text-primary flex-shrink-0" /> Full-Stack Developer
+              </span>
+              <span className="text-slate-300">•</span>
+              <span className="inline-flex items-center gap-1.5 text-sm text-slate-600 font-medium whitespace-nowrap">
+                <RiVideoLine className="text-primary flex-shrink-0" /> Video Editor
+              </span>
+              <span className="text-slate-300">•</span>
+              <span className="inline-flex items-center gap-1.5 text-sm text-slate-600 font-medium whitespace-nowrap">
+                <RiPencilLine className="text-primary flex-shrink-0" /> Digital Creator
+              </span>
+            </motion.div>
+
+            {/* CTAs */}
+            <motion.div
+              initial={{ opacity: 0, y: rm ? 0 : 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.58, duration: 0.5 }}
+              className="flex items-center gap-4 mb-8"
+            >
+              <Magnetic range={60} strength={0.35} scaleHover={1.03}>
+                <a
+                  href="#contact"
+                  className="relative overflow-hidden cta-pulse inline-flex items-center justify-center gap-2 bg-primary text-white font-bold px-8 rounded-full shadow-lg hover:shadow-[0_0_30px_rgba(29,111,235,0.45)] hover:-translate-y-0.5 transition-all duration-300"
+                  style={{ fontSize: '0.95rem', height: '54px' }}
+                >
+                  <span className="cta-shimmer absolute inset-0 pointer-events-none" aria-hidden="true" />
+                  <RiSendPlaneLine className="flex-shrink-0" /> Hire Me <RiArrowRightLine className="flex-shrink-0 arrow-nudge" />
+                </a>
+              </Magnetic>
+              <Magnetic range={60} strength={0.35} scaleHover={1.03}>
+                <a
+                  href="#projects"
+                  className="relative overflow-hidden inline-flex items-center justify-center gap-2 bg-white/80 backdrop-blur border border-blue-200 text-primary font-bold px-8 rounded-full hover:bg-blue-50 hover:-translate-y-0.5 transition-all duration-300"
+                  style={{ fontSize: '0.95rem', height: '54px' }}
+                >
+                  <RiFolderOpenLine className="flex-shrink-0" /> View My Work
+                </a>
+              </Magnetic>
+            </motion.div>
+
+            {/* Social */}
+            <motion.div
+              initial={{ opacity: 0, y: rm ? 0 : 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.64, duration: 0.5 }}
+              className="flex items-center gap-3"
+            >
+              <div className="flex-shrink-0 leading-none">
+                <p style={{ fontFamily: "'Caveat',cursive", fontSize: '15px', color: '#1d6feb', lineHeight: 1.1, fontWeight: 700 }}>Let's</p>
+                <p style={{ fontFamily: "'Caveat',cursive", fontSize: '15px', color: '#1d6feb', lineHeight: 1.1, fontWeight: 700 }}>Connect</p>
+              </div>
+              <div className="flex items-center gap-2.5">
+                {socials.map((s, i) => (
+                  <motion.a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={s.label}
+                    whileHover={{ scale: 1.15, y: -3 }}
+                    whileTap={{ scale: 0.92 }}
+                    initial={{ opacity: 0, y: rm ? 0 : 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.7 + i * 0.05 }}
+                    className={`w-9 h-9 rounded-full bg-white/85 backdrop-blur border border-blue-100 flex items-center justify-center hover:border-primary transition-colors duration-200 text-base shadow-sm flex-shrink-0 ${s.color}`}
+                  >
+                    {s.icon}
+                  </motion.a>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* ── RIGHT: portrait + orbit + Assam card + stat cards ── */}
+          <div className="col-span-7 relative flex items-stretch gap-3 xl:gap-6">
+
+            {/* Portrait visual area */}
+            <div className="relative flex-1 flex items-center justify-center min-h-[480px] xl:min-h-[560px] 2xl:min-h-[620px]">
+
+              {/* Oval landscape — subtle secondary depth layer, sized off its
+                  own (relatively-positioned) container so it can't bleed
+                  past it at any breakpoint */}
+              <motion.img
+                src={ovalLandscape}
+                alt=""
+                aria-hidden="true"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.2 }}
+                transition={{ delay: 0.3, duration: 1 }}
+                className="absolute pointer-events-none select-none object-contain"
+                style={{ width: '42%', left: '0%', bottom: '0%' }}
+              />
+
+              {/* Brush stroke — connects the portrait to the landscape */}
+              <motion.img
+                src={brushStroke}
+                alt=""
+                aria-hidden="true"
+                initial={{ opacity: 0, scale: 0.94 }}
+                animate={{ opacity: 0.92, scale: 1 }}
+                transition={{ delay: 0.25, duration: 0.9, ease: "easeOut" }}
+                className="absolute pointer-events-none select-none w-[320px] xl:w-[420px] 2xl:w-[500px]"
+                style={{ top: '32%' }}
+              />
+
+              {/* Orbit ring */}
+              <svg
+                aria-hidden="true"
+                className="absolute pointer-events-none w-[300px] h-[300px] xl:w-[380px] xl:h-[380px] 2xl:w-[440px] 2xl:h-[440px]"
+                viewBox="0 0 200 200"
+              >
+                <circle cx="100" cy="100" r="92" fill="none" stroke="#1d6feb" strokeOpacity="0.3" strokeWidth="1" strokeDasharray="3 6" />
+              </svg>
+
+              {/* Orbit badges — React / Node / JS / </>, 4 max per spec */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.1, duration: 0.5, ease: "backOut" }} className="orbit-icon-1 absolute w-11 h-11 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
+                  <SiReact className="text-primary" style={{ fontSize: '18px' }} />
+                </motion.div>
+                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.22, duration: 0.5, ease: "backOut" }} className="orbit-icon-2 absolute w-11 h-11 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
+                  <SiNodedotjs className="text-green-500" style={{ fontSize: '18px' }} />
+                </motion.div>
+                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.34, duration: 0.5, ease: "backOut" }} className="orbit-icon-3 absolute w-10 h-10 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
+                  <SiJavascript className="text-yellow-400" style={{ fontSize: '16px' }} />
+                </motion.div>
+                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.46, duration: 0.5, ease: "backOut" }} className="orbit-icon-4 absolute w-10 h-10 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
+                  <RiCodeSSlashLine className="text-slate-700" style={{ fontSize: '16px' }} />
+                </motion.div>
+              </div>
+
+              {/* Portrait — untouched supplied asset */}
+              <motion.div
+                initial={{ opacity: 0, y: rm ? 0 : 26 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: rm ? 0.3 : 0.9, delay: 0.35, ease: "easeOut" }}
+                className="relative z-10 w-[240px] xl:w-[300px] 2xl:w-[360px]"
+              >
+                <img
+                  src={desktopPortrait}
+                  alt="Nikhil Paharia"
+                  className="w-full h-auto object-contain"
+                  style={{ filter: 'drop-shadow(0 30px 40px rgba(15,23,42,0.28))' }}
+                />
+              </motion.div>
+
+              {/* Assam location card */}
+              <motion.div
+                initial={{ opacity: 0, y: rm ? 0 : 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.1, duration: 0.6, ease: "easeOut" }}
+                className="absolute z-20 flex items-center gap-3 bg-white/70 backdrop-blur-md border border-white/80 rounded-2xl shadow-lg px-4 py-3 max-w-[250px]"
+                style={{ left: '0%', bottom: '2%' }}
+              >
+                <img src={assamMapImg} alt="" aria-hidden="true" className="w-10 h-10 object-contain flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-bold text-foreground flex items-center gap-1.5">
+                    From Assam, India <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
+                  </p>
+                  <p className="text-xs text-slate-500 leading-snug">Inspired by nature, driven by code.</p>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Stat cards — 4 per spec, stacked, far right */}
+            <motion.div
+              initial={{ opacity: 0, x: rm ? 0 : 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, delay: 0.5, ease: "easeOut" }}
+              className="flex flex-col gap-3 xl:gap-4 justify-center flex-shrink-0 w-[148px] xl:w-[168px]"
+            >
+              {desktopStats.map(({ value, label, Icon, color, bg }, i) => (
+                <motion.div
+                  key={label}
+                  initial={{ opacity: 0, x: rm ? 0 : 24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.55 + i * 0.1, duration: 0.5, type: "spring", stiffness: 160 }}
+                  whileHover={{ scale: 1.05, x: -4 }}
+                  className={`bg-gradient-to-br ${bg} border border-white/80 backdrop-blur rounded-2xl px-3.5 py-3 xl:px-4 xl:py-3.5 shadow-md flex items-center gap-2.5`}
+                >
+                  <div className="w-8 h-8 xl:w-9 xl:h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: color + '18' }}>
+                    <Icon style={{ color, fontSize: '16px' }} />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-base xl:text-lg font-bold leading-none mb-0.5" style={{ color }}>
+                      <StatCounter value={value} />
+                    </div>
+                    <div className="text-[10px] xl:text-[11px] font-semibold text-slate-700 leading-tight">{label}</div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
 
         </div>
       </div>
