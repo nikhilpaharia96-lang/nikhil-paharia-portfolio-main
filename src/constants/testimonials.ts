@@ -1,5 +1,4 @@
 import { Users, Layers, Star, ThumbsUp, Globe2 } from "lucide-react";
-import apunbazarLogo from "@/assets/images/testimonials/apunbazar-logo.png";
 import type { Testimonial, TrustStat, TrustedBrand } from "@/types/testimonial";
 
 /**
@@ -20,7 +19,10 @@ export const featuredTestimonial: Testimonial = {
   initials: "RS",
   avatarImg:
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTr7vL5Zw5rT5ojGVEJqaziZD5Jmi8l5K_BtahvYUh6Rw&s=10",
-  companyLogo: apunbazarLogo,
+  // Was a local imported asset (src/assets/images/testimonials/apunbazar-logo.png).
+  // Replace with your own hosted URL, e.g. after uploading to your CDN/GitHub:
+  companyLogo:
+    "https://raw.githubusercontent.com/nikhilpaharia96-lang/nikhil-paharia-portfolio-main/main/src/assets/images/testimonials/apunbazar-logo.png",
   flag: "🇮🇳",
   country: "India",
   projectType: "E-Commerce Platform",
@@ -42,7 +44,7 @@ export const testimonials: Testimonial[] = [
     avatarTo: "#a78bfa",
     initials: "AK",
     avatarImg:
-      "https://api.dicebear.com/9.x/avataaars/svg?seed=Anjan-Kalita-JagiroadCollege&backgroundColor=e0d4fd,f1e4fd",
+      "https://prideofassam.shop/cdn/shop/files/FB_IMG_1773725885203_600x600_crop_center.jpg?v=1774086143",
     companyLogo:
       "https://api.dicebear.com/9.x/initials/svg?seed=JagiroadCollege&backgroundType=gradientLinear&backgroundColor=7c3aed,a78bfa&fontFamily=Arial&fontWeight=700&radius=20",
     flag: "🇮🇳",
@@ -62,7 +64,7 @@ export const testimonials: Testimonial[] = [
     avatarFrom: "#059669",
     avatarTo: "#34d399",
     initials: "PD",
-    avatarImg: "https://api.dicebear.com/9.x/avataaars/svg?seed=Priya-Deka-FitBite&backgroundColor=c7f2dc,d4f7e5",
+    avatarImg: "https://www.shutterstock.com/image-photo/head-shot-portrait-beautiful-indian-260nw-2595362193.jpg",
     companyLogo:
       "https://api.dicebear.com/9.x/initials/svg?seed=FitBite&backgroundType=gradientLinear&backgroundColor=059669,34d399&fontFamily=Arial&fontWeight=700&radius=20",
     flag: "🇮🇳",
@@ -82,7 +84,7 @@ export const testimonials: Testimonial[] = [
     avatarFrom: "#f59e0b",
     avatarTo: "#fbbf24",
     initials: "MB",
-    avatarImg: "https://api.dicebear.com/9.x/avataaars/svg?seed=Meera-Bora-TravelAssam&backgroundColor=fde7c4,ffe9c7",
+    avatarImg: "https://www.shutterstock.com/image-photo/happy-handsome-young-indian-man-260nw-2315729087.jpg",
     companyLogo:
       "https://api.dicebear.com/9.x/initials/svg?seed=TravelAssam&backgroundType=gradientLinear&backgroundColor=f59e0b,fbbf24&fontFamily=Arial&fontWeight=700&radius=20",
     flag: "🇮🇳",
@@ -133,6 +135,29 @@ export const testimonials: Testimonial[] = [
     content:
       "Rare to find someone who edits with this much taste. Every cut, transition and grade felt intentional. The campaign outperformed everything we've run before.",
   },
+  // ─────────────────────────────────────────────────────────────
+  // 👇 EXAMPLE: naya real testimonial add karne ka tarika (URL system).
+  // Apna real client ka data daal ke ise uncomment kar do, ya isko
+  // template ki tarah copy karke naya object bana lo.
+  // ─────────────────────────────────────────────────────────────
+  // {
+  //   id: 6,
+  //   name: "Real Client Name",
+  //   role: "Their Role",
+  //   company: "Their Company",
+  //   companyShort: "TC",
+  //   companyColor: "#2563eb",
+  //   avatarFrom: "#2563eb",
+  //   avatarTo: "#60a5fa",
+  //   initials: "RC",
+  //   avatarImg: "https://your-image-url.com/client-photo.jpg",
+  //   companyLogo: "https://your-image-url.com/client-logo.png",
+  //   flag: "🇮🇳",
+  //   country: "India",
+  //   projectType: "Type of project",
+  //   result: "↑ 30% Something",
+  //   content: "Client ka actual quote yaha likho.",
+  // },
 ];
 
 /**
