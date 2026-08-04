@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import teaBg from "@/assets/images/tea-garden-hero.webp";
+import teaBg from "@/assets/images/tea-sunset-person-wide.webp";
 import { useReducedFx } from "@/hooks/use-reduced-fx";
 
 export default function BackgroundGlow() {
