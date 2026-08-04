@@ -25,7 +25,7 @@ import {
   SiDavinciresolve,
 } from "react-icons/si";
 import { CodeXml, ArrowUpRight, CheckCircle2, Sparkles } from "lucide-react";
-import teaBg from "../assets/images/tea-sunset-landscape.webp";
+import teaBg from "../assets/images/tea-sunset-person-wide.webp";
 import premiereProLogo from "../assets/logos/premiere-pro.svg";
 import afterEffectsLogo from "../assets/logos/after-effects.svg";
 import SplitText from "@/components/ui/SplitText";
