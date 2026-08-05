@@ -114,7 +114,7 @@ export default function Navbar() {
       className={`fixed top-0 left-0 right-0 z-[200] transition-all duration-500 ${
         isScrolled 
           ? "py-2.5 lg:py-3 bg-white/75 backdrop-blur-md border-b border-blue-100/40 shadow-[0_2px_30px_rgba(29,111,235,0.06)]" 
-          : "py-4 lg:py-6 bg-transparent"
+          : "py-4 lg:py-6 bg-transparent lg:bg-white/5 lg:backdrop-blur-[2px]"
       }`}
       style={{ paddingTop: `max(env(safe-area-inset-top, 0px), ${isScrolled ? '10px' : '16px'})` }}
     >
@@ -131,8 +131,8 @@ export default function Navbar() {
         </Magnetic>
 
         {/* Desktop Nav */}
-        <div className="hidden lg:flex items-center gap-8">
-          <div className="flex items-center gap-8">
+        <div className="hidden lg:flex items-center gap-8 xl:gap-10">
+          <div className="flex items-center gap-7 xl:gap-8">
             {navLinks.map((link) => {
               const isActive = activeSection === link.href.substring(1);
               return (
@@ -140,7 +140,7 @@ export default function Navbar() {
                   key={link.name}
                   href={link.href}
                   onClick={(e) => { e.preventDefault(); scrollTo(link.href); }}
-                  className={`relative text-xs font-bold transition-all duration-300 uppercase tracking-widest py-1.5 px-0.5 hover:text-primary ${
+                  className={`relative flex items-center text-xs font-bold transition-all duration-300 uppercase tracking-widest py-2 px-0.5 hover:text-primary ${
                     isActive ? "text-primary text-glow" : "text-slate-600"
                   }`}
                 >
@@ -148,7 +148,7 @@ export default function Navbar() {
                   {isActive && (
                     <motion.span
                       layoutId="activeNavUnderline"
-                      className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary rounded-full shadow-[0_1px_8px_rgba(29,111,235,0.6)]"
+                      className="absolute -bottom-0.5 left-0 right-0 h-[2px] bg-primary rounded-full shadow-[0_1px_8px_rgba(29,111,235,0.6)]"
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
                   )}
@@ -163,7 +163,7 @@ export default function Navbar() {
             <a
               href="#contact"
               onClick={(e) => { e.preventDefault(); scrollTo("#contact"); }}
-              className="border border-primary text-primary hover:bg-primary hover:text-white hover:shadow-[0_0_20px_rgba(29,111,235,0.3)] transition-all duration-300 rounded-full px-5 py-2 text-xs font-bold shadow-sm"
+              className="border border-primary text-primary hover:bg-primary hover:text-white hover:shadow-[0_0_20px_rgba(29,111,235,0.3)] hover:scale-[1.03] transition-all duration-300 rounded-full px-6 py-2.5 text-xs font-bold shadow-sm"
             >
               Hire Me
             </a>
