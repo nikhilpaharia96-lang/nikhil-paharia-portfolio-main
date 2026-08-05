@@ -1112,7 +1112,7 @@ export default function Hero() {
                   a wrapping div so it never fights the icon's own entrance
                   animation. */}
               <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-                <div className="orbit-bob-a absolute" style={{ top: '4%', left: '2%' }}>
+                <div className="orbit-bob-a absolute" style={{ top: '2%', left: '-4%' }}>
                   <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.1, duration: 0.5, ease: "backOut" }} className="w-11 h-11 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
                     <SiReact className="text-primary" style={{ fontSize: '18px' }} />
                   </motion.div>
@@ -1122,7 +1122,7 @@ export default function Hero() {
                     <SiNodedotjs className="text-green-500" style={{ fontSize: '18px' }} />
                   </motion.div>
                 </div>
-                <div className="orbit-bob-c absolute" style={{ bottom: '4%', left: '8%' }}>
+                <div className="orbit-bob-c absolute" style={{ bottom: '2%', left: '2%' }}>
                   <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.34, duration: 0.5, ease: "backOut" }} className="w-10 h-10 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
                     <SiJavascript className="text-yellow-400" style={{ fontSize: '16px' }} />
                   </motion.div>
@@ -1134,11 +1134,12 @@ export default function Hero() {
                 </div>
               </div>
 
-              {/* Portrait — untouched supplied asset, only scaled up ~17%
-                  and nudged left/down so it reads as the dominant focal
-                  point of the right half. Head stays clear of the navbar
-                  and orbit icons; nothing is cropped. */}
-              <div className="relative z-10 w-[280px] xl:w-[350px] 2xl:w-[420px]" style={{ transform: 'translate(-3%, 4%)' }}>
+              {/* Portrait — untouched supplied asset. Sized up further
+                  (~13% on top of the previous pass) and shifted further
+                  left so the person clearly reads bigger than the
+                  landscape. Head stays clear of the navbar and orbit
+                  icons; nothing is cropped. */}
+              <div className="relative z-10 w-[320px] xl:w-[400px] 2xl:w-[480px]" style={{ transform: 'translate(-9%, 5%)' }}>
                 <motion.div
                   initial={{ opacity: 0, y: rm ? 0 : 26 }}
                   animate={{ opacity: 1, y: 0 }}
