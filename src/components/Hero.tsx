@@ -297,28 +297,18 @@ export default function Hero() {
         }
         .tagline-svg { animation: taglineGlow 4s ease-in-out infinite; }
 
-        /* circular GPU-accelerated orbits for tech bubbles */
-        @keyframes orbit-react {
-          from { transform: rotate(0deg) translate3d(70px, 0, 0) rotate(0deg); }
-          to   { transform: rotate(360deg) translate3d(70px, 0, 0) rotate(-360deg); }
-        }
-        @keyframes orbit-node {
-          from { transform: rotate(90deg) translate3d(85px, 0, 0) rotate(-90deg); }
-          to   { transform: rotate(450deg) translate3d(85px, 0, 0) rotate(-450deg); }
-        }
-        @keyframes orbit-js {
-          from { transform: rotate(180deg) translate3d(75px, 0, 0) rotate(-180deg); }
-          to   { transform: rotate(540deg) translate3d(75px, 0, 0) rotate(-540deg); }
-        }
-        @keyframes orbit-tailwind {
-          from { transform: rotate(270deg) translate3d(80px, 0, 0) rotate(-270deg); }
-          to   { transform: rotate(630deg) translate3d(80px, 0, 0) rotate(-630deg); }
-        }
+        /* Fixed-quadrant idle bobs for the tech icon badges — small vertical
+           drift only, so each icon stays parked in its assigned corner
+           (never sweeps across the face like a full orbit would) */
+        @keyframes iconBobA { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
+        @keyframes iconBobB { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(5px); } }
+        @keyframes iconBobC { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(-4px); } }
+        @keyframes iconBobD { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(4px); } }
 
-        .orbit-icon-1 { animation: orbit-react 22s linear infinite !important; }
-        .orbit-icon-2 { animation: orbit-node 28s linear infinite !important; }
-        .orbit-icon-3 { animation: orbit-js 25s linear infinite !important; }
-        .orbit-icon-4 { animation: orbit-tailwind 32s linear infinite !important; }
+        .orbit-bob-a { animation: iconBobA 4.6s ease-in-out infinite; }
+        .orbit-bob-b { animation: iconBobB 5.2s ease-in-out infinite 0.4s; }
+        .orbit-bob-c { animation: iconBobC 4.8s ease-in-out infinite 0.8s; }
+        .orbit-bob-d { animation: iconBobD 5.6s ease-in-out infinite 1.2s; }
 
 
         /* ── Cinematic profile reveal (matches the uploaded reference video) ── */
@@ -844,6 +834,28 @@ export default function Hero() {
            ═══════════════════════════════════════════════════════════════ */}
         <div className="hidden lg:grid grid-cols-12 gap-6 xl:gap-10 items-center min-h-screen py-16">
 
+          {/* Flight path — subtle dotted trail that carries the paper
+              airplane's storytelling from the Assam/location line toward
+              the portrait, staying secondary to the text and figure */}
+          <svg
+            className="absolute inset-0 w-full h-full pointer-events-none z-10"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <motion.path
+              d="M 33 45 Q 46 35 59 47"
+              fill="none"
+              stroke="#1d6feb"
+              strokeWidth="0.15"
+              strokeDasharray="1.1 1.6"
+              strokeLinecap="round"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 0.4 }}
+              transition={{ delay: 1.0, duration: 1.4, ease: "easeOut" }}
+            />
+          </svg>
+
           {/* ── LEFT: content ── */}
           <motion.div
             initial={{ opacity: 0, x: rm ? 0 : -30 }}
@@ -856,7 +868,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: rm ? 0 : -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.5 }}
-              className="inline-flex items-center gap-2 bg-white/80 backdrop-blur border border-blue-200 rounded-full px-4 py-1.5 mb-6 shadow-sm"
+              className="inline-flex items-center gap-2 bg-white/80 backdrop-blur border border-blue-200 rounded-full px-4 py-1.5 mb-4 shadow-sm"
             >
               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
               <span className="text-xs font-mono text-primary uppercase tracking-widest whitespace-nowrap">Available for Hire</span>
@@ -885,8 +897,8 @@ export default function Hero() {
                 src={threeStrokes}
                 alt=""
                 aria-hidden="true"
-                className="absolute pointer-events-none select-none w-10 xl:w-12"
-                style={{ top: '-20px', right: '-30px', opacity: 0.9 }}
+                className="absolute pointer-events-none select-none w-9 xl:w-11"
+                style={{ top: '-16px', right: '-24px', opacity: 0.85 }}
               />
               <h1
                 className="font-bold text-4xl xl:text-5xl 2xl:text-6xl"
@@ -899,7 +911,7 @@ export default function Hero() {
                 initial={{ clipPath: 'inset(0 100% 0 0)' }}
                 animate={{ clipPath: 'inset(0 0% 0 0)' }}
                 transition={{ duration: 0.8, ease: 'easeOut', delay: 0.85 }}
-                style={{ display: 'block', width: '100%', maxWidth: '380px', height: 'auto', marginTop: '2px' }}
+                style={{ display: 'block', width: '100%', maxWidth: '340px', height: 'auto', marginTop: '3px' }}
                 aria-hidden="true"
               >
                 <path
@@ -914,7 +926,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: rm ? 0 : 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.34, duration: 0.55 }}
-              className="flex items-center gap-2.5 text-slate-800 font-semibold mb-5 text-lg xl:text-xl"
+              className="flex items-center gap-2.5 text-slate-800 font-semibold mb-4 text-lg xl:text-xl"
             >
               Full-Stack Developer <span className="text-primary font-bold">&</span> Video Editor
             </motion.p>
@@ -924,7 +936,7 @@ export default function Hero() {
               initial={{ opacity: 0, x: rm ? 0 : -16 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4, duration: 0.6 }}
-              className="relative mb-5"
+              className="relative mb-4"
               style={{ paddingRight: '64px' }}
             >
               <div className="flex items-center gap-1 flex-wrap">
@@ -959,7 +971,7 @@ export default function Hero() {
               initial={{ opacity: 0, x: rm ? 0 : -16 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.46, duration: 0.6 }}
-              className="flex gap-3 mb-5 max-w-md"
+              className="flex gap-3 mb-4 max-w-md"
             >
               <div className="w-[3px] rounded-full bg-primary flex-shrink-0 self-stretch" />
               <p className="text-slate-600 leading-relaxed text-base">
@@ -972,7 +984,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: rm ? 0 : 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.52, duration: 0.5 }}
-              className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-7"
+              className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-5"
             >
               <span className="inline-flex items-center gap-1.5 text-sm text-slate-600 font-medium whitespace-nowrap">
                 <RiCodeSSlashLine className="text-primary flex-shrink-0" /> Full-Stack Developer
@@ -992,7 +1004,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: rm ? 0 : 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.58, duration: 0.5 }}
-              className="flex items-center gap-4 mb-8"
+              className="flex items-center gap-4 mb-6"
             >
               <Magnetic range={60} strength={0.35} scaleHover={1.03}>
                 <a
@@ -1068,67 +1080,90 @@ export default function Hero() {
                 style={{ width: '42%', left: '0%', bottom: '0%' }}
               />
 
-              {/* Brush stroke — connects the portrait to the landscape */}
+              {/* Brush stroke — widened and rotated so it reads as one diagonal
+                  sweep from the white left area toward the tea garden, rather
+                  than a separate horizontal patch. Stays behind the portrait. */}
               <motion.img
                 src={brushStroke}
                 alt=""
                 aria-hidden="true"
                 initial={{ opacity: 0, scale: 0.94 }}
-                animate={{ opacity: 0.92, scale: 1 }}
+                animate={{ opacity: 0.85, scale: 1 }}
                 transition={{ delay: 0.25, duration: 0.9, ease: "easeOut" }}
-                className="absolute pointer-events-none select-none w-[320px] xl:w-[420px] 2xl:w-[500px]"
-                style={{ top: '32%' }}
+                className="absolute pointer-events-none select-none w-[420px] xl:w-[540px] 2xl:w-[640px] z-0"
+                style={{ top: '22%', left: '-12%', transform: 'rotate(-7deg)' }}
               />
 
-              {/* Orbit ring */}
+              {/* Orbit ring — subtle dotted/dashed path only, sized to sit
+                  just outside the enlarged portrait */}
               <svg
                 aria-hidden="true"
-                className="absolute pointer-events-none w-[300px] h-[300px] xl:w-[380px] xl:h-[380px] 2xl:w-[440px] 2xl:h-[440px]"
+                className="absolute pointer-events-none w-[320px] h-[320px] xl:w-[400px] xl:h-[400px] 2xl:w-[470px] 2xl:h-[470px]"
                 viewBox="0 0 200 200"
+                style={{ opacity: 0.7 }}
               >
-                <circle cx="100" cy="100" r="92" fill="none" stroke="#1d6feb" strokeOpacity="0.3" strokeWidth="1" strokeDasharray="3 6" />
+                <circle cx="100" cy="100" r="94" fill="none" stroke="#1d6feb" strokeOpacity="0.28" strokeWidth="1" strokeDasharray="3 6" />
               </svg>
 
-              {/* Orbit badges — React / Node / JS / </>, 4 max per spec */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
-                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.1, duration: 0.5, ease: "backOut" }} className="orbit-icon-1 absolute w-11 h-11 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
-                  <SiReact className="text-primary" style={{ fontSize: '18px' }} />
-                </motion.div>
-                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.22, duration: 0.5, ease: "backOut" }} className="orbit-icon-2 absolute w-11 h-11 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
-                  <SiNodedotjs className="text-green-500" style={{ fontSize: '18px' }} />
-                </motion.div>
-                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.34, duration: 0.5, ease: "backOut" }} className="orbit-icon-3 absolute w-10 h-10 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
-                  <SiJavascript className="text-yellow-400" style={{ fontSize: '16px' }} />
-                </motion.div>
-                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.46, duration: 0.5, ease: "backOut" }} className="orbit-icon-4 absolute w-10 h-10 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
-                  <RiCodeSSlashLine className="text-slate-700" style={{ fontSize: '16px' }} />
+              {/* Orbit badges — React / Node / JS / </>, 4 max per spec.
+                  Each icon is PARKED at a fixed quadrant (not continuously
+                  orbiting), so it can never drift over the face. Only a
+                  small idle bob (a few px) is applied, and it's applied to
+                  a wrapping div so it never fights the icon's own entrance
+                  animation. */}
+              <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+                <div className="orbit-bob-a absolute" style={{ top: '4%', left: '2%' }}>
+                  <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.1, duration: 0.5, ease: "backOut" }} className="w-11 h-11 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
+                    <SiReact className="text-primary" style={{ fontSize: '18px' }} />
+                  </motion.div>
+                </div>
+                <div className="orbit-bob-b absolute" style={{ top: '40%', right: '-2%' }}>
+                  <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.22, duration: 0.5, ease: "backOut" }} className="w-11 h-11 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
+                    <SiNodedotjs className="text-green-500" style={{ fontSize: '18px' }} />
+                  </motion.div>
+                </div>
+                <div className="orbit-bob-c absolute" style={{ bottom: '4%', left: '8%' }}>
+                  <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.34, duration: 0.5, ease: "backOut" }} className="w-10 h-10 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
+                    <SiJavascript className="text-yellow-400" style={{ fontSize: '16px' }} />
+                  </motion.div>
+                </div>
+                <div className="orbit-bob-d absolute" style={{ bottom: '12%', right: '2%' }}>
+                  <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.46, duration: 0.5, ease: "backOut" }} className="w-10 h-10 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
+                    <RiCodeSSlashLine className="text-slate-700" style={{ fontSize: '16px' }} />
+                  </motion.div>
+                </div>
+              </div>
+
+              {/* Portrait — untouched supplied asset, only scaled up ~17%
+                  and nudged left/down so it reads as the dominant focal
+                  point of the right half. Head stays clear of the navbar
+                  and orbit icons; nothing is cropped. */}
+              <div className="relative z-10 w-[280px] xl:w-[350px] 2xl:w-[420px]" style={{ transform: 'translate(-3%, 4%)' }}>
+                <motion.div
+                  initial={{ opacity: 0, y: rm ? 0 : 26 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: rm ? 0.3 : 0.9, delay: 0.35, ease: "easeOut" }}
+                >
+                  <img
+                    src={desktopPortrait}
+                    alt="Nikhil Paharia"
+                    className="w-full h-auto object-contain"
+                    style={{ filter: 'drop-shadow(0 30px 40px rgba(15,23,42,0.28))' }}
+                  />
                 </motion.div>
               </div>
 
-              {/* Portrait — untouched supplied asset */}
-              <motion.div
-                initial={{ opacity: 0, y: rm ? 0 : 26 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: rm ? 0.3 : 0.9, delay: 0.35, ease: "easeOut" }}
-                className="relative z-10 w-[240px] xl:w-[300px] 2xl:w-[360px]"
-              >
-                <img
-                  src={desktopPortrait}
-                  alt="Nikhil Paharia"
-                  className="w-full h-auto object-contain"
-                  style={{ filter: 'drop-shadow(0 30px 40px rgba(15,23,42,0.28))' }}
-                />
-              </motion.div>
-
-              {/* Assam location card */}
+              {/* Assam location card — moved off the detached bottom-left
+                  spot onto the portrait's lower-right / torso-bottom area,
+                  as a premium floating glass card with a subtle blue glow */}
               <motion.div
                 initial={{ opacity: 0, y: rm ? 0 : 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.1, duration: 0.6, ease: "easeOut" }}
-                className="absolute z-20 flex items-center gap-3 bg-white/70 backdrop-blur-md border border-white/80 rounded-2xl shadow-lg px-4 py-3 max-w-[250px]"
-                style={{ left: '0%', bottom: '2%' }}
+                className="absolute z-20 flex items-center gap-3 bg-white/75 backdrop-blur-md border border-blue-100/70 rounded-2xl px-4 py-3 max-w-[250px]"
+                style={{ right: '2%', bottom: '8%', boxShadow: '0 12px 32px rgba(29,111,235,0.16), 0 0 0 1px rgba(29,111,235,0.06)' }}
               >
-                <img src={assamMapImg} alt="" aria-hidden="true" className="w-10 h-10 object-contain flex-shrink-0" />
+                <img src={assamMapImg} alt="" aria-hidden="true" className="w-12 h-12 object-contain flex-shrink-0" />
                 <div>
                   <p className="text-sm font-bold text-foreground flex items-center gap-1.5">
                     From Assam, India <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
