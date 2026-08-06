@@ -177,15 +177,67 @@ export const trustStats: TrustStat[] = [
 ];
 
 /**
- * "Trusted by People & Brands" — derived directly from the real clients
- * already in `allTestimonials` above, so this can never drift out of sync
- * with actual testimonial data or list a brand/company that isn't real.
- * Each entry reuses that client's existing logo (a real asset for ApunBazar,
- * a generated initials badge for the rest — same as their avatar system).
+ * "Trusted by People & Brands" — its own dedicated logo list, separate from
+ * the testimonials above. Pehle yeh list testimonials se auto-generate hoti
+ * thi (1 testimonial = 1 logo), isliye naya brand add karne ke liye poora
+ * testimonial likhna padta tha. Ab yeh apna alag URL-based system hai —
+ * bas logo ka URL paste karo, testimonial likhne ki zarurat nahi.
+ *
+ * Naya logo add karne ka tarika:
+ *   1. Neeche list mein ek naya object add karo (comma se separate).
+ *   2. `logo` mein apni image ka direct URL daalo — ya to:
+ *        a) kisi bhi image-hosting URL (imgur, cloudinary, apna CDN, etc.), ya
+ *        b) GitHub mein image upload karke uska "raw" URL, jaise:
+ *           https://raw.githubusercontent.com/<user>/<repo>/main/path/to/logo.png
+ *   3. Agar logo URL load nahi hota (broken link), to automatically `shortName`
+ *      ke initials wala badge dikh jaayega — koi crash nahi hoga.
+ *   4. `color` us initials-badge ka background color hai (jab tak real logo load ho).
  */
-export const trustedBrands: TrustedBrand[] = allTestimonials.map((t) => ({
-  name: t.company,
-  logo: t.companyLogo,
-  shortName: t.companyShort,
-  color: t.companyColor,
-}));
+export const trustedBrands: TrustedBrand[] = [
+  {
+    name: "ApunBazar",
+    logo: "https://raw.githubusercontent.com/nikhilpaharia96-lang/nikhil-paharia-portfolio-main/main/src/assets/images/testimonials/apunbazar-logo.png",
+    shortName: "AB",
+    color: "#1d6feb",
+  },
+  {
+    name: "Jagiroad College",
+    logo: "https://api.dicebear.com/9.x/initials/svg?seed=JagiroadCollege&backgroundType=gradientLinear&backgroundColor=7c3aed,a78bfa&fontFamily=Arial&fontWeight=700&radius=20",
+    shortName: "JC",
+    color: "#7c3aed",
+  },
+  {
+    name: "FitBite",
+    logo: "https://api.dicebear.com/9.x/initials/svg?seed=FitBite&backgroundType=gradientLinear&backgroundColor=059669,34d399&fontFamily=Arial&fontWeight=700&radius=20",
+    shortName: "FB",
+    color: "#059669",
+  },
+  {
+    name: "Travel Assam",
+    logo: "https://api.dicebear.com/9.x/initials/svg?seed=TravelAssam&backgroundType=gradientLinear&backgroundColor=f59e0b,fbbf24&fontFamily=Arial&fontWeight=700&radius=20",
+    shortName: "TA",
+    color: "#f59e0b",
+  },
+  {
+    name: "Nexlify",
+    logo: "https://api.dicebear.com/9.x/initials/svg?seed=Nexlify&backgroundType=gradientLinear&backgroundColor=0ea5e9,38bdf8&fontFamily=Arial&fontWeight=700&radius=20",
+    shortName: "NX",
+    color: "#0ea5e9",
+  },
+  {
+    name: "PixelCraft Studio",
+    logo: "https://api.dicebear.com/9.x/initials/svg?seed=PixelCraftStudio&backgroundType=gradientLinear&backgroundColor=e1306c,f472b6&fontFamily=Arial&fontWeight=700&radius=20",
+    shortName: "PC",
+    color: "#e1306c",
+  },
+  // ─────────────────────────────────────────────────────────────
+  // 👇 EXAMPLE: naya brand logo add karne ka tarika — bas uncomment
+  // karke apna data daal do.
+  // ─────────────────────────────────────────────────────────────
+  // {
+  //   name: "Naya Client Ka Naam",
+  //   logo: "https://your-image-url.com/logo.png",
+  //   shortName: "NC",
+  //   color: "#2563eb",
+  // },
+];
