@@ -214,7 +214,7 @@ export const trustedBrands: TrustedBrand[] = [
   },
   {
     name: "Travel Assam",
-    logo: "https://api.dicebear.com/9.x/initials/svg?seed=TravelAssam&backgroundType=gradientLinear&backgroundColor=f59e0b,fbbf24&fontFamily=Arial&fontWeight=700&radius=20",
+    logo: "https://assamtourism.gov.in/images/logo.png",
     shortName: "TA",
     color: "#f59e0b",
   },
