@@ -1073,11 +1073,11 @@ export default function Hero() {
                 src={ovalLandscape}
                 alt=""
                 aria-hidden="true"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.2 }}
+                initial={{ opacity: 2 }}
+                animate={{ opacity: 2.2 }}
                 transition={{ delay: 0.3, duration: 1 }}
                 className="absolute pointer-events-none select-none object-contain"
-                style={{ width: '42%', left: '0%', bottom: '0%' }}
+                style={{ width: '82%', left: '10%', bottom: '-2%' }}
               />
 
               {/* Brush stroke — widened and rotated so it reads as one diagonal
@@ -1091,7 +1091,7 @@ export default function Hero() {
                 animate={{ opacity: 0.85, scale: 1 }}
                 transition={{ delay: 0.25, duration: 0.9, ease: "easeOut" }}
                 className="absolute pointer-events-none select-none w-[420px] xl:w-[540px] 2xl:w-[640px] z-0"
-                style={{ top: '22%', left: '-12%', transform: 'rotate(-7deg)' }}
+                style={{ top: '36%', left: '2%', transform: 'rotate(-7deg)' }}
               />
 
               {/* Orbit ring — subtle dotted/dashed path only, sized to sit
@@ -1112,17 +1112,17 @@ export default function Hero() {
                   a wrapping div so it never fights the icon's own entrance
                   animation. */}
               <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-                <div className="orbit-bob-a absolute" style={{ top: '2%', left: '-4%' }}>
+                <div className="orbit-bob-a absolute" style={{ top: '20%', left: '6%' }}>
                   <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.1, duration: 0.5, ease: "backOut" }} className="w-11 h-11 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
                     <SiReact className="text-primary" style={{ fontSize: '18px' }} />
                   </motion.div>
                 </div>
-                <div className="orbit-bob-b absolute" style={{ top: '40%', right: '-2%' }}>
+                <div className="orbit-bob-b absolute" style={{ top: '30%', right: '7%' }}>
                   <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.22, duration: 0.5, ease: "backOut" }} className="w-11 h-11 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
                     <SiNodedotjs className="text-green-500" style={{ fontSize: '18px' }} />
                   </motion.div>
                 </div>
-                <div className="orbit-bob-c absolute" style={{ bottom: '2%', left: '2%' }}>
+                <div className="orbit-bob-c absolute" style={{ bottom: '7%', left: '2%' }}>
                   <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.34, duration: 0.5, ease: "backOut" }} className="w-10 h-10 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
                     <SiJavascript className="text-yellow-400" style={{ fontSize: '16px' }} />
                   </motion.div>
@@ -1139,7 +1139,7 @@ export default function Hero() {
                   left so the person clearly reads bigger than the
                   landscape. Head stays clear of the navbar and orbit
                   icons; nothing is cropped. */}
-              <div className="relative z-10 w-[320px] xl:w-[400px] 2xl:w-[480px]" style={{ transform: 'translate(-9%, 5%)' }}>
+              <div className="relative z-0 w-[320px] xl:w-[400px] 2xl:w-[480px]" style={{ transform: 'translate(5%, 5%)' }}>
                 <motion.div
                   initial={{ opacity: 0, y: rm ? 0 : 26 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -1167,7 +1167,7 @@ export default function Hero() {
                 <img src={assamMapImg} alt="" aria-hidden="true" className="w-12 h-12 object-contain flex-shrink-0" />
                 <div>
                   <p className="text-sm font-bold text-foreground flex items-center gap-1.5">
-                    From Assam, India <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
+                    North East, India <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
                   </p>
                   <p className="text-xs text-slate-500 leading-snug">Inspired by nature, driven by code.</p>
                 </div>
