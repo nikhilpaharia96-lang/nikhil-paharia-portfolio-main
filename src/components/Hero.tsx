@@ -6,7 +6,6 @@ import { motion, useScroll, useTransform, useSpring, useVelocity, useMotionValue
 import { useRef, useState, useEffect } from "react";
 import profileImg from "../assets/images/profile-nobg.png";
 import teaBg from "../assets/images/file_00000000cba071faad0a7577f42dd911.png";
-";
 import SplitText from "@/components/ui/SplitText";
 import Magnetic from "@/components/ui/Magnetic";
 
