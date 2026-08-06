@@ -5,7 +5,7 @@ import { FaXTwitter } from "react-icons/fa6";
 import { motion, useScroll, useTransform, useSpring, useVelocity, useMotionValueEvent, useInView, useReducedMotion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import profileImg from "../assets/images/profile-nobg.png";
-import teaBg from "../assets/images/file_0000000066b08207b18b1ec1e8269869.png";
+import teaBg from "../assets/images/tea-sunset-portrait.webp";
 import SplitText from "@/components/ui/SplitText";
 import Magnetic from "@/components/ui/Magnetic";
 
@@ -21,14 +21,12 @@ import assamMapImg from "../assets/images/assam-map-transparent.png";
 // paper-airplane.png has the same baked-checkerboard problem; this Picsart
 // export of the identical artwork has genuine transparency.
 import cleanPaperPlane from "../assets/images/Picsart_26-08-04_10-20-09-507.png";
-
-// NOTE: "Desktop Background 01" (the intended white-left / tea-garden-right
-// composition) was uploaded to the repo as a 0-byte/corrupted file, so it
-// cannot be used yet. `teaBg` (the same landscape photo already used by the
-// mobile Hero) is used below as a TEMPORARY stand-in with adjusted
-// object-position — swap this for the real asset the moment it's
-// re-uploaded with valid image data; no other code needs to change.
-const desktopBg = teaBg;
+// Wide, white-left / tea-garden-right composition — built for landscape
+// desktop viewports (there's a blank left zone by design for the hero copy
+// to sit on). MOBILE uses a different, portrait-oriented photo (`teaBg`
+// above) since a wide image cropped to a tall phone screen would mostly
+// show the blank left side instead of the tea garden.
+import desktopBg from "../assets/images/file_0000000066b08207b18b1ec1e8269869.png";
 
 const cloudImg = "https://www.gopalkrishnatea.com/static/media/cloud2.895414a23f99e60c66ea.webp";
 
@@ -199,9 +197,8 @@ export default function Hero() {
         <div className="absolute inset-0 bg-gradient-to-t from-white/50 via-transparent to-white/15" />
       </motion.div>
 
-      {/* Background — DESKTOP ONLY (1024px+). Uses the "Desktop Background 01"
-          composition (white-left / tea-garden-right) once that asset is
-          re-uploaded; see the desktopBg note near the imports above. */}
+      {/* Background — DESKTOP ONLY (1024px+). White-left / tea-garden-right
+          composition, distinct from the mobile background above. */}
       <motion.div style={{ y: smoothBgY }} className="absolute inset-0 z-0 hidden lg:block">
         <img
           src={desktopBg}
