@@ -196,7 +196,7 @@ export const trustStats: TrustStat[] = [
 export const trustedBrands: TrustedBrand[] = [
   {
     name: "ApunBazar",
-    logo: "https://raw.githubusercontent.com/nikhilpaharia96-lang/nikhil-paharia-portfolio-main/main/src/assets/images/testimonials/apunbazar-logo.png",
+    logo: "https://trulyassamtea.com/wp-content/uploads/2025/05/Truly-Assam-logo-d-bg.svg",
     shortName: "AB",
     color: "#1d6feb",
   },
