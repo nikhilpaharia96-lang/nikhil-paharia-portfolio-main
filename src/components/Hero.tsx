@@ -5,7 +5,8 @@ import { FaXTwitter } from "react-icons/fa6";
 import { motion, useScroll, useTransform, useSpring, useVelocity, useMotionValueEvent, useInView, useReducedMotion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import profileImg from "../assets/images/profile-nobg.png";
-import teaBg from "../assets/images/tea-sunset-portrait.webp";
+import teaBg from "../assets/images/file_00000000cba071faad0a7577f42dd911.png
+";
 import SplitText from "@/components/ui/SplitText";
 import Magnetic from "@/components/ui/Magnetic";
 
