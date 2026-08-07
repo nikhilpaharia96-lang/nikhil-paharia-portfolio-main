@@ -219,8 +219,8 @@ export const trustedBrands: TrustedBrand[] = [
     color: "#f59e0b",
   },
   {
-    name: "Nexlify",
-    logo: "https://api.dicebear.com/9.x/initials/svg?seed=Nexlify&backgroundType=gradientLinear&backgroundColor=0ea5e9,38bdf8&fontFamily=Arial&fontWeight=700&radius=20",
+    name: "Ventae",
+    logo: "https://www.logoai.com/uploads/output/2026/03/29/19261b0f4f945737e4abb1dadab463e1.jpg",
     shortName: "NX",
     color: "#0ea5e9",
   },
