@@ -14,7 +14,7 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Marquee from "@/components/Marquee";
 import About from "@/components/About";
-import Skills from "@/components/Skills";
+
 import Projects from "@/components/Projects";
 import VideoShowcase from "@/components/video-showcase/VideoShowcase";
 import Services from "@/components/Services";
@@ -96,10 +96,7 @@ function App() {
               <About />
             </CinematicSection>
 
-            {/* Skills — scene with depth */}
-            <CinematicSection parallax={35} delay={0.05}>
-              <Skills />
-            </CinematicSection>
+            
 
             {/* Projects — dramatic entrance */}
             <CinematicSection parallax={30} delay={0.05}>
