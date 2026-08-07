@@ -13,7 +13,7 @@ export const featuredTestimonial: Testimonial = {
   role: "Founder",
   company: "ApunBazar",
   companyShort: "AB",
-  companyColor: "#1d6feb",
+  companyColor: "#",
   avatarFrom: "#1d6feb",
   avatarTo: "#3b82f6",
   initials: "RS",
