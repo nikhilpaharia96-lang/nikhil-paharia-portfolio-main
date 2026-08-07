@@ -6,7 +6,6 @@ import Lenis from "lenis";
 import gsap from "gsap";
 import { motion, MotionConfig, useReducedMotion } from "framer-motion";
 
-import LoadingScreen from "@/components/LoadingScreen";
 import Cursor from "@/components/Cursor";
 import ScrollProgress from "@/components/ScrollProgress";
 import GlobalBackground from "@/components/GlobalBackground";
