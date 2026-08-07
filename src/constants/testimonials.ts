@@ -196,7 +196,7 @@ export const trustStats: TrustStat[] = [
 export const trustedBrands: TrustedBrand[] = [
   {
     name: "ApunBazar",
-    logo: "https://trulyassamtea.com/wp-content/uploads/2025/05/Truly-Assam-logo-d-bg.svg",
+    logo: "https://www.apunbazar.shop/logo.png",
     shortName: "AB",
     color: "#1d6feb",
   },
@@ -225,8 +225,8 @@ export const trustedBrands: TrustedBrand[] = [
     color: "#0ea5e9",
   },
   {
-    name: "PixelCraft Studio",
-    logo: "https://api.dicebear.com/9.x/initials/svg?seed=PixelCraftStudio&backgroundType=gradientLinear&backgroundColor=e1306c,f472b6&fontFamily=Arial&fontWeight=700&radius=20",
+    name: "theoutdoorbackpacke",
+    logo: "https://theoutdoorbackpacker.com/ima/logo/logo.png",
     shortName: "PC",
     color: "#e1306c",
   },
