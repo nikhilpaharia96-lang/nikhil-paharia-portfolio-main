@@ -2,10 +2,10 @@ import { RiArrowRightLine, RiArrowDownLine, RiMapPinLine, RiCodeSSlashLine, RiVi
 import { SiReact, SiNodedotjs, SiJavascript, SiTailwindcss } from "react-icons/si";
 import { FaGithub, FaLinkedinIn, FaInstagram, FaYoutube, FaWhatsapp } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-import { motion, useScroll, useTransform, useSpring, useVelocity, useMotionValueEvent, useInView, useReducedMotion } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
+import { motion, useScroll, useTransform, useSpring, useVelocity, useMotionValueEvent, useInView, useReducedMotion, useMotionValue } from "framer-motion";
+import { useRef, useState, useEffect, useCallback } from "react";
 import profileImg from "../assets/images/profile-nobg.png";
-import teaBg from "../assets/images/file_00000000cba071faad0a7577f42dd911.png";
+import teaBg from "../assets/images/file_0000000066b08207b18b1ec1e8269869.png";
 import SplitText from "@/components/ui/SplitText";
 import Magnetic from "@/components/ui/Magnetic";
 
@@ -21,14 +21,33 @@ import assamMapImg from "../assets/images/assam-map-transparent.png";
 // paper-airplane.png has the same baked-checkerboard problem; this Picsart
 // export of the identical artwork has genuine transparency.
 import cleanPaperPlane from "../assets/images/Picsart_26-08-04_10-20-09-507.png";
-// Wide, white-left / tea-garden-right composition — built for landscape
-// desktop viewports (there's a blank left zone by design for the hero copy
-// to sit on). MOBILE uses a different, portrait-oriented photo (`teaBg`
-// above) since a wide image cropped to a tall phone screen would mostly
-// show the blank left side instead of the tea garden.
-import desktopBg from "../assets/images/file_0000000066b08207b18b1ec1e8269869.png";
+
+// NOTE: "Desktop Background 01" (the intended white-left / tea-garden-right
+// composition) was uploaded to the repo as a 0-byte/corrupted file, so it
+// cannot be used yet. `teaBg` (the same landscape photo already used by the
+// mobile Hero) is used below as a TEMPORARY stand-in with adjusted
+// object-position — swap this for the real asset the moment it's
+// re-uploaded with valid image data; no other code needs to change.
+const desktopBg = teaBg;
 
 const cloudImg = "https://www.gopalkrishnatea.com/static/media/cloud2.895414a23f99e60c66ea.webp";
+
+/**
+ * True only for desktop pointer devices (fine pointer + hover capability).
+ * Used to gate the cursor-parallax system so touch/mobile never pays for it
+ * and never receives mouse-only interaction affordances.
+ */
+function useIsFinePointer() {
+  const [fine, setFine] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(pointer: fine) and (hover: hover)");
+    const update = () => setFine(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return fine;
+}
 
 function TaglineTyping({ text }: { text: string }) {
   const [displayed, setDisplayed] = useState("");
@@ -128,25 +147,61 @@ export default function Hero() {
 
   const scrollVelocity = useVelocity(scrollYProgress);
 
-  const rawPlaneY  = useTransform(scrollYProgress, [0, 1], [0, -120]);
-  const rawPlaneX  = useTransform(scrollYProgress, [0, 1], [0, 60]);
-  const rawRotate  = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [-38, -55, -25, -10]);
-  const rawScale   = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.15, 0.85]);
   const rawOpacity = useTransform(scrollYProgress, [0, 0.75, 1], [1, 1, 0]);
   const trailOpacity = useTransform(scrollYProgress, [0, 0.4, 1], [1, 0.6, 0]);
-
-  const springCfg = { stiffness: 80, damping: 20, mass: 0.8 };
-  const planeY   = useSpring(rawPlaneY,  springCfg);
-  const planeX   = useSpring(rawPlaneX,  springCfg);
-  const planeRot = useSpring(rawRotate,  { stiffness: 60, damping: 18 });
-  const planeScl = useSpring(rawScale,   springCfg);
 
   // Background landscape parallax
   const bgY = useTransform(scrollYProgress, [0, 1], [0, 120]);
   const smoothBgY = useSpring(bgY, { stiffness: 45, damping: 20 });
 
-  const rm = useReducedMotion();
+  // Scroll depth for the portrait — a small, independent vertical drift as
+  // the user leaves the Hero (subtler and slower than the background, per
+  // spec item 13). Kept separate from the cursor-parallax layer below so
+  // the two never fight over the same motion value.
+  const portraitScrollRaw = useTransform(scrollYProgress, [0, 1], [0, 36]);
+  const portraitScrollY = useSpring(portraitScrollRaw, { stiffness: 50, damping: 22 });
 
+  const rm = useReducedMotion();
+  const isFinePointer = useIsFinePointer();
+  const parallaxEnabled = isFinePointer && !rm;
+
+  /* ── Cursor-based depth parallax (desktop, fine-pointer only) ──────────
+     Pure motion-value pipeline: pointer position feeds two "raw" motion
+     values (no React state), each depth layer reads the same raw values
+     through its own useTransform + heavily-damped useSpring. Nothing here
+     triggers a re-render on mousemove, and every layer animates via
+     `transform` only. */
+  const rawPointerX = useMotionValue(0); // -0.5 .. 0.5 (normalized to section)
+  const rawPointerY = useMotionValue(0);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent<HTMLElement>) => {
+    if (!parallaxEnabled || e.pointerType !== "mouse") return;
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    rawPointerX.set((e.clientX - rect.left) / rect.width - 0.5);
+    rawPointerY.set((e.clientY - rect.top) / rect.height - 0.5);
+  }, [parallaxEnabled, rawPointerX, rawPointerY]);
+
+  const handlePointerLeave = useCallback(() => {
+    rawPointerX.set(0);
+    rawPointerY.set(0);
+  }, [rawPointerX, rawPointerY]);
+
+  // Heavy damping — slow, creamy settle, never a sharp mouse-follow.
+  const dampedX = useSpring(rawPointerX, { stiffness: 40, damping: 22, mass: 1 });
+  const dampedY = useSpring(rawPointerY, { stiffness: 40, damping: 22, mass: 1 });
+
+  // Each layer gets its own small multiplier so depths separate subtly.
+  // Ranges below match the ~3–12px spec across the layers that use them.
+  const mkParallax = (px: number) => ({
+    x: useTransform(dampedX, [-0.5, 0.5], [-px, px]),
+    y: useTransform(dampedY, [-0.5, 0.5], [-px * 0.6, px * 0.6]),
+  });
+  const parallaxBg      = mkParallax(6);   // background landscape ~4–8px
+  const parallaxBrush   = mkParallax(8);   // blue brush ~6–10px
+  const parallaxPortrait = mkParallax(4.5); // portrait ~3–6px
+  const parallaxIcons   = mkParallax(10);  // floating tech icons ~8–12px
+  const parallaxStats   = mkParallax(4);   // stat cards ~3–5px
+  const parallaxAssam   = mkParallax(6.5); // Assam location card ~5–8px
 
   /* ── Scroll-direction tracking — drives CTA converge AND the LHS/RHS cloud crossover ── */
   const { scrollY: pageScrollY } = useScroll();
@@ -188,7 +243,13 @@ export default function Hero() {
   );
 
   return (
-    <section ref={ref} className="relative min-h-screen flex items-center overflow-hidden w-full max-w-full section-wrap" id="home">
+    <section
+      ref={ref}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
+      className="relative min-h-screen flex items-center overflow-hidden w-full max-w-full section-wrap"
+      id="home"
+    >
 
       {/* Background with scroll parallax — MOBILE/TABLET ONLY, untouched */}
       <motion.div style={{ y: smoothBgY }} className="absolute inset-0 z-0 lg:hidden">
@@ -197,9 +258,13 @@ export default function Hero() {
         <div className="absolute inset-0 bg-gradient-to-t from-white/50 via-transparent to-white/15" />
       </motion.div>
 
-      {/* Background — DESKTOP ONLY (1024px+). White-left / tea-garden-right
-          composition, distinct from the mobile background above. */}
-      <motion.div style={{ y: smoothBgY }} className="absolute inset-0 z-0 hidden lg:block">
+      {/* Background — DESKTOP ONLY (1024px+). Uses the "Desktop Background 01"
+          composition (white-left / tea-garden-right) once that asset is
+          re-uploaded; see the desktopBg note near the imports above. */}
+      <motion.div
+        style={{ y: smoothBgY, x: parallaxBg.x }}
+        className="absolute inset-0 z-0 hidden lg:block"
+      >
         <img
           src={desktopBg}
           alt=""
@@ -268,25 +333,17 @@ export default function Hero() {
           40%      { transform: translateY(-6px); }
           70%      { transform: translateY(3px); }
         }
-        @keyframes trailDraw {
-          0%   { stroke-dashoffset: 320; opacity: 0; }
-          12%  { opacity: 1; }
-          72%  { stroke-dashoffset: 0;   opacity: 1; }
-          88%  { stroke-dashoffset: 0;   opacity: 0.35; }
-          100% { stroke-dashoffset: 0;   opacity: 0; }
+        /* ── One-time plane travel — follows the S-curve trail's rough
+           waypoints, arriving as the trail finishes drawing, then rests
+           (no idle bob/glow loop afterward, per spec). ── */
+        @keyframes planeTravelOnce {
+          0%   { transform: translate(4px, 96px) rotate(38deg) scale(0.82); opacity: 0; }
+          10%  { opacity: 1; }
+          38%  { transform: translate(72px, 106px) rotate(14deg) scale(0.9); }
+          68%  { transform: translate(118px, 66px) rotate(-8deg) scale(0.96); }
+          100% { transform: translate(179px, 18px) rotate(7deg) scale(1); opacity: 1; }
         }
-        .trail-path { stroke-dasharray: 320; stroke-dashoffset: 320; animation: trailDraw 3.2s ease-out infinite; }
-        @keyframes planeBob {
-          0%,100% { transform: translateY(0px) rotate(-42deg); }
-          40%     { transform: translateY(-7px) rotate(-46deg); }
-          70%     { transform: translateY(3px)  rotate(-39deg); }
-        }
-        .plane-bob { animation: planeBob 3.8s ease-in-out infinite; }
-        @keyframes planeGlow {
-          0%,100% { filter: drop-shadow(0 0 2px rgba(29,111,235,0.4)); }
-          50%      { filter: drop-shadow(0 0 8px rgba(29,111,235,0.85)) drop-shadow(0 0 16px rgba(29,111,235,0.25)); }
-        }
-        .plane-glow { animation: planeGlow 2.6s ease-in-out infinite; }
+        .plane-travel-once { animation: planeTravelOnce 1.9s cubic-bezier(0.65,0,0.35,1) 0.9s both; }
 
         @keyframes taglineGlow {
           0%,100% { filter: drop-shadow(0 0 1px rgba(0,0,0,0.15)); }
@@ -381,6 +438,51 @@ export default function Hero() {
           50%      { transform: translateY(-2px) rotate(-6deg); }
         }
         .folder-bounce { display:inline-block; animation: folderBounce 2s ease-in-out infinite; }
+
+        /* ── Glass light sweep — plays ONCE on entrance, never loops.
+           Used on the Assam card and desktop stat cards for a premium
+           "light reflecting across glass" feel without being distracting. */
+        @keyframes glassSweepOnce {
+          0%   { transform: translateX(-120%) skewX(-12deg); opacity: 0; }
+          8%   { opacity: 0.9; }
+          45%  { opacity: 0.9; }
+          60%  { transform: translateX(160%) skewX(-12deg); opacity: 0; }
+          100% { transform: translateX(160%) skewX(-12deg); opacity: 0; }
+        }
+        .assam-sweep, .stat-sweep {
+          background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%);
+          transform: translateX(-120%) skewX(-12deg);
+          animation: glassSweepOnce 1.3s ease-out forwards;
+          mix-blend-mode: screen;
+        }
+        .assam-sweep { animation-delay: 1.5s; }
+
+        /* ── Assam map — very low-intensity breathing glow/scale ── */
+        @keyframes assamMapBreathe {
+          0%,100% { transform: scale(1);    filter: drop-shadow(0 0 0 rgba(29,111,235,0)); }
+          50%      { transform: scale(1.02); filter: drop-shadow(0 0 4px rgba(29,111,235,0.25)); }
+        }
+        .assam-map-breathe { animation: assamMapBreathe 4.5s ease-in-out 2s infinite; }
+
+        /* ── Paper-plane entrance: draws the dotted path once, carries the
+           plane along it, then rests. No loop. ~2s total. ── */
+        @keyframes planeTrailDrawOnce {
+          0%   { stroke-dashoffset: 320; opacity: 0; }
+          8%   { opacity: 1; }
+          85%  { stroke-dashoffset: 0; opacity: 1; }
+          100% { stroke-dashoffset: 0; opacity: 1; }
+        }
+        .trail-path-once {
+          stroke-dasharray: 320;
+          stroke-dashoffset: 320;
+          animation: planeTrailDrawOnce 1.9s cubic-bezier(0.65,0,0.35,1) 0.9s forwards;
+        }
+
+        /* ── Small-amplitude float for the tech icon bubbles around the
+           profile photo — independent from the shared floatY keyframe
+           (which the portrait glow/photo also use at a larger amplitude),
+           so these stay "very small movement" per spec. ── */
+        @keyframes iconDrift { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
       `}</style>
 
       {/* ── MAIN CONTENT ── */}
@@ -527,14 +629,16 @@ export default function Hero() {
                 </p>
               </div>
 
-              {/* Paper airplane — S-curve trail + sketch plane, absolutely positioned */}
+              {/* Paper airplane — S-curve trail draws once on Hero entrance,
+                  the plane travels along it, then rests (per spec: no
+                  continuous loop). Scroll-linked fade lets it recede
+                  naturally once the user leaves the Hero. */}
               <motion.div
                 aria-hidden="true"
                 style={{
                   position: 'absolute',
                   right: '-30px',
                   top: '-55px',
-                  y: planeY,
                   opacity: rawOpacity,
                   pointerEvents: 'none',
                 }}
@@ -546,7 +650,7 @@ export default function Hero() {
                   overflow="visible"
                   className="scale-[0.7] sm:scale-[0.85] lg:scale-100 origin-bottom-left"
                 >
-                  {/* ── S-curve dashed trail ── */}
+                  {/* ── S-curve dashed trail — draws once ── */}
                   <path
                     d="M 8 100 C 28 105 52 112 72 106 C 92 100 100 84 118 66 C 136 48 152 30 172 18"
                     stroke="#1d6feb"
@@ -554,11 +658,13 @@ export default function Hero() {
                     strokeLinecap="round"
                     strokeDasharray="6 6"
                     fill="none"
-                    className="trail-path"
+                    className={rm ? "" : "trail-path-once"}
+                    style={rm ? { strokeDashoffset: 0, opacity: 1 } : undefined}
                   />
 
-                  {/* ── Sketch-style paper airplane at tip of trail ── */}
-                  <g transform="translate(179,18) rotate(7)" className="plane-bob plane-glow">
+                  {/* ── Sketch-style paper airplane — travels the path once,
+                      arriving as the trail finishes drawing, then rests ── */}
+                  <g className={rm ? "" : "plane-travel-once"} style={rm ? { transform: 'translate(179px,18px) rotate(7deg)' } : undefined}>
                     <path d="M 0 0 L -32 14 L -22 20 Z"
                       stroke="#1d6feb" strokeWidth="2" strokeLinejoin="round"
                       fill="rgba(255,255,255,0.55)" />
@@ -762,10 +868,10 @@ export default function Hero() {
 
               {/* Tech icon bubbles — delayed so they appear after the reveal finishes */}
               {[
-                { Icon: SiReact,       color: "text-primary",    size: "text-base lg:text-lg",   pos: "absolute -top-3 -left-3 w-8 h-8 lg:w-10 lg:h-10",       dur:'3s',   delay:'0s'   },
-                { Icon: SiNodedotjs,   color: "text-green-500",  size: "text-lg lg:text-xl",     pos: "absolute top-1/4 -right-4 lg:-right-5 w-9 h-9 lg:w-11 lg:h-11", dur:'4s', delay:'1s' },
-                { Icon: SiJavascript,  color: "text-yellow-400", size: "text-sm lg:text-base",   pos: "absolute bottom-10 -left-4 lg:-left-5 w-8 h-8 lg:w-9 lg:h-9",  dur:'2.8s', delay:'0.5s' },
-                { Icon: SiTailwindcss, color: "text-cyan-500",   size: "text-sm lg:text-base",   pos: "absolute -bottom-2 right-3 lg:right-4 w-8 h-8 lg:w-10 lg:h-10", dur:'3.5s', delay:'1.5s' },
+                { Icon: SiReact,       color: "text-primary",    size: "text-base lg:text-lg",   pos: "absolute -top-3 -left-3 w-8 h-8 lg:w-10 lg:h-10",       dur:'6s',   delay:'0s'   },
+                { Icon: SiNodedotjs,   color: "text-green-500",  size: "text-lg lg:text-xl",     pos: "absolute top-1/4 -right-4 lg:-right-5 w-9 h-9 lg:w-11 lg:h-11", dur:'8s', delay:'1s' },
+                { Icon: SiJavascript,  color: "text-yellow-400", size: "text-sm lg:text-base",   pos: "absolute bottom-10 -left-4 lg:-left-5 w-8 h-8 lg:w-9 lg:h-9",  dur:'10s', delay:'0.5s' },
+                { Icon: SiTailwindcss, color: "text-cyan-500",   size: "text-sm lg:text-base",   pos: "absolute -bottom-2 right-3 lg:right-4 w-8 h-8 lg:w-10 lg:h-10", dur:'12s', delay:'1.5s' },
               ].map(({ Icon, color, size, pos, dur, delay }, i) => (
                 <motion.div
                   key={i}
@@ -774,7 +880,7 @@ export default function Hero() {
                   transition={{ delay: 1.7 + i * 0.12, duration: 0.5, ease: "backOut" }}
                   whileHover={{ scale: 1.25, rotate: 10 }}
                   className={`${pos} bg-white/90 backdrop-blur border border-blue-100 shadow-md rounded-full flex items-center justify-center z-30`}
-                  style={{ animation:`floatY ${dur} ease-in-out infinite ${delay}` }}
+                  style={{ animation: rm ? 'none' : `iconDrift ${dur} ease-in-out infinite ${delay}` }}
                 >
                   <Icon className={`${color} ${size}`} />
                 </motion.div>
@@ -1070,11 +1176,11 @@ export default function Hero() {
                 src={ovalLandscape}
                 alt=""
                 aria-hidden="true"
-                initial={{ opacity: 2 }}
-                animate={{ opacity: 2.2 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.2 }}
                 transition={{ delay: 0.3, duration: 1 }}
                 className="absolute pointer-events-none select-none object-contain"
-                style={{ width: '82%', left: '10%', bottom: '-2%' }}
+                style={{ width: '42%', left: '0%', bottom: '0%' }}
               />
 
               {/* Brush stroke — widened and rotated so it reads as one diagonal
@@ -1088,7 +1194,7 @@ export default function Hero() {
                 animate={{ opacity: 0.85, scale: 1 }}
                 transition={{ delay: 0.25, duration: 0.9, ease: "easeOut" }}
                 className="absolute pointer-events-none select-none w-[420px] xl:w-[540px] 2xl:w-[640px] z-0"
-                style={{ top: '36%', left: '2%', transform: 'rotate(-7deg)' }}
+                style={{ top: '22%', left: '-12%', rotate: -7, x: parallaxBrush.x, y: parallaxBrush.y }}
               />
 
               {/* Orbit ring — subtle dotted/dashed path only, sized to sit
@@ -1108,18 +1214,22 @@ export default function Hero() {
                   small idle bob (a few px) is applied, and it's applied to
                   a wrapping div so it never fights the icon's own entrance
                   animation. */}
-              <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-                <div className="orbit-bob-a absolute" style={{ top: '20%', left: '6%' }}>
+              <motion.div
+                className="absolute inset-0 pointer-events-none"
+                aria-hidden="true"
+                style={{ x: parallaxIcons.x, y: parallaxIcons.y }}
+              >
+                <div className="orbit-bob-a absolute" style={{ top: '2%', left: '-4%' }}>
                   <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.1, duration: 0.5, ease: "backOut" }} className="w-11 h-11 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
                     <SiReact className="text-primary" style={{ fontSize: '18px' }} />
                   </motion.div>
                 </div>
-                <div className="orbit-bob-b absolute" style={{ top: '30%', right: '7%' }}>
+                <div className="orbit-bob-b absolute" style={{ top: '40%', right: '-2%' }}>
                   <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.22, duration: 0.5, ease: "backOut" }} className="w-11 h-11 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
                     <SiNodedotjs className="text-green-500" style={{ fontSize: '18px' }} />
                   </motion.div>
                 </div>
-                <div className="orbit-bob-c absolute" style={{ bottom: '7%', left: '2%' }}>
+                <div className="orbit-bob-c absolute" style={{ bottom: '2%', left: '2%' }}>
                   <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.34, duration: 0.5, ease: "backOut" }} className="w-10 h-10 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
                     <SiJavascript className="text-yellow-400" style={{ fontSize: '16px' }} />
                   </motion.div>
@@ -1129,27 +1239,33 @@ export default function Hero() {
                     <RiCodeSSlashLine className="text-slate-700" style={{ fontSize: '16px' }} />
                   </motion.div>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Portrait — untouched supplied asset. Sized up further
                   (~13% on top of the previous pass) and shifted further
                   left so the person clearly reads bigger than the
                   landscape. Head stays clear of the navbar and orbit
                   icons; nothing is cropped. */}
-              <div className="relative z-0 w-[320px] xl:w-[400px] 2xl:w-[480px]" style={{ transform: 'translate(5%, 5%)' }}>
+              <motion.div style={{ y: rm ? 0 : portraitScrollY }}>
                 <motion.div
-                  initial={{ opacity: 0, y: rm ? 0 : 26 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: rm ? 0.3 : 0.9, delay: 0.35, ease: "easeOut" }}
+                  className="relative z-10 w-[320px] xl:w-[400px] 2xl:w-[480px]"
+                  style={{ x: parallaxPortrait.x, y: parallaxPortrait.y }}
                 >
-                  <img
-                    src={desktopPortrait}
-                    alt="Nikhil Paharia"
-                    className="w-full h-auto object-contain"
-                    style={{ filter: 'drop-shadow(0 30px 40px rgba(15,23,42,0.28))' }}
-                  />
+                  <motion.div
+                    initial={{ opacity: 0, y: rm ? 0 : 26 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: rm ? 0.3 : 0.9, delay: 0.35, ease: "easeOut" }}
+                    style={{ translateX: '-9%', translateY: '5%' }}
+                  >
+                    <img
+                      src={desktopPortrait}
+                      alt="Nikhil Paharia"
+                      className="w-full h-auto object-contain"
+                      style={{ filter: 'drop-shadow(0 30px 40px rgba(15,23,42,0.28))' }}
+                    />
+                  </motion.div>
                 </motion.div>
-              </div>
+              </motion.div>
 
               {/* Assam location card — moved off the detached bottom-left
                   spot onto the portrait's lower-right / torso-bottom area,
@@ -1158,13 +1274,31 @@ export default function Hero() {
                 initial={{ opacity: 0, y: rm ? 0 : 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.1, duration: 0.6, ease: "easeOut" }}
-                className="absolute z-20 flex items-center gap-3 bg-white/75 backdrop-blur-md border border-blue-100/70 rounded-2xl px-4 py-3 max-w-[250px]"
-                style={{ right: '2%', bottom: '8%', boxShadow: '0 12px 32px rgba(29,111,235,0.16), 0 0 0 1px rgba(29,111,235,0.06)' }}
+                className="absolute z-20 flex items-center gap-3 bg-white/75 backdrop-blur-md border border-blue-100/70 rounded-2xl px-4 py-3 max-w-[250px] overflow-hidden group/assam"
+                style={{
+                  right: '2%',
+                  bottom: '8%',
+                  boxShadow: '0 12px 32px rgba(29,111,235,0.16), 0 0 0 1px rgba(29,111,235,0.06)',
+                  x: parallaxAssam.x,
+                  y: parallaxAssam.y,
+                }}
               >
-                <img src={assamMapImg} alt="" aria-hidden="true" className="w-12 h-12 object-contain flex-shrink-0" />
+                {/* Glass light sweep — plays once on entrance only, no loop */}
+                {!rm && (
+                  <span
+                    aria-hidden="true"
+                    className="assam-sweep absolute inset-0 pointer-events-none"
+                  />
+                )}
+                <motion.img
+                  src={assamMapImg}
+                  alt=""
+                  aria-hidden="true"
+                  className="w-12 h-12 object-contain flex-shrink-0 assam-map-breathe"
+                />
                 <div>
                   <p className="text-sm font-bold text-foreground flex items-center gap-1.5">
-                    North East, India <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
+                    From Assam, India <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
                   </p>
                   <p className="text-xs text-slate-500 leading-snug">Inspired by nature, driven by code.</p>
                 </div>
@@ -1176,6 +1310,7 @@ export default function Hero() {
               initial={{ opacity: 0, x: rm ? 0 : 24 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7, delay: 0.5, ease: "easeOut" }}
+              style={{ x: parallaxStats.x, y: parallaxStats.y }}
               className="flex flex-col gap-3 xl:gap-4 justify-center flex-shrink-0 w-[148px] xl:w-[168px]"
             >
               {desktopStats.map(({ value, label, Icon, color, bg }, i) => (
@@ -1183,10 +1318,17 @@ export default function Hero() {
                   key={label}
                   initial={{ opacity: 0, x: rm ? 0 : 24 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.55 + i * 0.1, duration: 0.5, type: "spring", stiffness: 160 }}
+                  transition={{ delay: 0.55 + i * 0.09, duration: 0.5, type: "spring", stiffness: 160 }}
                   whileHover={{ scale: 1.05, x: -4 }}
-                  className={`bg-gradient-to-br ${bg} border border-white/80 backdrop-blur rounded-2xl px-3.5 py-3 xl:px-4 xl:py-3.5 shadow-md flex items-center gap-2.5`}
+                  className={`relative overflow-hidden bg-gradient-to-br ${bg} border border-white/80 backdrop-blur rounded-2xl px-3.5 py-3 xl:px-4 xl:py-3.5 shadow-md flex items-center gap-2.5`}
                 >
+                  {!rm && (
+                    <span
+                      aria-hidden="true"
+                      className="stat-sweep absolute inset-0 pointer-events-none"
+                      style={{ animationDelay: `${1.0 + i * 0.09}s` }}
+                    />
+                  )}
                   <div className="w-8 h-8 xl:w-9 xl:h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: color + '18' }}>
                     <Icon style={{ color, fontSize: '16px' }} />
                   </div>
