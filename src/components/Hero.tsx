@@ -5,6 +5,7 @@ import { FaXTwitter } from "react-icons/fa6";
 import { motion, useScroll, useTransform, useSpring, useVelocity, useMotionValueEvent, useInView, useReducedMotion, useMotionValue } from "framer-motion";
 import { useRef, useState, useEffect, useCallback } from "react";
 import profileImg from "../assets/images/profile-nobg.png";
+import teaBg from "../assets/images/file_0000000066b08207b18b1ec1e8269869.png";
 import SplitText from "@/components/ui/SplitText";
 import Magnetic from "@/components/ui/Magnetic";
 
@@ -21,14 +22,13 @@ import assamMapImg from "../assets/images/assam-map-transparent.png";
 // export of the identical artwork has genuine transparency.
 import cleanPaperPlane from "../assets/images/Picsart_26-08-04_10-20-09-507.png";
 
-// ── Hero backgrounds — desktop and mobile now use distinct images ─────────
-// tea-sunset-person-wide.webp (landscape) for desktop, tea-sunset-portrait.webp
-// (tall) for mobile. Both bake in a small silhouette figure of their own;
-// crop/position + scrim strength below are tuned to push that baked-in
-// figure out of frame (or fade it out) so it doesn't visually compete with
-// the separate Nikhil portrait cutout already layered in the Hero.
-import desktopBg from "../assets/images/tea-sunset-person-wide.webp";
-import mobileBg from "../assets/images/tea-sunset-portrait.webp";
+// NOTE: "Desktop Background 01" (the intended white-left / tea-garden-right
+// composition) was uploaded to the repo as a 0-byte/corrupted file, so it
+// cannot be used yet. `teaBg` (the same landscape photo already used by the
+// mobile Hero) is used below as a TEMPORARY stand-in with adjusted
+// object-position — swap this for the real asset the moment it's
+// re-uploaded with valid image data; no other code needs to change.
+const desktopBg = teaBg;
 
 const cloudImg = "https://www.gopalkrishnatea.com/static/media/cloud2.895414a23f99e60c66ea.webp";
 
@@ -251,41 +251,31 @@ export default function Hero() {
       id="home"
     >
 
-      {/* Background — MOBILE/TABLET ONLY. tea-sunset-portrait.webp, cropped
-          and scrimmed so its own baked-in silhouette fades into the sky/
-          mountains rather than competing with the real portrait blob
-          further down the page. */}
-      <motion.div style={{ y: smoothBgY }} className="absolute inset-0 z-0 lg:hidden overflow-hidden">
-        <img
-          src={mobileBg}
-          alt=""
-          className="absolute w-[130%] h-[115%] object-cover"
-          style={{ top: '-4%', left: '-15%', objectPosition: '50% 18%', filter: 'brightness(0.97) saturate(0.95)' }}
-        />
+      {/* Background with scroll parallax — MOBILE/TABLET ONLY, untouched */}
+      <motion.div style={{ y: smoothBgY }} className="absolute inset-0 z-0 lg:hidden">
+        <img src={teaBg} alt="" className="w-full h-full object-cover" style={{ filter: 'brightness(0.95) saturate(0.9)' }} />
         <div className="absolute inset-0 bg-gradient-to-r from-white/45 via-white/20 to-blue-50/10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-white/70 via-white/25 to-white/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-white/50 via-transparent to-white/15" />
       </motion.div>
 
-      {/* Background — DESKTOP ONLY (1024px+). tea-sunset-person-wide.webp,
-          oversized and shifted so the crop favors the right-hand mountains/
-          sunset — the baked-in silhouette (near the image's left edge) is
-          pushed out of frame instead of doubling up with the desktop
-          portrait cutout. */}
+      {/* Background — DESKTOP ONLY (1024px+). Uses the "Desktop Background 01"
+          composition (white-left / tea-garden-right) once that asset is
+          re-uploaded; see the desktopBg note near the imports above. */}
       <motion.div
         style={{ y: smoothBgY, x: parallaxBg.x }}
-        className="absolute inset-0 z-0 hidden lg:block overflow-hidden"
+        className="absolute inset-0 z-0 hidden lg:block"
       >
         <img
           src={desktopBg}
           alt=""
-          className="absolute w-[145%] h-[130%] object-cover"
-          style={{ top: '-8%', left: '-30%', objectPosition: '82% 42%', filter: 'brightness(0.95) saturate(0.95)' }}
+          className="w-full h-full object-cover"
+          style={{ objectPosition: '68% 50%', filter: 'brightness(0.97) saturate(0.92)' }}
         />
-        {/* Readability scrim — stronger than the previous flat blue/white
-            background needed, since this photo has real contrast and detail
-            behind the text column. */}
-        <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/35 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-white/35 via-transparent to-transparent" />
+        {/* Minimal left-side readability scrim only — the real background
+            already bakes its own white-left area in, so this stays light
+            and will likely shrink further (or be removed) once swapped in. */}
+        <div className="absolute inset-0 bg-gradient-to-r from-white/70 via-white/25 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-white/30 via-transparent to-transparent" />
       </motion.div>
 
 
