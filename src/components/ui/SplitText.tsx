@@ -1,8 +1,10 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 interface SplitTextProps {
   children: string;
   className?: string;
+  /** Extra class applied to each character/word span (e.g. "gradient-text"). */
+  charClassName?: string;
   delay?: number;
   duration?: number;
   type?: "words" | "chars";
@@ -12,31 +14,38 @@ interface SplitTextProps {
 export default function SplitText({
   children,
   className = "",
+  charClassName = "",
   delay = 0,
   duration = 0.7,
   type = "chars",
   once = false,
 }: SplitTextProps) {
+  const rm = useReducedMotion();
+
   const containerVariants = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: rm ? 1 : 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: type === "chars" ? 0.025 : 0.08,
-        delayChildren: delay,
-      },
+      transition: rm
+        ? { duration: 0 }
+        : {
+            staggerChildren: type === "chars" ? 0.025 : 0.08,
+            delayChildren: delay,
+          },
     },
   };
 
   const childVariants = {
-    hidden: { y: "110%", opacity: 0 },
+    hidden: { y: rm ? 0 : "110%", opacity: rm ? 1 : 0 },
     visible: {
       y: 0,
       opacity: 1,
-      transition: {
-        duration: duration,
-        ease: [0.16, 1, 0.3, 1], // Expo-out curve (Stripe/Apple style)
-      },
+      transition: rm
+        ? { duration: 0 }
+        : {
+            duration: duration,
+            ease: [0.16, 1, 0.3, 1], // Expo-out curve (Stripe/Apple style)
+          },
     },
   };
 
@@ -62,7 +71,7 @@ export default function SplitText({
             className="relative inline-block overflow-hidden mr-[0.24em] py-[0.1em] -my-[0.1em]"
             aria-hidden="true"
           >
-            <motion.span className="inline-block" variants={childVariants}>
+            <motion.span className={`inline-block ${charClassName}`} variants={childVariants}>
               {word}
             </motion.span>
           </span>
@@ -77,7 +86,7 @@ export default function SplitText({
             {word.split("").map((char, cIdx) => (
               <motion.span
                 key={cIdx}
-                className="inline-block"
+                className={`inline-block ${charClassName}`}
                 variants={childVariants}
               >
                 {char}

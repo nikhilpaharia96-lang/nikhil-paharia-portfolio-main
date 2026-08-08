@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { motion, useMotionValue, useSpring, useReducedMotion } from "framer-motion";
 
 interface MagneticProps {
   children: React.ReactElement;
@@ -17,6 +17,7 @@ export default function Magnetic({
   scaleTap = 0.97,
 }: MagneticProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const rm = useReducedMotion();
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -25,8 +26,10 @@ export default function Magnetic({
   const springX = useSpring(x, { stiffness: 120, damping: 14, mass: 0.2 });
   const springY = useSpring(y, { stiffness: 120, damping: 14, mass: 0.2 });
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!ref.current) return;
+  const handleMouseMove = (e: React.PointerEvent) => {
+    // Magnetic pull is a fine-pointer, motion-comfortable desktop affordance:
+    // skip it under prefers-reduced-motion and on touch/coarse input.
+    if (!ref.current || rm || e.pointerType !== "mouse") return;
 
     const { clientX, clientY } = e;
     const { left, top, width, height } = ref.current.getBoundingClientRect();
@@ -55,10 +58,10 @@ export default function Magnetic({
   return (
     <motion.div
       ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{ x: springX, y: springY }}
-      whileHover={{ scale: scaleHover }}
+      onPointerMove={handleMouseMove}
+      onPointerLeave={handleMouseLeave}
+      style={{ x: rm ? 0 : springX, y: rm ? 0 : springY }}
+      whileHover={rm ? undefined : { scale: scaleHover }}
       whileTap={{ scale: scaleTap }}
       className="inline-block"
     >
