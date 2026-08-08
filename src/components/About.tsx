@@ -1406,11 +1406,6 @@ function MobileAboutStory() {
 
 export default function About() {
   const sectionRef = useRef<HTMLElement>(null);
-  // The tall (lg+: ~460vh) scroll-track that makes the notebook viewport
-  // pinnable — see the ScrollTrigger below, which reads progress from THIS
-  // element rather than the (short, unpadded) <section> itself so 0→1
-  // maps exactly to the sticky pin's on-screen duration.
-  const pinTrackRef = useRef<HTMLDivElement>(null);
   const notebookRef = useRef<HTMLDivElement>(null);
   const rm = useReducedMotion();
   const mx = useMotionValue(0.5);
@@ -1427,41 +1422,6 @@ export default function About() {
   // active yet?" via a boolean prop, and Framer Motion handles the actual
   // eased transition to/from that state.
   const [phase, setPhase] = useState(rm ? TOTAL_PHASES : 1);
-
-  // ── Cinematic scroll camera (NEW) ──────────────────────────────────────
-  // A second, independent thing driven by the same scroll position as
-  // `phase` above: not *what content is revealed* (that's still 100%
-  // `phase`, untouched below) but *how the camera looks at the notebook*
-  // while it does. `scrollProgress` is a plain 0→1 motion value, set
-  // imperatively in the same ScrollTrigger.onUpdate as `phase` — every
-  // other value here is derived from it with `useTransform`, so none of
-  // this ever triggers a React re-render; it's pure compositor-thread
-  // transform/opacity work, matching the file's existing GSAP-for-timing /
-  // Framer-for-motion split. Desktop (lg+, the two-page spread) only —
-  // mobile already has its own dedicated, simpler `MobileAboutStory`
-  // experience below, so these stay neutral/no-op there.
-  const scrollProgress = useMotionValue(0);
-  const CAM_STOPS = [0, 0.15, 0.35, 0.5, 0.65, 0.85, 0.95, 1];
-  // 0–15% intro: rises from below, scales up, small perspective tilt settles.
-  // 95–100% exit: nudges back up and scales down slightly into the next section.
-  const cameraY = useTransform(scrollProgress, CAM_STOPS, ["9vh", "0vh", "0vh", "0vh", "0vh", "0vh", "-1.5vh", "-3vh"]);
-  const cameraScale = useTransform(scrollProgress, CAM_STOPS, [0.65, 0.9, 0.96, 1.02, 1.02, 0.97, 0.94, 0.9]);
-  const cameraRotateX = useTransform(scrollProgress, CAM_STOPS, [6, 0, 0, 0, 0, 0, 0, 0]);
-  const cameraRotateY = useTransform(scrollProgress, CAM_STOPS, [-4, 0, 0, 0, 0, 0, 0, 0]);
-  // 50–65% pan left→right: a small horizontal camera move, not a hard cut.
-  const cameraX = useTransform(scrollProgress, CAM_STOPS, ["0%", "0%", "1.6%", "1.6%", "-1.6%", "-1.6%", "0%", "0%"]);
-  // Dims/blurs the RIGHT page while the LEFT page is in focus (15–50%),
-  // clearing as the 50–65% pan hands focus to the right page.
-  const rightDimOpacity = useTransform(scrollProgress, CAM_STOPS, [0, 0.45, 0.6, 0.6, 0.25, 0, 0, 0]);
-  // Mirror of the above — dims/blurs the LEFT page for the 65–85% right-page focus.
-  const leftDimOpacity = useTransform(scrollProgress, CAM_STOPS, [0, 0, 0, 0.25, 0.6, 0.6, 0, 0]);
-  // A soft light (not dark) spotlight that drifts left→right across the
-  // same window, to actively "guide the viewer's eye" per the brief.
-  const camSpotlightX = useTransform(scrollProgress, CAM_STOPS, ["30%", "30%", "30%", "38%", "62%", "70%", "70%", "70%"]);
-  const camSpotlightOpacity = useTransform(scrollProgress, CAM_STOPS, [0, 0.5, 0.5, 0.6, 0.6, 0.5, 0, 0]);
-  const camSpotlightBg = useMotionTemplate`radial-gradient(38vw circle at ${camSpotlightX} 46%, rgba(255,247,225,0.5), transparent 65%)`;
-  // "Go on, scroll down" — only during the intro beat.
-  const introHintOpacity = useTransform(scrollProgress, [0, 0.04, 0.1, 0.16], [0, 1, 1, 0]);
 
   // Mirrors Tailwind's `lg` breakpoint (1024px). Drives two things: (1)
   // whether scroll auto-turns page 1→2 (desktop) or leaves turning entirely
@@ -1516,22 +1476,15 @@ export default function About() {
       setPhase(TOTAL_PHASES);
       return;
     }
-    if (!pinTrackRef.current) return;
+    if (!sectionRef.current) return;
 
     const lastPhase = { current: 1 };
     const trigger = ScrollTrigger.create({
-      trigger: pinTrackRef.current,
-      // The pin-track is only actually tall (and pinned via CSS `sticky`)
-      // at lg+ — see its className below. Below `lg` it's just its natural
-      // (short) content height, so this still produces a valid, if
-      // shorter, 0→1 scroll progress there too — same as before this
-      // change, just measured against the new element.
-      start: "top top",
-      end: "bottom bottom",
+      trigger: sectionRef.current,
+      start: "top 78%",
+      end: "bottom 55%",
       scrub: 0.6, // smooths the raw scroll input into real "paper inertia" rather than snapping straight to each phase
       onUpdate: (self) => {
-        scrollProgress.set(self.progress);
-
         const next = progressToPhase(self.progress);
         if (next !== lastPhase.current) {
           lastPhase.current = next;
@@ -1557,7 +1510,6 @@ export default function About() {
         // full reveal, matching the site's established reversible-scroll
         // convention. Page 1 and 2 fold shut against the spine again too,
         // so re-entering the section always starts from a closed notebook.
-        scrollProgress.set(0);
         if (lastPhase.current !== 1) {
           lastPhase.current = 1;
           setPhase(1);
@@ -1607,71 +1559,42 @@ export default function About() {
       className="relative overflow-hidden section-wrap max-w-full py-12 sm:py-16 md:py-16 lg:py-16 bg-white"
       aria-label="About — My Story"
     >
-      {/* ═══════════════ CINEMATIC SCROLL CAMERA (NEW) ═══════════════
-          Purely a *scroll-behavior* layer — nothing below here changes
-          the notebook's design, content, or styling. `pinTrackRef` is
-          only tall (lg:h-[460vh]) and its child only sticky/pinned
-          (lg:sticky) at lg+; below that breakpoint both are inert wrapper
-          divs with zero layout effect, so mobile — which has its own
-          simpler `MobileAboutStory` treatment further down — renders
-          exactly as it did before this change. */}
-      <div ref={pinTrackRef} className="relative lg:h-[460vh]">
-        <div className="relative lg:sticky lg:top-0 lg:h-screen lg:overflow-hidden lg:flex lg:items-center">
-          {/* subtle blueprint grid backdrop — keeps the notebook as the focal point */}
-          <div
-            className="absolute inset-0 z-0 pointer-events-none opacity-[0.35]"
+      {/* subtle blueprint grid backdrop — keeps the notebook as the focal point */}
+      <div
+        className="absolute inset-0 z-0 pointer-events-none opacity-[0.35]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(29,111,235,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(29,111,235,0.06) 1px, transparent 1px)",
+          backgroundSize: "44px 44px",
+          maskImage: "radial-gradient(ellipse 60% 60% at 50% 45%, transparent 40%, black 100%)",
+          WebkitMaskImage: "radial-gradient(ellipse 60% 60% at 50% 45%, transparent 40%, black 100%)",
+        }}
+      />
+
+      {/* ambient paper dust */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        {dust.map((_, i) => (
+          <motion.span
+            key={i}
+            className="absolute rounded-full bg-primary/20"
             style={{
-              backgroundImage:
-                "linear-gradient(rgba(29,111,235,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(29,111,235,0.06) 1px, transparent 1px)",
-              backgroundSize: "44px 44px",
-              maskImage: "radial-gradient(ellipse 60% 60% at 50% 45%, transparent 40%, black 100%)",
-              WebkitMaskImage: "radial-gradient(ellipse 60% 60% at 50% 45%, transparent 40%, black 100%)",
+              left: `${(i * 47) % 100}%`,
+              top: `${(i * 31) % 100}%`,
+              width: i % 3 === 0 ? 3 : 2,
+              height: i % 3 === 0 ? 3 : 2,
             }}
+            animate={rm ? {} : { y: [0, -22, 0], opacity: [0.1, 0.4, 0.1] }}
+            transition={{ duration: 7 + (i % 4), delay: i * 0.4, repeat: rm ? 0 : Infinity, ease: "easeInOut" }}
           />
+        ))}
+      </div>
 
-          {/* ambient paper dust */}
-          <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-            {dust.map((_, i) => (
-              <motion.span
-                key={i}
-                className="absolute rounded-full bg-primary/20"
-                style={{
-                  left: `${(i * 47) % 100}%`,
-                  top: `${(i * 31) % 100}%`,
-                  width: i % 3 === 0 ? 3 : 2,
-                  height: i % 3 === 0 ? 3 : 2,
-                }}
-                animate={rm ? {} : { y: [0, -22, 0], opacity: [0.1, 0.4, 0.1] }}
-                transition={{ duration: 7 + (i % 4), delay: i * 0.4, repeat: rm ? 0 : Infinity, ease: "easeInOut" }}
-              />
-            ))}
-          </div>
-
-          {/* the camera itself — scale/translate/rotate the whole notebook
-              as one rigid unit per the 0–100% timeline. `undefined` style
-              below `lg` (and under prefers-reduced-motion) makes this a
-              plain, transform-free div there. */}
-          <motion.div
-            style={
-              isDesktopViewport && !rm
-                ? {
-                    scale: cameraScale,
-                    y: cameraY,
-                    x: cameraX,
-                    rotateX: cameraRotateX,
-                    rotateY: cameraRotateY,
-                    transformPerspective: 1600,
-                  }
-                : undefined
-            }
-            className="relative w-full"
-          >
-            <div className="container-tight !px-2 sm:!px-6 relative z-10 max-w-full">
-              {/* ═══════════════ THE NOTEBOOK (all breakpoints) ═══════════════
-                  Same notebook, same content, same styling at every size. The
-                  cursor-tilt/spotlight effects are mouse-only and simply no-op
-                  on touch. The flip-book itself is responsive on its own terms:
-                  desktop shows a two-page spread turned by scroll or drag; mobile
+      <div className="container-tight !px-2 sm:!px-6 relative z-10 max-w-full">
+        {/* ═══════════════ THE NOTEBOOK (all breakpoints) ═══════════════
+            Same notebook, same content, same styling at every size. The
+            cursor-tilt/spotlight effects are mouse-only and simply no-op
+            on touch. The flip-book itself is responsive on its own terms:
+            desktop shows a two-page spread turned by scroll or drag; mobile
             (below react-pageflip's own portrait threshold) shows a single
             full-width page turned only by the reader's swipe or corner tap
             — a real one-page-at-a-time notebook feel, not a shrunk-down
@@ -1709,16 +1632,7 @@ export default function About() {
             onMouseMove={handleMove}
             onMouseLeave={handleLeave}
             style={{ rotateX, rotateY, transformStyle: "preserve-3d", perspective: 1400 }}
-            // On desktop (with motion enabled) the new scroll-scrubbed
-            // camera intro above now owns the "rises + settles" entrance
-            // beat, so this one-shot viewport animation is neutralized
-            // there to avoid double-animating; it's left exactly as it
-            // was for mobile and for prefers-reduced-motion.
-            initial={
-              isDesktopViewport && !rm
-                ? { opacity: 1, y: 0, scale: 1 }
-                : { opacity: 0, y: rm ? 0 : 50, scale: rm ? 1 : 0.98 }
-            }
+            initial={{ opacity: 0, y: rm ? 0 : 50, scale: rm ? 1 : 0.98 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={
@@ -2353,70 +2267,6 @@ export default function About() {
             handwritten voice as the notebook above it. */}
         <MobileAboutStory />
       </div>
-            </motion.div>
-            {/* ── camera end ── */}
-
-            {isDesktopViewport && !rm && (
-              <>
-                {/* LEFT/RIGHT page focus — dims + softly blurs whichever
-                    half of the spread isn't the current beat's subject.
-                    Purely additive overlays (own DOM nodes, own layer)
-                    sitting on top of the untouched notebook — never
-                    touches its actual markup/CSS — and pointer-events-none
-                    throughout so the existing cursor-tilt/spotlight
-                    interaction on the notebook itself still works. */}
-                <motion.div
-                  aria-hidden="true"
-                  className="absolute inset-y-0 left-0 w-1/2 z-[45] pointer-events-none"
-                  style={{
-                    opacity: leftDimOpacity,
-                    backdropFilter: "blur(5px)",
-                    WebkitBackdropFilter: "blur(5px)",
-                    background: "linear-gradient(to right, rgba(8,8,12,0.32), rgba(8,8,12,0.04))",
-                  }}
-                />
-                <motion.div
-                  aria-hidden="true"
-                  className="absolute inset-y-0 right-0 w-1/2 z-[45] pointer-events-none"
-                  style={{
-                    opacity: rightDimOpacity,
-                    backdropFilter: "blur(5px)",
-                    WebkitBackdropFilter: "blur(5px)",
-                    background: "linear-gradient(to left, rgba(8,8,12,0.32), rgba(8,8,12,0.04))",
-                  }}
-                />
-
-                {/* soft warm spotlight drifting left→right — guides the eye
-                    across the 15–85% window rather than lighting everything
-                    evenly at once */}
-                <motion.div
-                  aria-hidden="true"
-                  className="absolute inset-0 z-[46] pointer-events-none mix-blend-soft-light"
-                  style={{ background: camSpotlightBg, opacity: camSpotlightOpacity }}
-                />
-
-                {/* intro-only scroll hint (0–15%) */}
-                <motion.div
-                  aria-hidden="true"
-                  className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[47] pointer-events-none flex flex-col items-center gap-1.5"
-                  style={{ opacity: introHintOpacity }}
-                >
-                  <span className="text-[10px] font-mono uppercase tracking-[0.28em] text-slate-400">
-                    Go on, scroll down
-                  </span>
-                  <motion.span
-                    aria-hidden="true"
-                    animate={{ y: [0, 5, 0] }}
-                    transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-                    className="text-slate-400 text-sm leading-none"
-                  >
-                    ↓
-                  </motion.span>
-                </motion.div>
-              </>
-            )}
-          </div>
-        </div>
     </section>
   );
 }
