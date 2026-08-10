@@ -1270,31 +1270,26 @@ function MobileAboutStory() {
             static grid: on a phone, swiping sideways through three quick
             facts reads faster and feels more native than a squeezed
             three-column row ever would. */}
-      <Reveal className="mt-9 -mx-6 px-6">
-        {(active) => (
-          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-1">
-            {[
-              { value: "Self-Taught", sub: "since day one", color: "#1d6feb" },
-              { value: "50+", sub: "projects shipped", color: "#b91c1c" },
-              { value: "3+ yrs", sub: "of building", color: "#15803d" },
-            ].map((h, i) => (
-              <motion.div
-                key={h.value}
-                initial={{ opacity: 0, x: rm ? 0 : 20 }}
-                animate={active ? { opacity: 1, x: 0 } : { opacity: 0, x: rm ? 0 : 20 }}
-                transition={{ duration: rm ? 0.25 : 0.5, delay: rm ? 0 : 0.1 * i, ease: "backOut" }}
-                className="snap-center shrink-0 rounded-md border-2 px-5 py-4 text-center bg-white/80 min-w-[8.5rem]"
-                style={{ borderColor: h.color }}
-              >
-                <p className="font-serif font-extrabold text-base leading-tight" style={{ color: h.color }}>
-                  {h.value}
-                </p>
-                <p className="text-[10px] text-slate-500 uppercase tracking-wide mt-1 leading-tight">{h.sub}</p>
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </Reveal>
+      <div className="mt-9 -mx-6 px-6">
+        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-1">
+          {[
+            { value: "Self-Taught", sub: "since day one", color: "#1d6feb" },
+            { value: "50+", sub: "projects shipped", color: "#b91c1c" },
+            { value: "3+ yrs", sub: "of building", color: "#15803d" },
+          ].map((h) => (
+            <div
+              key={h.value}
+              className="snap-center shrink-0 rounded-md border-2 px-5 py-4 text-center bg-white/80 min-w-[8.5rem]"
+              style={{ borderColor: h.color }}
+            >
+              <p className="font-serif font-extrabold text-base leading-tight" style={{ color: h.color }}>
+                {h.value}
+              </p>
+              <p className="text-[10px] text-slate-500 uppercase tracking-wide mt-1 leading-tight">{h.sub}</p>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* ── The journey — a proper milestone timeline, previously built
             for this page but never actually shown anywhere; a phone's
