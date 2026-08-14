@@ -182,7 +182,7 @@ export default function Hero() {
   );
 
   return (
-    <section ref={ref} className="relative min-h-screen flex items-center overflow-hidden w-full max-w-full section-wrap" id="home">
+    <section ref={ref} className="relative min-h-screen flex items-start lg:items-center overflow-hidden w-full max-w-full section-wrap" id="home">
 
       {/* Background with scroll parallax — MOBILE/TABLET ONLY, untouched */}
       <motion.div style={{ y: smoothBgY }} className="absolute inset-0 z-0 lg:hidden">
@@ -379,25 +379,31 @@ export default function Hero() {
       `}</style>
 
       {/* ── MAIN CONTENT ── */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 lg:px-6">
-        <div className="grid lg:hidden grid-cols-1 gap-6 items-center pt-24 pb-16">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-6">
+        <div className="lg:hidden pt-20 pb-16">
 
-          {/* ── LEFT: Text Content — order-2 on mobile (below profile) ── */}
+          {/* ── Top row: Text (left) + Portrait (right), side-by-side like the
+              reference — NOT stacked. Text drives the column width; portrait
+              sits in a fixed-width column that shrinks gracefully down to
+              320px. ── */}
+          <div className="flex flex-row items-start gap-3 sm:gap-5">
+
+          {/* ── Text Content ── */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="order-2 lg:order-1 text-left w-full min-w-0"
+            className="text-left flex-1 min-w-0"
           >
             {/* Available for Hire badge */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.5 }}
-              className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-1.5 mb-4"
+              className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-3 sm:px-4 py-1.5 mb-4"
             >
               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
-              <span className="text-xs font-mono text-primary uppercase tracking-widest whitespace-nowrap">Available for Hire</span>
+              <span className="text-[10px] sm:text-xs font-mono text-primary uppercase tracking-widest whitespace-nowrap">Available for Hire</span>
             </motion.div>
 
             {/* Hi, I'm */}
@@ -405,7 +411,7 @@ export default function Hero() {
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.15, duration: 0.6 }}
-              style={{ fontSize: 'clamp(1.75rem, 5vw, 3.5rem)', lineHeight: 1.15, fontWeight: 700, letterSpacing: '-0.02em' }}
+              style={{ fontSize: 'clamp(1.4rem, 6vw, 2rem)', lineHeight: 1.15, fontWeight: 700, letterSpacing: '-0.02em' }}
               className="text-foreground font-bold mb-1"
             >
               <SplitText type="chars" delay={0.1}>Hi, I'm</SplitText>
@@ -419,158 +425,80 @@ export default function Hero() {
               className="relative ul-wrap mb-4"
               style={{ display: 'inline-block', maxWidth: '100%' }}
             >
-              {/* Paint drops — above the last "a" in Paharia (right side of name) */}
-              <span
-                className="paint-drops"
-                style={{ position: 'absolute', top: '-10px', right: '-4px', pointerEvents: 'none', zIndex: 10, transformOrigin: 'center' }}
-                aria-hidden="true"
-              >
-                <svg
-                  viewBox="0 0 24 22"
-                  fill="none"
-                  className="w-9 h-6 sm:w-5 sm:h-5 lg:w-6 lg:h-[22px]"
-                >
-                  <path d="M3 2 C3 6 1 10 3 14 C4 16 6 16 7 14 C8 10 6 6 3 2Z" fill="#1d6feb" opacity="0.92" style={{ transformOrigin:'5px 8px', transform:'rotate(165deg)' }} />
-                  <path d="M11 2 C11 6 9 10 11 14 C12 16 14 16 15 14 C16 10 14 6 11 2Z" fill="#1d6feb" opacity="0.85" style={{ transformOrigin:'13px 8px', transform:'rotate(165deg)' }} />
-                  <path d="M19 2 C19 6 17 10 19 14 C20 16 22 16 23 14 C24 10 22 6 19 2Z" fill="#1d6feb" opacity="0.75" style={{ transformOrigin:'21px 8px', transform:'rotate(165deg)' }} />
-                </svg>
-              </span>
-
-              {/* Name */}
+              {/* Name — "Nikhil" (dark, underlined) on its own line, "Paharia"
+                  (gradient blue, with paint-drop accent) on the next line —
+                  matching the reference exactly. Two separate SplitText
+                  calls so each word gets its own color. */}
               <h1
-                style={{ fontSize: 'clamp(2.4rem, 7.5vw, 5rem)', lineHeight: 1.0, letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}
+                style={{ fontSize: 'clamp(2rem, 11vw, 3.2rem)', lineHeight: 0.98, letterSpacing: '-0.02em' }}
                 className="font-bold"
               >
-                <SplitText type="chars" delay={0.25} charClassName="gradient-text">Nikhil Paharia</SplitText>
+                <span className="block relative" style={{ width: 'fit-content' }}>
+                  <SplitText type="chars" delay={0.25}>Nikhil</SplitText>
+                  {/* Underline — hand-drawn tapered brush stroke under "Nikhil" only */}
+                  <motion.svg
+                    viewBox="60 4 640 29"
+                    initial={{ clipPath: 'inset(0 100% 0 0)' }}
+                    animate={{ clipPath: 'inset(0 0% 0 0)' }}
+                    transition={{ duration: 0.8, ease: 'easeOut', delay: 0.7 }}
+                    style={{ display: 'block', width: '100%', height: 'auto', marginTop: '0px' }}
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="
+                        M 34 30
+                        C 30 21, 160 10, 270 9.5
+                        C 350 9, 439 12, 500 30
+                        C 452 25, 50 9.0, 270 24.5
+                        C 290 24.5, 96 23.5, 14 29
+                        Z
+                      "
+                      fill="#2563EB"
+                    />
+                  </motion.svg>
+                </span>
+                <span className="block relative" style={{ width: 'fit-content' }}>
+                  <SplitText type="chars" delay={0.35} charClassName="gradient-text">Paharia</SplitText>
+                  {/* Paint drops — above the last "a" in Paharia */}
+                  <span
+                    className="paint-drops"
+                    style={{ position: 'absolute', top: '-10px', right: '-14px', pointerEvents: 'none', zIndex: 10, transformOrigin: 'center' }}
+                    aria-hidden="true"
+                  >
+                    <svg viewBox="0 0 24 22" fill="none" className="w-6 h-5 sm:w-7 sm:h-6">
+                      <path d="M3 2 C3 6 1 10 3 14 C4 16 6 16 7 14 C8 10 6 6 3 2Z" fill="#1d6feb" opacity="0.92" style={{ transformOrigin:'5px 8px', transform:'rotate(165deg)' }} />
+                      <path d="M11 2 C11 6 9 10 11 14 C12 16 14 16 15 14 C16 10 14 6 11 2Z" fill="#1d6feb" opacity="0.85" style={{ transformOrigin:'13px 8px', transform:'rotate(165deg)' }} />
+                      <path d="M19 2 C19 6 17 10 19 14 C20 16 22 16 23 14 C24 10 22 6 19 2Z" fill="#1d6feb" opacity="0.75" style={{ transformOrigin:'21px 8px', transform:'rotate(165deg)' }} />
+                    </svg>
+                  </span>
+                </span>
               </h1>
-
-
-              {/* Underline — hand-drawn tapered brush stroke, draws on with a left-to-right reveal */}
-              <motion.svg
-                viewBox="60 4 640 29"
-                initial={{ clipPath: 'inset(0 100% 0 0)' }}
-                animate={{ clipPath: 'inset(0 0% 0 0)' }}
-                transition={{ duration: 0.8, ease: 'easeOut', delay: 0.7 }}
-                style={{ display: 'block', width: '100%', maxWidth: '420px', height: 'auto', marginTop: '4px' }}
-                aria-hidden="true"
-              >
-                <path
-                  d="
-                    M 34 30
-                    C 30 21, 160 10, 270 9.5
-                    C 350 9, 439 12, 500 30
-                    C 452 25, 50 9.0, 270 24.5
-                    C 290 24.5, 96 23.5, 14 29
-                    Z
-                  "
-                  fill="#2563EB"
-                />
-              </motion.svg>
             </motion.div>
 
-            {/* Cursive tagline — typewriter reveal with animated underline swoop */}
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.28, duration: 0.6 }}
-              className="mb-3"
-            >
-              <svg
-                viewBox="0 21 596 70"
-                className="tagline-svg"
-                style={{ width: '100%', maxWidth: '480px', height: 'auto', display: 'block' }}
-                aria-label="Full-Stack Developer & Creative Developer"
-              >
-                <TaglineTyping text="Full-Stack Developer & Video Editor" />
-
-                {/* subtle hand-drawn underline swoop, draws on after typing complete */}
-                <motion.path
-                  d="M4 58 Q160 49 350 60 T696 36"
-                  stroke="#1a1a1a"
-                  strokeWidth="1.73"
-                  strokeLinecap="round"
-                  fill="none"
-                  opacity="1.85"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ delay: 2.3, duration: 0.8, ease: "easeOut" }}
-                />
-              </svg>
-            </motion.div>
-
-
-            {/* Location line + paper airplane */}
+            {/* Location line — plane decoration dropped on mobile; the
+                narrow column has no room for it and the reference doesn't
+                show one here either (only the location pin + text) */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
               className="relative mb-5"
-              style={{ paddingRight: '90px' }}
             >
-              {/* Location text */}
               <div className="flex items-center gap-0.5 flex-wrap">
-                <RiMapPinLine className="text-primary text-base sm:text-lg flex-shrink-0" />
-                <p style={{ fontSize: 'clamp(0.85rem, 2vw, 1.15rem)' }} className="text-slate-700 font-medium flex items-center gap-1 sm:gap-2 flex-wrap">
+                <RiMapPinLine className="text-primary text-sm sm:text-base flex-shrink-0" />
+                <p style={{ fontSize: 'clamp(0.72rem, 3vw, 0.95rem)' }} className="text-slate-700 font-medium flex items-center gap-1 flex-wrap">
                   <span className="whitespace-nowrap">From the Hills of</span>
-                  <span className="relative inline-block assam-text gradient-text font-bold whitespace-nowrap" style={{ fontSize: '1.96em', lineHeight: 1, paddingBottom: '5px' }}>
+                  <span className="relative inline-block assam-text gradient-text font-bold whitespace-nowrap" style={{ fontSize: '1.7em', lineHeight: 1, paddingBottom: '4px' }}>
                     Assam
                     <svg viewBox="5 0 58 5" fill="none" aria-hidden="true" style={{ position: 'absolute', bottom: 0, left: 4, width: '100%' }}>
                       <path d="M1 3 Q29 -1 76 3" stroke="#1d6feb" strokeWidth="1.6" strokeLinecap="round" />
                     </svg>
                   </span>
-                  <span className="whitespace-nowrap">to the world</span>
                 </p>
               </div>
-
-              {/* Paper airplane — S-curve trail + sketch plane, absolutely positioned */}
-              <motion.div
-                aria-hidden="true"
-                style={{
-                  position: 'absolute',
-                  right: '-30px',
-                  top: '-55px',
-                  y: planeY,
-                  opacity: rawOpacity,
-                  pointerEvents: 'none',
-                }}
-              >
-                <svg
-                  width="200" height="115"
-                  viewBox="5 0 200 115"
-                  fill="none"
-                  overflow="visible"
-                  className="scale-[0.7] sm:scale-[0.85] lg:scale-100 origin-bottom-left"
-                >
-                  {/* ── S-curve dashed trail ── */}
-                  <path
-                    d="M 8 100 C 28 105 52 112 72 106 C 92 100 100 84 118 66 C 136 48 152 30 172 18"
-                    stroke="#1d6feb"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeDasharray="6 6"
-                    fill="none"
-                    className="trail-path"
-                  />
-
-                  {/* ── Sketch-style paper airplane at tip of trail ── */}
-                  <g transform="translate(179,18) rotate(7)" className="plane-bob plane-glow">
-                    <path d="M 0 0 L -32 14 L -22 20 Z"
-                      stroke="#1d6feb" strokeWidth="2" strokeLinejoin="round"
-                      fill="rgba(255,255,255,0.55)" />
-                    <path d="M 0 0 L -32 14 L -26 24 Z"
-                      stroke="#1d6feb" strokeWidth="2" strokeLinejoin="round"
-                      fill="rgba(29,111,235,0.08)" />
-                    <line x1="0" y1="0" x2="-22" y2="20"
-                      stroke="#1d6feb" strokeWidth="1.5" strokeLinecap="round" />
-                    <line x1="-22" y1="20" x2="-26" y2="24"
-                      stroke="#1d6feb" strokeWidth="1.2" strokeLinecap="round" opacity="0.7" />
-                    <line x1="-10" y1="5" x2="-16" y2="8"
-                      stroke="#1d6feb" strokeWidth="1" strokeLinecap="round" opacity="0.55" />
-                    <line x1="-18" y1="9" x2="-24" y2="13"
-                      stroke="#1d6feb" strokeWidth="0.8" strokeLinecap="round" opacity="0.4" />
-                  </g>
-                </svg>
-              </motion.div>
+              <p style={{ fontSize: 'clamp(0.72rem, 3vw, 0.95rem)', marginLeft: '1.1em' }} className="text-slate-700 font-medium">
+                to the world
+              </p>
             </motion.div>
 
             {/* Bio */}
@@ -586,105 +514,70 @@ export default function Hero() {
               </p>
             </motion.div>
 
-            {/* Roles */}
+            {/* Roles — stacked vertically (one per line), matching the
+                reference's narrow-column layout */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.42, duration: 0.5 }}
-              className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-6"
+              className="flex flex-col items-start gap-1.5 mb-5"
             >
-              <span className="inline-flex items-center gap-1.5 text-sm text-slate-600 font-medium whitespace-nowrap">
+              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.7rem, 2.8vw, 0.875rem)' }}>
                 <RiCodeSSlashLine className="text-primary flex-shrink-0" /> Full-Stack Developer
               </span>
-              <span className="text-slate-300">•</span>
-              <span className="inline-flex items-center gap-1.5 text-sm text-slate-600 font-medium whitespace-nowrap">
+              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.7rem, 2.8vw, 0.875rem)' }}>
                 <RiVideoLine className="text-primary flex-shrink-0" /> Video Editor
               </span>
-              <span className="text-slate-300">•</span>
-              <span className="inline-flex items-center gap-1.5 text-sm text-slate-600 font-medium whitespace-nowrap">
+              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.7rem, 2.8vw, 0.875rem)' }}>
                 <RiPencilLine className="text-primary flex-shrink-0" /> Digital Creator
               </span>
             </motion.div>
 
-            {/* CTA Buttons — static split, LHS/RHS, now with idle pulse/shimmer effects */}
+            {/* CTA Buttons — "Hire Me" pill + round icon-only "Work" button,
+                matching the reference's compact button pair */}
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.48, duration: 0.5 }}
-              className="flex items-center justify-between mb-7 w-full"
+              className="flex items-center gap-3 mb-7"
             >
               <Magnetic range={60} strength={0.35} scaleHover={1.03}>
                 <a
                   href="#contact"
-                  className="relative overflow-hidden cta-pulse inline-flex items-center justify-center gap-2 bg-primary text-white font-bold px-8 rounded-full shadow-lg hover:shadow-[0_0_30px_rgba(29,111,235,0.45)] transition-shadow duration-300"
-                  style={{ fontSize: 'clamp(0.85rem, 2vw, 1rem)', height: '56px' }}
+                  className="relative overflow-hidden cta-pulse inline-flex items-center justify-center gap-2 bg-primary text-white font-bold px-6 rounded-full shadow-lg hover:shadow-[0_0_30px_rgba(29,111,235,0.45)] transition-shadow duration-300"
+                  style={{ fontSize: 'clamp(0.75rem, 3vw, 0.9rem)', height: '48px' }}
                 >
                   <span className="cta-shimmer absolute inset-0 pointer-events-none" aria-hidden="true" style={{ background: 'linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%)' }} />
                   <RiSendPlaneLine className="flex-shrink-0 plane-wiggle" /> Hire Me <RiArrowRightLine className="flex-shrink-0 arrow-nudge" />
                 </a>
               </Magnetic>
-              
+
               <Magnetic range={60} strength={0.35} scaleHover={1.03}>
                 <a
                   href="#projects"
-                  className="relative overflow-hidden inline-flex items-center justify-center gap-2 bg-white/80 backdrop-blur border border-blue-200 text-primary font-bold px-8 rounded-full hover:bg-blue-50 transition-colors duration-300 mr-3 sm:mr-4"
-                  style={{ fontSize: 'clamp(0.85rem, 2vw, 1rem)', height: '56px' }}
+                  aria-label="View Projects"
+                  className="relative overflow-hidden inline-flex flex-col items-center justify-center gap-0.5 bg-white/80 backdrop-blur border border-blue-200 text-primary font-semibold rounded-full hover:bg-blue-50 transition-colors duration-300 flex-shrink-0"
+                  style={{ width: '58px', height: '58px' }}
                 >
-                  <span className="cta-shimmer absolute inset-0 pointer-events-none" aria-hidden="true" />
-                  <RiFolderOpenLine className="flex-shrink-0 folder-bounce" /> View Projects
+                  <RiFolderOpenLine className="flex-shrink-0 folder-bounce" style={{ fontSize: '17px' }} />
+                  <span style={{ fontSize: '9px' }}>Work</span>
                 </a>
               </Magnetic>
             </motion.div>
 
-
-            {/* Social Dock — centered on mobile, no overflow */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.54, duration: 0.5 }}
-              className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 bg-white/70 backdrop-blur border border-blue-100 rounded-2xl px-4 sm:px-5 py-3 w-full sm:w-auto"
-            >
-              <div className="flex-shrink-0">
-                <p style={{ fontFamily:"'Caveat',cursive", fontSize:'14px', color:'#1d6feb', lineHeight:1.2, fontWeight:700 }}>Let's ←</p>
-                <p style={{ fontFamily:"'Caveat',cursive", fontSize:'14px', color:'#1d6feb', lineHeight:1.2, fontWeight:700 }}>Connect</p>
-                <svg viewBox="0 0 44 6" fill="none" style={{ width:'40px', marginTop:'2px' }} aria-hidden="true">
-                  <line x1="0" y1="1.5" x2="44" y2="1.5" stroke="#1d6feb" strokeWidth="1.4" strokeLinecap="round" />
-                  <line x1="0" y1="4.5" x2="44" y2="4.5" stroke="#1d6feb" strokeWidth="1.4" strokeLinecap="round" />
-                </svg>
-              </div>
-              <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center">
-                {socials.map((s, i) => (
-                  <motion.a
-                    key={s.label}
-                    href={s.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={s.label}
-                    whileHover={{ scale: 1.2, y: -3 }}
-                    whileTap={{ scale: 0.9 }}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 + i * 0.05 }}
-                    className={`w-7 h-8 sm:w-9 sm:h-9 rounded-full bg-white border border-blue-100 flex items-center justify-center hover:border-primary transition-all duration-200 text-sm sm:text-base shadow-sm flex-shrink-0 ${s.color}`}
-                  >
-                    {s.icon}
-                  </motion.a>
-                ))}
-              </div>
-            </motion.div>
-
           </motion.div>
 
-          {/* ── CENTER: Portrait — same real desktop portrait + brushstroke +
-              orbit tech icons + Assam location card, re-composed to fit a
-              narrow column instead of the wide two-column desktop layout.
-              Same assets, same visual DNA, different arrangement. ── */}
+          {/* ── Portrait column — same real desktop portrait + brushstroke +
+              orbit tech icons + Assam location card, re-composed to sit
+              side-by-side with the text column (as in the reference)
+              instead of stacked full-width below it. Same assets, same
+              visual DNA, different arrangement. ── */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.85, delay: 0.2, ease: "easeOut" }}
-            className="order-1 lg:order-2 relative w-full flex justify-center items-center"
-            style={{ minHeight: 'clamp(300px, 78vw, 420px)' }}
+            className="relative flex-shrink-0 flex justify-center items-start pt-14 sm:pt-16"
+            style={{ width: 'clamp(165px, 48vw, 250px)' }}
           >
             {/* Brush stroke — behind the portrait, diagonal sweep echoing desktop.
                 Centered on the portrait area itself (not the wider outer
@@ -698,57 +591,54 @@ export default function Hero() {
               transition={{ delay: 0.25, duration: 0.9, ease: "easeOut" }}
               className="absolute pointer-events-none select-none z-0"
               style={{
-                width: 'clamp(190px, 62vw, 300px)',
-                top: '50%',
+                width: '150%',
+                top: '20%',
                 left: '50%',
-                transform: 'translate(-50%, -46%) rotate(-7deg)',
+                transform: 'translate(-50%, 0) rotate(-7deg)',
               }}
             />
 
-            {/* Orbit ring — centered on the portrait via top/left 50% + translate,
-                since it's absolutely positioned inside a flex-centering parent */}
-            <svg
-              aria-hidden="true"
-              className="absolute pointer-events-none z-0"
-              style={{
-                width: 'clamp(220px, 68vw, 320px)',
-                height: 'clamp(220px, 68vw, 320px)',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-              }}
-              viewBox="0 0 200 200"
-            >
-              <circle cx="100" cy="100" r="94" fill="none" stroke="#1d6feb" strokeOpacity="0.25" strokeWidth="1" strokeDasharray="3 6" />
-            </svg>
-
-            {/* Orbit badges — parked at fixed quadrants, small idle bob only,
-                pulled in slightly so they never sit over the face on narrow screens */}
+            {/* Orbit badges — matching the reference: React sits just
+                above/left of the portrait's head, and briefcase/Node/Code
+                stack down the right edge outside the portrait, all confined
+                to the upper ~65% so nothing collides with the Assam card
+                pinned at the portrait's bottom-right. */}
             <div className="absolute inset-0 pointer-events-none z-20" aria-hidden="true">
-              <div className="orbit-bob-a absolute" style={{ top: '10%', left: '10%' }}>
-                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.1, duration: 0.5, ease: "backOut" }} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
-                  <SiReact className="text-primary" style={{ fontSize: '16px' }} />
+              <div className="orbit-bob-a absolute" style={{ top: '0%', left: '18%' }}>
+                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.1, duration: 0.5, ease: "backOut" }} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
+                  <SiReact className="text-primary" style={{ fontSize: '15px' }} />
                 </motion.div>
               </div>
-              <div className="orbit-bob-b absolute" style={{ top: '18%', right: '8%' }}>
-                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.22, duration: 0.5, ease: "backOut" }} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
-                  <SiNodedotjs className="text-green-500" style={{ fontSize: '16px' }} />
+              <div className="orbit-bob-b absolute" style={{ top: '10%', right: '-8%' }}>
+                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.18, duration: 0.5, ease: "backOut" }} className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary shadow-md flex items-center justify-center">
+                  <svg viewBox="0 0 24 24" fill="none" style={{ width: '13px', height: '13px' }}><path d="M9 8V6a2 2 0 012-2h2a2 2 0 012 2v2M5 8h14a1 1 0 011 1v9a2 2 0 01-2 2H6a2 2 0 01-2-2V9a1 1 0 011-1z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </motion.div>
               </div>
-              <div className="orbit-bob-c absolute" style={{ bottom: '20%', left: '4%' }}>
-                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.34, duration: 0.5, ease: "backOut" }} className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
-                  <SiJavascript className="text-yellow-400" style={{ fontSize: '14px' }} />
+              <div className="orbit-bob-c absolute" style={{ top: '28%', right: '-14%' }}>
+                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.3, duration: 0.5, ease: "backOut" }} className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
+                  <SiNodedotjs className="text-green-500" style={{ fontSize: '14px' }} />
                 </motion.div>
               </div>
-              <div className="orbit-bob-d absolute" style={{ bottom: '24%', right: '3%' }}>
-                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.46, duration: 0.5, ease: "backOut" }} className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
-                  <RiCodeSSlashLine className="text-slate-700" style={{ fontSize: '14px' }} />
+              <div className="orbit-bob-d absolute" style={{ top: '44%', right: '-10%' }}>
+                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.42, duration: 0.5, ease: "backOut" }} className="w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
+                  <RiCodeSSlashLine className="text-slate-700" style={{ fontSize: '13px' }} />
                 </motion.div>
               </div>
             </div>
 
-            {/* Portrait — same untouched desktop asset, resized for mobile */}
-            <div className="relative z-10" style={{ width: 'clamp(190px, 58vw, 300px)' }}>
+            {/* Orbit ring — a thin arc behind the React icon only, echoing
+                the reference's partial ring near the top of the portrait */}
+            <svg
+              aria-hidden="true"
+              className="absolute pointer-events-none z-0"
+              style={{ width: '90%', height: 'auto', aspectRatio: '1/1', top: '-8%', left: '5%' }}
+              viewBox="0 0 200 200"
+            >
+              <path d="M 20 100 A 80 80 0 0 1 140 25" fill="none" stroke="white" strokeOpacity="0.85" strokeWidth="2.5" strokeLinecap="round" />
+            </svg>
+
+            {/* Portrait — same untouched desktop asset, full column width */}
+            <div className="relative z-10 w-full">
               <motion.div
                 initial={{ opacity: 0, y: rm ? 0 : 22 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -761,55 +651,92 @@ export default function Hero() {
                   style={{ filter: 'drop-shadow(0 20px 28px rgba(15,23,42,0.25))' }}
                 />
               </motion.div>
-            </div>
 
-            {/* Assam location card — floating glass card, tucked to the
-                lower-right of the portrait so it never covers the face */}
-            <motion.div
-              initial={{ opacity: 0, y: rm ? 0 : 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.05, duration: 0.6, ease: "easeOut" }}
-              className="absolute z-20 flex items-center gap-2 sm:gap-2.5 bg-white/80 backdrop-blur-md border border-blue-100/70 rounded-2xl px-2.5 sm:px-3.5 py-2 sm:py-2.5"
-              style={{
-                right: '1%',
-                bottom: '1%',
-                maxWidth: '92%',
-                boxShadow: '0 10px 26px rgba(29,111,235,0.16), 0 0 0 1px rgba(29,111,235,0.06)',
-              }}
-            >
-              <img src={assamMapImg} alt="" aria-hidden="true" className="w-7 h-7 sm:w-10 sm:h-10 object-contain flex-shrink-0" />
-              <div className="min-w-0">
-                <p className="text-[11px] sm:text-sm font-bold text-foreground flex items-center gap-1.5 leading-tight">
-                  <span className="whitespace-nowrap">From Assam, India</span> <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block flex-shrink-0" />
-                </p>
-                <p className="text-[9px] sm:text-xs text-slate-500 leading-snug">Inspired by nature, driven by code.</p>
-              </div>
-            </motion.div>
+              {/* Assam location card — pinned to the portrait's own bottom
+                  edge (not the row's), so it always sits right against the
+                  photo regardless of how tall the text column gets */}
+              <motion.div
+                initial={{ opacity: 0, y: rm ? 0 : 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.05, duration: 0.6, ease: "easeOut" }}
+                className="absolute z-20 flex items-center gap-1.5 bg-white/90 backdrop-blur-md border border-blue-100/70 rounded-xl px-2 py-1.5"
+                style={{
+                  bottom: '2%',
+                  right: '-2%',
+                  maxWidth: '140px',
+                  boxShadow: '0 10px 26px rgba(29,111,235,0.16), 0 0 0 1px rgba(29,111,235,0.06)',
+                }}
+              >
+                <img src={assamMapImg} alt="" aria-hidden="true" className="w-5 h-5 sm:w-7 sm:h-7 object-contain flex-shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[8px] sm:text-[10px] font-bold text-foreground flex items-center gap-1 leading-tight whitespace-nowrap">
+                    From Assam <span className="w-1 h-1 rounded-full bg-primary inline-block flex-shrink-0" />
+                  </p>
+                  <p className="text-[6.5px] sm:text-[8px] text-slate-500 leading-snug whitespace-nowrap">Inspired by nature</p>
+                </div>
+              </motion.div>
+            </div>
           </motion.div>
 
-          {/* Stats — 4 cards, same as desktop, laid out 2x2 on mobile so all
-              four ("Commitment to Quality" included) are present without a
-              cramped single row */}
-          <div className="order-3 grid grid-cols-2 sm:grid-cols-4 gap-3 w-full">
-            {desktopStats.map(({ value, label, Icon, color, bg }) => (
+          </div>
+
+          {/* Stats — 4 cards, same as desktop, wrapped in a single white
+              rounded card (matches the reference's stat panel) instead of
+              floating individually over the landscape background */}
+          <div className="relative z-20 grid grid-cols-2 sm:grid-cols-4 gap-0 bg-white rounded-3xl shadow-lg mt-6 overflow-hidden divide-x divide-y sm:divide-y-0 divide-slate-100">
+            {desktopStats.map(({ value, label, Icon, color }) => (
               <motion.div
                 key={label}
                 initial={{ opacity: 0, y: rm ? 0 : 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
-                whileHover={{ scale: 1.04 }}
-                className={`bg-gradient-to-br ${bg} border border-white/80 backdrop-blur rounded-2xl p-3 flex flex-col items-center text-center shadow-sm`}
+                className="flex flex-col items-center text-center py-5 px-2"
               >
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center mb-1.5" style={{ backgroundColor: color + '20' }}>
-                  <Icon style={{ color, fontSize: '16px' }} />
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center mb-2" style={{ backgroundColor: color + '18' }}>
+                  <Icon style={{ color, fontSize: '18px' }} />
                 </div>
-                <div className="font-bold leading-tight" style={{ color, fontSize: 'clamp(1rem, 4.5vw, 1.3rem)' }}>
+                <div className="font-bold leading-tight text-foreground" style={{ fontSize: 'clamp(1.1rem, 5vw, 1.4rem)' }}>
                   <StatCounter value={value} />
                 </div>
-                <div className="text-slate-700 font-semibold leading-tight mt-0.5" style={{ fontSize: 'clamp(0.58rem, 2vw, 0.7rem)' }}>{label}</div>
+                <div className="text-slate-500 font-medium leading-tight mt-1" style={{ fontSize: 'clamp(0.68rem, 2.6vw, 0.8rem)' }}>{label}</div>
               </motion.div>
             ))}
           </div>
+
+          {/* Let's Connect + socials — centered below the stats card, no box,
+              matching the reference */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.5 }}
+            className="flex flex-col items-center gap-3 mt-8"
+          >
+            <p style={{ fontFamily: "'Caveat',cursive", fontSize: '26px', color: '#1d6feb', fontWeight: 700 }} className="relative">
+              Let's Connect
+              <svg viewBox="0 0 120 8" fill="none" style={{ width: '90px', margin: '0 auto', display: 'block' }} aria-hidden="true">
+                <path d="M2 3 Q60 -1 118 3" stroke="#1d6feb" strokeWidth="1.6" strokeLinecap="round" />
+              </svg>
+            </p>
+            <div className="flex items-center gap-3 flex-wrap justify-center">
+              {socials.map((s, i) => (
+                <motion.a
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.label}
+                  whileHover={{ scale: 1.2, y: -3 }}
+                  whileTap={{ scale: 0.9 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.65 + i * 0.05 }}
+                  className={`w-11 h-11 rounded-full bg-white border border-blue-100 flex items-center justify-center hover:border-primary transition-all duration-200 text-base shadow-sm flex-shrink-0 ${s.color}`}
+                >
+                  {s.icon}
+                </motion.a>
+              ))}
+            </div>
+          </motion.div>
 
         </div>
 
