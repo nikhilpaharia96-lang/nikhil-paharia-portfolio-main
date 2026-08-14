@@ -1,10 +1,9 @@
 import { RiArrowRightLine, RiArrowDownLine, RiMapPinLine, RiCodeSSlashLine, RiVideoLine, RiPencilLine, RiSendPlaneLine, RiFolderOpenLine, RiFolderChartLine, RiGroupLine, RiTimeLine, RiStarLine } from "react-icons/ri";
-import { SiReact, SiNodedotjs, SiJavascript, SiTailwindcss } from "react-icons/si";
+import { SiReact, SiNodedotjs, SiJavascript } from "react-icons/si";
 import { FaGithub, FaLinkedinIn, FaInstagram, FaYoutube, FaWhatsapp } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { motion, useScroll, useTransform, useSpring, useVelocity, useMotionValueEvent, useInView, useReducedMotion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-import profileImg from "../assets/images/profile-nobg.png";
 import teaBg from "../assets/images/file_0000000066b08207b18b1ec1e8269869.png";
 import SplitText from "@/components/ui/SplitText";
 import Magnetic from "@/components/ui/Magnetic";
@@ -99,15 +98,8 @@ function StatCounter({ value, duration = 1.6 }: { value: string; duration?: numb
 }
 
 
-const stats = [
-  { value: "96+",   label: "Projects",   sub: "Completed",  Icon: RiFolderChartLine, color: "#1d6feb", bg: "from-blue-50 to-blue-100/60" },
-  { value: "30+",   label: "Happy",      sub: "Clients",    Icon: RiGroupLine,        color: "#7c3aed", bg: "from-violet-50 to-violet-100/60" },
-  { value: "1096+", label: "Days",       sub: "Experience", Icon: RiTimeLine,         color: "#0891b2", bg: "from-cyan-50 to-cyan-100/60" },
-];
-
-// Desktop-only — same values as the mobile `stats` array, plus the 4th
-// "Commitment to Quality" card called for in the desktop spec. Kept as its
-// own array so the mobile 3-card scroller above is never touched.
+// Shared between mobile (2x2 grid) and desktop (stacked column) Hero layouts
+// so both surfaces show the exact same four stats.
 const desktopStats = [
   { value: "96+",   label: "Projects Completed",     Icon: RiFolderChartLine, color: "#1d6feb", bg: "from-blue-50 to-blue-100/60" },
   { value: "30+",   label: "Happy Clients",          Icon: RiGroupLine,       color: "#7c3aed", bg: "from-violet-50 to-violet-100/60" },
@@ -388,7 +380,7 @@ export default function Hero() {
 
       {/* ── MAIN CONTENT ── */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 lg:px-6">
-        <div className="grid lg:hidden lg:grid-cols-[1fr_auto_auto] gap-6 lg:gap-12 items-center pt-24 pb-16 lg:pt-0 lg:pb-0 lg:min-h-screen">
+        <div className="grid lg:hidden grid-cols-1 gap-6 items-center pt-24 pb-16">
 
           {/* ── LEFT: Text Content — order-2 on mobile (below profile) ── */}
           <motion.div
@@ -681,144 +673,143 @@ export default function Hero() {
               </div>
             </motion.div>
 
-            {/* Stats — 3 equal columns, mobile only */}
-            <div className="grid grid-cols-3 gap-3 mt-6 lg:hidden">
-              {stats.map(({ value, label, sub, Icon, color, bg }) => (
-                <motion.div
-                  key={label}
-                  whileHover={{ scale: 1.04 }}
-                  className={`bg-gradient-to-br ${bg} border border-white/80 backdrop-blur rounded-2xl p-3 flex flex-col items-center text-center shadow-sm`}
-                >
-                  <div className="w-8 h-8 rounded-xl flex items-center justify-center mb-1.5" style={{ backgroundColor: color + '20' }}>
-                    <Icon style={{ color, fontSize: '16px' }} />
-                  </div>
-                  <div className="font-bold leading-tight" style={{ color, fontSize: 'clamp(1rem, 4.5vw, 1.3rem)' }}>
-                    <StatCounter value={value} />
-                  </div>
-                  <div className="text-slate-700 font-semibold leading-tight mt-0.5" style={{ fontSize: 'clamp(0.58rem, 2vw, 0.7rem)' }}>{label}</div>
-
-                  <div className="text-slate-400" style={{ fontSize: 'clamp(0.52rem, 1.8vw, 0.62rem)' }}>{sub}</div>
-                </motion.div>
-              ))}
-            </div>
-
           </motion.div>
 
-          {/* ── CENTER: Profile Image — cinematic reveal transformation (matches uploaded reference video) ── */}
+          {/* ── CENTER: Portrait — same real desktop portrait + brushstroke +
+              orbit tech icons + Assam location card, re-composed to fit a
+              narrow column instead of the wide two-column desktop layout.
+              Same assets, same visual DNA, different arrangement. ── */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.93 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.85, delay: 0.2, ease: "easeOut" }}
-            className="order-1 lg:order-2 flex justify-center items-center w-full"
+            className="order-1 lg:order-2 relative w-full flex justify-center items-center"
+            style={{ minHeight: 'clamp(300px, 78vw, 420px)' }}
           >
-            <div className="relative mx-auto" style={{ width: 'clamp(180px, 52vw, 380px)', height: 'clamp(220px, 63vw, 460px)' }}>
+            {/* Brush stroke — behind the portrait, diagonal sweep echoing desktop.
+                Centered on the portrait area itself (not the wider outer
+                container) so it can't bleed past the viewport edge. */}
+            <motion.img
+              src={brushStroke}
+              alt=""
+              aria-hidden="true"
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 0.8, scale: 1 }}
+              transition={{ delay: 0.25, duration: 0.9, ease: "easeOut" }}
+              className="absolute pointer-events-none select-none z-0"
+              style={{
+                width: 'clamp(190px, 62vw, 300px)',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -46%) rotate(-7deg)',
+              }}
+            />
 
-              {/* Ambient glow blob behind — soft bloom, like the video's backlight */}
-              <div
-                className="absolute inset-[-30px] rounded-[40%_60%_55%_45%] bg-gradient-to-br from-sky-200/35 via-primary/20 to-blue-300/30 blur-3xl animate-pulse"
-                style={{ animationDuration: '6s' }}
-              />
+            {/* Orbit ring — centered on the portrait via top/left 50% + translate,
+                since it's absolutely positioned inside a flex-centering parent */}
+            <svg
+              aria-hidden="true"
+              className="absolute pointer-events-none z-0"
+              style={{
+                width: 'clamp(220px, 68vw, 320px)',
+                height: 'clamp(220px, 68vw, 320px)',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+              }}
+              viewBox="0 0 200 200"
+            >
+              <circle cx="100" cy="100" r="94" fill="none" stroke="#1d6feb" strokeOpacity="0.25" strokeWidth="1" strokeDasharray="3 6" />
+            </svg>
 
-              {/* Blue rim light — left side, fades in after the sweep passes */}
-              <div
-                className="rim-blue absolute inset-[-18px] rounded-[40%_60%_55%_45%] pointer-events-none"
-                style={{
-                  background: 'radial-gradient(circle at 15% 50%, rgba(59,130,246,0.55), transparent 60%)',
-                  filter: 'blur(18px)',
-                  zIndex: 5,
-                }}
-                aria-hidden="true"
-              />
-              {/* Orange rim light — right side */}
-              <div
-                className="rim-orange absolute inset-[-18px] rounded-[40%_60%_55%_45%] pointer-events-none"
-                style={{
-                  background: 'radial-gradient(circle at 85% 50%, rgba(249,115,22,0.4), transparent 60%)',
-                  filter: 'blur(18px)',
-                  zIndex: 5,
-                }}
-                aria-hidden="true"
-              />
-
-              {/* Rotating gradient border ring */}
-              <div className="absolute inset-[-4px] rounded-[40%_60%_55%_45%] border-2 border-transparent"
-                style={{ background:'linear-gradient(white,white) padding-box, linear-gradient(90deg,transparent 30%,rgba(29,111,235,0.5) 50%,transparent 70%) border-box', animation:'spin 10s linear infinite' }} />
-
-              {/* Glass base */}
-              <div className="absolute inset-0 rounded-[38%_62%_55%_45%] bg-white/60 backdrop-blur-sm border-2 border-white/80 shadow-[0_8px_48px_rgba(29,111,235,0.25)]" />
-
-              {/* Photo — clipped to the same blob shape, with cinematic reveal + light sweep + idle float */}
-              <div className="absolute inset-0 rounded-[38%_62%_55%_45%] overflow-hidden" style={{ zIndex: 10 }}>
-                <img
-                  src={profileImg}
-                  alt="Nikhil"
-                  className="w-full h-full object-cover object-center"
-                  style={{ animation: 'cinematicReveal 1.6s cubic-bezier(0.22,1,0.36,1) forwards, floatY 6s ease-in-out infinite 1.6s' }}
-                />
-                <div className="light-sweep" aria-hidden="true" />
-              </div>
-
-              {/* Recurring soft glow pulse around the blob — sits outside the clip so the glow isn't cut off */}
-              <div className="profile-glow rounded-[38%_62%_55%_45%]" aria-hidden="true" style={{ zIndex: 11 }} />
-
-              <div className="absolute bottom-[-2px] left-[20%] right-[20%] h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent blur-sm" style={{ zIndex: 15 }} />
-
-              {/* Tech icon bubbles — delayed so they appear after the reveal finishes */}
-              {[
-                { Icon: SiReact,       color: "text-primary",    size: "text-base lg:text-lg",   pos: "absolute -top-3 -left-3 w-8 h-8 lg:w-10 lg:h-10",       dur:'3s',   delay:'0s'   },
-                { Icon: SiNodedotjs,   color: "text-green-500",  size: "text-lg lg:text-xl",     pos: "absolute top-1/4 -right-4 lg:-right-5 w-9 h-9 lg:w-11 lg:h-11", dur:'4s', delay:'1s' },
-                { Icon: SiJavascript,  color: "text-yellow-400", size: "text-sm lg:text-base",   pos: "absolute bottom-10 -left-4 lg:-left-5 w-8 h-8 lg:w-9 lg:h-9",  dur:'2.8s', delay:'0.5s' },
-                { Icon: SiTailwindcss, color: "text-cyan-500",   size: "text-sm lg:text-base",   pos: "absolute -bottom-2 right-3 lg:right-4 w-8 h-8 lg:w-10 lg:h-10", dur:'3.5s', delay:'1.5s' },
-              ].map(({ Icon, color, size, pos, dur, delay }, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 1.7 + i * 0.12, duration: 0.5, ease: "backOut" }}
-                  whileHover={{ scale: 1.25, rotate: 10 }}
-                  className={`${pos} bg-white/90 backdrop-blur border border-blue-100 shadow-md rounded-full flex items-center justify-center z-30`}
-                  style={{ animation:`floatY ${dur} ease-in-out infinite ${delay}` }}
-                >
-                  <Icon className={`${color} ${size}`} />
+            {/* Orbit badges — parked at fixed quadrants, small idle bob only,
+                pulled in slightly so they never sit over the face on narrow screens */}
+            <div className="absolute inset-0 pointer-events-none z-20" aria-hidden="true">
+              <div className="orbit-bob-a absolute" style={{ top: '10%', left: '10%' }}>
+                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.1, duration: 0.5, ease: "backOut" }} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
+                  <SiReact className="text-primary" style={{ fontSize: '16px' }} />
                 </motion.div>
-              ))}
+              </div>
+              <div className="orbit-bob-b absolute" style={{ top: '18%', right: '8%' }}>
+                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.22, duration: 0.5, ease: "backOut" }} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
+                  <SiNodedotjs className="text-green-500" style={{ fontSize: '16px' }} />
+                </motion.div>
+              </div>
+              <div className="orbit-bob-c absolute" style={{ bottom: '20%', left: '4%' }}>
+                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.34, duration: 0.5, ease: "backOut" }} className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
+                  <SiJavascript className="text-yellow-400" style={{ fontSize: '14px' }} />
+                </motion.div>
+              </div>
+              <div className="orbit-bob-d absolute" style={{ bottom: '24%', right: '3%' }}>
+                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.46, duration: 0.5, ease: "backOut" }} className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
+                  <RiCodeSSlashLine className="text-slate-700" style={{ fontSize: '14px' }} />
+                </motion.div>
+              </div>
             </div>
+
+            {/* Portrait — same untouched desktop asset, resized for mobile */}
+            <div className="relative z-10" style={{ width: 'clamp(190px, 58vw, 300px)' }}>
+              <motion.div
+                initial={{ opacity: 0, y: rm ? 0 : 22 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: rm ? 0.3 : 0.9, delay: 0.35, ease: "easeOut" }}
+              >
+                <img
+                  src={desktopPortrait}
+                  alt="Nikhil Paharia"
+                  className="w-full h-auto object-contain"
+                  style={{ filter: 'drop-shadow(0 20px 28px rgba(15,23,42,0.25))' }}
+                />
+              </motion.div>
+            </div>
+
+            {/* Assam location card — floating glass card, tucked to the
+                lower-right of the portrait so it never covers the face */}
+            <motion.div
+              initial={{ opacity: 0, y: rm ? 0 : 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.05, duration: 0.6, ease: "easeOut" }}
+              className="absolute z-20 flex items-center gap-2 sm:gap-2.5 bg-white/80 backdrop-blur-md border border-blue-100/70 rounded-2xl px-2.5 sm:px-3.5 py-2 sm:py-2.5"
+              style={{
+                right: '1%',
+                bottom: '1%',
+                maxWidth: '92%',
+                boxShadow: '0 10px 26px rgba(29,111,235,0.16), 0 0 0 1px rgba(29,111,235,0.06)',
+              }}
+            >
+              <img src={assamMapImg} alt="" aria-hidden="true" className="w-7 h-7 sm:w-10 sm:h-10 object-contain flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[11px] sm:text-sm font-bold text-foreground flex items-center gap-1.5 leading-tight">
+                  <span className="whitespace-nowrap">From Assam, India</span> <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block flex-shrink-0" />
+                </p>
+                <p className="text-[9px] sm:text-xs text-slate-500 leading-snug">Inspired by nature, driven by code.</p>
+              </div>
+            </motion.div>
           </motion.div>
 
-          {/* ── RIGHT: Stat Cards — desktop only ── */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.35, ease: "easeOut" }}
-            className="order-3 hidden lg:flex flex-col gap-4 self-stretch justify-center"
-          >
-            {stats.map(({ value, label, sub, Icon, color, bg }, i) => (
+          {/* Stats — 4 cards, same as desktop, laid out 2x2 on mobile so all
+              four ("Commitment to Quality" included) are present without a
+              cramped single row */}
+          <div className="order-3 grid grid-cols-2 sm:grid-cols-4 gap-3 w-full">
+            {desktopStats.map(({ value, label, Icon, color, bg }) => (
               <motion.div
                 key={label}
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + i * 0.1, duration: 0.5, type: "spring", stiffness: 160 }}
-                whileHover={{ scale: 1.05, x: -4 }}
-                className={`bg-gradient-to-br ${bg} border border-white/80 backdrop-blur rounded-2xl px-5 py-4 shadow-md flex items-center gap-4 min-w-[150px]`}
+                initial={{ opacity: 0, y: rm ? 0 : 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                whileHover={{ scale: 1.04 }}
+                className={`bg-gradient-to-br ${bg} border border-white/80 backdrop-blur rounded-2xl p-3 flex flex-col items-center text-center shadow-sm`}
               >
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: color + '18' }}>
-                  <Icon style={{ color, fontSize: '20px' }} />
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center mb-1.5" style={{ backgroundColor: color + '20' }}>
+                  <Icon style={{ color, fontSize: '16px' }} />
                 </div>
-                <div>
-                  <div className="text-xl font-bold text-foreground leading-none mb-0.5" style={{ color }}>
-                    <StatCounter value={value} />
-                  </div>
-
-                  <div className="text-xs font-semibold text-slate-700">{label}</div>
-                  <div className="text-[10px] text-slate-400 font-medium">{sub}</div>
-                  <div className="flex gap-1 mt-1.5">
-                    <div className="h-0.5 w-6 rounded-full" style={{ backgroundColor: color }} />
-                    <div className="h-0.5 w-3 rounded-full opacity-40" style={{ backgroundColor: color }} />
-                  </div>
+                <div className="font-bold leading-tight" style={{ color, fontSize: 'clamp(1rem, 4.5vw, 1.3rem)' }}>
+                  <StatCounter value={value} />
                 </div>
+                <div className="text-slate-700 font-semibold leading-tight mt-0.5" style={{ fontSize: 'clamp(0.58rem, 2vw, 0.7rem)' }}>{label}</div>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
 
         </div>
 
@@ -1167,7 +1158,7 @@ export default function Hero() {
                 <img src={assamMapImg} alt="" aria-hidden="true" className="w-12 h-12 object-contain flex-shrink-0" />
                 <div>
                   <p className="text-sm font-bold text-foreground flex items-center gap-1.5">
-                    North East, India <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
+                    From Assam, India <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
                   </p>
                   <p className="text-xs text-slate-500 leading-snug">Inspired by nature, driven by code.</p>
                 </div>
