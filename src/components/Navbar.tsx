@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { RiMenuLine, RiCloseLine } from "react-icons/ri";
 import Magnetic from "@/components/ui/Magnetic";
 import type Lenis from "lenis";
+import { lockBodyScroll } from "@/lib/scrollLock";
 
 const navLinks = [
   { name: "Home", href: "#home" },
@@ -99,14 +100,8 @@ export default function Navbar() {
   };
 
   useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
+    if (!mobileMenuOpen) return;
+    return lockBodyScroll();
   }, [mobileMenuOpen]);
 
   return (
