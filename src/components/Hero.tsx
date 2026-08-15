@@ -681,8 +681,8 @@ export default function Hero() {
                 transition={{ delay: 1.05, duration: 0.6, ease: "easeOut" }}
                 className="absolute z-20 pointer-events-auto flex items-center gap-1.5 bg-white/90 backdrop-blur-md border border-blue-100/70 rounded-xl px-2 py-1.5"
                 style={{
-                  bottom: '2%',
-                  right: '0%',
+                  bottom: '7%',
+                  right: '24%',
                   maxWidth: '140px',
                   boxShadow: '0 10px 26px rgba(29,111,235,0.16), 0 0 0 1px rgba(29,111,235,0.06)',
                 }}
