@@ -144,20 +144,39 @@ export default function Hero() {
   const rm = useReducedMotion();
 
 
-  /* ── Scroll-direction tracking — drives CTA converge AND the LHS/RHS cloud crossover ── */
+  /* ── Scroll-direction tracking — drives CTA converge AND the LHS/RHS cloud crossover ──
+     This used to re-render (and re-trigger a Framer Motion `layout` FLIP
+     animation on the two cloud images) on every scroll frame where the
+     finger moved more than 4px in a new direction. A touch swipe is never
+     perfectly monotonic — the finger naturally jitters a few px back and
+     forth — so on mobile this was flipping `isScrollingUp` back and forth
+     several times *during a single swipe*, each flip forcing a synchronous
+     layout re-measure on the main thread mid-gesture. That's exactly what
+     was cutting the scroll fling short and making it take 2-3 swipes to
+     get anywhere: the browser was busy doing layout work instead of
+     running the momentum scroll. Two changes fix it: a much larger
+     jitter-tolerant threshold (48px, roughly "did the user meaningfully
+     change direction" rather than "did the finger wobble"), and only
+     calling setState when the direction actually flipped (skips the
+     re-render + layout animation entirely on same-direction frames). */
   const { scrollY: pageScrollY } = useScroll();
   const [isScrollingUp, setIsScrollingUp] = useState(false);
   const lastScrollY = useRef(0);
+  const isScrollingUpRef = useRef(false);
   useMotionValueEvent(pageScrollY, "change", (latest) => {
     const diff = latest - lastScrollY.current;
-    if (Math.abs(diff) > 4) {
+    if (Math.abs(diff) > 48) {
+      lastScrollY.current = latest;
       // Only react to scroll direction while the Hero section itself is still
       // in view (i.e. hasn't fully scrolled past yet) — once the user has
       // scrolled below Hero, the crossover stops responding.
       if (scrollYProgress.get() < 1) {
-        setIsScrollingUp(diff < 0);
+        const nextIsScrollingUp = diff < 0;
+        if (nextIsScrollingUp !== isScrollingUpRef.current) {
+          isScrollingUpRef.current = nextIsScrollingUp;
+          setIsScrollingUp(nextIsScrollingUp);
+        }
       }
-      lastScrollY.current = latest;
     }
   });
 
