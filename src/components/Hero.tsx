@@ -5,6 +5,7 @@ import { FaXTwitter } from "react-icons/fa6";
 import { motion, useScroll, useTransform, useSpring, useVelocity, useMotionValueEvent, useInView, useReducedMotion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import teaBg from "../assets/images/file_0000000066b08207b18b1ec1e8269869.png";
+import teaBgMobile from "../assets/images/tea-brush-mobile.webp";
 import SplitText from "@/components/ui/SplitText";
 import Magnetic from "@/components/ui/Magnetic";
 
@@ -182,11 +183,11 @@ export default function Hero() {
   );
 
   return (
-    <section ref={ref} className="relative min-h-[100svh] lg:min-h-screen flex items-start lg:items-center overflow-hidden w-full max-w-full section-wrap" id="home">
+    <section ref={ref} className="relative lg:min-h-screen flex items-start lg:items-center overflow-hidden w-full max-w-full section-wrap" id="home">
 
       {/* Background with scroll parallax — MOBILE/TABLET ONLY, untouched */}
       <motion.div style={{ y: smoothBgY }} className="absolute inset-0 z-0 lg:hidden">
-        <img src={teaBg} alt="" className="w-full h-full object-cover" style={{ filter: 'brightness(0.95) saturate(0.9)' }} />
+        <img src={teaBgMobile} alt="" className="w-full h-full object-cover" style={{ objectPosition: 'center', filter: 'brightness(0.97) saturate(0.95)' }} />
         <div className="absolute inset-0 bg-gradient-to-r from-white/45 via-white/20 to-blue-50/10" />
         <div className="absolute inset-0 bg-gradient-to-t from-white/50 via-transparent to-white/15" />
       </motion.div>
@@ -380,7 +381,7 @@ export default function Hero() {
 
       {/* ── MAIN CONTENT ── */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-6">
-        <div className="lg:hidden pt-[4.75rem] pb-3">
+        <div className="lg:hidden pt-[4.75rem] pb-4">
 
           {/* ── Hero composition: text content flows normally on the left;
               the portrait (same real desktop asset) is absolutely
@@ -703,22 +704,22 @@ export default function Hero() {
           {/* Stats — 4 cards, same as desktop, wrapped in a single white
               rounded card (matches the reference's stat panel) instead of
               floating individually over the landscape background */}
-          <div className="relative z-20 grid grid-cols-2 sm:grid-cols-4 gap-0 bg-white rounded-2xl shadow-lg mt-3 overflow-hidden divide-x divide-y sm:divide-y-0 divide-slate-100">
+          <div className="relative z-20 grid grid-cols-4 gap-0 bg-white rounded-2xl shadow-lg mt-3 overflow-hidden divide-x divide-slate-100">
             {desktopStats.map(({ value, label, Icon, color }) => (
               <motion.div
                 key={label}
                 initial={{ opacity: 0, y: rm ? 0 : 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
-                className="flex flex-col items-center text-center py-2.5 px-2"
+                className="flex flex-col items-center text-center py-2 px-1"
               >
-                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center mb-1" style={{ backgroundColor: color + '18' }}>
-                  <Icon style={{ color, fontSize: '13px' }} />
+                <div className="w-5 h-5 sm:w-7 sm:h-7 rounded-full flex items-center justify-center mb-1 flex-shrink-0" style={{ backgroundColor: color + '18' }}>
+                  <Icon style={{ color, fontSize: '10px' }} />
                 </div>
-                <div className="font-bold leading-tight text-foreground" style={{ fontSize: 'clamp(0.95rem, 4vw, 1.15rem)' }}>
+                <div className="font-bold leading-tight text-foreground whitespace-nowrap" style={{ fontSize: 'clamp(0.68rem, 3vw, 1rem)' }}>
                   <StatCounter value={value} />
                 </div>
-                <div className="text-slate-500 font-medium leading-tight mt-0.5" style={{ fontSize: 'clamp(0.58rem, 2vw, 0.65rem)' }}>{label}</div>
+                <div className="text-slate-500 font-medium leading-tight mt-0.5" style={{ fontSize: 'clamp(0.44rem, 1.7vw, 0.6rem)' }}>{label}</div>
               </motion.div>
             ))}
           </div>
