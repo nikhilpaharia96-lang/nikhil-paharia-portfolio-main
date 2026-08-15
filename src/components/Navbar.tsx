@@ -118,15 +118,15 @@ export default function Navbar() {
       }`}
       style={{ paddingTop: `max(env(safe-area-inset-top, 0px), ${isScrolled ? '10px' : '16px'})` }}
     >
-      <div className="container-tight flex items-center justify-between h-11">
+      <div className="container-tight px-3.5 sm:px-6 flex items-center justify-between h-11 gap-2">
         <Magnetic range={50} strength={0.3}>
          <a 
   href="#home" 
   onClick={(e) => { e.preventDefault(); scrollTo("#home"); }}
-  className="font-mono text-lg sm:text-xl lg:text-2xl font-bold tracking-wider flex items-center gap-2 text-foreground transition-all duration-300 hover:text-primary hover:drop-shadow-[0_0_12px_rgba(29,111,235,0.4)]"
+  className="font-mono text-sm sm:text-xl lg:text-2xl font-bold tracking-wider flex items-center gap-1.5 sm:gap-2 text-foreground transition-all duration-300 hover:text-primary hover:drop-shadow-[0_0_12px_rgba(29,111,235,0.4)] min-w-0 flex-shrink"
 >
-  <img src={npLogo} alt="NP logo" className="h-7 sm:h-8 lg:h-9 w-auto" />
-  𝐍𝐢𝐤𝐡𝐢𝐥 <span className="text-primary">𝐏𝐚𝐡𝐚𝐫𝐢𝐚 </span>
+  <img src={npLogo} alt="NP logo" className="h-6 sm:h-8 lg:h-9 w-auto flex-shrink-0" />
+  <span className="whitespace-nowrap">𝐍𝐢𝐤𝐡𝐢𝐥 <span className="text-primary">𝐏𝐚𝐡𝐚𝐫𝐢𝐚</span></span>
 </a>
         </Magnetic>
 
@@ -170,14 +170,24 @@ export default function Navbar() {
           </Magnetic>
         </div>
 
-        {/* Mobile Toggle — vertically centered, properly sized */}
-        <button 
-          className="lg:hidden text-slate-800 hover:text-slate-900 transition-colors w-11 h-11 flex items-center justify-center bg-blue-50/50 rounded-full border border-blue-100/60 z-[210] relative self-center flex-shrink-0"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-        >
-          {mobileMenuOpen ? <RiCloseLine size={22} /> : <RiMenuLine size={22} />}
-        </button>
+        {/* Mobile-only: compact Hire Me + hamburger, right-aligned */}
+        <div className="lg:hidden flex items-center gap-2 flex-shrink-0">
+          <a
+            href="#contact"
+            onClick={(e) => { e.preventDefault(); scrollTo("#contact"); }}
+            className="bg-primary text-white font-bold rounded-full shadow-sm flex items-center justify-center whitespace-nowrap flex-shrink-0"
+            style={{ fontSize: '11px', height: '34px', padding: '0 13px' }}
+          >
+            Hire Me
+          </a>
+          <button
+            className="text-slate-800 hover:text-slate-900 transition-colors w-10 h-10 flex items-center justify-center bg-blue-50/50 rounded-full border border-blue-100/60 z-[210] relative self-center flex-shrink-0"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+          >
+            {mobileMenuOpen ? <RiCloseLine size={20} /> : <RiMenuLine size={20} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
