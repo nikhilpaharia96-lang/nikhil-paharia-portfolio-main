@@ -382,25 +382,27 @@ export default function Hero() {
       <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-6">
         <div className="lg:hidden pt-20 pb-16">
 
-          {/* ── Top row: Text (left) + Portrait (right), side-by-side like the
-              reference — NOT stacked. Text drives the column width; portrait
-              sits in a fixed-width column that shrinks gracefully down to
-              320px. ── */}
-          <div className="flex flex-row items-start gap-3 sm:gap-5">
+          {/* ── Hero composition: text content flows normally on the left;
+              the portrait (same real desktop asset) is absolutely
+              positioned toward the right/center, large and prominent,
+              partially overlapping the blue brushstroke behind it. Text
+              sits on z-10 with opaque backgrounds so it is always legible
+              even where it passes in front of the portrait's shoulder. ── */}
+          <div className="relative">
 
           {/* ── Text Content ── */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-left flex-1 min-w-0"
+            className="relative z-10 text-left"
           >
             {/* Available for Hire badge */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.5 }}
-              className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-3 sm:px-4 py-1.5 mb-4"
+              className="inline-flex items-center gap-2 bg-white/80 backdrop-blur border border-blue-200 rounded-full px-3 sm:px-4 py-1.5 mb-4"
             >
               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
               <span className="text-[10px] sm:text-xs font-mono text-primary uppercase tracking-widest whitespace-nowrap">Available for Hire</span>
@@ -417,7 +419,9 @@ export default function Hero() {
               <SplitText type="chars" delay={0.1}>Hi, I'm</SplitText>
             </motion.p>
 
-            {/* Name block — underline only under "Nikhil", paint drops above last "a" of Paharia */}
+            {/* Name block — underline only under "Nikhil", paint drops above last "a" of Paharia.
+                Sized to land at ~48–58px across the 320–430px mobile range while
+                never overflowing the viewport (clamp caps both ends). */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
@@ -425,15 +429,11 @@ export default function Hero() {
               className="relative ul-wrap mb-4"
               style={{ display: 'inline-block', maxWidth: '100%' }}
             >
-              {/* Name — "Nikhil" (dark, underlined) on its own line, "Paharia"
-                  (gradient blue, with paint-drop accent) on the next line —
-                  matching the reference exactly. Two separate SplitText
-                  calls so each word gets its own color. */}
               <h1
-                style={{ fontSize: 'clamp(2rem, 11vw, 3.2rem)', lineHeight: 0.98, letterSpacing: '-0.02em' }}
+                style={{ fontSize: 'clamp(3rem, calc(1.2rem + 9vw), 3.625rem)', lineHeight: 1.02, letterSpacing: '-0.02em' }}
                 className="font-bold"
               >
-                <span className="block relative" style={{ width: 'fit-content' }}>
+                <span className="block relative" style={{ width: 'fit-content', maxWidth: '100%' }}>
                   <SplitText type="chars" delay={0.25}>Nikhil</SplitText>
                   {/* Underline — hand-drawn tapered brush stroke under "Nikhil" only */}
                   <motion.svg
@@ -457,7 +457,7 @@ export default function Hero() {
                     />
                   </motion.svg>
                 </span>
-                <span className="block relative" style={{ width: 'fit-content' }}>
+                <span className="block relative" style={{ width: 'fit-content', maxWidth: '100%' }}>
                   <SplitText type="chars" delay={0.35} charClassName="gradient-text">Paharia</SplitText>
                   {/* Paint drops — above the last "a" in Paharia */}
                   <span
@@ -501,15 +501,18 @@ export default function Hero() {
               </p>
             </motion.div>
 
-            {/* Bio */}
+            {/* Bio — width capped so it wraps into readable multi-word
+                lines and stays clear of the portrait's face area, never
+                one/two words per line */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.36, duration: 0.6 }}
-              className="flex gap-3 mb-5 max-w-lg"
+              className="flex gap-3 mb-5"
+              style={{ maxWidth: 'min(78vw, 320px)' }}
             >
               <div className="w-[3px] rounded-full bg-primary flex-shrink-0 self-stretch" />
-              <p style={{ fontSize: 'clamp(0.85rem, 1.6vw, 1rem)' }} className="text-slate-600 leading-relaxed">
+              <p style={{ fontSize: 'clamp(0.85rem, 3.4vw, 0.95rem)' }} className="text-slate-600 leading-relaxed">
                 I build fast, modern and scalable web experiences that help businesses grow and stand out.
               </p>
             </motion.div>
@@ -522,30 +525,32 @@ export default function Hero() {
               transition={{ delay: 0.42, duration: 0.5 }}
               className="flex flex-col items-start gap-1.5 mb-5"
             >
-              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.7rem, 2.8vw, 0.875rem)' }}>
+              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.75rem, 3vw, 0.875rem)' }}>
                 <RiCodeSSlashLine className="text-primary flex-shrink-0" /> Full-Stack Developer
               </span>
-              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.7rem, 2.8vw, 0.875rem)' }}>
+              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.75rem, 3vw, 0.875rem)' }}>
                 <RiVideoLine className="text-primary flex-shrink-0" /> Video Editor
               </span>
-              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.7rem, 2.8vw, 0.875rem)' }}>
+              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.75rem, 3vw, 0.875rem)' }}>
                 <RiPencilLine className="text-primary flex-shrink-0" /> Digital Creator
               </span>
             </motion.div>
 
-            {/* CTA Buttons — "Hire Me" pill + round icon-only "Work" button,
-                matching the reference's compact button pair */}
+            {/* CTA Buttons — "Hire Me" pill + round icon-only "Work" button.
+                Both comfortably tappable (≥48px). Sits on z-10 with a solid/
+                blurred background so it stays fully legible even where the
+                portrait passes behind it. */}
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.48, duration: 0.5 }}
-              className="flex items-center gap-3 mb-7"
+              className="relative z-10 flex items-center gap-3 mb-8"
             >
               <Magnetic range={60} strength={0.35} scaleHover={1.03}>
                 <a
                   href="#contact"
                   className="relative overflow-hidden cta-pulse inline-flex items-center justify-center gap-2 bg-primary text-white font-bold px-6 rounded-full shadow-lg hover:shadow-[0_0_30px_rgba(29,111,235,0.45)] transition-shadow duration-300"
-                  style={{ fontSize: 'clamp(0.75rem, 3vw, 0.9rem)', height: '48px' }}
+                  style={{ fontSize: 'clamp(0.8rem, 3vw, 0.9rem)', height: '48px' }}
                 >
                   <span className="cta-shimmer absolute inset-0 pointer-events-none" aria-hidden="true" style={{ background: 'linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%)' }} />
                   <RiSendPlaneLine className="flex-shrink-0 plane-wiggle" /> Hire Me <RiArrowRightLine className="flex-shrink-0 arrow-nudge" />
@@ -556,7 +561,7 @@ export default function Hero() {
                 <a
                   href="#projects"
                   aria-label="View Projects"
-                  className="relative overflow-hidden inline-flex flex-col items-center justify-center gap-0.5 bg-white/80 backdrop-blur border border-blue-200 text-primary font-semibold rounded-full hover:bg-blue-50 transition-colors duration-300 flex-shrink-0"
+                  className="relative overflow-hidden inline-flex flex-col items-center justify-center gap-0.5 bg-white/90 backdrop-blur border border-blue-200 text-primary font-semibold rounded-full hover:bg-blue-50 transition-colors duration-300 flex-shrink-0"
                   style={{ width: '58px', height: '58px' }}
                 >
                   <RiFolderOpenLine className="flex-shrink-0 folder-bounce" style={{ fontSize: '17px' }} />
@@ -567,21 +572,37 @@ export default function Hero() {
 
           </motion.div>
 
-          {/* ── Portrait column — same real desktop portrait + brushstroke +
-              orbit tech icons + Assam location card, re-composed to sit
-              side-by-side with the text column (as in the reference)
-              instead of stacked full-width below it. Same assets, same
-              visual DNA, different arrangement. ── */}
+          {/* ── Portrait — same real desktop portrait + brushstroke +
+              orbit tech icons + Assam location card, absolutely positioned
+              toward the right/center so it reads large and important
+              (never tiny), overlapping the brushstroke behind it. Kept
+              behind the text (z-0) and clamped so nothing ever crosses the
+              viewport edge or covers the face/heading. ── */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.85, delay: 0.2, ease: "easeOut" }}
-            className="relative flex-shrink-0 flex justify-center items-start pt-14 sm:pt-16"
-            style={{ width: 'clamp(165px, 48vw, 250px)' }}
+            className="absolute z-0 pointer-events-none"
+            style={{
+              width: 'clamp(190px, 58vw, 270px)',
+              top: 'clamp(40px, 12vw, 60px)',
+              right: '-4%',
+            }}
           >
-            {/* Brush stroke — behind the portrait, diagonal sweep echoing desktop.
-                Centered on the portrait area itself (not the wider outer
-                container) so it can't bleed past the viewport edge. */}
+            {/* Soft glow behind the portrait to blend its white background
+                into the tea-garden/brush backdrop (no new assets needed) */}
+            <div
+              className="absolute rounded-full"
+              style={{
+                inset: '-8%',
+                background: 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.55) 45%, rgba(255,255,255,0) 72%)',
+                filter: 'blur(6px)',
+                zIndex: 0,
+              }}
+              aria-hidden="true"
+            />
+
+            {/* Brush stroke — behind the portrait, diagonal sweep echoing desktop */}
             <motion.img
               src={brushStroke}
               alt=""
@@ -592,52 +613,50 @@ export default function Hero() {
               className="absolute pointer-events-none select-none z-0"
               style={{
                 width: '150%',
-                top: '20%',
+                top: '18%',
                 left: '50%',
                 transform: 'translate(-50%, 0) rotate(-7deg)',
               }}
             />
 
-            {/* Orbit badges — matching the reference: React sits just
-                above/left of the portrait's head, and briefcase/Node/Code
-                stack down the right edge outside the portrait, all confined
-                to the upper ~65% so nothing collides with the Assam card
-                pinned at the portrait's bottom-right. */}
-            <div className="absolute inset-0 pointer-events-none z-20" aria-hidden="true">
-              <div className="orbit-bob-a absolute" style={{ top: '0%', left: '18%' }}>
-                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.1, duration: 0.5, ease: "backOut" }} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
-                  <SiReact className="text-primary" style={{ fontSize: '15px' }} />
-                </motion.div>
-              </div>
-              <div className="orbit-bob-b absolute" style={{ top: '10%', right: '-8%' }}>
-                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.18, duration: 0.5, ease: "backOut" }} className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary shadow-md flex items-center justify-center">
-                  <svg viewBox="0 0 24 24" fill="none" style={{ width: '13px', height: '13px' }}><path d="M9 8V6a2 2 0 012-2h2a2 2 0 012 2v2M5 8h14a1 1 0 011 1v9a2 2 0 01-2 2H6a2 2 0 01-2-2V9a1 1 0 011-1z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                </motion.div>
-              </div>
-              <div className="orbit-bob-c absolute" style={{ top: '28%', right: '-14%' }}>
-                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.3, duration: 0.5, ease: "backOut" }} className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
-                  <SiNodedotjs className="text-green-500" style={{ fontSize: '14px' }} />
-                </motion.div>
-              </div>
-              <div className="orbit-bob-d absolute" style={{ top: '44%', right: '-10%' }}>
-                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.42, duration: 0.5, ease: "backOut" }} className="w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
-                  <RiCodeSSlashLine className="text-slate-700" style={{ fontSize: '13px' }} />
-                </motion.div>
-              </div>
-            </div>
-
-            {/* Orbit ring — a thin arc behind the React icon only, echoing
-                the reference's partial ring near the top of the portrait */}
+            {/* Orbit ring — a thin arc behind the React icon only */}
             <svg
               aria-hidden="true"
               className="absolute pointer-events-none z-0"
-              style={{ width: '90%', height: 'auto', aspectRatio: '1/1', top: '-8%', left: '5%' }}
+              style={{ width: '92%', height: 'auto', aspectRatio: '1/1', top: '-6%', left: '4%' }}
               viewBox="0 0 200 200"
             >
               <path d="M 20 100 A 80 80 0 0 1 140 25" fill="none" stroke="white" strokeOpacity="0.85" strokeWidth="2.5" strokeLinecap="round" />
             </svg>
 
-            {/* Portrait — same untouched desktop asset, full column width */}
+            {/* Orbit badges — React sits just above/left of the portrait's
+                head, briefcase/Node/Code stack down the right edge outside
+                the portrait, all confined so nothing overflows the viewport
+                or drifts over the face. */}
+            <div className="absolute inset-0 pointer-events-none z-20" aria-hidden="true">
+              <div className="orbit-bob-a absolute" style={{ top: '-4%', left: '16%' }}>
+                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.1, duration: 0.5, ease: "backOut" }} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
+                  <SiReact className="text-primary" style={{ fontSize: '15px' }} />
+                </motion.div>
+              </div>
+              <div className="orbit-bob-b absolute" style={{ top: '10%', right: '2%' }}>
+                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.18, duration: 0.5, ease: "backOut" }} className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
+                  <SiNodedotjs className="text-green-500" style={{ fontSize: '14px' }} />
+                </motion.div>
+              </div>
+              <div className="orbit-bob-c absolute" style={{ top: '28%', right: '-2%' }}>
+                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.3, duration: 0.5, ease: "backOut" }} className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
+                  <RiCodeSSlashLine className="text-slate-700" style={{ fontSize: '14px' }} />
+                </motion.div>
+              </div>
+              <div className="orbit-bob-d absolute" style={{ top: '46%', right: '0%' }}>
+                <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.42, duration: 0.5, ease: "backOut" }} className="w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-yellow-400 shadow-md flex items-center justify-center">
+                  <SiJavascript className="text-white" style={{ fontSize: '13px' }} />
+                </motion.div>
+              </div>
+            </div>
+
+            {/* Portrait — same untouched desktop asset, full width of this block */}
             <div className="relative z-10 w-full">
               <motion.div
                 initial={{ opacity: 0, y: rm ? 0 : 22 }}
@@ -653,16 +672,16 @@ export default function Hero() {
               </motion.div>
 
               {/* Assam location card — pinned to the portrait's own bottom
-                  edge (not the row's), so it always sits right against the
-                  photo regardless of how tall the text column gets */}
+                  edge, kept within the viewport (right: 0, not negative)
+                  and away from the text column. */}
               <motion.div
                 initial={{ opacity: 0, y: rm ? 0 : 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.05, duration: 0.6, ease: "easeOut" }}
-                className="absolute z-20 flex items-center gap-1.5 bg-white/90 backdrop-blur-md border border-blue-100/70 rounded-xl px-2 py-1.5"
+                className="absolute z-20 pointer-events-auto flex items-center gap-1.5 bg-white/90 backdrop-blur-md border border-blue-100/70 rounded-xl px-2 py-1.5"
                 style={{
                   bottom: '2%',
-                  right: '-2%',
+                  right: '0%',
                   maxWidth: '140px',
                   boxShadow: '0 10px 26px rgba(29,111,235,0.16), 0 0 0 1px rgba(29,111,235,0.06)',
                 }}
@@ -679,6 +698,7 @@ export default function Hero() {
           </motion.div>
 
           </div>
+
 
           {/* Stats — 4 cards, same as desktop, wrapped in a single white
               rounded card (matches the reference's stat panel) instead of
