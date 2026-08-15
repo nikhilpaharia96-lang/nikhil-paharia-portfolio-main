@@ -431,14 +431,14 @@ export default function Hero() {
               style={{ display: 'inline-block', maxWidth: '100%' }}
             >
               <h1
-                style={{ fontSize: 'clamp(2.625rem, calc(0.08rem + 12.7vw), 3.5rem)', lineHeight: 0.98, letterSpacing: '-0.02em' }}
+                style={{ fontSize: 'clamp(2.625rem, calc(-1rem + 11.7vw), 3.5rem)', lineHeight: 0.78, letterSpacing: '-0.04em' }}
                 className="font-bold"
               >
                 <span className="block relative" style={{ width: 'fit-content', maxWidth: '100%' }}>
                   <SplitText type="chars" delay={0.25}>Nikhil</SplitText>
                   {/* Underline — hand-drawn tapered brush stroke under "Nikhil" only */}
                   <motion.svg
-                    viewBox="60 4 640 29"
+                    viewBox="60 3 775 29"
                     initial={{ clipPath: 'inset(0 100% 0 0)' }}
                     animate={{ clipPath: 'inset(0 0% 0 0)' }}
                     transition={{ duration: 0.8, ease: 'easeOut', delay: 0.7 }}
@@ -585,9 +585,9 @@ export default function Hero() {
             transition={{ duration: 0.85, delay: 0.2, ease: "easeOut" }}
             className="absolute z-0 pointer-events-none"
             style={{
-              width: 'clamp(175px, 52vw, 245px)',
-              top: 'clamp(26px, 8vw, 42px)',
-              right: '-4%',
+              width: 'clamp(329px, 92vw, 345px)',
+              top: 'clamp(36px, 8vw, 42px)',
+              right: '-21%',
             }}
           >
             {/* Soft glow behind the portrait to blend its white background
@@ -614,8 +614,8 @@ export default function Hero() {
               className="absolute pointer-events-none select-none z-0"
               style={{
                 width: '150%',
-                top: '18%',
-                left: '50%',
+                top: '29%',
+                left: '7%',
                 transform: 'translate(-50%, 0) rotate(-7deg)',
               }}
             />
@@ -624,7 +624,7 @@ export default function Hero() {
             <svg
               aria-hidden="true"
               className="absolute pointer-events-none z-0"
-              style={{ width: '92%', height: 'auto', aspectRatio: '1/1', top: '-6%', left: '4%' }}
+              style={{ width: '92%', height: 'auto', aspectRatio: '1/1', top: '-5%', left: '11%' }}
               viewBox="0 0 200 200"
             >
               <path d="M 20 100 A 80 80 0 0 1 140 25" fill="none" stroke="white" strokeOpacity="0.85" strokeWidth="2.5" strokeLinecap="round" />
@@ -635,22 +635,22 @@ export default function Hero() {
                 the portrait, all confined so nothing overflows the viewport
                 or drifts over the face. */}
             <div className="absolute inset-0 pointer-events-none z-20" aria-hidden="true">
-              <div className="orbit-bob-a absolute" style={{ top: '-4%', left: '16%' }}>
+              <div className="orbit-bob-a absolute" style={{ top: '3%', left: '27%' }}>
                 <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.1, duration: 0.5, ease: "backOut" }} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
                   <SiReact className="text-primary" style={{ fontSize: '15px' }} />
                 </motion.div>
               </div>
-              <div className="orbit-bob-b absolute" style={{ top: '10%', right: '2%' }}>
+              <div className="orbit-bob-b absolute" style={{ top: '20%', right: '19%' }}>
                 <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.18, duration: 0.5, ease: "backOut" }} className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
                   <SiNodedotjs className="text-green-500" style={{ fontSize: '14px' }} />
                 </motion.div>
               </div>
-              <div className="orbit-bob-c absolute" style={{ top: '28%', right: '-2%' }}>
+              <div className="orbit-bob-c absolute" style={{ top: '49%', right: '19%' }}>
                 <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.3, duration: 0.5, ease: "backOut" }} className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 backdrop-blur border border-blue-100 shadow-md flex items-center justify-center">
                   <RiCodeSSlashLine className="text-slate-700" style={{ fontSize: '14px' }} />
                 </motion.div>
               </div>
-              <div className="orbit-bob-d absolute" style={{ top: '46%', right: '0%' }}>
+              <div className="orbit-bob-d absolute" style={{ top: '64%', right: '65%' }}>
                 <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.42, duration: 0.5, ease: "backOut" }} className="w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-yellow-400 shadow-md flex items-center justify-center">
                   <SiJavascript className="text-white" style={{ fontSize: '13px' }} />
                 </motion.div>
