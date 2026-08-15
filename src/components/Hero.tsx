@@ -182,7 +182,7 @@ export default function Hero() {
   );
 
   return (
-    <section ref={ref} className="relative min-h-screen flex items-start lg:items-center overflow-hidden w-full max-w-full section-wrap" id="home">
+    <section ref={ref} className="relative min-h-[100svh] lg:min-h-screen flex items-start lg:items-center overflow-hidden w-full max-w-full section-wrap" id="home">
 
       {/* Background with scroll parallax — MOBILE/TABLET ONLY, untouched */}
       <motion.div style={{ y: smoothBgY }} className="absolute inset-0 z-0 lg:hidden">
@@ -380,7 +380,7 @@ export default function Hero() {
 
       {/* ── MAIN CONTENT ── */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-6">
-        <div className="lg:hidden pt-20 pb-16">
+        <div className="lg:hidden pt-[4.75rem] pb-3">
 
           {/* ── Hero composition: text content flows normally on the left;
               the portrait (same real desktop asset) is absolutely
@@ -402,10 +402,10 @@ export default function Hero() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.5 }}
-              className="inline-flex items-center gap-2 bg-white/80 backdrop-blur border border-blue-200 rounded-full px-3 sm:px-4 py-1.5 mb-4"
+              className="inline-flex items-center gap-1.5 bg-white/80 backdrop-blur border border-blue-200 rounded-full px-2.5 sm:px-3.5 py-1 mb-2"
             >
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
-              <span className="text-[10px] sm:text-xs font-mono text-primary uppercase tracking-widest whitespace-nowrap">Available for Hire</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse flex-shrink-0" />
+              <span className="text-[9px] sm:text-[11px] font-mono text-primary uppercase tracking-widest whitespace-nowrap">Available for Hire</span>
             </motion.div>
 
             {/* Hi, I'm */}
@@ -413,24 +413,24 @@ export default function Hero() {
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.15, duration: 0.6 }}
-              style={{ fontSize: 'clamp(1.4rem, 6vw, 2rem)', lineHeight: 1.15, fontWeight: 700, letterSpacing: '-0.02em' }}
-              className="text-foreground font-bold mb-1"
+              style={{ fontSize: 'clamp(1.375rem, 5vw, 1.75rem)', lineHeight: 1.15, fontWeight: 700, letterSpacing: '-0.02em' }}
+              className="text-foreground font-bold mb-0.5"
             >
               <SplitText type="chars" delay={0.1}>Hi, I'm</SplitText>
             </motion.p>
 
             {/* Name block — underline only under "Nikhil", paint drops above last "a" of Paharia.
-                Sized to land at ~48–58px across the 320–430px mobile range while
+                Sized to land at ~42–56px across the 320–430px mobile range while
                 never overflowing the viewport (clamp caps both ends). */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.22, duration: 0.65 }}
-              className="relative ul-wrap mb-4"
+              className="relative ul-wrap mb-2"
               style={{ display: 'inline-block', maxWidth: '100%' }}
             >
               <h1
-                style={{ fontSize: 'clamp(3rem, calc(1.2rem + 9vw), 3.625rem)', lineHeight: 1.02, letterSpacing: '-0.02em' }}
+                style={{ fontSize: 'clamp(2.625rem, calc(0.08rem + 12.7vw), 3.5rem)', lineHeight: 0.98, letterSpacing: '-0.02em' }}
                 className="font-bold"
               >
                 <span className="block relative" style={{ width: 'fit-content', maxWidth: '100%' }}>
@@ -482,11 +482,11 @@ export default function Hero() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="relative mb-5"
+              className="relative mb-2"
             >
               <div className="flex items-center gap-0.5 flex-wrap">
                 <RiMapPinLine className="text-primary text-sm sm:text-base flex-shrink-0" />
-                <p style={{ fontSize: 'clamp(0.72rem, 3vw, 0.95rem)' }} className="text-slate-700 font-medium flex items-center gap-1 flex-wrap">
+                <p style={{ fontSize: 'clamp(0.68rem, 2.6vw, 0.85rem)' }} className="text-slate-700 font-medium flex items-center gap-1 flex-wrap">
                   <span className="whitespace-nowrap">From the Hills of</span>
                   <span className="relative inline-block assam-text gradient-text font-bold whitespace-nowrap" style={{ fontSize: '1.7em', lineHeight: 1, paddingBottom: '4px' }}>
                     Assam
@@ -496,7 +496,7 @@ export default function Hero() {
                   </span>
                 </p>
               </div>
-              <p style={{ fontSize: 'clamp(0.72rem, 3vw, 0.95rem)', marginLeft: '1.1em' }} className="text-slate-700 font-medium">
+              <p style={{ fontSize: 'clamp(0.68rem, 2.6vw, 0.85rem)', marginLeft: '1.1em' }} className="text-slate-700 font-medium">
                 to the world
               </p>
             </motion.div>
@@ -508,11 +508,11 @@ export default function Hero() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.36, duration: 0.6 }}
-              className="flex gap-3 mb-5"
-              style={{ maxWidth: 'min(78vw, 320px)' }}
+              className="flex gap-2 mb-2"
+              style={{ maxWidth: 'min(64vw, 250px)' }}
             >
               <div className="w-[3px] rounded-full bg-primary flex-shrink-0 self-stretch" />
-              <p style={{ fontSize: 'clamp(0.85rem, 3.4vw, 0.95rem)' }} className="text-slate-600 leading-relaxed">
+              <p style={{ fontSize: 'clamp(0.72rem, 2.8vw, 0.85rem)', lineHeight: 1.35 }} className="text-slate-600">
                 I build fast, modern and scalable web experiences that help businesses grow and stand out.
               </p>
             </motion.div>
@@ -523,34 +523,34 @@ export default function Hero() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.42, duration: 0.5 }}
-              className="flex flex-col items-start gap-1.5 mb-5"
+              className="flex flex-col items-start gap-1 mb-3"
             >
-              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.75rem, 3vw, 0.875rem)' }}>
+              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.7rem, 2.6vw, 0.8rem)' }}>
                 <RiCodeSSlashLine className="text-primary flex-shrink-0" /> Full-Stack Developer
               </span>
-              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.75rem, 3vw, 0.875rem)' }}>
+              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.7rem, 2.6vw, 0.8rem)' }}>
                 <RiVideoLine className="text-primary flex-shrink-0" /> Video Editor
               </span>
-              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.75rem, 3vw, 0.875rem)' }}>
+              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.7rem, 2.6vw, 0.8rem)' }}>
                 <RiPencilLine className="text-primary flex-shrink-0" /> Digital Creator
               </span>
             </motion.div>
 
             {/* CTA Buttons — "Hire Me" pill + round icon-only "Work" button.
-                Both comfortably tappable (≥48px). Sits on z-10 with a solid/
+                Both comfortably tappable (≥46px). Sits on z-10 with a solid/
                 blurred background so it stays fully legible even where the
                 portrait passes behind it. */}
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.48, duration: 0.5 }}
-              className="relative z-10 flex items-center gap-3 mb-8"
+              className="relative z-10 flex items-center gap-2.5 mb-1"
             >
               <Magnetic range={60} strength={0.35} scaleHover={1.03}>
                 <a
                   href="#contact"
-                  className="relative overflow-hidden cta-pulse inline-flex items-center justify-center gap-2 bg-primary text-white font-bold px-6 rounded-full shadow-lg hover:shadow-[0_0_30px_rgba(29,111,235,0.45)] transition-shadow duration-300"
-                  style={{ fontSize: 'clamp(0.8rem, 3vw, 0.9rem)', height: '48px' }}
+                  className="relative overflow-hidden cta-pulse inline-flex items-center justify-center gap-2 bg-primary text-white font-bold px-5 rounded-full shadow-lg hover:shadow-[0_0_30px_rgba(29,111,235,0.45)] transition-shadow duration-300"
+                  style={{ fontSize: 'clamp(0.78rem, 2.8vw, 0.88rem)', height: '46px' }}
                 >
                   <span className="cta-shimmer absolute inset-0 pointer-events-none" aria-hidden="true" style={{ background: 'linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%)' }} />
                   <RiSendPlaneLine className="flex-shrink-0 plane-wiggle" /> Hire Me <RiArrowRightLine className="flex-shrink-0 arrow-nudge" />
@@ -562,10 +562,10 @@ export default function Hero() {
                   href="#projects"
                   aria-label="View Projects"
                   className="relative overflow-hidden inline-flex flex-col items-center justify-center gap-0.5 bg-white/90 backdrop-blur border border-blue-200 text-primary font-semibold rounded-full hover:bg-blue-50 transition-colors duration-300 flex-shrink-0"
-                  style={{ width: '58px', height: '58px' }}
+                  style={{ width: '54px', height: '54px' }}
                 >
-                  <RiFolderOpenLine className="flex-shrink-0 folder-bounce" style={{ fontSize: '17px' }} />
-                  <span style={{ fontSize: '9px' }}>Work</span>
+                  <RiFolderOpenLine className="flex-shrink-0 folder-bounce" style={{ fontSize: '16px' }} />
+                  <span style={{ fontSize: '8.5px' }}>Work</span>
                 </a>
               </Magnetic>
             </motion.div>
@@ -584,8 +584,8 @@ export default function Hero() {
             transition={{ duration: 0.85, delay: 0.2, ease: "easeOut" }}
             className="absolute z-0 pointer-events-none"
             style={{
-              width: 'clamp(190px, 58vw, 270px)',
-              top: 'clamp(40px, 12vw, 60px)',
+              width: 'clamp(175px, 52vw, 245px)',
+              top: 'clamp(26px, 8vw, 42px)',
               right: '-4%',
             }}
           >
@@ -703,22 +703,22 @@ export default function Hero() {
           {/* Stats — 4 cards, same as desktop, wrapped in a single white
               rounded card (matches the reference's stat panel) instead of
               floating individually over the landscape background */}
-          <div className="relative z-20 grid grid-cols-2 sm:grid-cols-4 gap-0 bg-white rounded-3xl shadow-lg mt-6 overflow-hidden divide-x divide-y sm:divide-y-0 divide-slate-100">
+          <div className="relative z-20 grid grid-cols-2 sm:grid-cols-4 gap-0 bg-white rounded-2xl shadow-lg mt-3 overflow-hidden divide-x divide-y sm:divide-y-0 divide-slate-100">
             {desktopStats.map(({ value, label, Icon, color }) => (
               <motion.div
                 key={label}
                 initial={{ opacity: 0, y: rm ? 0 : 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
-                className="flex flex-col items-center text-center py-5 px-2"
+                className="flex flex-col items-center text-center py-2.5 px-2"
               >
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center mb-2" style={{ backgroundColor: color + '18' }}>
-                  <Icon style={{ color, fontSize: '18px' }} />
+                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center mb-1" style={{ backgroundColor: color + '18' }}>
+                  <Icon style={{ color, fontSize: '13px' }} />
                 </div>
-                <div className="font-bold leading-tight text-foreground" style={{ fontSize: 'clamp(1.1rem, 5vw, 1.4rem)' }}>
+                <div className="font-bold leading-tight text-foreground" style={{ fontSize: 'clamp(0.95rem, 4vw, 1.15rem)' }}>
                   <StatCounter value={value} />
                 </div>
-                <div className="text-slate-500 font-medium leading-tight mt-1" style={{ fontSize: 'clamp(0.68rem, 2.6vw, 0.8rem)' }}>{label}</div>
+                <div className="text-slate-500 font-medium leading-tight mt-0.5" style={{ fontSize: 'clamp(0.58rem, 2vw, 0.65rem)' }}>{label}</div>
               </motion.div>
             ))}
           </div>
@@ -729,15 +729,15 @@ export default function Hero() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.5 }}
-            className="flex flex-col items-center gap-3 mt-8"
+            className="flex flex-col items-center gap-1.5 mt-3"
           >
-            <p style={{ fontFamily: "'Caveat',cursive", fontSize: '26px', color: '#1d6feb', fontWeight: 700 }} className="relative">
+            <p style={{ fontFamily: "'Caveat',cursive", fontSize: '20px', color: '#1d6feb', fontWeight: 700 }} className="relative">
               Let's Connect
-              <svg viewBox="0 0 120 8" fill="none" style={{ width: '90px', margin: '0 auto', display: 'block' }} aria-hidden="true">
+              <svg viewBox="0 0 120 8" fill="none" style={{ width: '70px', margin: '0 auto', display: 'block' }} aria-hidden="true">
                 <path d="M2 3 Q60 -1 118 3" stroke="#1d6feb" strokeWidth="1.6" strokeLinecap="round" />
               </svg>
             </p>
-            <div className="flex items-center gap-3 flex-wrap justify-center">
+            <div className="flex items-center gap-2 flex-nowrap justify-center">
               {socials.map((s, i) => (
                 <motion.a
                   key={s.label}
@@ -750,13 +750,21 @@ export default function Hero() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.65 + i * 0.05 }}
-                  className={`w-11 h-11 rounded-full bg-white border border-blue-100 flex items-center justify-center hover:border-primary transition-all duration-200 text-base shadow-sm flex-shrink-0 ${s.color}`}
+                  className={`w-8 h-8 rounded-full bg-white border border-blue-100 flex items-center justify-center hover:border-primary transition-all duration-200 text-sm shadow-sm flex-shrink-0 ${s.color}`}
                 >
                   {s.icon}
                 </motion.a>
               ))}
             </div>
           </motion.div>
+
+          {/* Scroll indicator — compact, sits inside the normal flow right
+              after the social row so it never overlaps content even when
+              the Hero is trimmed to exactly one screen. */}
+          <div className="flex flex-col items-center gap-0.5 mt-2 animate-bounce">
+            <span className="text-[9px] text-slate-500 tracking-widest uppercase font-mono">Scroll</span>
+            <RiArrowDownLine className="text-primary text-sm" />
+          </div>
 
         </div>
 
@@ -1145,8 +1153,11 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 animate-bounce">
+      {/* Scroll indicator — desktop: absolutely pinned to the bottom of the
+          (screen-height) section. Mobile has its own compact copy inside
+          the normal content flow (see below) so it can never overlap the
+          social row when the Hero is trimmed to exactly one screen. */}
+      <div className="hidden lg:flex absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex-col items-center gap-2 animate-bounce">
         <span className="text-xs text-slate-500 tracking-widest uppercase font-mono">Scroll</span>
         <RiArrowDownLine className="text-primary text-xl" />
       </div>
