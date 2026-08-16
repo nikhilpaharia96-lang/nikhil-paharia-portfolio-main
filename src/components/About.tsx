@@ -911,7 +911,7 @@ function FavoriteThings({ active = true }: { active?: boolean }) {
    Daily fuel — torn checklist paper, checks tick in one by one
    ──────────────────────────────────────────────────────────── */
 
-const dailyFuel = ["Chai", "Music", "Focus", "Curiosity", "Discipline"];
+const dailyFuel = ["Chai", "Songs", "Football", "Late Night Code"];
 
 function DailyFuel({ active = true }: { active?: boolean }) {
   const rm = useReducedMotion();
@@ -1168,11 +1168,12 @@ function MobileAboutStory() {
             </div>
             <div className="absolute inset-x-5 bottom-5">
               <h3 className="font-serif font-extrabold text-[1.7rem] leading-[1.15] text-white mb-2">
-                I started learning <Marker delay={0.15} active={active}>CODE</Marker> to change my{" "}
-                <Marker delay={0.35} active={active}>FAMILY's</Marker> future.
+                I started making <Marker delay={0.15} active={active}>CREATIVE STUFF</Marker> four
+                years ago because I wanted to buy some{" "}
+                <Marker delay={0.35} active={active}>sneakers</Marker> on my own.
               </h3>
               <p className="text-sm text-white/75 leading-snug">
-                A boy from a tea garden in Assam, chasing a bigger dream.
+                No big background. No perfect conditions. Just a dream and a laptop.
               </p>
             </div>
           </motion.div>
@@ -1222,10 +1223,8 @@ function MobileAboutStory() {
           >
             <InkSmudge className="-left-3 -top-2" size={30} />
             <p className="text-slate-600 leading-relaxed">
-              I didn't have expensive gadgets. I only had curiosity — and a
-              laptop that struggled to keep up with my ambition. Every small
-              project taught me something new, and slowly, that curiosity
-              turned into a craft.
+              I had no idea about building websites. I was just curious. That
+              curiosity turned into passion, and passion changed my life.
             </p>
             <HandwrittenNote className="text-xl mt-4 -rotate-1" delay={0.3} active={active}>
               "It started as curiosity. Then it became a way of thinking."
@@ -1241,28 +1240,36 @@ function MobileAboutStory() {
             <RealPaperClip className="-top-6 left-4" rotate={-10} active={active} />
             <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-primary mb-2">My Purpose</p>
             <h4 className="font-serif font-bold text-xl text-foreground mb-3 underline decoration-primary/40 decoration-2 underline-offset-4">
-              Building with purpose.
+              Art with a purpose.
             </h4>
             <p className="text-sm text-slate-600 leading-relaxed mb-3">
-              I build websites because I love watching an idea turn into
-              something people can actually use. Every bug I fix and every
-              interface I polish is a small problem solved — that's what
-              keeps me hooked.
+              I use my skills to build digital experiences that help brands
+              grow and people connect. That's what drives me everyday.
             </p>
-            <p className="font-hand text-primary text-base">☆ Function first, always with care.</p>
+            <p className="font-hand text-primary text-base">☆ Aesthetic always, logic actually.</p>
           </TornPaper>
         )}
       </Reveal>
 
-      {/* ── Mission quote ── */}
+      {/* ── What I do ── */}
       <Reveal className="mt-9 px-1">
         {(active) => (
-          <blockquote className="border-l-2 border-primary/40 pl-4">
-            <HandwrittenNote className="text-2xl leading-snug" delay={0.1} active={active}>
-              "I want to build digital products that improve people's lives."
-            </HandwrittenNote>
-            <MarkerUnderline className="mt-1 ml-1" delay={0.9} width={190} active={active} />
-          </blockquote>
+          <div>
+            <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-3">What I Do</p>
+            <ul className="space-y-1.5 text-sm text-slate-600">
+              {["Web Development", "UI/UX Design", "Video Editing", "Content Creation"].map((item, i) => (
+                <motion.li
+                  key={item}
+                  initial={{ opacity: 0, x: rm ? 0 : -10 }}
+                  animate={active ? { opacity: 1, x: 0 } : { opacity: 0, x: rm ? 0 : -10 }}
+                  transition={{ duration: rm ? 0.25 : 0.4, delay: rm ? 0 : 0.1 + i * 0.08 }}
+                  className="flex items-center gap-1.5"
+                >
+                  <span className="text-primary">{"</>"}</span> {item}
+                </motion.li>
+              ))}
+            </ul>
+          </div>
         )}
       </Reveal>
 
@@ -1274,9 +1281,9 @@ function MobileAboutStory() {
         {(active) => (
           <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-1">
             {[
-              { value: "Self-Taught", sub: "since day one", color: "#1d6feb" },
-              { value: "50+", sub: "projects shipped", color: "#b91c1c" },
-              { value: "3+ yrs", sub: "of building", color: "#15803d" },
+              { value: "33M+", sub: "impressions for brand clients", color: "#b91c1c" },
+              { value: "40+", sub: "happy clients", color: "#a16207" },
+              { value: "186M+", sub: "people reached", color: "#1d6feb" },
             ].map((h, i) => (
               <motion.div
                 key={h.value}
@@ -1307,7 +1314,7 @@ function MobileAboutStory() {
       <Reveal className="mt-2">
         {(active) => (
           <div>
-            <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-4">Tech I Reach For</p>
+            <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-4">Tech I Work With</p>
             <TechScatter active={active} />
           </div>
         )}
@@ -1787,6 +1794,28 @@ export default function About() {
                   <span>The Beginning</span>
                 </div>
 
+                {/* opening sticky note — Phase 1, the very first thing the
+                    reader sees once the notebook lands open, fades out once
+                    the "how it all started" headline begins building */}
+                <motion.div
+                  initial={{ opacity: 0, y: rm ? 0 : 10 }}
+                  animate={
+                    phase >= 1 && phase < 3
+                      ? { opacity: 1, y: 0 }
+                      : { opacity: 0, y: rm ? 0 : -6 }
+                  }
+                  transition={{ duration: rm ? 0.2 : 0.5, ease }}
+                  className="mb-2 max-w-xs"
+                >
+                  <p className="font-hand text-sm sm:text-base text-foreground leading-snug">
+                    I'm an open book.
+                  </p>
+                  <p className="font-hand text-sm sm:text-base text-slate-500 leading-snug">
+                    Here is the unfiltered timeline of how I figured things
+                    out.
+                  </p>
+                </motion.div>
+
                 {/* small handwritten lead-in — Phase 3, just ahead of the headline */}
                 <HandwrittenNote className="text-base sm:text-lg mb-1" delay={0} active={phase >= 3}>
                   how it all started.
@@ -1797,11 +1826,12 @@ export default function About() {
                 <div className="hidden sm:block absolute top-14 right-2 lg:right-4 z-10">
                   <StickyNote color="#fdf8ee" rotate={3} delay={0.2} active={phase >= 3} className="w-36">
                     <ul className="space-y-0.5 text-xs">
-                      <li className="flex items-center gap-1.5">✓ No formal training</li>
-                      <li className="flex items-center gap-1.5">✓ No big resources</li>
+                      <li className="flex items-center gap-1.5">✓ No big background</li>
+                      <li className="flex items-center gap-1.5">✓ No perfect conditions</li>
                       <li className="flex items-center gap-1.5">
-                        ✓ Just <CircleHighlight delay={1.1} active={phase >= 3}>curiosity</CircleHighlight>
+                        ✓ Just <CircleHighlight delay={1.1} active={phase >= 3}>a dream</CircleHighlight>
                       </li>
+                      <li className="flex items-center gap-1.5 pl-3.5">and a laptop.</li>
                     </ul>
                   </StickyNote>
                 </div>
@@ -1814,20 +1844,10 @@ export default function About() {
                   transition={{ duration: rm ? 0.3 : 0.7, ease }}
                   className="font-serif font-extrabold text-xl sm:text-2xl leading-[1.15] text-foreground mb-1.5 max-w-sm sm:max-w-none"
                 >
-                  I started learning <Marker delay={0.15} active={phase >= 3}>CODE</Marker> because I
-                  wanted to change my <Marker delay={0.35} active={phase >= 3}>FAMILY's</Marker> future.
+                  I started making <Marker delay={0.15} active={phase >= 3}>CREATIVE STUFF</Marker> four
+                  years ago because I wanted to buy some{" "}
+                  <CircleHighlight delay={0.5} active={phase >= 3}>sneakers</CircleHighlight> on my own.
                 </motion.h3>
-
-                <motion.p
-                  initial={{ opacity: 0, y: rm ? 0 : 18 }}
-                  animate={phase >= 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: rm ? 0 : 18 }}
-                  transition={{ duration: rm ? 0.3 : 0.6, delay: rm ? 0 : 0.2 }}
-                  className="font-serif text-sm sm:text-base text-slate-500 leading-snug mb-2.5"
-                >
-                  A boy from a tea garden in <Marker delay={0.5} active={phase >= 3}>ASSAM</Marker>,
-                  chasing a bigger <Marker delay={0.65} active={phase >= 3}>DREAM</Marker> — always
-                  reaching for <Marker delay={0.8} active={phase >= 3}>BETTER</Marker>.
-                </motion.p>
 
                 {/* personal paragraph — Phase 4: story blocks fade in one at a time */}
                 <motion.div
@@ -1838,10 +1858,9 @@ export default function About() {
                 >
                   <InkSmudge className="-left-3 top-2" size={30} />
                   <p>
-                    I didn't have expensive gadgets. I only had curiosity — and
-                    a laptop that struggled to keep up with my ambition. Every
-                    small project taught me something new, and slowly, that
-                    curiosity turned into a craft.
+                    I had no idea about building websites. I was just curious.
+                    That curiosity turned into passion, and passion changed my
+                    life.
                   </p>
                 </motion.div>
 
@@ -2021,21 +2040,20 @@ export default function About() {
                       My Purpose
                     </p>
                     <h4 className="font-serif font-bold text-base sm:text-lg text-foreground mb-1.5 underline decoration-primary/40 decoration-2 underline-offset-4">
-                      Building with purpose.
+                      Art with a purpose.
                     </h4>
                     <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-1.5">
-                      I build websites because I love watching an idea turn into
-                      something people can actually use. Every bug I fix and
-                      every interface I polish is a small problem solved —
-                      that's what keeps me hooked.
+                      I use my skills to build digital experiences that help
+                      brands grow and people connect. That's what drives me
+                      everyday.
                     </p>
                     <p className="font-hand text-primary text-sm">
-                      ☆ Function first, always with care.
+                      ☆ Aesthetic always, logic actually.
                     </p>
                   </TornPaper>
 
                   <div className="hidden sm:block flex-shrink-0 mt-2">
-                    <HangingTag value="50+" label="Projects Shipped" rotate={7} delay={0.6} active={phase >= 4} />
+                    <HangingTag value="186M+" label="People Reached" rotate={7} delay={0.6} active={phase >= 4} />
                   </div>
                 </div>
 
@@ -2051,25 +2069,35 @@ export default function About() {
                   transition={{ duration: 0.5, delay: rm ? 0 : 1.3 }}
                   className="hidden lg:block absolute top-8 right-4 max-w-[7rem] font-hand text-primary text-sm leading-tight -rotate-3"
                 >
-                  one project always leads to the next.
+                  creating content and code, you never know where it'll take you.
                 </motion.p>
 
-                {/* mission — revealed as if written with a pen, with a
-                    genuine left-to-right underline stroke beneath it —
-                    Phase 4, staggered after the purpose card above */}
-                <blockquote className="relative mb-3 max-w-md border-l-2 border-primary/40 pl-3">
-                  <HandwrittenNote className="text-lg sm:text-xl leading-snug" delay={0.5} active={phase >= 4}>
-                    "I want to build digital products that improve people's lives."
-                  </HandwrittenNote>
-                  <MarkerUnderline className="mt-1 ml-1" delay={1.3} width={210} active={phase >= 4} />
-                </blockquote>
+                {/* what I do — Phase 4, staggered after the purpose card above */}
+                <div className="relative mb-3 max-w-md">
+                  <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-2">
+                    What I Do
+                  </p>
+                  <ul className="space-y-1 text-xs sm:text-sm text-slate-600">
+                    {["Web Development", "UI/UX Design", "Video Editing", "Content Creation"].map((item, i) => (
+                      <motion.li
+                        key={item}
+                        initial={{ opacity: 0, x: rm ? 0 : -10 }}
+                        animate={phase >= 4 ? { opacity: 1, x: 0 } : { opacity: 0, x: rm ? 0 : -10 }}
+                        transition={{ duration: rm ? 0.25 : 0.4, delay: rm ? 0 : 0.15 + i * 0.08 }}
+                        className="flex items-center gap-1.5"
+                      >
+                        <span className="text-primary">{"</>"}</span> {item}
+                      </motion.li>
+                    ))}
+                  </ul>
+                </div>
 
                 {/* highlights row — Phase 4, the real numbers behind the story */}
                 <div className="grid grid-cols-3 gap-2 mb-3 max-w-md">
                   {[
-                    { value: "Self-Taught", sub: "since day one", color: "#1d6feb" },
-                    { value: "50+", sub: "projects shipped", color: "#b91c1c" },
-                    { value: "3+ yrs", sub: "of building", color: "#15803d" },
+                    { value: "33M+", sub: "impressions for amazing brand clients", color: "#b91c1c" },
+                    { value: "40+", sub: "happy clients, small & medium businesses", color: "#a16207" },
+                    { value: "Top Rank 1", sub: "goal — keep learning, keep building", color: "#1d6feb" },
                   ].map((h, i) => (
                     <motion.div
                       key={h.value}
@@ -2092,7 +2120,7 @@ export default function About() {
                 {/* tech stack — Phase 5: icons pop in one after another, in a tidy row */}
                 <div className="mb-3">
                   <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 mb-2">
-                    Tech I Reach For
+                    Tech I Work With
                   </p>
                   <TechScatter active={phase >= 5} />
                 </div>
