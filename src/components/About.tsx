@@ -795,6 +795,94 @@ function PaperStack() {
 }
 
 /* ────────────────────────────────────────────────────────────
+   Book spine — a realistic vintage hardcover binding sitting in
+   the gutter between the two open pages. Dark navy-black leather
+   with a soft cylindrical highlight (so it reads as rounded, not
+   flat), fine grain, raised binding cords, and warm cream/burgundy
+   headbands top and bottom to tie it back into the scrapbook's
+   warm palette. Sits above the page-flip pages (which is what
+   actually makes it visible — the pages' cream backgrounds run
+   edge to edge, so the spine has to sit on top of that seam to
+   read as a physical binding rather than being hidden behind it).
+   Desktop-only: on mobile the flipbook renders a single full-width
+   page with no gutter for a spine to occupy.
+   ──────────────────────────────────────────────────────────── */
+
+function BookSpine() {
+  return (
+    <div
+      aria-hidden="true"
+      className="hidden lg:block absolute pointer-events-none"
+      style={{
+        left: "50%",
+        top: "-3px",
+        bottom: "-3px",
+        width: "22px",
+        transform: "translateX(-50%)",
+        zIndex: 100,
+        borderRadius: "11px",
+        background:
+          "linear-gradient(90deg, #030405 0%, #0a0d13 9%, #161c28 22%, #2c3550 38%, #3c4766 47%, #2c3550 56%, #161c28 74%, #0a0d13 90%, #030405 100%)",
+        boxShadow:
+          "-7px 0 16px -8px rgba(0,0,0,0.55), 7px 0 16px -8px rgba(0,0,0,0.55), 0 10px 28px rgba(0,0,0,0.35), inset 0 0 1px rgba(255,255,255,0.15)",
+      }}
+    >
+      {/* fine leather grain */}
+      <div
+        className="absolute inset-0 opacity-50 mix-blend-overlay"
+        style={{
+          borderRadius: "11px",
+          backgroundImage:
+            "repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,0.09) 0, rgba(255,255,255,0.09) 1px, transparent 1px, transparent 3px)",
+        }}
+      />
+      {/* soft vertical sheen — the cylindrical highlight that makes the
+          binding read as rounded rather than a flat painted strip */}
+      <div
+        className="absolute inset-y-0 opacity-70"
+        style={{
+          left: "38%",
+          width: "22%",
+          background:
+            "linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent)",
+        }}
+      />
+      {/* raised binding cords, the ridges a hand-sewn hardcover spine shows */}
+      {[10, 28, 50, 72, 90].map((pct) => (
+        <div
+          key={pct}
+          className="absolute left-1/2 -translate-x-1/2 w-[82%] h-[3px] rounded-full"
+          style={{
+            top: `${pct}%`,
+            background:
+              "linear-gradient(90deg, rgba(0,0,0,0.55), rgba(255,255,255,0.18) 45%, rgba(0,0,0,0.55))",
+            boxShadow: "0 1px 0 rgba(255,255,255,0.06)",
+          }}
+        />
+      ))}
+      {/* headbands — the woven cream/burgundy trim at the top and bottom
+          edge of a handcrafted hardcover, echoing the warm scrapbook tones */}
+      <div
+        className="absolute left-1/2 -translate-x-1/2 top-0 w-[76%] h-2 rounded-full"
+        style={{
+          background:
+            "repeating-linear-gradient(50deg, #e8d3a0 0 2.5px, #7a1f24 2.5px 5px)",
+          boxShadow: "0 1px 2px rgba(0,0,0,0.5)",
+        }}
+      />
+      <div
+        className="absolute left-1/2 -translate-x-1/2 bottom-0 w-[76%] h-2 rounded-full"
+        style={{
+          background:
+            "repeating-linear-gradient(50deg, #e8d3a0 0 2.5px, #7a1f24 2.5px 5px)",
+          boxShadow: "0 -1px 2px rgba(0,0,0,0.5)",
+        }}
+      />
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
    Scattered tech icon
    ──────────────────────────────────────────────────────────── */
 
@@ -1759,6 +1847,10 @@ export default function About() {
                     the scroll-driven flip above) — same physical page-turn
                     animation either way, just one page in frame instead of
                     two. */}
+                {/* realistic vintage hardcover spine, sitting in the gutter
+                    between the two open pages */}
+                <BookSpine />
+
                 <HTMLFlipBook
                   key={isDesktopViewport ? "desktop" : "mobile"}
                   ref={flipBook as never}
