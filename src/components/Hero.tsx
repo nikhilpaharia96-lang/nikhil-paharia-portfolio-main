@@ -22,6 +22,7 @@ import assamMapImg from "../assets/images/assam-map-transparent.png";
 // paper-airplane.png has the same baked-checkerboard problem; this Picsart
 // export of the identical artwork has genuine transparency.
 import cleanPaperPlane from "../assets/images/Picsart_26-08-04_10-20-09-507.png";
+import cloudPhoto from "../assets/images/cloud.1ec8ee4225bd9e83bdc5.webp";
 
 // NOTE: "Desktop Background 01" (the intended white-left / tea-garden-right
 // composition) was uploaded to the repo as a 0-byte/corrupted file, so it
@@ -252,6 +253,23 @@ export default function Hero() {
         <div className="absolute top-[60%] left-[80%] w-1.5 h-1.5 rounded-full bg-primary/40" style={{ animation: 'floatY 4.5s ease-in-out infinite 2s' }} />
         <div className="absolute bottom-[10%] right-[10%] w-1.5 h-1.5 rounded-full bg-primary/40" style={{ animation: 'floatY 5.5s ease-in-out infinite 1.5s' }} />
       </div>
+
+      {/* Cloud photo — sits at the very top of Hero itself (not a separate
+          section below it), so it's visible immediately alongside the rest
+          of the opening scene. Centered, full-width within the section, and
+          animates in on first load. */}
+      <motion.div
+        className="absolute top-0 left-0 right-0 z-[1] flex justify-center pointer-events-none pt-2 sm:pt-3"
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+      >
+        <img
+          src={cloudPhoto}
+          alt=""
+          className="w-full max-w-xs sm:max-w-sm lg:max-w-md select-none"
+        />
+      </motion.div>
 
       {/* Decorative side clouds — LHS/RHS, vertically centered in the middle of the Hero section;
           cross over to opposite sides (slowly) on scroll-up, reverse on scroll-down */}
