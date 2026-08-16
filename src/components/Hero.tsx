@@ -973,22 +973,46 @@ export default function Hero() {
             </motion.div>
 
             {/* Subtitle — hand-written signature style (Caveat cursive),
-                matching the handwritten tagline used elsewhere in the Hero */}
-            <motion.p
+                matching the handwritten tagline used elsewhere in the Hero,
+                with a hand-drawn wavy underline beneath it */}
+            <motion.div
               initial={{ opacity: 0, y: rm ? 0 : 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.34, duration: 0.55 }}
-              className="flex items-center gap-2 text-slate-800 mb-4"
-              style={{
-                fontFamily: "'Caveat', cursive",
-                fontWeight: 700,
-                fontSize: 'clamp(1.6rem, 2.4vw, 2.1rem)',
-                letterSpacing: '0.3px',
-                transform: 'rotate(-1.5deg)',
-              }}
+              className="relative inline-block mb-4"
+              style={{ transform: 'rotate(-1.5deg)' }}
             >
-              Full-Stack Developer <span className="text-primary">&</span> Video Editor
-            </motion.p>
+              <p
+                className="flex items-center gap-2 text-slate-800"
+                style={{
+                  fontFamily: "'Caveat', cursive",
+                  fontWeight: 700,
+                  fontSize: 'clamp(1.6rem, 2.4vw, 2.1rem)',
+                  letterSpacing: '0.3px',
+                }}
+              >
+                Full-Stack Developer <span className="text-primary">&</span> Video Editor
+              </p>
+              {/* Hand-drawn wavy underline */}
+              <svg
+                viewBox="0 0 300 12"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+                className="absolute left-0 w-full"
+                style={{ bottom: '-6px', height: '10px' }}
+              >
+                <motion.path
+                  d="M3 6 Q40 1 78 6 T153 6 T228 5 T297 7"
+                  fill="none"
+                  stroke="#1d6feb"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 0.85 }}
+                  transition={{ delay: 0.9, duration: 0.7, ease: "easeOut" }}
+                />
+              </svg>
+            </motion.div>
 
             {/* Location line */}
             <motion.div
