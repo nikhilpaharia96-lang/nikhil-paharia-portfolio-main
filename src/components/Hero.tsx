@@ -600,6 +600,52 @@ export default function Hero() {
               </h1>
             </motion.div>
 
+            {/* Roles — "Full-Stack Developer & Video Editor" as one
+                hand-written line (matching the desktop tagline treatment),
+                with "Digital Creator" kept as a separate line below.
+                Placed above the location line per request. */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.26, duration: 0.5 }}
+              className="flex flex-col items-start gap-1.5 mb-2"
+            >
+              <div className="relative inline-block" style={{ transform: 'rotate(-1.5deg)' }}>
+                <p
+                  className="text-slate-800"
+                  style={{
+                    fontFamily: "'Caveat', cursive",
+                    fontWeight: 700,
+                    fontSize: 'clamp(1.05rem, 5vw, 1.4rem)',
+                    letterSpacing: '0.3px',
+                  }}
+                >
+                  Full-Stack Developer <span className="text-primary">&</span> Video Editor
+                </p>
+                <svg
+                  viewBox="0 0 300 12"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                  className="absolute left-0 w-full"
+                  style={{ bottom: '-4px', height: '8px' }}
+                >
+                  <motion.path
+                    d="M3 6 Q40 1 78 6 T153 6 T228 5 T297 7"
+                    fill="none"
+                    stroke="#1d6feb"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    initial={{ pathLength: 0, opacity: 0 }}
+                    animate={{ pathLength: 1, opacity: 0.85 }}
+                    transition={{ delay: 0.75, duration: 0.7, ease: "easeOut" }}
+                  />
+                </svg>
+              </div>
+              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.7rem, 2.6vw, 0.8rem)' }}>
+                <RiPencilLine className="text-primary flex-shrink-0" /> Digital Creator
+              </span>
+            </motion.div>
+
             {/* Location line — plane decoration dropped on mobile; the
                 narrow column has no room for it and the reference doesn't
                 show one here either (only the location pin + text) */}
@@ -640,51 +686,6 @@ export default function Hero() {
               <p style={{ fontSize: 'clamp(0.72rem, 2.8vw, 0.85rem)', lineHeight: 1.35 }} className="text-slate-600">
                 I build fast, modern and scalable web experiences that help businesses grow and stand out.
               </p>
-            </motion.div>
-
-            {/* Roles — "Full-Stack Developer & Video Editor" as one
-                hand-written line (matching the desktop tagline treatment),
-                with "Digital Creator" kept as a separate line below */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.42, duration: 0.5 }}
-              className="flex flex-col items-start gap-1.5 mb-3"
-            >
-              <div className="relative inline-block" style={{ transform: 'rotate(-1.5deg)' }}>
-                <p
-                  className="text-slate-800"
-                  style={{
-                    fontFamily: "'Caveat', cursive",
-                    fontWeight: 700,
-                    fontSize: 'clamp(1.05rem, 5vw, 1.4rem)',
-                    letterSpacing: '0.3px',
-                  }}
-                >
-                  Full-Stack Developer <span className="text-primary">&</span> Video Editor
-                </p>
-                <svg
-                  viewBox="0 0 300 12"
-                  preserveAspectRatio="none"
-                  aria-hidden="true"
-                  className="absolute left-0 w-full"
-                  style={{ bottom: '-4px', height: '8px' }}
-                >
-                  <motion.path
-                    d="M3 6 Q40 1 78 6 T153 6 T228 5 T297 7"
-                    fill="none"
-                    stroke="#1d6feb"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    initial={{ pathLength: 0, opacity: 0 }}
-                    animate={{ pathLength: 1, opacity: 0.85 }}
-                    transition={{ delay: 0.9, duration: 0.7, ease: "easeOut" }}
-                  />
-                </svg>
-              </div>
-              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.7rem, 2.6vw, 0.8rem)' }}>
-                <RiPencilLine className="text-primary flex-shrink-0" /> Digital Creator
-              </span>
             </motion.div>
 
             {/* CTA Buttons — "Hire Me" pill + round icon-only "Work" button.
