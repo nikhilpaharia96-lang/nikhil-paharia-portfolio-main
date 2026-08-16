@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RiMenuLine, RiCloseLine } from "react-icons/ri";
 import Magnetic from "@/components/ui/Magnetic";
-import type Lenis from "lenis";
+import { getLenis } from "@/lib/smoothScroll";
 import { lockBodyScroll } from "@/lib/scrollLock";
 
 const navLinks = [
@@ -61,25 +61,43 @@ export default function Navbar() {
 
     // Ride the app's single Lenis instance (already RAF-synced) instead of adding
     // a second, independent native scroll listener competing for the same frame.
-    const lenis = (window as typeof window & { lenis?: Lenis }).lenis;
+    // App's effect creates Lenis on mount, but child effects (this one) can run
+    // first — if Lenis isn't ready yet on this exact tick, fall back to native
+    // scroll immediately and swap over to Lenis the moment it appears rather
+    // than getting stuck on the fallback for the rest of the session.
+    let lenis = getLenis();
+    let onLenisScroll: ((e: { scroll: number }) => void) | null = null;
+    let onNativeScroll: (() => void) | null = null;
+    let swapCheckId: number | null = null;
+
+    const attachToLenis = (instance: NonNullable<ReturnType<typeof getLenis>>) => {
+      onLenisScroll = ({ scroll }) => handleScroll(scroll);
+      instance.on("scroll", onLenisScroll);
+      handleScroll(instance.scroll);
+    };
+
     if (lenis) {
-      const onLenisScroll = ({ scroll }: { scroll: number }) => handleScroll(scroll);
-      lenis.on("scroll", onLenisScroll);
-      handleScroll(lenis.scroll);
-      return () => {
-        lenis.off("scroll", onLenisScroll);
-        window.removeEventListener("resize", handleResize);
-        clearTimeout(resizeTimer);
-        clearTimeout(settleTimer);
-      };
+      attachToLenis(lenis);
+    } else {
+      onNativeScroll = () => handleScroll(window.scrollY);
+      window.addEventListener("scroll", onNativeScroll, { passive: true });
+      onNativeScroll();
+      // Briefly poll for Lenis to finish initializing, then switch over.
+      swapCheckId = window.setInterval(() => {
+        const found = getLenis();
+        if (found) {
+          if (onNativeScroll) window.removeEventListener("scroll", onNativeScroll);
+          if (swapCheckId !== null) window.clearInterval(swapCheckId);
+          lenis = found;
+          attachToLenis(found);
+        }
+      }, 100);
     }
 
-    // Fallback (Lenis not mounted yet, e.g. reduced-motion instant scroll edge case)
-    const onNativeScroll = () => handleScroll(window.scrollY);
-    window.addEventListener("scroll", onNativeScroll, { passive: true });
-    onNativeScroll();
     return () => {
-      window.removeEventListener("scroll", onNativeScroll);
+      if (lenis && onLenisScroll) lenis.off("scroll", onLenisScroll);
+      if (onNativeScroll) window.removeEventListener("scroll", onNativeScroll);
+      if (swapCheckId !== null) window.clearInterval(swapCheckId);
       window.removeEventListener("resize", handleResize);
       clearTimeout(resizeTimer);
       clearTimeout(settleTimer);
@@ -91,7 +109,7 @@ export default function Navbar() {
     const element = document.querySelector<HTMLElement>(href);
     if (!element) return;
 
-    const lenis = (window as typeof window & { lenis?: Lenis }).lenis;
+    const lenis = getLenis();
     if (lenis) {
       lenis.scrollTo(element, { offset: -24, duration: 1.2 });
     } else {
