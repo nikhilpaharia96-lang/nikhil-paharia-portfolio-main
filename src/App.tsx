@@ -4,10 +4,12 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { motion, MotionConfig, useReducedMotion } from "framer-motion";
 import { startSmoothScroll } from "@/lib/smoothScroll";
+import { MusicProvider } from "@/lib/MusicProvider";
 
 import Cursor from "@/components/Cursor";
 import ScrollProgress from "@/components/ScrollProgress";
 import GlobalBackground from "@/components/GlobalBackground";
+import MusicControl from "@/components/MusicControl";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Marquee from "@/components/Marquee";
@@ -46,9 +48,11 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <MotionConfig reducedMotion="user">
+        <MusicProvider>
         <Cursor />
         <GlobalBackground />
         <ScrollProgress />
+        <MusicControl />
 
         <motion.div 
           className="relative overflow-x-hidden max-w-full"
@@ -107,6 +111,7 @@ function App() {
         </motion.div>
 
         <Toaster theme="light" position="bottom-right" />
+        </MusicProvider>
         </MotionConfig>
       </TooltipProvider>
     </QueryClientProvider>
