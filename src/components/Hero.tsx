@@ -681,13 +681,13 @@ export default function Hero() {
               className="flex flex-col items-start gap-1 mb-3"
             >
               <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.66rem, 2.4vw, 0.78rem)' }}>
-                <RiCodeSSlashLine className="text-primary flex-shrink-0" /> Full-Stack Developer
+                <RiCodeSSlashLine className="text-primary flex-shrink-0" /> 𝐅𝐮𝐥𝐥-𝐒𝐭𝐚𝐜𝐤 𝐃𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐫
               </span>
               <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.66rem, 2.4vw, 0.78rem)' }}>
-                <RiVideoLine className="text-primary flex-shrink-0" /> Video Editor
+                <RiVideoLine className="text-primary flex-shrink-0" /> 𝐕𝐢𝐝𝐞𝐨 𝐄𝐝𝐢𝐭𝐨𝐫
               </span>
               <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.66rem, 2.4vw, 0.78rem)' }}>
-                <RiPencilLine className="text-primary flex-shrink-0" /> Digital Creator
+                <RiPencilLine className="text-primary flex-shrink-0" /> 𝐃𝐢𝐠𝐢𝐭𝐚𝐥 𝐂𝐫𝐞𝐚𝐭𝐨𝐫
               </span>
             </motion.div>
 
