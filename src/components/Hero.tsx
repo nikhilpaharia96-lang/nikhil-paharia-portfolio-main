@@ -555,6 +555,47 @@ export default function Hero() {
                       <path d="M19 2 C19 6 17 10 19 14 C20 16 22 16 23 14 C24 10 22 6 19 2Z" fill="#1d6feb" opacity="0.75" style={{ transformOrigin:'21px 8px', transform:'rotate(165deg)' }} />
                     </svg>
                   </span>
+                  {/* Underline — hand-drawn tapered brush stroke under
+                      "Paharia" too, same style/timing as the one under
+                      "Nikhil", followed by its own shine sweep. */}
+                  <motion.svg
+                    viewBox="60 3 775 29"
+                    initial={{ clipPath: 'inset(0 100% 0 0)' }}
+                    animate={{ clipPath: 'inset(0 0% 0 0)' }}
+                    transition={{ duration: 0.8, ease: 'easeOut', delay: 0.8 }}
+                    style={{ display: 'block', width: '100%', height: 'auto', marginTop: '0px' }}
+                    aria-hidden="true"
+                  >
+                    <defs>
+                      <linearGradient id="underline-shine-mobile-paharia" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#2563EB" />
+                        <stop offset="42%" stopColor="#2563EB" />
+                        <stop offset="50%" stopColor="#bfdcff" />
+                        <stop offset="58%" stopColor="#2563EB" />
+                        <stop offset="100%" stopColor="#2563EB" />
+                        <animateTransform
+                          attributeName="gradientTransform"
+                          type="translate"
+                          keyTimes="0; 0.55; 1"
+                          values="-1 0; 1 0; 1 0"
+                          begin="1.6s"
+                          dur="2s"
+                          repeatCount="indefinite"
+                        />
+                      </linearGradient>
+                    </defs>
+                    <path
+                      d="
+                        M 34 30
+                        C 30 21, 160 10, 270 9.5
+                        C 350 9, 439 12, 500 30
+                        C 452 25, 50 9.0, 270 24.5
+                        C 290 24.5, 96 23.5, 14 29
+                        Z
+                      "
+                      fill="url(#underline-shine-mobile-paharia)"
+                    />
+                  </motion.svg>
                 </span>
               </h1>
             </motion.div>
