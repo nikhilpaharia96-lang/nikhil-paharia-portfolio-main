@@ -972,14 +972,22 @@ export default function Hero() {
               </motion.svg>
             </motion.div>
 
-            {/* Subtitle */}
+            {/* Subtitle — hand-written signature style (Caveat cursive),
+                matching the handwritten tagline used elsewhere in the Hero */}
             <motion.p
               initial={{ opacity: 0, y: rm ? 0 : 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.34, duration: 0.55 }}
-              className="flex items-center gap-2.5 text-slate-800 font-semibold mb-4 text-lg xl:text-xl"
+              className="flex items-center gap-2 text-slate-800 mb-4"
+              style={{
+                fontFamily: "'Caveat', cursive",
+                fontWeight: 700,
+                fontSize: 'clamp(1.6rem, 2.4vw, 2.1rem)',
+                letterSpacing: '0.3px',
+                transform: 'rotate(-1.5deg)',
+              }}
             >
-              Full-Stack Developer <span className="text-primary font-bold">&</span> Video Editor
+              Full-Stack Developer <span className="text-primary">&</span> Video Editor
             </motion.p>
 
             {/* Location line */}
