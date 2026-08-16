@@ -625,7 +625,7 @@ export default function Hero() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
               className="relative mb-2"
-              style={{ paddingRight: '40px' }}
+              style={{ paddingRight: '30px' }}
             >
               <div className="flex items-center gap-0.5 flex-wrap">
                 <RiMapPinLine className="text-primary text-sm sm:text-base flex-shrink-0" />
@@ -648,8 +648,8 @@ export default function Hero() {
                 src={cleanPaperPlane}
                 alt=""
                 aria-hidden="true"
-                className="absolute pointer-events-none select-none w-14 sm:w-16"
-                style={{ right: '-18px', top: '-22px' }}
+                className="absolute pointer-events-none select-none w-29 sm:w-26"
+                style={{ right: '165px', top: '-11px' }}
                 initial={{ opacity: 0, y: rm ? 0 : 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.9, duration: 0.7 }}
