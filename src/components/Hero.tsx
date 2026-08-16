@@ -550,18 +550,15 @@ export default function Hero() {
                 </span>
                 <span className="block relative" style={{ width: 'fit-content', maxWidth: '100%' }}>
                   <SplitText type="chars" delay={0.35} charClassName="gradient-text">Paharia</SplitText>
-                  {/* Paint drops — above the last "a" in Paharia */}
-                  <span
-                    className="paint-drops"
-                    style={{ position: 'absolute', top: '-10px', right: '-14px', pointerEvents: 'none', zIndex: 10, transformOrigin: 'center' }}
+                  {/* Three-strokes accent — above the last "a" in Paharia,
+                      replacing the old paint-drops decoration */}
+                  <img
+                    src={threeStrokes}
+                    alt=""
                     aria-hidden="true"
-                  >
-                    <svg viewBox="0 0 24 22" fill="none" className="w-6 h-5 sm:w-7 sm:h-6">
-                      <path d="M3 2 C3 6 1 10 3 14 C4 16 6 16 7 14 C8 10 6 6 3 2Z" fill="#1d6feb" opacity="0.92" style={{ transformOrigin:'5px 8px', transform:'rotate(165deg)' }} />
-                      <path d="M11 2 C11 6 9 10 11 14 C12 16 14 16 15 14 C16 10 14 6 11 2Z" fill="#1d6feb" opacity="0.85" style={{ transformOrigin:'13px 8px', transform:'rotate(165deg)' }} />
-                      <path d="M19 2 C19 6 17 10 19 14 C20 16 22 16 23 14 C24 10 22 6 19 2Z" fill="#1d6feb" opacity="0.75" style={{ transformOrigin:'21px 8px', transform:'rotate(165deg)' }} />
-                    </svg>
-                  </span>
+                    className="absolute pointer-events-none select-none w-6"
+                    style={{ top: '-14px', right: '-14px', opacity: 0.85, zIndex: 10 }}
+                  />
                 </span>
               </h1>
             </motion.div>
