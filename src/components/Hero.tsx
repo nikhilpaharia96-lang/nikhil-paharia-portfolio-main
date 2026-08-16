@@ -254,13 +254,13 @@ export default function Hero() {
         <div className="absolute bottom-[10%] right-[10%] w-1.5 h-1.5 rounded-full bg-primary/40" style={{ animation: 'floatY 5.5s ease-in-out infinite 1.5s' }} />
       </div>
 
-      {/* Cloud photo — sits at the very top of Hero itself (not a separate
-          section below it), so it's visible immediately alongside the rest
-          of the opening scene. Centered, full-width within the section, and
+      {/* Cloud photo — sits at the bottom of Hero itself (not a separate
+          section below it), so it's visible within the opening scene, near
+          its lower edge. Centered, full-width within the section, and
           animates in on first load. */}
       <motion.div
-        className="absolute top-0 left-0 right-0 z-[1] flex justify-center pointer-events-none pt-2 sm:pt-3"
-        initial={{ opacity: 0, y: -30 }}
+        className="absolute bottom-0 left-0 right-0 z-[1] flex justify-center pointer-events-none pb-2 sm:pb-3"
+        initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
       >
