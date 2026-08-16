@@ -497,7 +497,8 @@ export default function Hero() {
               >
                 <span className="block relative" style={{ width: 'fit-content', maxWidth: '100%' }}>
                   <SplitText type="chars" delay={0.25}>Nikhil</SplitText>
-                  {/* Underline — hand-drawn tapered brush stroke under "Nikhil" only */}
+                  {/* Underline — hand-drawn tapered brush stroke under "Nikhil" only,
+                      followed by a one-time shine sweep once the stroke finishes drawing. */}
                   <motion.svg
                     viewBox="60 3 775 29"
                     initial={{ clipPath: 'inset(0 100% 0 0)' }}
@@ -506,6 +507,25 @@ export default function Hero() {
                     style={{ display: 'block', width: '100%', height: 'auto', marginTop: '0px' }}
                     aria-hidden="true"
                   >
+                    <defs>
+                      <linearGradient id="underline-shine-mobile" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#2563EB" />
+                        <stop offset="42%" stopColor="#2563EB" />
+                        <stop offset="50%" stopColor="#bfdcff" />
+                        <stop offset="58%" stopColor="#2563EB" />
+                        <stop offset="100%" stopColor="#2563EB" />
+                        <animateTransform
+                          attributeName="gradientTransform"
+                          type="translate"
+                          from="-1 0"
+                          to="1 0"
+                          begin="1.5s"
+                          dur="1.1s"
+                          repeatCount="1"
+                          fill="freeze"
+                        />
+                      </linearGradient>
+                    </defs>
                     <path
                       d="
                         M 34 30
@@ -515,7 +535,7 @@ export default function Hero() {
                         C 290 24.5, 96 23.5, 14 29
                         Z
                       "
-                      fill="#2563EB"
+                      fill="url(#underline-shine-mobile)"
                     />
                   </motion.svg>
                 </span>
@@ -922,9 +942,28 @@ export default function Hero() {
                 style={{ display: 'block', width: '100%', maxWidth: '340px', height: 'auto', marginTop: '3px' }}
                 aria-hidden="true"
               >
+                <defs>
+                  <linearGradient id="underline-shine-desktop" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#2563EB" />
+                    <stop offset="42%" stopColor="#2563EB" />
+                    <stop offset="50%" stopColor="#bfdcff" />
+                    <stop offset="58%" stopColor="#2563EB" />
+                    <stop offset="100%" stopColor="#2563EB" />
+                    <animateTransform
+                      attributeName="gradientTransform"
+                      type="translate"
+                      from="-1 0"
+                      to="1 0"
+                      begin="1.65s"
+                      dur="1.1s"
+                      repeatCount="1"
+                      fill="freeze"
+                    />
+                  </linearGradient>
+                </defs>
                 <path
                   d="M 34 30 C 30 21, 160 10, 270 9.5 C 350 9, 439 12, 500 30 C 452 25, 50 9.0, 270 24.5 C 290 24.5, 96 23.5, 14 29 Z"
-                  fill="#2563EB"
+                  fill="url(#underline-shine-desktop)"
                 />
               </motion.svg>
             </motion.div>
