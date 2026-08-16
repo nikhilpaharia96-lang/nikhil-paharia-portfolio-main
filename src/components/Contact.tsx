@@ -271,7 +271,6 @@ const contactInfo = [
   { Icon: Mail,  label: "Email",    value: "nikhilpaharia96@gmail.com", href: "mailto:nikhilpaharia96@gmail.com" },
   { Icon: Phone, label: "Phone / WhatsApp", value: PHONE_DISPLAY, href: `https://wa.me/${WHATSAPP_NUMBER}` },
   { Icon: MapPin,label: "Location", value: "Assam, India",              href: undefined },
-  { Icon: Clock, label: "Availability", value: "Open for new opportunities", href: undefined },
 ];
 
 /* TODO: replace with real profile URLs — icon is hidden automatically until a real link is added */
@@ -459,14 +458,7 @@ export default function Contact() {
                         transition={{ type: "spring", stiffness: 300 }}
                         className="w-10 h-10 shrink-0 rounded-lg bg-primary/10 group-hover:bg-primary/15 flex items-center justify-center transition-colors"
                       >
-                        {label === "Availability" ? (
-                          <span className="relative flex h-2.5 w-2.5">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
-                          </span>
-                        ) : (
-                          <Icon className="w-[18px] h-[18px] text-primary" />
-                        )}
+                        <Icon className="w-[18px] h-[18px] text-primary" />
                       </motion.div>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs text-slate-400 font-medium">{label}</p>
@@ -486,25 +478,22 @@ export default function Contact() {
               </div>
 
               {/* Social icons — circular glass buttons */}
-              <div>
-                <p className="text-xs font-semibold text-slate-400 tracking-[0.14em] uppercase mb-3">Connect With Me</p>
-                <div className="flex gap-4 flex-wrap">
-                  {socials.map(({ Icon, href, label }) => (
-                    <Magnetic key={label} range={40} strength={0.35} scaleHover={1.12}>
-                      <motion.a
-                        href={href}
-                        target={href.startsWith("http") ? "_blank" : undefined}
-                        rel={href.startsWith("http") ? "noreferrer" : undefined}
-                        aria-label={label}
-                        whileHover={{ y: -3, boxShadow: "0 10px 24px rgba(29,111,235,0.18)" }}
-                        whileTap={{ scale: 0.9 }}
-                        className="interactive w-12 h-12 rounded-full flex items-center justify-center border border-blue-100/70 bg-white/50 backdrop-blur-md hover:bg-white/80 hover:border-primary/40 transition-colors text-slate-700 hover:text-primary"
-                      >
-                        <Icon className="w-5 h-5" />
-                      </motion.a>
-                    </Magnetic>
-                  ))}
-                </div>
+              <div className="flex gap-4 flex-wrap">
+                {socials.map(({ Icon, href, label }) => (
+                  <Magnetic key={label} range={40} strength={0.35} scaleHover={1.12}>
+                    <motion.a
+                      href={href}
+                      target={href.startsWith("http") ? "_blank" : undefined}
+                      rel={href.startsWith("http") ? "noreferrer" : undefined}
+                      aria-label={label}
+                      whileHover={{ y: -3, boxShadow: "0 10px 24px rgba(29,111,235,0.18)" }}
+                      whileTap={{ scale: 0.9 }}
+                      className="interactive w-11 h-11 rounded-full flex items-center justify-center border border-blue-100/70 bg-white/50 backdrop-blur-md hover:bg-white/80 hover:border-primary/40 transition-colors text-slate-700 hover:text-primary"
+                    >
+                      <Icon className="w-5 h-5" />
+                    </motion.a>
+                  </Magnetic>
+                ))}
               </div>
             </motion.div>
           </div>
@@ -612,15 +601,16 @@ export default function Contact() {
                 <Lock className="w-3.5 h-3.5" aria-hidden="true" /> Your information stays private and is never shared.
               </p>
 
-              {/* Trust badges */}
-              <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 pt-1">
+              {/* Trust badges — single horizontal row, no wrap */}
+              <div className="flex items-start justify-between gap-2 pt-1">
                 {trustBadges.map(({ Icon, line1, line2 }) => (
-                  <div key={line1} className="flex items-center gap-2.5">
+                  <div key={line1} className="flex flex-col items-center text-center gap-1.5 flex-1 min-w-0">
                     <div className="w-9 h-9 shrink-0 rounded-full border border-primary/25 bg-primary/5 flex items-center justify-center">
                       <Icon className="w-4 h-4 text-primary" aria-hidden="true" />
                     </div>
-                    <p className="text-xs font-medium text-slate-600 leading-tight">
-                      {line1}<br />{line2}
+                    <p className="text-[11px] sm:text-xs font-medium text-slate-600 leading-tight">
+                      <span className="block font-semibold text-slate-700">{line1}</span>
+                      {line2}
                     </p>
                   </div>
                 ))}
@@ -628,64 +618,6 @@ export default function Contact() {
             </form>
           </motion.div>
         </div>
-
-        {/* Final CTA — premium card connecting Contact to the rest of the portfolio */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false }}
-          transition={{ duration: 0.7 }}
-          className="glass-premium mt-14 sm:mt-20 p-6 sm:p-10 md:p-12 flex flex-col md:flex-row items-center md:items-center justify-between gap-8 relative overflow-hidden"
-        >
-          {/* Soft ambient glow */}
-          <div aria-hidden="true" className="absolute -right-16 -top-16 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-
-          <div className="relative z-10 text-center md:text-left max-w-md">
-            <h3 className="text-2xl sm:text-3xl font-serif font-bold text-foreground mb-3 leading-tight">
-              Let's build your next{" "}
-              <span className="relative inline-block">
-                <span className="text-gradient">big idea.</span>
-                <motion.svg
-                  aria-hidden="true"
-                  viewBox="0 0 140 12"
-                  className="absolute left-0 -bottom-1.5 w-full h-2.5 text-primary/60"
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  whileInView={{ pathLength: 1, opacity: 1 }}
-                  viewport={{ once: false }}
-                  transition={{ duration: 0.8, delay: 0.3, ease: "easeInOut" }}
-                >
-                  <path d="M2 9C30 3 70 2 100 5C112 6.5 125 5 138 3" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" fill="none" />
-                </motion.svg>
-              </span>
-            </h3>
-            <p className="text-sm sm:text-base text-slate-500 font-light leading-relaxed">
-              From full-stack web apps to cinematic video and brand design — I'm here to turn your vision into reality.
-            </p>
-          </div>
-
-          <div className="relative z-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto shrink-0">
-            <Magnetic range={60} strength={0.25} scaleHover={1.03}>
-              <motion.a
-                href="#projects"
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.97 }}
-                className="interactive w-full sm:w-auto min-h-[48px] px-6 py-3.5 rounded-xl bg-gradient-to-r from-primary to-sky-500 text-white font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-200/60 hover:shadow-[0_0_32px_rgba(29,111,235,0.4)] transition-shadow"
-              >
-                View My Work <ArrowRight className="w-4 h-4" />
-              </motion.a>
-            </Magnetic>
-            <motion.a
-              href={`https://wa.me/${WHATSAPP_NUMBER}`}
-              target="_blank"
-              rel="noreferrer"
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.97 }}
-              className="interactive w-full sm:w-auto min-h-[48px] px-6 py-3.5 rounded-xl bg-white/80 backdrop-blur border border-blue-200 text-primary font-bold flex items-center justify-center gap-2 hover:bg-blue-50 hover:border-primary transition-colors"
-            >
-              <MessageCircle className="w-4 h-4" /> Chat on WhatsApp
-            </motion.a>
-          </div>
-        </motion.div>
       </div>
     </section>
   );
