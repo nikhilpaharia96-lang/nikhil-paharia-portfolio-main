@@ -21,6 +21,7 @@ import {
   SiGithub,
   SiRender,
   SiFigma,
+  SiInstagram,
 } from "react-icons/si";
 import { VscVscode } from "react-icons/vsc";
 import profilePhoto from "../assets/images/profile-nobg.png";
@@ -1611,8 +1612,8 @@ export default function About() {
           <FloatingSticker className="-top-6 left-4 sm:left-10" delay={0} duration={7}>
             <SiFigma className="w-5 h-5 text-[#F24E1E]" />
           </FloatingSticker>
-          <FloatingSticker className="-top-10 right-10 sm:right-24" delay={0.6} duration={8} rotate={-6}>
-            <SiGithub className="w-5 h-5 text-slate-800" />
+          <FloatingSticker className="-top-10 left-1/2 -translate-x-1/2" delay={0.6} duration={8} rotate={-6}>
+            <span className="text-xl">🐦</span>
           </FloatingSticker>
           <FloatingSticker className="top-1/3 -left-14" delay={1.1} duration={6.5} rotate={4}>
             <VscVscode className="w-5 h-5 text-[#0098FF]" />
@@ -1621,10 +1622,10 @@ export default function About() {
             <SiReact className="w-5 h-5 text-[#61DAFB]" />
           </FloatingSticker>
           <FloatingSticker className="bottom-24 -left-10" delay={0.9} duration={6} rotate={6}>
-            <span className="text-lg">☕</span>
+            <SiInstagram className="w-5 h-5 text-[#E4405F]" />
           </FloatingSticker>
           <FloatingSticker className="bottom-16 -right-14" delay={1.4} duration={7} rotate={-5}>
-            <span className="text-lg">🌿</span>
+            <SiGithub className="w-5 h-5 text-slate-800" />
           </FloatingSticker>
           <FloatingSticker className="-bottom-8 left-1/3" delay={0.5} duration={6.8} rotate={3}>
             <RealPaperClip rotate={0} className="static" />
@@ -2018,6 +2019,15 @@ export default function About() {
                     of themselves.
                   </span>
                 </StickyNote>
+
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={phase >= 6 ? { opacity: 1 } : { opacity: 0 }}
+                  transition={{ duration: rm ? 0.2 : 0.5, delay: rm ? 0 : 0.4 }}
+                  className="font-hand text-xs text-slate-400 underline decoration-slate-300 mt-2"
+                >
+                  God's Plan
+                </motion.p>
 
                 <MountainDoodle className="hidden sm:block mx-auto mt-4 opacity-70 scale-75" />
                   </NotebookPage>
