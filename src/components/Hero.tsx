@@ -481,7 +481,7 @@ export default function Hero() {
               <SplitText type="chars" delay={0.1}>Hi, I'm</SplitText>
             </motion.p>
 
-            {/* Name block — underline only under "Nikhil", paint drops above last "a" of Paharia.
+            {/* Name block — underline only under "Nikhil", three-strokes accent above last "a" of Paharia.
                 Sized to land at ~42–56px across the 320–430px mobile range while
                 never overflowing the viewport (clamp caps both ends). */}
             <motion.div
@@ -491,13 +491,6 @@ export default function Hero() {
               className="relative ul-wrap mb-2"
               style={{ display: 'inline-block', maxWidth: '100%' }}
             >
-              <img
-                src={threeStrokes}
-                alt=""
-                aria-hidden="true"
-                className="absolute pointer-events-none select-none w-6"
-                style={{ top: '-10px', right: '-14px', opacity: 0.85 }}
-              />
               <h1
                 style={{ fontSize: 'clamp(2.625rem, calc(-1rem + 11.7vw), 3.5rem)', lineHeight: 0.78, letterSpacing: '-0.04em' }}
                 className="font-bold"
