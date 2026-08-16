@@ -577,22 +577,42 @@ export default function Hero() {
               >
                 Full-Stack Developer <span className="text-primary">&</span> Video Editor
               </p>
+              {/* Premium hand-drawn brush-stroke underline (mobile) — same
+                  tapered ink shape as desktop, scaled down proportionally
+                  via the SVG's own width/height so it never grows past the
+                  text or touches the portrait on narrow screens. */}
               <svg
-                viewBox="0 0 300 12"
+                viewBox="0 0 300 14"
                 preserveAspectRatio="none"
                 aria-hidden="true"
                 className="absolute left-0 w-full"
                 style={{ bottom: '-4px', height: '8px' }}
               >
+                <defs>
+                  <linearGradient id="tagline-brush-mobile" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#1546c4" />
+                    <stop offset="45%" stopColor="#1d6feb" />
+                    <stop offset="100%" stopColor="#3d8bff" stopOpacity="0.75" />
+                  </linearGradient>
+                </defs>
                 <motion.path
-                  d="M3 6 Q40 1 78 6 T153 6 T228 5 T297 7"
+                  d="M 3 7.2 C 3 5.3 4.6 4.1 8.4 4.3 C 46 5.4 96 3.7 151 4.6 C 197 5.4 233 6.9 262 8.4 C 277 9.1 289 9.6 297 9.9 C 291 10.3 282 10.2 272 9.7 C 245 8.4 205 7.2 160 7 C 105 6.7 55 8.4 8.4 9.6 C 4.6 9.8 3 8.8 3 7.2 Z"
+                  fill="url(#tagline-brush-mobile)"
+                  initial={{ clipPath: 'inset(0 100% 0 0)' }}
+                  animate={{ clipPath: 'inset(0 0% 0 0)' }}
+                  transition={{ delay: 0.75, duration: 0.7, ease: "easeOut" }}
+                />
+                {/* Subtle secondary thin stroke — light hand-redrawn flick */}
+                <motion.path
+                  d="M 10 9.9 C 22 11.1 38 11.3 52 10.7"
                   fill="none"
                   stroke="#1d6feb"
-                  strokeWidth="2"
+                  strokeWidth="1"
                   strokeLinecap="round"
+                  opacity={0.35}
                   initial={{ pathLength: 0, opacity: 0 }}
-                  animate={{ pathLength: 1, opacity: 0.85 }}
-                  transition={{ delay: 0.75, duration: 0.7, ease: "easeOut" }}
+                  animate={{ pathLength: 1, opacity: 0.35 }}
+                  transition={{ delay: 1.2, duration: 0.35, ease: "easeOut" }}
                 />
               </svg>
             </motion.div>
@@ -1044,23 +1064,46 @@ export default function Hero() {
               >
                 Full-Stack Developer <span className="text-primary">&</span> Video Editor
               </p>
-              {/* Hand-drawn wavy underline */}
+              {/* Premium hand-drawn brush-stroke underline — a single
+                  filled, tapered ink shape (not a CSS line/border) so it
+                  keeps a natural, organic pen-pressure feel at any width.
+                  Rounded, confident stroke start; fine tapered tip at the
+                  end; a subtle secondary thin flick adds a hand-redrawn
+                  signature feel. Never overlaps the portrait — width is
+                  bound to the text's own box (`w-full` of this wrapper). */}
               <svg
-                viewBox="0 0 300 12"
+                viewBox="0 0 300 14"
                 preserveAspectRatio="none"
                 aria-hidden="true"
                 className="absolute left-0 w-full"
-                style={{ bottom: '-6px', height: '10px' }}
+                style={{ bottom: '-6px', height: '11px' }}
               >
+                <defs>
+                  <linearGradient id="tagline-brush-desktop" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#1546c4" />
+                    <stop offset="45%" stopColor="#1d6feb" />
+                    <stop offset="100%" stopColor="#3d8bff" stopOpacity="0.75" />
+                  </linearGradient>
+                </defs>
                 <motion.path
-                  d="M3 6 Q40 1 78 6 T153 6 T228 5 T297 7"
+                  d="M 3 7.2 C 3 5.3 4.6 4.1 8.4 4.3 C 46 5.4 96 3.7 151 4.6 C 197 5.4 233 6.9 262 8.4 C 277 9.1 289 9.6 297 9.9 C 291 10.3 282 10.2 272 9.7 C 245 8.4 205 7.2 160 7 C 105 6.7 55 8.4 8.4 9.6 C 4.6 9.8 3 8.8 3 7.2 Z"
+                  fill="url(#tagline-brush-desktop)"
+                  initial={{ clipPath: 'inset(0 100% 0 0)' }}
+                  animate={{ clipPath: 'inset(0 0% 0 0)' }}
+                  transition={{ delay: 0.9, duration: 0.7, ease: "easeOut" }}
+                />
+                {/* Subtle secondary thin stroke — a light hand-redrawn
+                    flick near the start, for an authentic signature feel */}
+                <motion.path
+                  d="M 10 9.9 C 22 11.1 38 11.3 52 10.7"
                   fill="none"
                   stroke="#1d6feb"
-                  strokeWidth="2.5"
+                  strokeWidth="1"
                   strokeLinecap="round"
+                  opacity={0.35}
                   initial={{ pathLength: 0, opacity: 0 }}
-                  animate={{ pathLength: 1, opacity: 0.85 }}
-                  transition={{ delay: 0.9, duration: 0.7, ease: "easeOut" }}
+                  animate={{ pathLength: 1, opacity: 0.35 }}
+                  transition={{ delay: 1.35, duration: 0.35, ease: "easeOut" }}
                 />
               </svg>
             </motion.div>
