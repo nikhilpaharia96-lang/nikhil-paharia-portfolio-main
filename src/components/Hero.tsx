@@ -181,24 +181,32 @@ export default function Hero() {
   });
 
   const cloudTransition = { layout: { type: "spring" as const, stiffness: 35, damping: 16, mass: 1.4 } };
+  // One-time entrance on first mount (page load): each cloud drifts in
+  // smoothly from its own side and fades in, independent of the `layout`
+  // crossover transition above (which only fires on scroll-direction
+  // changes, never on mount).
   const cloudLeft = (
     <motion.img
       key="cloud-left"
       layout
-      transition={cloudTransition}
+      initial={{ opacity: 0, x: -60 }}
+      animate={{ opacity: 0.7, x: 0 }}
+      transition={{ ...cloudTransition, opacity: { duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.3 }, x: { duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.3 } }}
       src={cloudImg}
       alt=""
-      className="w-44 sm:w-72 lg:w-96 select-none pointer-events-none opacity-70"
+      className="w-44 sm:w-72 lg:w-96 select-none pointer-events-none"
     />
   );
   const cloudRight = (
     <motion.img
       key="cloud-right"
       layout
-      transition={cloudTransition}
+      initial={{ opacity: 0, x: 60 }}
+      animate={{ opacity: 0.7, x: 0 }}
+      transition={{ ...cloudTransition, opacity: { duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.45 }, x: { duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.45 } }}
       src={cloudImg}
       alt=""
-      className="w-44 sm:w-72 lg:w-96 select-none pointer-events-none opacity-70"
+      className="w-44 sm:w-72 lg:w-96 select-none pointer-events-none"
     />
   );
 
