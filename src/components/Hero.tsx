@@ -586,7 +586,7 @@ export default function Hero() {
                 preserveAspectRatio="none"
                 aria-hidden="true"
                 className="absolute left-0 w-full"
-                style={{ bottom: '-4px', height: '8px' }}
+                style={{ bottom: '-3px', height: '8px' }}
               >
                 <defs>
                   <linearGradient id="tagline-brush-mobile" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -740,8 +740,8 @@ export default function Hero() {
             className="absolute z-0 pointer-events-none"
             style={{
               width: 'clamp(329px, 92vw, 345px)',
-              top: 'clamp(36px, 8vw, 42px)',
-              right: '-21%',
+              top: 'clamp(21px, 7vw, 49px)',
+              right: '-26%',
             }}
           >
             {/* Soft glow behind the portrait to blend its white background
