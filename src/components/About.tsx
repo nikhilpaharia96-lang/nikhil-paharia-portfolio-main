@@ -795,89 +795,128 @@ function PaperStack() {
 }
 
 /* ────────────────────────────────────────────────────────────
-   Book spine — a realistic vintage hardcover binding sitting in
-   the gutter between the two open pages. Dark navy-black leather
-   with a soft cylindrical highlight (so it reads as rounded, not
-   flat), fine grain, raised binding cords, and warm cream/burgundy
-   headbands top and bottom to tie it back into the scrapbook's
-   warm palette. Sits above the page-flip pages (which is what
-   actually makes it visible — the pages' cream backgrounds run
-   edge to edge, so the spine has to sit on top of that seam to
-   read as a physical binding rather than being hidden behind it).
-   Desktop-only: on mobile the flipbook renders a single full-width
-   page with no gutter for a spine to occupy.
+   Spiral binding — a realistic wire-bound sketchbook spine sitting
+   in the gutter between the two open pages: a thin dark metal rod
+   running the full height, with evenly spaced C-shaped wire loops
+   threading through small punched holes on each page. Each loop
+   gets a tiny bit of per-index variance (curve depth) so the coil
+   reads as hand-photographed rather than a perfectly regular
+   vector pattern, plus a metallic gradient (light catch, dark
+   underside) and a soft drop shadow so it sits physically on the
+   paper rather than floating above it. Desktop-only: on mobile the
+   flipbook renders a single full-width page with no gutter for a
+   spine to occupy.
    ──────────────────────────────────────────────────────────── */
 
-function BookSpine() {
+const SPIRAL_LOOP_COUNT = 16;
+const spiralPositions = Array.from(
+  { length: SPIRAL_LOOP_COUNT },
+  (_, i) => ((i + 0.5) / SPIRAL_LOOP_COUNT) * 100
+);
+
+function SpiralBinding() {
   return (
     <div
       aria-hidden="true"
       className="hidden lg:block absolute pointer-events-none"
       style={{
         left: "50%",
-        top: "-3px",
-        bottom: "-3px",
-        width: "22px",
+        top: "-6px",
+        bottom: "-6px",
+        width: "46px",
         transform: "translateX(-50%)",
         zIndex: 100,
-        borderRadius: "11px",
-        background:
-          "linear-gradient(90deg, #030405 0%, #0a0d13 9%, #161c28 22%, #2c3550 38%, #3c4766 47%, #2c3550 56%, #161c28 74%, #0a0d13 90%, #030405 100%)",
-        boxShadow:
-          "-7px 0 16px -8px rgba(0,0,0,0.55), 7px 0 16px -8px rgba(0,0,0,0.55), 0 10px 28px rgba(0,0,0,0.35), inset 0 0 1px rgba(255,255,255,0.15)",
       }}
     >
-      {/* fine leather grain */}
+      {/* thin central rod — the coil's axis, barely visible between loops */}
       <div
-        className="absolute inset-0 opacity-50 mix-blend-overlay"
+        className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0"
         style={{
-          borderRadius: "11px",
-          backgroundImage:
-            "repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,0.09) 0, rgba(255,255,255,0.09) 1px, transparent 1px, transparent 3px)",
-        }}
-      />
-      {/* soft vertical sheen — the cylindrical highlight that makes the
-          binding read as rounded rather than a flat painted strip */}
-      <div
-        className="absolute inset-y-0 opacity-70"
-        style={{
-          left: "38%",
-          width: "22%",
+          width: "2.5px",
+          borderRadius: "2px",
           background:
-            "linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent)",
+            "linear-gradient(90deg, #101010, #6e6e6e 45%, #1a1a1a 55%, #050505)",
+          boxShadow: "0 0 2px rgba(0,0,0,0.6)",
+          opacity: 0.85,
         }}
       />
-      {/* raised binding cords, the ridges a hand-sewn hardcover spine shows */}
-      {[10, 28, 50, 72, 90].map((pct) => (
-        <div
-          key={pct}
-          className="absolute left-1/2 -translate-x-1/2 w-[82%] h-[3px] rounded-full"
-          style={{
-            top: `${pct}%`,
-            background:
-              "linear-gradient(90deg, rgba(0,0,0,0.55), rgba(255,255,255,0.18) 45%, rgba(0,0,0,0.55))",
-            boxShadow: "0 1px 0 rgba(255,255,255,0.06)",
-          }}
-        />
-      ))}
-      {/* headbands — the woven cream/burgundy trim at the top and bottom
-          edge of a handcrafted hardcover, echoing the warm scrapbook tones */}
-      <div
-        className="absolute left-1/2 -translate-x-1/2 top-0 w-[76%] h-2 rounded-full"
-        style={{
-          background:
-            "repeating-linear-gradient(50deg, #e8d3a0 0 2.5px, #7a1f24 2.5px 5px)",
-          boxShadow: "0 1px 2px rgba(0,0,0,0.5)",
-        }}
-      />
-      <div
-        className="absolute left-1/2 -translate-x-1/2 bottom-0 w-[76%] h-2 rounded-full"
-        style={{
-          background:
-            "repeating-linear-gradient(50deg, #e8d3a0 0 2.5px, #7a1f24 2.5px 5px)",
-          boxShadow: "0 -1px 2px rgba(0,0,0,0.5)",
-        }}
-      />
+
+      {spiralPositions.map((pct, i) => {
+        // small per-loop imperfections so the coil doesn't read as a
+        // perfectly repeating vector pattern
+        const dip = 12 + ((i * 37) % 5) - 2; // 10–16px curve depth
+        const tilt = (i % 2 === 0 ? 1 : -1) * ((i * 13) % 3); // ±0–2px asymmetry
+        return (
+          <div
+            key={i}
+            className="absolute left-1/2 -translate-x-1/2"
+            style={{ top: `${pct}%` }}
+          >
+            {/* punched hole — left page */}
+            <div
+              className="absolute rounded-full"
+              style={{
+                left: "-20px",
+                top: "-4px",
+                width: "8px",
+                height: "8px",
+                background: "radial-gradient(circle at 35% 32%, #565656, #0a0a0a 72%)",
+                boxShadow:
+                  "inset 0 1px 1.5px rgba(0,0,0,0.75), 0 1px 0 rgba(255,255,255,0.18)",
+              }}
+            />
+            {/* punched hole — right page */}
+            <div
+              className="absolute rounded-full"
+              style={{
+                left: "12px",
+                top: "-4px",
+                width: "8px",
+                height: "8px",
+                background: "radial-gradient(circle at 35% 32%, #565656, #0a0a0a 72%)",
+                boxShadow:
+                  "inset 0 1px 1.5px rgba(0,0,0,0.75), 0 1px 0 rgba(255,255,255,0.18)",
+              }}
+            />
+
+            {/* the wire loop itself, threading through both holes */}
+            <svg
+              width="48"
+              height="20"
+              viewBox="0 0 48 20"
+              style={{ position: "absolute", left: "-24px", top: "-6px" }}
+            >
+              <defs>
+                <linearGradient id={`spiralWire${i}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#f6f6f6" />
+                  <stop offset="38%" stopColor="#a3a3a3" />
+                  <stop offset="60%" stopColor="#3d3d3d" />
+                  <stop offset="100%" stopColor="#0a0a0a" />
+                </linearGradient>
+              </defs>
+              {/* soft shadow the loop casts on the paper beneath it */}
+              <ellipse cx="24" cy={4 + dip + 1.5} rx="17" ry="2" fill="rgba(0,0,0,0.15)" />
+              {/* the C-shaped wire, dipping down between the two punched
+                  holes and back up — this is the "loop" itself */}
+              <path
+                d={`M6 4 C 6 ${4 + dip + tilt}, 42 ${4 + dip - tilt}, 42 4`}
+                stroke={`url(#spiralWire${i})`}
+                strokeWidth="2.6"
+                fill="none"
+                strokeLinecap="round"
+              />
+              {/* thin metallic catchlight along the top edge of the wire */}
+              <path
+                d={`M9 5 C 9 ${4 + dip * 0.6}, 39 ${4 + dip * 0.6}, 39 5`}
+                stroke="rgba(255,255,255,0.5)"
+                strokeWidth="0.7"
+                fill="none"
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -1847,9 +1886,9 @@ export default function About() {
                     the scroll-driven flip above) — same physical page-turn
                     animation either way, just one page in frame instead of
                     two. */}
-                {/* realistic vintage hardcover spine, sitting in the gutter
-                    between the two open pages */}
-                <BookSpine />
+                {/* realistic spiral-bound sketchbook binding, sitting in
+                    the gutter between the two open pages */}
+                <SpiralBinding />
 
                 <HTMLFlipBook
                   key={isDesktopViewport ? "desktop" : "mobile"}
