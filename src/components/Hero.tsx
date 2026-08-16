@@ -571,7 +571,7 @@ export default function Hero() {
                 style={{
                   fontFamily: "'Caveat', cursive",
                   fontWeight: 700,
-                  fontSize: 'clamp(1.05rem, 5vw, 1.4rem)',
+                  fontSize: 'clamp(1.07rem, 4vw, 2.4rem)',
                   letterSpacing: '0.3px',
                 }}
               >
