@@ -642,21 +642,23 @@ export default function Hero() {
               </p>
             </motion.div>
 
-            {/* Capabilities — bullet-separated role list, single line
-                (icons removed and font sized down so all three items fit
-                on one row without wrapping on narrow phones) */}
+            {/* Capabilities — bullet role list, stacked vertically (one per
+                line) with icons restored to original size */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.5 }}
-              className="flex flex-nowrap items-center gap-1 mb-3 text-slate-600 font-medium"
-              style={{ fontSize: 'clamp(0.56rem, 2.1vw, 0.7rem)' }}
+              className="flex flex-col items-start gap-1 mb-3"
             >
-              <span className="whitespace-nowrap">Full-Stack Developer</span>
-              <span className="text-slate-300">•</span>
-              <span className="whitespace-nowrap">Video Editor</span>
-              <span className="text-slate-300">•</span>
-              <span className="whitespace-nowrap">Digital Creator</span>
+              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.66rem, 2.4vw, 0.78rem)' }}>
+                <RiCodeSSlashLine className="text-primary flex-shrink-0" /> Full-Stack Developer
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.66rem, 2.4vw, 0.78rem)' }}>
+                <RiVideoLine className="text-primary flex-shrink-0" /> Video Editor
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.66rem, 2.4vw, 0.78rem)' }}>
+                <RiPencilLine className="text-primary flex-shrink-0" /> Digital Creator
+              </span>
             </motion.div>
 
             {/* CTA Buttons — "Hire Me" pill + round icon-only "Work" button.
