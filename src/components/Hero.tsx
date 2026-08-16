@@ -649,7 +649,7 @@ export default function Hero() {
                 alt=""
                 aria-hidden="true"
                 className="absolute pointer-events-none select-none w-29 sm:w-26"
-                style={{ right: '165px', top: '-11px' }}
+                style={{ right: '145px', top: '-11px' }}
                 initial={{ opacity: 0, y: rm ? 0 : 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.9, duration: 0.7 }}
