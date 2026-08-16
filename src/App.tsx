@@ -11,7 +11,6 @@ import GlobalBackground from "@/components/GlobalBackground";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Marquee from "@/components/Marquee";
-import CloudPhotoSection from "@/components/CloudPhotoSection";
 import About from "@/components/About";
 
 import Projects from "@/components/Projects";
@@ -62,9 +61,6 @@ function App() {
 
             {/* Hero — no wrapper, it's the opening scene */}
             <Hero />
-
-            {/* Cloud photo — quiet beat right after Hero, reveals on scroll */}
-            <CloudPhotoSection />
 
             {/* Marquee — fast cut between scenes */}
             <CinematicSection parallax={15} delay={0}>
