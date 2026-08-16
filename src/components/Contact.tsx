@@ -2,11 +2,10 @@ import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
-  RiGithubFill, RiLinkedinFill, RiInstagramLine, RiYoutubeFill, RiSendPlaneFill,
-  RiMailFill, RiPhoneFill, RiMapPinFill, RiCheckLine, RiErrorWarningLine, RiArrowDownSLine,
-  RiSendPlane2Fill, RiShieldCheckLine, RiUser3Line, RiMailLine, RiPhoneLine,
-  RiEditLine, RiArrowRightSLine, RiLockLine, RiMedalLine,
-} from "react-icons/ri";
+  Github, Linkedin, Instagram, Youtube, Send, Mail, Phone, MapPin, Check,
+  AlertCircle, ChevronDown, Clock, ShieldCheck, User, PenLine, ArrowRight,
+  Lock, Sparkles, MessageCircle, Wallet, ListChecks,
+} from "lucide-react";
 import Magnetic from "@/components/ui/Magnetic";
 import SplitText from "@/components/ui/SplitText";
 
@@ -53,7 +52,7 @@ function FloatField({ id, name, label, type = "text", required, multiline, rows 
       {/* Leading icon */}
       {Icon && (
         <div className={`absolute left-4 ${multiline ? "top-4" : "top-1/2 -translate-y-1/2"} pointer-events-none z-10`}>
-          <Icon className={`text-lg transition-colors duration-300 ${error ? "text-red-400" : focused ? "text-primary" : "text-slate-400"}`} />
+          <Icon className={`w-[18px] h-[18px] transition-colors duration-300 ${error ? "text-red-400" : focused ? "text-primary" : "text-slate-400"}`} />
         </div>
       )}
 
@@ -127,7 +126,7 @@ function FloatField({ id, name, label, type = "text", required, multiline, rows 
             exit={{ opacity: 0, y: -4, height: 0 }}
             className="flex items-center gap-1.5 text-red-500 text-xs font-medium mt-1.5 pl-1"
           >
-            <RiErrorWarningLine className="text-sm shrink-0" /> {error}
+            <AlertCircle className="w-4 h-4 shrink-0" /> {error}
           </motion.p>
         )}
       </AnimatePresence>
@@ -145,15 +144,17 @@ interface FloatSelectProps {
   error?: string;
   value?: string;
   onValueChange?: (v: string) => void;
+  icon?: React.ComponentType<{ className?: string }>;
 }
 
-function FloatSelect({ id, name, label, options, required, error, value, onValueChange }: FloatSelectProps) {
+function FloatSelect({ id, name, label, options, required, error, value, onValueChange, icon: Icon }: FloatSelectProps) {
   const [focused, setFocused] = useState(false);
   const hasValue = !!value && value.length > 0;
   const lifted = focused || hasValue;
+  const hasIcon = !!Icon;
 
   const sharedClass = `
-    w-full appearance-none bg-white/70 dark:bg-white/10 border rounded-xl pt-6 pb-3 pl-4 pr-11
+    w-full appearance-none bg-white/70 dark:bg-white/10 border rounded-xl pt-6 pb-3 ${hasIcon ? "pl-11" : "pl-4"} pr-11
     text-foreground dark:text-white
     focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 transition-all duration-300 peer cursor-pointer
     ${error
@@ -166,16 +167,24 @@ function FloatSelect({ id, name, label, options, required, error, value, onValue
 
   return (
     <div className="relative">
+      {/* Leading icon */}
+      {Icon && (
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+          <Icon className={`w-[18px] h-[18px] transition-colors duration-300 ${error ? "text-red-400" : focused ? "text-primary" : "text-slate-400"}`} />
+        </div>
+      )}
+
       {/* Floating label */}
       <motion.label
         htmlFor={id}
         animate={{
           y: lifted ? -10 : 0,
           scale: lifted ? 0.78 : 1,
+          x: hasIcon && !lifted ? 4 : 0,
           color: error ? "#ef4444" : lifted ? "#1d6feb" : "#94a3b8",
         }}
         transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
-        className="absolute left-4 top-4 origin-left pointer-events-none font-medium text-sm z-10"
+        className={`absolute ${hasIcon ? "left-11" : "left-4"} top-4 origin-left pointer-events-none font-medium text-sm z-10`}
       >
         {label}{required && <span className="text-primary/70"> *</span>}
       </motion.label>
@@ -207,7 +216,7 @@ function FloatSelect({ id, name, label, options, required, error, value, onValue
         transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
         className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none z-10"
       >
-        <RiArrowDownSLine className="text-xl" />
+        <ChevronDown className="w-5 h-5" />
       </motion.div>
 
       {/* Animated bottom accent line */}
@@ -228,7 +237,7 @@ function FloatSelect({ id, name, label, options, required, error, value, onValue
             exit={{ opacity: 0, y: -4, height: 0 }}
             className="flex items-center gap-1.5 text-red-500 text-xs font-medium mt-1.5 pl-1"
           >
-            <RiErrorWarningLine className="text-sm shrink-0" /> {error}
+            <AlertCircle className="w-4 h-4 shrink-0" /> {error}
           </motion.p>
         )}
       </AnimatePresence>
@@ -237,46 +246,47 @@ function FloatSelect({ id, name, label, options, required, error, value, onValue
 }
 
 const SUBJECT_OPTIONS = [
-  "Project Inquiry",
-  "Website Development",
-  "Web App Development",
-  "Mobile App Development",
-  "UI/UX Design",
-  "Portfolio Website",
-  "AI Integration",
-  "Freelance Work",
-  "Collaboration",
+  "Full-Stack Web Development",
+  "Landing Page",
+  "Web Design",
+  "Admin Dashboard",
+  "Video Editing",
+  "Social Media Content",
   "Other",
 ];
 
 const BUDGET_OPTIONS = [
-  "Under $100",
-  "$100 – $250",
-  "$250 – $500",
-  "$500 – $1,000",
-  "$1,000 – $2,500",
-  "$2,500 – $5,000",
-  "$5,000+",
+  "Under ₹5,000",
+  "₹5,000 – ₹15,000",
+  "₹15,000 – ₹30,000",
+  "₹30,000+",
   "Let's Discuss",
 ];
 
+/* Real, verified contact details only — edit these directly to update everywhere */
+const WHATSAPP_NUMBER = "919395722454"; // no "+", no spaces — required for wa.me links
+const PHONE_DISPLAY = "+91 93957 22454";
+
 const contactInfo = [
-  { Icon: RiMailFill,  label: "Email",    value: "nikhilpaharia96@gmail.com", href: "mailto:nikhilpaharia96@gmail.com" },
-  { Icon: RiPhoneFill, label: "Phone",    value: "+91 00000 00000",           href: "tel:+910000000000" },
-  { Icon: RiMapPinFill,label: "Location", value: "Assam, India",              href: undefined },
+  { Icon: Mail,  label: "Email",    value: "nikhilpaharia96@gmail.com", href: "mailto:nikhilpaharia96@gmail.com" },
+  { Icon: Phone, label: "Phone / WhatsApp", value: PHONE_DISPLAY, href: `https://wa.me/${WHATSAPP_NUMBER}` },
+  { Icon: MapPin,label: "Location", value: "Assam, India",              href: undefined },
+  { Icon: Clock, label: "Availability", value: "Open for new opportunities", href: undefined },
 ];
 
+/* TODO: replace with real profile URLs — icon is hidden automatically until a real link is added */
 const socials = [
-  { Icon: RiGithubFill,    href: "https://github.com/nikhilpaharia96-lang", label: "GitHub"    },
-  { Icon: RiLinkedinFill,  href: "#", label: "LinkedIn"  },
-  { Icon: RiInstagramLine, href: "#", label: "Instagram" },
-  { Icon: RiYoutubeFill,   href: "#", label: "YouTube"   },
-];
+  { Icon: Github,        href: "https://github.com/nikhilpaharia96-lang", label: "GitHub"    },
+  { Icon: Linkedin,      href: "", label: "LinkedIn"  }, // TODO: add LinkedIn URL
+  { Icon: Instagram,     href: "", label: "Instagram" }, // TODO: add Instagram URL
+  { Icon: Youtube,       href: "", label: "YouTube"   }, // TODO: add YouTube URL
+  { Icon: MessageCircle, href: `https://wa.me/${WHATSAPP_NUMBER}`, label: "WhatsApp" },
+].filter((s) => s.href);
 
 const trustBadges = [
-  { Icon: RiShieldCheckLine, line1: "Response within",   line2: "24 Hours" },
-  { Icon: RiLockLine,        line1: "100% Confidential", line2: "& Secure" },
-  { Icon: RiMedalLine,       line1: "Free Project",      line2: "Consultation" },
+  { Icon: Clock,       line1: "Quick Response",    line2: "Usually within 24–48 hours" },
+  { Icon: ShieldCheck, line1: "100% Confidential", line2: "Your details stay private" },
+  { Icon: Sparkles,    line1: "Free Consultation", line2: "Let's discuss your idea" },
 ];
 
 type FormState = { name: string; email: string; phone: string; subject: string; budget: string; message: string };
@@ -304,8 +314,7 @@ export default function Contact() {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) next.email = "Enter a valid email address";
     if (form.phone.trim() && !/^\+?[0-9](?:[0-9\s-]{5,18})[0-9]$/.test(form.phone.trim()))
       next.phone = "Enter a valid phone number, e.g. +1 555 123 4567";
-    if (!form.subject.trim()) next.subject = "Please select a subject";
-    if (!form.budget.trim()) next.budget = "Please select your budget";
+    if (!form.subject.trim()) next.subject = "Please select what you need";
     if (!form.message.trim()) next.message = "Please write a short message";
     else if (form.message.trim().length < 10) next.message = "Message should be at least 10 characters";
     setErrors(next);
@@ -346,7 +355,7 @@ export default function Contact() {
 
       setSent(true);
       toast.success("Message sent successfully!", {
-        description: "I'll get back to you within 24 hours.",
+        description: "I'll get back to you as soon as possible.",
       });
       formRef.current?.reset();
       setForm({ name: "", email: "", phone: "", subject: "", budget: "", message: "" });
@@ -392,78 +401,110 @@ export default function Contact() {
               viewport={{ once: false }}
               transition={{ duration: 0.8 }}
             >
-              {/* Availability badge */}
-              <div className="inline-flex items-center gap-2 mb-6 px-3.5 py-1.5 rounded-full bg-white/60 backdrop-blur-md border border-green-200/70 shadow-[0_2px_12px_rgba(16,185,129,0.12)]">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-                </span>
-                <span className="text-xs font-semibold text-green-700 tracking-wide">Available for new projects</span>
+              {/* Eyebrow */}
+              <div className="inline-flex items-center gap-2 mb-6 px-3.5 py-1.5 rounded-full bg-white/60 backdrop-blur-md border border-primary/20 shadow-[0_2px_12px_rgba(29,111,235,0.08)]">
+                <Send className="w-3.5 h-3.5 text-primary" />
+                <span className="text-xs font-semibold text-primary tracking-[0.14em] uppercase">Let's Connect</span>
               </div>
 
               <h2 className="text-5xl md:text-6xl font-serif font-bold mb-8 leading-[1.1] text-foreground max-w-full">
                 <SplitText type="words">Let's Build Something</SplitText>
                 <br />
-                <SplitText type="words" delay={0.15} textClassName="text-gradient">Amazing Together</SplitText>
+                <span className="relative inline-block">
+                  <SplitText type="words" delay={0.15} charClassName="text-gradient">Amazing</SplitText>
+                  {/* Hand-drawn brush-stroke underline accent */}
+                  <motion.svg
+                    aria-hidden="true"
+                    viewBox="0 0 180 14"
+                    className="absolute left-0 -bottom-2 w-full h-3 text-primary/70"
+                    initial={{ pathLength: 0, opacity: 0 }}
+                    whileInView={{ pathLength: 1, opacity: 1 }}
+                    viewport={{ once: false }}
+                    transition={{ duration: 0.9, delay: 0.5, ease: "easeInOut" }}
+                  >
+                    <path
+                      d="M2 10.5C40 4 90 2 130 6C150 8 165 6 178 4"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      strokeLinecap="round"
+                      fill="none"
+                    />
+                  </motion.svg>
+                </span>{" "}
+                <SplitText type="words" delay={0.22}>Together.</SplitText>
               </h2>
               <p className="text-xl text-slate-600 mb-10 font-light max-w-lg leading-relaxed">
-                From full-stack web apps to cinematic video and brand design — tell me about your project and let's turn it into something exceptional.
+                Have a project in mind or just want to say hi? Tell me what you're building and I'll get back to you as soon as possible.
               </p>
 
               {/* Contact info cards */}
               <div className="flex flex-col gap-3 mb-10 max-w-md">
                 {contactInfo.map(({ Icon, label, value, href }, i) => {
                   const Wrapper = href ? motion.a : motion.div;
+                  const isExternal = href?.startsWith("http");
                   return (
                     <Wrapper
                       key={label}
                       {...(href ? { href } : {})}
+                      {...(isExternal ? { target: "_blank", rel: "noreferrer" } : {})}
                       initial={{ opacity: 0, y: 12 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: false }}
                       transition={{ duration: 0.4, delay: i * 0.08 }}
-                      whileHover={{ y: -4, scale: 1.015 }}
-                      className="interactive group flex items-center gap-4 p-3.5 rounded-xl border border-blue-100/70 bg-white/50 backdrop-blur-sm hover:bg-white/80 hover:border-primary/30 hover:shadow-[0_10px_30px_rgba(29,111,235,0.15)] transition-colors transition-shadow duration-300"
+                      whileHover={href ? { y: -4, scale: 1.015 } : undefined}
+                      className={`interactive group flex items-center gap-4 p-3.5 rounded-xl border border-blue-100/70 bg-white/50 backdrop-blur-sm transition-colors transition-shadow duration-300 min-h-[48px] ${href ? "hover:bg-white/80 hover:border-primary/30 hover:shadow-[0_10px_30px_rgba(29,111,235,0.15)]" : ""}`}
                     >
                       <motion.div
                         whileHover={{ rotate: -8, scale: 1.1 }}
                         transition={{ type: "spring", stiffness: 300 }}
                         className="w-10 h-10 shrink-0 rounded-lg bg-primary/10 group-hover:bg-primary/15 flex items-center justify-center transition-colors"
                       >
-                        <Icon className="text-primary text-lg" />
+                        {label === "Availability" ? (
+                          <span className="relative flex h-2.5 w-2.5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
+                          </span>
+                        ) : (
+                          <Icon className="w-[18px] h-[18px] text-primary" />
+                        )}
                       </motion.div>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs text-slate-400 font-medium">{label}</p>
                         <p className="text-sm text-foreground font-semibold truncate">{value}</p>
                       </div>
-                      <div
-                        aria-hidden="true"
-                        className="shrink-0 text-slate-300 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-primary transition-all duration-300"
-                      >
-                        <RiArrowRightSLine className="text-xl" />
-                      </div>
+                      {href && (
+                        <div
+                          aria-hidden="true"
+                          className="shrink-0 text-slate-300 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-primary transition-all duration-300"
+                        >
+                          <ArrowRight className="w-5 h-5" />
+                        </div>
+                      )}
                     </Wrapper>
                   );
                 })}
               </div>
 
               {/* Social icons — circular glass buttons */}
-              <div className="flex gap-4 flex-wrap">
-                {socials.map(({ Icon, href, label }) => (
-                  <Magnetic key={label} range={40} strength={0.35} scaleHover={1.12}>
-                    <motion.a
-                      href={href}
-                      target={href.startsWith("http") ? "_blank" : undefined}
-                      rel={href.startsWith("http") ? "noreferrer" : undefined}
-                      aria-label={label}
-                      whileHover={{ y: -3, boxShadow: "0 10px 24px rgba(29,111,235,0.18)" }}
-                      whileTap={{ scale: 0.9 }}
-                      className="interactive w-11 h-11 rounded-full flex items-center justify-center border border-blue-100/70 bg-white/50 backdrop-blur-md hover:bg-white/80 hover:border-primary/40 transition-colors text-slate-700 hover:text-primary"
-                    >
-                      <Icon className="text-2xl" />
-                    </motion.a>
-                  </Magnetic>
-                ))}
+              <div>
+                <p className="text-xs font-semibold text-slate-400 tracking-[0.14em] uppercase mb-3">Connect With Me</p>
+                <div className="flex gap-4 flex-wrap">
+                  {socials.map(({ Icon, href, label }) => (
+                    <Magnetic key={label} range={40} strength={0.35} scaleHover={1.12}>
+                      <motion.a
+                        href={href}
+                        target={href.startsWith("http") ? "_blank" : undefined}
+                        rel={href.startsWith("http") ? "noreferrer" : undefined}
+                        aria-label={label}
+                        whileHover={{ y: -3, boxShadow: "0 10px 24px rgba(29,111,235,0.18)" }}
+                        whileTap={{ scale: 0.9 }}
+                        className="interactive w-12 h-12 rounded-full flex items-center justify-center border border-blue-100/70 bg-white/50 backdrop-blur-md hover:bg-white/80 hover:border-primary/40 transition-colors text-slate-700 hover:text-primary"
+                      >
+                        <Icon className="w-5 h-5" />
+                      </motion.a>
+                    </Magnetic>
+                  ))}
+                </div>
               </div>
             </motion.div>
           </div>
@@ -486,10 +527,10 @@ export default function Contact() {
               onSubmit={handleSubmit}
               noValidate
               aria-label="Contact form"
-              className="glass-premium p-5 sm:p-8 md:p-12 flex flex-col gap-6 relative"
+              className="glass-premium p-5 sm:p-8 md:p-12 flex flex-col gap-5 sm:gap-6 relative"
             >
               {/* Form header — paper-plane icon + title + subtitle */}
-              <div className="mb-2">
+              <div className="mb-1">
                 <div className="flex items-center gap-3 mb-2">
                   <motion.div
                     whileHover={{ rotate: -12, scale: 1.08 }}
@@ -497,25 +538,23 @@ export default function Contact() {
                     className="w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br from-primary/15 to-sky-400/15 flex items-center justify-center shadow-inner"
                     aria-hidden="true"
                   >
-                    <RiSendPlane2Fill className="text-primary text-xl" />
+                    <Send className="w-5 h-5 text-primary" />
                   </motion.div>
                   <h3 className="text-2xl md:text-3xl font-serif font-bold text-foreground">Send Me a Message</h3>
                 </div>
                 <p className="text-sm text-slate-500 font-light pl-[3.5rem] -mt-1">
-                  Fill out the form and I'll get back to you within 24 hours.
+                  Tell me about your project and I'll get back to you.
                 </p>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-6">
-                <FloatField id="contact-name"    name="name"    label="Full Name"     required value={form.name}    onValueChange={setField("name")}    error={errors.name} icon={RiUser3Line} autoComplete="name" />
-                <FloatField id="contact-email"   name="email"   label="Email Address" type="email" required value={form.email}   onValueChange={setField("email")}   error={errors.email} icon={RiMailLine} autoComplete="email" inputMode="email" />
+              <div className="grid sm:grid-cols-2 gap-5 sm:gap-6">
+                <FloatField id="contact-name"    name="name"    label="Your Name"     required value={form.name}    onValueChange={setField("name")}    error={errors.name} icon={User} autoComplete="name" />
+                <FloatField id="contact-email"   name="email"   label="Email Address" type="email" required value={form.email}   onValueChange={setField("email")}   error={errors.email} icon={Mail} autoComplete="email" inputMode="email" />
               </div>
-              <FloatField id="contact-phone" name="phone" label="Your Phone Number" type="tel" value={form.phone} onValueChange={setField("phone")} error={errors.phone} icon={RiPhoneLine} autoComplete="tel" inputMode="tel" />
-              <div className="grid sm:grid-cols-2 gap-6">
-                <FloatSelect id="contact-subject" name="subject" label="Select a Subject" options={SUBJECT_OPTIONS} required value={form.subject} onValueChange={setField("subject")} error={errors.subject} />
-                <FloatSelect id="contact-budget"  name="budget"  label="Select Your Budget" options={BUDGET_OPTIONS}  required value={form.budget}  onValueChange={setField("budget")}  error={errors.budget} />
-              </div>
-              <FloatField id="contact-message"   name="message" label="Message"       multiline rows={5} required value={form.message} onValueChange={setField("message")} error={errors.message} icon={RiEditLine} autoComplete="off" />
+              <FloatField id="contact-phone" name="phone" label="WhatsApp / Phone Number" type="tel" value={form.phone} onValueChange={setField("phone")} error={errors.phone} icon={Phone} autoComplete="tel" inputMode="tel" />
+              <FloatSelect id="contact-subject" name="subject" label="What do you need?" options={SUBJECT_OPTIONS} required value={form.subject} onValueChange={setField("subject")} error={errors.subject} icon={ListChecks} />
+              <FloatSelect id="contact-budget"  name="budget"  label="Budget (Optional)" options={BUDGET_OPTIONS}  value={form.budget}  onValueChange={setField("budget")}  error={errors.budget} icon={Wallet} />
+              <FloatField id="contact-message"   name="message" label="Tell me about your project" multiline rows={5} required value={form.message} onValueChange={setField("message")} error={errors.message} icon={PenLine} autoComplete="off" />
 
               {/* Magnetic submit button */}
               <Magnetic range={80} strength={0.3} scaleHover={1.02}>
@@ -552,7 +591,7 @@ export default function Contact() {
                         exit={{ opacity: 0, scale: 0.8 }}
                         className="flex items-center gap-2"
                       >
-                        Sent <RiCheckLine className="text-xl" />
+                        Sent <Check className="w-5 h-5" />
                       </motion.span>
                     ) : (
                       <motion.span
@@ -562,19 +601,23 @@ export default function Contact() {
                         exit={{ opacity: 0, y: -6 }}
                         className="flex items-center gap-3"
                       >
-                        <RiSendPlaneFill className="text-xl" /> Send Message
+                        <Send className="w-5 h-5" /> Send Message
                       </motion.span>
                     )}
                   </AnimatePresence>
                 </motion.button>
               </Magnetic>
 
+              <p className="flex items-center justify-center gap-1.5 text-xs text-slate-400 -mt-1">
+                <Lock className="w-3.5 h-3.5" aria-hidden="true" /> Your information stays private and is never shared.
+              </p>
+
               {/* Trust badges */}
               <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 pt-1">
                 {trustBadges.map(({ Icon, line1, line2 }) => (
                   <div key={line1} className="flex items-center gap-2.5">
                     <div className="w-9 h-9 shrink-0 rounded-full border border-primary/25 bg-primary/5 flex items-center justify-center">
-                      <Icon className="text-primary text-base" aria-hidden="true" />
+                      <Icon className="w-4 h-4 text-primary" aria-hidden="true" />
                     </div>
                     <p className="text-xs font-medium text-slate-600 leading-tight">
                       {line1}<br />{line2}
@@ -585,6 +628,64 @@ export default function Contact() {
             </form>
           </motion.div>
         </div>
+
+        {/* Final CTA — premium card connecting Contact to the rest of the portfolio */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false }}
+          transition={{ duration: 0.7 }}
+          className="glass-premium mt-14 sm:mt-20 p-6 sm:p-10 md:p-12 flex flex-col md:flex-row items-center md:items-center justify-between gap-8 relative overflow-hidden"
+        >
+          {/* Soft ambient glow */}
+          <div aria-hidden="true" className="absolute -right-16 -top-16 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 text-center md:text-left max-w-md">
+            <h3 className="text-2xl sm:text-3xl font-serif font-bold text-foreground mb-3 leading-tight">
+              Let's build your next{" "}
+              <span className="relative inline-block">
+                <span className="text-gradient">big idea.</span>
+                <motion.svg
+                  aria-hidden="true"
+                  viewBox="0 0 140 12"
+                  className="absolute left-0 -bottom-1.5 w-full h-2.5 text-primary/60"
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  whileInView={{ pathLength: 1, opacity: 1 }}
+                  viewport={{ once: false }}
+                  transition={{ duration: 0.8, delay: 0.3, ease: "easeInOut" }}
+                >
+                  <path d="M2 9C30 3 70 2 100 5C112 6.5 125 5 138 3" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" fill="none" />
+                </motion.svg>
+              </span>
+            </h3>
+            <p className="text-sm sm:text-base text-slate-500 font-light leading-relaxed">
+              From full-stack web apps to cinematic video and brand design — I'm here to turn your vision into reality.
+            </p>
+          </div>
+
+          <div className="relative z-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto shrink-0">
+            <Magnetic range={60} strength={0.25} scaleHover={1.03}>
+              <motion.a
+                href="#projects"
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.97 }}
+                className="interactive w-full sm:w-auto min-h-[48px] px-6 py-3.5 rounded-xl bg-gradient-to-r from-primary to-sky-500 text-white font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-200/60 hover:shadow-[0_0_32px_rgba(29,111,235,0.4)] transition-shadow"
+              >
+                View My Work <ArrowRight className="w-4 h-4" />
+              </motion.a>
+            </Magnetic>
+            <motion.a
+              href={`https://wa.me/${WHATSAPP_NUMBER}`}
+              target="_blank"
+              rel="noreferrer"
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              className="interactive w-full sm:w-auto min-h-[48px] px-6 py-3.5 rounded-xl bg-white/80 backdrop-blur border border-blue-200 text-primary font-bold flex items-center justify-center gap-2 hover:bg-blue-50 hover:border-primary transition-colors"
+            >
+              <MessageCircle className="w-4 h-4" /> Chat on WhatsApp
+            </motion.a>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
