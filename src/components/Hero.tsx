@@ -555,47 +555,6 @@ export default function Hero() {
                       <path d="M19 2 C19 6 17 10 19 14 C20 16 22 16 23 14 C24 10 22 6 19 2Z" fill="#1d6feb" opacity="0.75" style={{ transformOrigin:'21px 8px', transform:'rotate(165deg)' }} />
                     </svg>
                   </span>
-                  {/* Underline — hand-drawn tapered brush stroke under
-                      "Paharia" too, same style/timing as the one under
-                      "Nikhil", followed by its own shine sweep. */}
-                  <motion.svg
-                    viewBox="60 3 775 29"
-                    initial={{ clipPath: 'inset(0 100% 0 0)' }}
-                    animate={{ clipPath: 'inset(0 0% 0 0)' }}
-                    transition={{ duration: 0.8, ease: 'easeOut', delay: 0.8 }}
-                    style={{ display: 'block', width: '100%', height: 'auto', marginTop: '0px' }}
-                    aria-hidden="true"
-                  >
-                    <defs>
-                      <linearGradient id="underline-shine-mobile-paharia" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#2563EB" />
-                        <stop offset="42%" stopColor="#2563EB" />
-                        <stop offset="50%" stopColor="#bfdcff" />
-                        <stop offset="58%" stopColor="#2563EB" />
-                        <stop offset="100%" stopColor="#2563EB" />
-                        <animateTransform
-                          attributeName="gradientTransform"
-                          type="translate"
-                          keyTimes="0; 0.55; 1"
-                          values="-1 0; 1 0; 1 0"
-                          begin="1.6s"
-                          dur="2s"
-                          repeatCount="indefinite"
-                        />
-                      </linearGradient>
-                    </defs>
-                    <path
-                      d="
-                        M 34 30
-                        C 30 21, 160 10, 270 9.5
-                        C 350 9, 439 12, 500 30
-                        C 452 25, 50 9.0, 270 24.5
-                        C 290 24.5, 96 23.5, 14 29
-                        Z
-                      "
-                      fill="url(#underline-shine-mobile-paharia)"
-                    />
-                  </motion.svg>
                 </span>
               </h1>
             </motion.div>
@@ -683,24 +642,21 @@ export default function Hero() {
               </p>
             </motion.div>
 
-            {/* Capabilities — bullet-separated role list (matches desktop) */}
+            {/* Capabilities — bullet-separated role list, single line
+                (icons removed and font sized down so all three items fit
+                on one row without wrapping on narrow phones) */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.5 }}
-              className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-3"
+              className="flex flex-nowrap items-center gap-1 mb-3 text-slate-600 font-medium"
+              style={{ fontSize: 'clamp(0.56rem, 2.1vw, 0.7rem)' }}
             >
-              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.66rem, 2.4vw, 0.78rem)' }}>
-                <RiCodeSSlashLine className="text-primary flex-shrink-0" /> Full-Stack Developer
-              </span>
+              <span className="whitespace-nowrap">Full-Stack Developer</span>
               <span className="text-slate-300">•</span>
-              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.66rem, 2.4vw, 0.78rem)' }}>
-                <RiVideoLine className="text-primary flex-shrink-0" /> Video Editor
-              </span>
+              <span className="whitespace-nowrap">Video Editor</span>
               <span className="text-slate-300">•</span>
-              <span className="inline-flex items-center gap-1.5 text-slate-600 font-medium whitespace-nowrap" style={{ fontSize: 'clamp(0.66rem, 2.4vw, 0.78rem)' }}>
-                <RiPencilLine className="text-primary flex-shrink-0" /> Digital Creator
-              </span>
+              <span className="whitespace-nowrap">Digital Creator</span>
             </motion.div>
 
             {/* CTA Buttons — "Hire Me" pill + round icon-only "Work" button.
