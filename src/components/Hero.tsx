@@ -491,6 +491,13 @@ export default function Hero() {
               className="relative ul-wrap mb-2"
               style={{ display: 'inline-block', maxWidth: '100%' }}
             >
+              <img
+                src={threeStrokes}
+                alt=""
+                aria-hidden="true"
+                className="absolute pointer-events-none select-none w-6"
+                style={{ top: '-10px', right: '-14px', opacity: 0.85 }}
+              />
               <h1
                 style={{ fontSize: 'clamp(2.625rem, calc(-1rem + 11.7vw), 3.5rem)', lineHeight: 0.78, letterSpacing: '-0.04em' }}
                 className="font-bold"
@@ -600,14 +607,15 @@ export default function Hero() {
               </svg>
             </motion.div>
 
-            {/* Location line — plane decoration dropped on mobile; the
-                narrow column has no room for it and the reference doesn't
-                show one here either (only the location pin + text) */}
+            {/* Location line — small paper-airplane accent added to match
+                the desktop version, sized down and tucked to the right of
+                "to the world" so it doesn't crowd the narrow column */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
               className="relative mb-2"
+              style={{ paddingRight: '40px' }}
             >
               <div className="flex items-center gap-0.5 flex-wrap">
                 <RiMapPinLine className="text-primary text-sm sm:text-base flex-shrink-0" />
@@ -624,6 +632,18 @@ export default function Hero() {
               <p style={{ fontSize: 'clamp(0.68rem, 2.6vw, 0.85rem)', marginLeft: '1.1em' }} className="text-slate-700 font-medium">
                 to the world
               </p>
+
+              {/* Real-transparency paper airplane, subtle float-in */}
+              <motion.img
+                src={cleanPaperPlane}
+                alt=""
+                aria-hidden="true"
+                className="absolute pointer-events-none select-none w-14 sm:w-16"
+                style={{ right: '-18px', top: '-22px' }}
+                initial={{ opacity: 0, y: rm ? 0 : 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.9, duration: 0.7 }}
+              />
             </motion.div>
 
             {/* Bio — width capped so it wraps into readable multi-word
