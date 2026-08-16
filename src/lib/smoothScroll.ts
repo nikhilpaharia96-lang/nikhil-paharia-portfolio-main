@@ -53,7 +53,6 @@ let refCount = 0;
 let tickerFn: ((time: number) => void) | null = null;
 let lenisScrollTriggerHandler: (() => void) | null = null;
 let resizeObserver: ResizeObserver | null = null;
-let mutationObserver: MutationObserver | null = null;
 let reconcileIntervalId: number | null = null;
 let pendingListeners: Array<() => void> = [];
 
@@ -68,11 +67,24 @@ function getIsCoarsePointer() {
  * of bug: instead of trusting a one-time height measurement, height is
  * re-checked whenever it plausibly changed, and corrected before the user
  * can notice.
+ *
+ * Guarded by `isReconciling` so that if ScrollTrigger.refresh() or
+ * lenis.resize() themselves cause a layout/resize notification, the
+ * ResizeObserver callback below can't re-enter this function and start a
+ * feedback loop.
  */
+let isReconciling = false;
 function reconcileDimensions() {
-  if (!lenis) return;
+  if (!lenis || isReconciling) return;
+  isReconciling = true;
   lenis.resize();
   ScrollTrigger.refresh();
+  // Release the guard on the next frame rather than synchronously, so any
+  // resize notification the refresh itself triggers this tick is absorbed
+  // instead of re-entering.
+  requestAnimationFrame(() => {
+    isReconciling = false;
+  });
 }
 
 export interface SmoothScrollOptions {
@@ -178,14 +190,14 @@ export function startSmoothScroll(options: SmoothScrollOptions = {}): () => void
       resizeObserver.observe(document.body);
     }
 
-    // Belt-and-braces: content that mounts/unmounts without changing size
-    // in a way ResizeObserver reports immediately (e.g. a lazy section
-    // swapping placeholder -> real content at the same box size, or fonts
-    // swapping metrics mid-layout) is caught by watching the DOM itself.
-    if (typeof MutationObserver !== "undefined") {
-      mutationObserver = new MutationObserver(() => reconcileDimensions());
-      mutationObserver.observe(document.body, { childList: true, subtree: true });
-    }
+    // NOTE: a MutationObserver watching document.body for reconciliation
+    // was deliberately removed here. reconcileDimensions() calls
+    // ScrollTrigger.refresh(), which can itself touch layout/DOM — on a
+    // childList+subtree observer that creates a feedback loop (mutation ->
+    // refresh -> mutation -> ...) that can spin fast enough to hang the
+    // main thread on slower mobile devices (symptom: white screen after
+    // deploy). The ResizeObserver above plus the interval safety net below
+    // already cover every case that mattered without this risk.
 
     // Final safety net: periodically confirm Lenis's computed scroll limit
     // still matches the real document height, and correct it if not. This
@@ -215,8 +227,6 @@ export function startSmoothScroll(options: SmoothScrollOptions = {}): () => void
     }
     resizeObserver?.disconnect();
     resizeObserver = null;
-    mutationObserver?.disconnect();
-    mutationObserver = null;
     pendingListeners.forEach((remove) => remove());
     pendingListeners = [];
 
