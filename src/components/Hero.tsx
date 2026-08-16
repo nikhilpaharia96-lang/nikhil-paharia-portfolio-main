@@ -630,7 +630,7 @@ export default function Hero() {
               <div className="flex items-center gap-0.5 flex-wrap">
                 <RiMapPinLine className="text-primary text-sm sm:text-base flex-shrink-0" />
                 <p style={{ fontSize: 'clamp(0.68rem, 2.6vw, 0.85rem)' }} className="text-slate-700 font-medium flex items-center gap-1 flex-wrap">
-                  <span className="whitespace-nowrap">From the Hills of</span>
+                  <span className="whitespace-nowrap">𝑭𝒓𝒐𝒎 𝒕𝒉𝒆 𝑯𝒊𝒍𝒍𝒔 𝒐𝒇</span>
                   <span className="relative inline-block assam-text gradient-text font-bold whitespace-nowrap" style={{ fontSize: '1.7em', lineHeight: 1, paddingBottom: '4px' }}>
                     Assam
                     <svg viewBox="5 0 58 5" fill="none" aria-hidden="true" style={{ position: 'absolute', bottom: 0, left: 4, width: '100%' }}>
@@ -640,7 +640,7 @@ export default function Hero() {
                 </p>
               </div>
               <p style={{ fontSize: 'clamp(0.68rem, 2.6vw, 0.85rem)', marginLeft: '1.1em' }} className="text-slate-700 font-medium">
-                to the world
+                𝒕𝒐 𝒕𝒉𝒆 𝒘𝒐𝒓𝒍𝒅
               </p>
 
               {/* Real-transparency paper airplane, subtle float-in */}
@@ -668,7 +668,7 @@ export default function Hero() {
             >
               <div className="w-[3px] rounded-full bg-primary flex-shrink-0 self-stretch" />
               <p style={{ fontSize: 'clamp(0.72rem, 2.8vw, 0.85rem)', lineHeight: 1.35 }} className="text-slate-600">
-                I build fast, modern and scalable web experiences that help businesses grow and stand out.
+                𝗜 𝗯𝘂𝗶𝗹𝗱 𝗳𝗮𝘀𝘁, 𝗺𝗼𝗱𝗲𝗿𝗻 𝗮𝗻𝗱 𝘀𝗰𝗮𝗹𝗮𝗯𝗹𝗲 𝘄𝗲𝗯 𝗲𝘅𝗽𝗲𝗿𝗶𝗲𝗻𝗰𝗲𝘀 𝘁𝗵𝗮𝘁 𝗵𝗲𝗹𝗽 𝗯𝘂𝘀𝗶𝗻𝗲𝘀𝘀𝗲𝘀 𝗴𝗿𝗼𝘄 𝗮𝗻𝗱 𝘀𝘁𝗮𝗻𝗱 𝗼𝘂𝘁.
               </p>
             </motion.div>
 
