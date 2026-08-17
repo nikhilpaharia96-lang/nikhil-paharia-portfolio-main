@@ -248,3 +248,19 @@ export function startSmoothScroll(options: SmoothScrollOptions = {}): () => void
 export function getLenis(): Lenis | null {
   return lenis;
 }
+
+/**
+ * Updates duration/smoothing on the already-running instance without
+ * touching refCount and without tearing it down. For callers that need to
+ * react to a value (like prefers-reduced-motion) changing after the owning
+ * effect already called startSmoothScroll — destroying and recreating the
+ * whole Lenis + ScrollTrigger pipeline mid-session is what produces a
+ * visible "scroll happens 2-3 times" glitch, so this updates it in place.
+ * No-op if startSmoothScroll hasn't mounted an instance yet.
+ */
+export function updateSmoothScrollOptions(options: SmoothScrollOptions): void {
+  if (!lenis) return;
+  const { duration = 1.2, instant = false } = options;
+  lenis.options.duration = instant ? 0.1 : duration;
+  lenis.options.smoothWheel = !instant;
+}
