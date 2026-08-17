@@ -30,6 +30,8 @@ import premiereProLogo from "../assets/logos/premiere-pro.svg";
 import afterEffectsLogo from "../assets/logos/after-effects.svg";
 import SplitText from "@/components/ui/SplitText";
 
+const ease = [0.16, 1, 0.3, 1] as const;
+
 /* ────────────────────────────────────────────────────────────
    Data
    ──────────────────────────────────────────────────────────── */
@@ -189,7 +191,7 @@ function GlassSkillCard({ skill, index }: { skill: Skill; index: number }) {
               <motion.div
                 initial={{ width: 0 }}
                 whileInView={{ width: `${skill.level}%` }}
-                viewport={{ once: false }}
+                viewport={{ once: false, margin: "-40px" }}
                 transition={{
                   duration: 1.3,
                   delay: 0.15 + index * 0.06,
@@ -366,7 +368,7 @@ export default function Skills() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: false, margin: "-80px" }}
-              transition={{ duration: 0.7, delay: 0.15 }}
+              transition={{ duration: 0.7, delay: 0.15, ease }}
               className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-md mb-10"
             >
               I combine creativity with technology to build fast, scalable and
@@ -416,7 +418,7 @@ export default function Skills() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: false, margin: "-60px" }}
-              transition={{ duration: 0.7 }}
+              transition={{ duration: 0.7, ease }}
               className="flex justify-center lg:justify-end mb-10"
             >
               <div
@@ -477,7 +479,7 @@ export default function Skills() {
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: false, margin: "-60px" }}
-              transition={{ duration: 0.7, delay: 0.1 }}
+              transition={{ duration: 0.7, delay: 0.1, ease }}
               className="mt-10 sm:mt-12 rounded-3xl p-5 sm:p-7
                          bg-white/45 backdrop-blur-2xl border border-white/70
                          shadow-[0_1px_0_rgba(255,255,255,0.7)_inset,0_20px_50px_-20px_rgba(15,45,90,0.28)]

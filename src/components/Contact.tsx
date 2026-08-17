@@ -11,6 +11,9 @@ import {
 } from "react-icons/ri";
 import Magnetic from "@/components/ui/Magnetic";
 import SplitText from "@/components/ui/SplitText";
+import { staggerContainer, cinChildSmall } from "@/components/CinematicSection";
+
+const ease = [0.16, 1, 0.3, 1] as const;
 
 /* ── Floating label input wrapper ─────────────────────── */
 interface FloatInputProps {
@@ -400,8 +403,8 @@ export default function Contact() {
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: false }}
-              transition={{ duration: 0.8 }}
+              viewport={{ once: false, margin: "-80px" }}
+              transition={{ duration: 0.8, ease }}
             >
               {/* Eyebrow */}
               <div className="inline-flex items-center gap-2 mb-6 px-3.5 py-1.5 rounded-full bg-white/60 backdrop-blur-md border border-primary/20 shadow-[0_2px_12px_rgba(29,111,235,0.08)]">
@@ -421,7 +424,7 @@ export default function Contact() {
                     className="absolute left-0 -bottom-2 w-full h-3 text-primary/70"
                     initial={{ pathLength: 0, opacity: 0 }}
                     whileInView={{ pathLength: 1, opacity: 1 }}
-                    viewport={{ once: false }}
+                    viewport={{ once: false, margin: "-80px" }}
                     transition={{ duration: 0.9, delay: 0.5, ease: "easeInOut" }}
                   >
                     <path
@@ -440,8 +443,14 @@ export default function Contact() {
               </p>
 
               {/* Contact info cards */}
-              <div className="flex flex-col gap-3 mb-10 max-w-md">
-                {contactInfo.map(({ Icon, label, value, href }, i) => {
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: false, margin: "-60px" }}
+                className="flex flex-col gap-3 mb-10 max-w-md"
+              >
+                {contactInfo.map(({ Icon, label, value, href }) => {
                   const Wrapper = href ? motion.a : motion.div;
                   const isExternal = href?.startsWith("http");
                   return (
@@ -449,10 +458,7 @@ export default function Contact() {
                       key={label}
                       {...(href ? { href } : {})}
                       {...(isExternal ? { target: "_blank", rel: "noreferrer" } : {})}
-                      initial={{ opacity: 0, y: 12 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: false }}
-                      transition={{ duration: 0.4, delay: i * 0.08 }}
+                      variants={cinChildSmall}
                       whileHover={href ? { y: -4, scale: 1.015 } : undefined}
                       className={`interactive group flex items-center gap-4 p-3.5 rounded-xl border border-blue-100/70 bg-white/50 backdrop-blur-sm transition-colors transition-shadow duration-300 min-h-[48px] ${href ? "hover:bg-white/80 hover:border-primary/30 hover:shadow-[0_10px_30px_rgba(29,111,235,0.15)]" : ""}`}
                     >
@@ -478,10 +484,16 @@ export default function Contact() {
                     </Wrapper>
                   );
                 })}
-              </div>
+              </motion.div>
 
               {/* Social icons — circular glass buttons */}
-              <div className="flex gap-4 flex-wrap">
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: false, margin: "-60px" }}
+                className="flex gap-4 flex-wrap"
+              >
                 {socials.map(({ Icon, href, label }) => (
                   <Magnetic key={label} range={40} strength={0.35} scaleHover={1.12}>
                     <motion.a
@@ -489,6 +501,7 @@ export default function Contact() {
                       target={href.startsWith("http") ? "_blank" : undefined}
                       rel={href.startsWith("http") ? "noreferrer" : undefined}
                       aria-label={label}
+                      variants={cinChildSmall}
                       whileHover={{ y: -3, boxShadow: "0 10px 24px rgba(29,111,235,0.18)" }}
                       whileTap={{ scale: 0.9 }}
                       className="interactive w-11 h-11 rounded-full flex items-center justify-center border border-blue-100/70 bg-white/50 backdrop-blur-md hover:bg-white/80 hover:border-primary/40 transition-colors text-slate-700 hover:text-primary"
@@ -497,7 +510,7 @@ export default function Contact() {
                     </motion.a>
                   </Magnetic>
                 ))}
-              </div>
+              </motion.div>
             </motion.div>
           </div>
 
@@ -505,8 +518,8 @@ export default function Contact() {
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false }}
-            transition={{ duration: 0.8 }}
+            viewport={{ once: false, margin: "-80px" }}
+            transition={{ duration: 0.8, ease }}
             className="w-full max-w-full relative"
           >
             {/* Soft blue glow behind the glass card */}

@@ -923,7 +923,7 @@ export default function Projects() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.1 }}
+          transition={{ duration: 0.6, delay: 0.1, ease }}
           className="mt-10 flex items-center justify-center gap-2 text-slate-400 text-sm"
           style={{ fontFamily: FONT_NOTE }}
         >
