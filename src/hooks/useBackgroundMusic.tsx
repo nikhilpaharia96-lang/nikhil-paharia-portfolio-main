@@ -1,118 +1,153 @@
 import * as React from "react";
 
 /**
- * Manages the portfolio's ambient cinematic background track.
- *
- * Design constraints this hook exists to satisfy:
- *  - Never autoplays with sound. The <audio> element is created muted/paused
- *    and only ever starts playing from a real user gesture (a click on the
- *    control), so it can never violate browser autoplay policies or surprise
- *    a visitor with sound on load.
- *  - Preference (on/off + volume) is remembered in localStorage, but on
- *    return visits we still wait for a user gesture before calling .play() —
- *    we just skip straight to "ready to play" state instead of asking twice.
- *  - One <audio> element for the whole app lifetime, so navigating/scrolling
- *    between sections never interrupts or restarts playback.
- *  - Pauses (not stops) when the tab is hidden, and resumes where it left
- *    off when the tab becomes visible again — never restarts the track.
- *  - All setup work is deferred and wrapped in try/catch so a slow network,
- *    a blocked autoplay policy, or a missing file can never block or throw
- *    during page load.
+ * Background ambient music, matching the ITom Poland portfolio's model:
+ *  - The <audio> element is created and preloaded as soon as the app mounts,
+ *    but is never told to .play() at that point — so there is still no
+ *    autoplay-with-sound on load.
+ *  - Playback actually starts on the user's FIRST interaction anywhere on
+ *    the page (click, touch, or keydown) — not specifically the control
+ *    itself. This satisfies real browser autoplay policies (which require
+ *    a user gesture) while giving the "music just starts as you begin
+ *    exploring" feel of the reference site.
+ *  - The floating control is mute/unmute + volume only, not a play/pause
+ *    switch from a fully-stopped state.
+ *  - Mute + volume preferences persist in localStorage.
+ *  - Pauses (never restarts) when the tab is hidden, resumes on return if
+ *    it was playing.
  */
 
-const STORAGE_KEY = "np-portfolio-music-pref-v1";
+const STORAGE_KEY_MUTED = "np-portfolio-audio-muted";
+const STORAGE_KEY_VOLUME = "np-portfolio-audio-volume";
 const TRACK_SOURCES = [
   { src: "/audio/ambient-cinematic.ogg", type: "audio/ogg" },
   { src: "/audio/ambient-cinematic.mp3", type: "audio/mpeg" },
 ];
-const DEFAULT_VOLUME = 0.28; // low, non-intrusive by default
+const DEFAULT_VOLUME = 0.3; // matches the reference site's "cozy background" level
 
-type StoredPref = {
-  enabled: boolean;
-  volume: number;
-};
-
-function readStoredPref(): StoredPref {
-  if (typeof window === "undefined") return { enabled: false, volume: DEFAULT_VOLUME };
+function readMuted(): boolean {
+  if (typeof window === "undefined") return false;
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { enabled: false, volume: DEFAULT_VOLUME };
-    const parsed = JSON.parse(raw);
-    return {
-      enabled: !!parsed.enabled,
-      volume:
-        typeof parsed.volume === "number" && parsed.volume >= 0 && parsed.volume <= 1
-          ? parsed.volume
-          : DEFAULT_VOLUME,
-    };
+    return window.localStorage.getItem(STORAGE_KEY_MUTED) === "true";
   } catch {
-    return { enabled: false, volume: DEFAULT_VOLUME };
+    return false;
   }
 }
 
-function writeStoredPref(pref: StoredPref) {
+function readVolume(): number {
+  if (typeof window === "undefined") return DEFAULT_VOLUME;
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(pref));
+    const raw = window.localStorage.getItem(STORAGE_KEY_VOLUME);
+    const parsed = raw !== null ? parseFloat(raw) : NaN;
+    return Number.isFinite(parsed) && parsed >= 0 && parsed <= 1 ? parsed : DEFAULT_VOLUME;
   } catch {
-    // Storage can fail (private browsing, quota, disabled) — never let that
-    // affect playback.
+    return DEFAULT_VOLUME;
   }
 }
 
-export type MusicStatus = "idle" | "loading" | "playing" | "paused" | "blocked" | "error";
+function writeMuted(muted: boolean) {
+  try {
+    window.localStorage.setItem(STORAGE_KEY_MUTED, String(muted));
+  } catch {
+    // ignore (private browsing / quota / disabled storage)
+  }
+}
+
+function writeVolume(volume: number) {
+  try {
+    window.localStorage.setItem(STORAGE_KEY_VOLUME, String(volume));
+  } catch {
+    // ignore
+  }
+}
 
 export function useBackgroundMusic() {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
-  const [isEnabled, setIsEnabled] = React.useState(false); // OFF by default, always
-  const [volume, setVolumeState] = React.useState(DEFAULT_VOLUME);
-  const [status, setStatus] = React.useState<MusicStatus>("idle");
-  const [hasInteracted, setHasInteracted] = React.useState(false);
+  const hasStartedRef = React.useRef(false); // has playback ever actually begun this session
   const wasPlayingBeforeHiddenRef = React.useRef(false);
 
-  // Create the <audio> element once, lazily, without blocking render or load.
-  React.useEffect(() => {
-    const pref = readStoredPref();
-    setVolumeState(pref.volume);
-    // We remember that the user *wants* music, but we never auto-start it —
-    // isEnabled here only pre-fills the UI/toggle affordance intent; actual
-    // playback still waits for handleToggle() to run from a click.
-    setIsEnabled(false);
+  const [isMuted, setIsMutedState] = React.useState(readMuted);
+  const [volume, setVolumeState] = React.useState(readVolume);
+  const [hasStarted, setHasStarted] = React.useState(false);
 
+  // Preload the audio element as soon as the app mounts. No .play() call
+  // here — this only readies the element so the first interaction can
+  // start it instantly, without a network stall.
+  React.useEffect(() => {
     const audio = new Audio();
     audio.loop = true;
-    audio.preload = "none"; // never compete with critical page assets
-    audio.volume = pref.volume;
-    audio.muted = false;
+    audio.preload = "auto";
+    audio.volume = readVolume();
+    audio.muted = readMuted();
 
-    // Prefer the first source the browser reports it can play.
     const source = TRACK_SOURCES.find((s) => audio.canPlayType(s.type) !== "") ?? TRACK_SOURCES[1];
     audio.src = source.src;
-
-    const onPlaying = () => setStatus("playing");
-    const onPause = () => setStatus((s) => (s === "error" ? s : "paused"));
-    const onWaiting = () => setStatus("loading");
-    const onError = () => setStatus("error");
-
-    audio.addEventListener("playing", onPlaying);
-    audio.addEventListener("pause", onPause);
-    audio.addEventListener("waiting", onWaiting);
-    audio.addEventListener("error", onError);
+    audio.load();
 
     audioRef.current = audio;
 
     return () => {
-      audio.removeEventListener("playing", onPlaying);
-      audio.removeEventListener("pause", onPause);
-      audio.removeEventListener("waiting", onWaiting);
-      audio.removeEventListener("error", onError);
       audio.pause();
       audio.src = "";
       audioRef.current = null;
     };
   }, []);
 
-  // Pause (never restart) when the tab is hidden; resume only if the user
-  // had it playing and the tab becomes visible again.
+  // Start playback on the user's first interaction anywhere on the page.
+  React.useEffect(() => {
+    const start = () => {
+      if (hasStartedRef.current) return;
+      hasStartedRef.current = true;
+      setHasStarted(true);
+
+      const audio = audioRef.current;
+      if (!audio) return;
+      if (audio.paused) {
+        audio.play().catch(() => {
+          // Autoplay/user-gesture restriction — the next real interaction
+          // will simply try again via the listeners below, since we only
+          // flip hasStartedRef once play() actually resolves successfully.
+          hasStartedRef.current = false;
+          setHasStarted(false);
+        });
+      }
+    };
+
+    window.addEventListener("click", start, { once: true });
+    window.addEventListener("touchstart", start, { once: true });
+    window.addEventListener("keydown", start, { once: true });
+
+    return () => {
+      window.removeEventListener("click", start);
+      window.removeEventListener("touchstart", start);
+      window.removeEventListener("keydown", start);
+    };
+  }, []);
+
+  // Persist + apply mute/volume any time they change.
+  React.useEffect(() => {
+    writeMuted(isMuted);
+    if (audioRef.current) audioRef.current.muted = isMuted;
+  }, [isMuted]);
+
+  React.useEffect(() => {
+    writeVolume(volume);
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.volume = volume;
+    // Auto-unmute if the user drags the slider up, and resume playback if
+    // it had already started but was sitting paused at 0 volume.
+    if (volume > 0) {
+      if (isMuted) setIsMutedState(false);
+      if (hasStartedRef.current && audio.paused) {
+        audio.play().catch(() => {});
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [volume]);
+
+  // Pause (never restart) when the tab is hidden; resume on return only if
+  // it was actually playing before.
   React.useEffect(() => {
     const handleVisibility = () => {
       const audio = audioRef.current;
@@ -121,75 +156,28 @@ export function useBackgroundMusic() {
       if (document.hidden) {
         wasPlayingBeforeHiddenRef.current = !audio.paused;
         if (!audio.paused) audio.pause();
-      } else if (wasPlayingBeforeHiddenRef.current && isEnabled) {
-        audio.play().catch(() => setStatus("blocked"));
+      } else if (wasPlayingBeforeHiddenRef.current) {
+        audio.play().catch(() => {});
       }
     };
 
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
-  }, [isEnabled]);
+  }, []);
+
+  const toggleMute = React.useCallback(() => {
+    setIsMutedState((prev) => !prev);
+  }, []);
 
   const setVolume = React.useCallback((next: number) => {
-    const clamped = Math.min(1, Math.max(0, next));
-    setVolumeState(clamped);
-    if (audioRef.current) audioRef.current.volume = clamped;
-    writeStoredPref({ enabled: isEnabledRef.current, volume: clamped });
+    setVolumeState(Math.min(1, Math.max(0, next)));
   }, []);
-
-  // Keep a ref mirror of isEnabled so setVolume (stable callback) can persist
-  // the latest enabled flag without needing to be recreated every toggle.
-  const isEnabledRef = React.useRef(isEnabled);
-  React.useEffect(() => {
-    isEnabledRef.current = isEnabled;
-  }, [isEnabled]);
-
-  /** Must be called directly inside a user gesture handler (click/tap). */
-  const enable = React.useCallback(async () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    setHasInteracted(true);
-    if (audio.preload === "none") audio.preload = "auto";
-    setStatus("loading");
-    try {
-      await audio.play();
-      setIsEnabled(true);
-      setStatus("playing");
-      writeStoredPref({ enabled: true, volume: audio.volume });
-    } catch {
-      // Autoplay/user-gesture restriction or a load failure — surface as
-      // "blocked" so the UI can invite another explicit tap, never retry
-      // silently in the background.
-      setIsEnabled(false);
-      setStatus("blocked");
-    }
-  }, []);
-
-  const disable = React.useCallback(() => {
-    const audio = audioRef.current;
-    setHasInteracted(true);
-    if (audio) audio.pause();
-    setIsEnabled(false);
-    setStatus("paused");
-    writeStoredPref({ enabled: false, volume: audio?.volume ?? volume });
-  }, [volume]);
-
-  const toggle = React.useCallback(() => {
-    if (isEnabled) {
-      disable();
-    } else {
-      void enable();
-    }
-  }, [isEnabled, disable, enable]);
 
   return {
-    isEnabled,
+    isMuted,
     volume,
-    status,
-    hasInteracted,
-    toggle,
-    enable,
-    disable,
+    hasStarted,
+    toggleMute,
     setVolume,
   };
 }
