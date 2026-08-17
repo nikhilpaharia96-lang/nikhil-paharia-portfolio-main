@@ -82,11 +82,27 @@ export function useBackgroundMusic() {
 
     const source = TRACK_SOURCES.find((s) => audio.canPlayType(s.type) !== "") ?? TRACK_SOURCES[1];
     audio.src = source.src;
+
+    const onError = () => {
+      // Surface load failures (missing file, bad path, unsupported codec)
+      // in the console instead of failing silently -- this is the single
+      // most common reason "nothing plays" with no visible error to the
+      // visitor.
+      // eslint-disable-next-line no-console
+      console.error(
+        "[background-music] failed to load audio source:",
+        audio.currentSrc || audio.src,
+        audio.error
+      );
+    };
+    audio.addEventListener("error", onError);
+
     audio.load();
 
     audioRef.current = audio;
 
     return () => {
+      audio.removeEventListener("error", onError);
       audio.pause();
       audio.src = "";
       audioRef.current = null;
@@ -94,34 +110,54 @@ export function useBackgroundMusic() {
   }, []);
 
   // Start playback on the user's first interaction anywhere on the page.
+  // Uses manual add/remove (not { once: true }) so a failed attempt --
+  // e.g. the audio element not being ready yet, or the browser rejecting
+  // the very first gesture for its own reasons -- doesn't permanently
+  // remove the listener. The listener only detaches once playback has
+  // actually, successfully begun.
   React.useEffect(() => {
     const start = () => {
       if (hasStartedRef.current) return;
-      hasStartedRef.current = true;
-      setHasStarted(true);
 
       const audio = audioRef.current;
-      if (!audio) return;
-      if (audio.paused) {
-        audio.play().catch(() => {
-          // Autoplay/user-gesture restriction — the next real interaction
-          // will simply try again via the listeners below, since we only
-          // flip hasStartedRef once play() actually resolves successfully.
-          hasStartedRef.current = false;
-          setHasStarted(false);
-        });
+      if (!audio) return; // not mounted yet -- next interaction will retry
+
+      const playPromise = audio.play();
+      if (playPromise && typeof playPromise.then === "function") {
+        playPromise
+          .then(() => {
+            hasStartedRef.current = true;
+            setHasStarted(true);
+            detach();
+          })
+          .catch((err) => {
+            // Browser refused this gesture -- leave listeners attached so
+            // the next click/touch/keydown tries again.
+            // eslint-disable-next-line no-console
+            console.warn("[background-music] play() was rejected, will retry on next interaction:", err);
+          });
+      } else {
+        // Some environments don't return a promise from play(); assume it
+        // started if the element isn't paused right after calling it.
+        if (!audio.paused) {
+          hasStartedRef.current = true;
+          setHasStarted(true);
+          detach();
+        }
       }
     };
 
-    window.addEventListener("click", start, { once: true });
-    window.addEventListener("touchstart", start, { once: true });
-    window.addEventListener("keydown", start, { once: true });
-
-    return () => {
+    const detach = () => {
       window.removeEventListener("click", start);
       window.removeEventListener("touchstart", start);
       window.removeEventListener("keydown", start);
     };
+
+    window.addEventListener("click", start);
+    window.addEventListener("touchstart", start);
+    window.addEventListener("keydown", start);
+
+    return detach;
   }, []);
 
   // Persist + apply mute/volume any time they change.
