@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, MessageSquareHeart } from "lucide-react";
+import { ease } from "@/animations/testimonials.motion";
 
 type WorkedWithMeCTAProps = {
   onOpen: () => void;
@@ -16,7 +17,7 @@ export default function WorkedWithMeCTA({ onOpen, variant }: WorkedWithMeCTAProp
       initial={prefersReducedMotion ? undefined : { opacity: 0, y: isFloating ? -12 : 24 }}
       whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.7, delay: isFloating ? 0.3 : 0 }}
+      transition={{ duration: 0.7, delay: isFloating ? 0.3 : 0, ease }}
       className={
         isFloating
           ? "hidden lg:block absolute -top-4 right-0 z-20 w-72"
