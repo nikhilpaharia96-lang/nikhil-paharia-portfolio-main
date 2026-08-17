@@ -2,9 +2,9 @@ import * as React from "react";
 import { useMusic } from "@/lib/MusicProvider";
 
 /**
- * Music mute/volume control, designed to live inline inside the Navbar in
- * place of the old "Hire Me" button — same slot, same sizing rhythm as the
- * rest of the nav, on both desktop and mobile.
+ * Music mute/volume control, living inline inside the Navbar in the exact
+ * slot the old "Hire Me" button used to occupy — same sizing rhythm on
+ * desktop, mobile top bar, and the full-screen mobile menu.
  *
  * Music itself starts on the visitor's first interaction anywhere on the
  * page (see useBackgroundMusic); this button only mutes/adjusts it
@@ -66,7 +66,7 @@ export default function MusicToggleButton({
         <button
           type="button"
           onClick={() => setShowSlider((v) => !v)}
-          className="text-slate-800 hover:text-primary transition-colors w-10 h-10 flex items-center justify-center bg-blue-50/50 rounded-full border border-blue-100/60 relative flex-shrink-0"
+          className="text-primary hover:text-white hover:bg-primary transition-all duration-300 w-10 h-10 flex items-center justify-center bg-blue-50/70 rounded-full border border-primary/40 hover:border-primary hover:shadow-[0_0_16px_rgba(29,111,235,0.35)] relative flex-shrink-0"
           aria-label={isEffectivelyOff ? "Unmute background music" : "Mute background music"}
           aria-pressed={isEffectivelyOff}
           aria-expanded={showSlider}
@@ -95,8 +95,8 @@ export default function MusicToggleButton({
     <div
       ref={wrapperRef}
       onClick={() => setShowSlider((v) => !v)}
-      className={`np-audio-controls-inline group border border-primary text-primary hover:bg-primary hover:text-white hover:shadow-[0_0_20px_rgba(29,111,235,0.3)] hover:scale-[1.03] transition-all duration-300 rounded-full shadow-sm flex items-center gap-2 cursor-pointer ${
-        showSlider ? "np-audio-controls-inline--open" : ""
+      className={`np-audio-controls-inline group border-2 border-primary text-primary hover:bg-primary hover:text-white hover:shadow-[0_0_24px_rgba(29,111,235,0.4)] hover:scale-[1.03] transition-all duration-300 rounded-full shadow-sm flex items-center gap-2 cursor-pointer ${
+        showSlider ? "np-audio-controls-inline--open bg-primary text-white shadow-[0_0_24px_rgba(29,111,235,0.4)]" : ""
       } ${size === "large" ? "pl-6 pr-3.5 py-4 text-lg font-bold" : "pl-4 pr-2.5 py-2.5 text-xs font-bold"}`}
     >
       <div
@@ -131,9 +131,9 @@ export default function MusicToggleButton({
 function SoundOnIcon({ size = 20 }: { size?: number }) {
   return (
     <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
-      <path d="M11 5L6 9H2v6h4l5 4V5z" strokeWidth={2.5} />
-      <path d="M15 9a5 5 0 0 1 0 6" />
-      <path d="M18 5a9 9 0 0 1 0 14" />
+      <path d="M11 5L6 9H2v6h4l5 4V5z" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M15 9a5 5 0 0 1 0 6" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M18 5a9 9 0 0 1 0 14" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -141,9 +141,9 @@ function SoundOnIcon({ size = 20 }: { size?: number }) {
 function SoundOffIcon({ size = 20 }: { size?: number }) {
   return (
     <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
-      <path d="M11 5L6 9H2v6h4l5 4V5z" strokeWidth={2.5} />
-      <line x1="23" y1="9" x2="17" y2="15" />
-      <line x1="17" y1="9" x2="23" y2="15" />
+      <path d="M11 5L6 9H2v6h4l5 4V5z" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+      <line x1="23" y1="9" x2="17" y2="15" stroke="currentColor" strokeWidth={2} strokeLinecap="round" />
+      <line x1="17" y1="9" x2="23" y2="15" stroke="currentColor" strokeWidth={2} strokeLinecap="round" />
     </svg>
   );
 }
