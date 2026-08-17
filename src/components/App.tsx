@@ -1,0 +1,148 @@
+import { useEffect } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { motion, MotionConfig, useReducedMotion } from "framer-motion";
+import { startSmoothScroll, updateSmoothScrollOptions } from "@/lib/smoothScroll";
+import { MusicProvider } from "@/lib/MusicProvider";
+
+import Cursor from "@/components/Cursor";
+import ScrollProgress from "@/components/ScrollProgress";
+import GlobalBackground from "@/components/GlobalBackground";
+import Navbar from "@/components/Navbar";
+import Hero from "@/components/Hero";
+import Marquee from "@/components/Marquee";
+import About from "@/components/About";
+
+import Projects from "@/components/Projects";
+import VideoShowcase from "@/components/video-showcase/VideoShowcase";
+import Services from "@/components/Services";
+import Testimonials from "@/components/testimonials/Testimonials";
+import Contact from "@/components/Contact";
+import Footer from "@/components/Footer";
+import CinematicSection from "@/components/CinematicSection";
+
+const queryClient = new QueryClient();
+
+function App() {
+  const shouldReduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    // Single shared Lenis instance + GSAP ticker + ScrollTrigger sync,
+    // enabled on every device (see src/lib/smoothScroll.ts for the full
+    // rationale). Ref-counted internally, so this is also StrictMode-safe:
+    // dev's mount -> unmount -> mount cycle reuses the same instance rather
+    // than creating two competing scroll loops.
+    //
+    // Intentionally mounted once (empty deps), NOT re-run when
+    // shouldReduceMotion changes. useReducedMotion() can report a stale
+    // value on first render and correct itself a tick later — if this
+    // effect depended on it, that correction would tear down and rebuild
+    // the entire Lenis + ScrollTrigger pipeline mid-session, which is what
+    // produced the "scrolls 2-3 times" glitch (a brief destroy/recreate of
+    // the scroll engine while the user is actively scrolling). Reading the
+    // latest value at call time instead avoids that restart entirely.
+    const stopSmoothScroll = startSmoothScroll({
+      duration: 1.2,
+      instant: !!shouldReduceMotion,
+    });
+
+    return () => {
+      stopSmoothScroll();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    // If prefers-reduced-motion resolves/changes after the mount effect
+    // above already started Lenis, push the updated duration/smoothing
+    // into the live instance instead of restarting the whole scroll
+    // pipeline (see updateSmoothScrollOptions in smoothScroll.ts for why).
+    updateSmoothScrollOptions({ duration: 1.2, instant: !!shouldReduceMotion });
+  }, [shouldReduceMotion]);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <MotionConfig reducedMotion="user">
+        <MusicProvider>
+        <Cursor />
+        <GlobalBackground />
+        <ScrollProgress />
+
+        <motion.div 
+          className="relative overflow-x-hidden max-w-full"
+          // Deliberately opacity-only, not scale/filter. Animating
+          // `transform`/`filter` on this top-level wrapper (which contains
+          // the `position: fixed` Navbar and is also the ancestor every
+          // touch/scroll event on the page passes through) makes it a new
+          // CSS containing block for its whole 0.6s duration — mobile
+          // browsers can't cleanly resolve touch-scroll deltas against a
+          // still-animating transform/filter ancestor, so the first
+          // scroll attempt(s) right after page load only move the page a
+          // little instead of scrolling normally, until the transition
+          // finishes and the containing block stabilizes. Opacity never
+          // creates a containing block, so it doesn't have this effect.
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <Navbar />
+          <main className="max-w-full overflow-x-hidden">
+
+            {/* Hero — no wrapper, it's the opening scene */}
+            <Hero />
+
+            {/* Marquee — fast cut between scenes */}
+            <CinematicSection parallax={15} delay={0}>
+              <Marquee />
+            </CinematicSection>
+
+            {/* About — slow crane-up reveal */}
+            <CinematicSection parallax={40} delay={0.05}>
+              <About />
+            </CinematicSection>
+
+            
+
+            {/* Projects — dramatic entrance */}
+            <CinematicSection parallax={30} delay={0.05}>
+              <Projects />
+            </CinematicSection>
+
+            {/* Video — immersive pull-in */}
+            <CinematicSection parallax={25} delay={0}>
+              <VideoShowcase />
+            </CinematicSection>
+
+            {/* Services — lateral wipe feel */}
+            <CinematicSection parallax={35} delay={0.05}>
+              <Services />
+            </CinematicSection>
+
+            {/* Testimonials — soft fade */}
+            <CinematicSection parallax={30} delay={0.05}>
+              <Testimonials />
+            </CinematicSection>
+
+            {/* Contact — final scene */}
+            <CinematicSection parallax={40} delay={0.05}>
+              <Contact />
+            </CinematicSection>
+
+          </main>
+
+          <CinematicSection parallax={20} delay={0}>
+            <Footer />
+          </CinematicSection>
+        </motion.div>
+
+        <Toaster theme="light" position="bottom-right" />
+        </MusicProvider>
+        </MotionConfig>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
+
+export default App;
