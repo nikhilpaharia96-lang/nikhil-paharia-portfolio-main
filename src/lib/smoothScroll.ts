@@ -72,19 +72,53 @@ function getIsCoarsePointer() {
  * lenis.resize() themselves cause a layout/resize notification, the
  * ResizeObserver callback below can't re-enter this function and start a
  * feedback loop.
+ *
+ * Debounced (250ms) and deferred to requestIdleCallback rather than run
+ * synchronously on the calling tick. ScrollTrigger.refresh() recalculates
+ * every trigger on the page (every CinematicSection wrapper, About's pinned
+ * notebook, etc.) in one synchronous pass — on mobile that's expensive
+ * enough to block the main thread for a noticeable moment. Called directly
+ * from a resize/observer callback, that block happens *while the user is
+ * mid-scroll*, which is what read as scrolling "getting stuck, then
+ * resuming a moment later" — the freeze is ScrollTrigger.refresh() running,
+ * not the scroll itself failing. Debouncing collapses bursts of triggers
+ * (font load + image decode + observer firing close together) into one
+ * call, and requestIdleCallback pushes that one call to a moment the main
+ * thread isn't already busy with the active scroll gesture.
  */
 let isReconciling = false;
+let reconcileDebounceId: number | null = null;
+let reconcileIdleId: number | null = null;
 function reconcileDimensions() {
-  if (!lenis || isReconciling) return;
-  isReconciling = true;
-  lenis.resize();
-  ScrollTrigger.refresh();
-  // Release the guard on the next frame rather than synchronously, so any
-  // resize notification the refresh itself triggers this tick is absorbed
-  // instead of re-entering.
-  requestAnimationFrame(() => {
-    isReconciling = false;
-  });
+  if (reconcileDebounceId !== null) window.clearTimeout(reconcileDebounceId);
+  reconcileDebounceId = window.setTimeout(() => {
+    reconcileDebounceId = null;
+    if (!lenis || isReconciling) return;
+    isReconciling = true;
+
+    const run = () => {
+      if (!lenis) {
+        isReconciling = false;
+        return;
+      }
+      lenis.resize();
+      ScrollTrigger.refresh();
+      // Release the guard on the next frame rather than synchronously, so
+      // any resize notification the refresh itself triggers this tick is
+      // absorbed instead of re-entering.
+      requestAnimationFrame(() => {
+        isReconciling = false;
+      });
+    };
+
+    if (typeof window.requestIdleCallback === "function") {
+      reconcileIdleId = window.requestIdleCallback(run, { timeout: 500 });
+    } else {
+      // Safari has no requestIdleCallback — next tick is the closest
+      // equivalent available without adding a polyfill.
+      window.setTimeout(run, 0);
+    }
+  }, 250);
 }
 
 export interface SmoothScrollOptions {
@@ -258,6 +292,17 @@ export function startSmoothScroll(options: SmoothScrollOptions = {}): () => void
       window.clearInterval(reconcileIntervalId);
       reconcileIntervalId = null;
     }
+    if (reconcileDebounceId !== null) {
+      window.clearTimeout(reconcileDebounceId);
+      reconcileDebounceId = null;
+    }
+    if (reconcileIdleId !== null) {
+      if (typeof window.cancelIdleCallback === "function") {
+        window.cancelIdleCallback(reconcileIdleId);
+      }
+      reconcileIdleId = null;
+    }
+    isReconciling = false;
     resizeObserver?.disconnect();
     resizeObserver = null;
     pendingListeners.forEach((remove) => remove());
