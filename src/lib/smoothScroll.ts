@@ -109,6 +109,31 @@ export function startSmoothScroll(options: SmoothScrollOptions = {}): () => void
   if (!lenis) {
     const { duration = 1.2, instant = false } = options;
     const isCoarsePointer = getIsCoarsePointer();
+    let lastKnownScrollHeight = document.documentElement.scrollHeight;
+
+    // TEMPORARY DIAGNOSTIC: Lenis fully disabled on touch devices.
+    // This isolates whether Lenis itself is the source of the "first
+    // couple of scroll gestures barely move, 3rd is normal" behavior on
+    // mobile, or whether something else is responsible. Desktop is
+    // untouched — Lenis still runs there exactly as before.
+    //
+    // With Lenis skipped, ScrollTrigger falls back to reading the native
+    // `window` scroll position directly (its default behavior without a
+    // scrollerProxy), so pinning/scrub/parallax still work on mobile —
+    // they just won't have Lenis's inertia easing layered on top.
+    //
+    // If this fixes the mobile issue: Lenis's touch handling was the
+    // cause, and the permanent fix is to keep this branch (mobile = native
+    // scroll, desktop = Lenis) rather than re-enabling Lenis for touch.
+    // If the issue persists even with Lenis off: Lenis was never the
+    // cause, and we look at ScrollTrigger/CinematicSection/About's own
+    // scroll-linked animations instead.
+    if (isCoarsePointer) {
+      pendingListeners = [];
+      return () => {
+        refCount = Math.max(0, refCount - 1);
+      };
+    }
 
     lenis = new Lenis({
       // Cinematic, premium feel on desktop; still responsive, never floaty.
@@ -118,15 +143,6 @@ export function startSmoothScroll(options: SmoothScrollOptions = {}): () => void
       gestureOrientation: "vertical",
       smoothWheel: !instant,
       wheelMultiplier: 1,
-      // syncTouch stays false (see module docblock) — native touch physics,
-      // Lenis only smooths the release. touchMultiplier only affects how
-      // Lenis's own wheel-equivalent smoothing interprets touch deltas for
-      // that release/inertia phase, not raw finger tracking, so it can be
-      // tuned for "subtle inertia" without adding finger-to-paint lag.
-      touchMultiplier: isCoarsePointer ? 1 : 1.8,
-      // overscroll:true (default) keeps native rubber-banding at the very
-      // top/bottom instead of Lenis fighting the browser for it — this is
-      // what avoids "rubber-band fighting" on iOS.
       overscroll: true,
       autoResize: true,
     });
@@ -161,13 +177,17 @@ export function startSmoothScroll(options: SmoothScrollOptions = {}): () => void
     // exactly what produces a sudden lurch in scroll-driven animations.
     gsap.ticker.lagSmoothing(0);
 
-    // ── Keep dimensions correct as content changes ──
-    // Lenis's own ResizeObserver (autoResize) already reacts to
-    // `document.documentElement` growing/shrinking, but ScrollTrigger keeps
-    // an entirely separate cache of pixel start/end positions that only
-    // this app's own ScrollTrigger.refresh() calls update, so it needs its
-    // own reconciliation path even though Lenis's is automatic.
-    const onWindowResize = () => reconcileDimensions();
+    // Keep dimensions correct as content changes. Guarded so a mobile
+    // browser's address-bar-driven resize (which fires `resize` constantly
+    // during normal scrolling, without the document's actual content height
+    // changing) doesn't trigger a ScrollTrigger.refresh() mid-scroll — see
+    // the scrollHeight-only check below and in the interval safety net.
+    const onWindowResize = () => {
+      if (document.documentElement.scrollHeight !== lastKnownScrollHeight) {
+        lastKnownScrollHeight = document.documentElement.scrollHeight;
+        reconcileDimensions();
+      }
+    };
     window.addEventListener("resize", onWindowResize, { passive: true });
     window.addEventListener("orientationchange", onWindowResize, { passive: true });
     pendingListeners.push(() => {
@@ -184,9 +204,19 @@ export function startSmoothScroll(options: SmoothScrollOptions = {}): () => void
     // Any late-loading image/video changes document height as it decodes.
     // A ResizeObserver on <body> catches every one of these regardless of
     // which component below caused it, without each component needing its
-    // own reconciliation logic.
+    // own reconciliation logic. Guarded by the same scrollHeight check as
+    // the resize listener — body can fire this observer on width-only
+    // changes (e.g. a child ResizeObserver-driven re-render, like About's
+    // notebook width tracking) that don't actually change scroll height,
+    // and refreshing ScrollTrigger for those is a wasted mid-scroll
+    // recalculation with the same "auto-scroll jump" risk as above.
     if (typeof ResizeObserver !== "undefined") {
-      resizeObserver = new ResizeObserver(() => reconcileDimensions());
+      resizeObserver = new ResizeObserver(() => {
+        const docHeight = document.documentElement.scrollHeight;
+        if (docHeight === lastKnownScrollHeight) return;
+        lastKnownScrollHeight = docHeight;
+        reconcileDimensions();
+      });
       resizeObserver.observe(document.body);
     }
 
@@ -203,17 +233,25 @@ export function startSmoothScroll(options: SmoothScrollOptions = {}): () => void
     // still matches the real document height, and correct it if not. This
     // is cheap (a couple of property reads most ticks) and is what
     // guarantees "always able to reach the exact bottom" even in the rare
-    // case something changed height without tripping any observer above
-    // (e.g. a mobile browser's toolbar collapsing mid-scroll changing
-    // `window.innerHeight` without a `resize` event firing in time).
+    // case something changed height without tripping any observer above.
+    //
+    // Deliberately keyed off `document.documentElement.scrollHeight` alone,
+    // NOT `window.innerHeight`. On mobile, `innerHeight` changes by itself
+    // as the browser's address bar collapses/expands *during* normal
+    // scrolling — that's expected and isn't a sign anything is stale. The
+    // previous version folded `innerHeight` into the "are we stuck short of
+    // the bottom" check, so a toolbar collapsing while scrolling looked
+    // identical to "content grew," triggering `ScrollTrigger.refresh()`
+    // (and therefore a Lenis position correction) mid-scroll — which is
+    // what read as the page silently scrolling up/down on its own on
+    // mobile. Comparing only `scrollHeight` against its last known value
+    // avoids ever reacting to a toolbar-only resize.
     reconcileIntervalId = window.setInterval(() => {
       if (!lenis) return;
       const docHeight = document.documentElement.scrollHeight;
-      const viewport = window.innerHeight;
-      const currentLimit = lenis.limit ?? 0;
-      if (currentLimit + viewport < docHeight - 2) {
-        reconcileDimensions();
-      }
+      if (docHeight === lastKnownScrollHeight) return;
+      lastKnownScrollHeight = docHeight;
+      reconcileDimensions();
     }, 800);
   }
 
