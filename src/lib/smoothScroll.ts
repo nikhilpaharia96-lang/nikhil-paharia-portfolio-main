@@ -111,38 +111,33 @@ export function startSmoothScroll(options: SmoothScrollOptions = {}): () => void
     const isCoarsePointer = getIsCoarsePointer();
     let lastKnownScrollHeight = document.documentElement.scrollHeight;
 
-    // TEMPORARY DIAGNOSTIC: Lenis fully disabled on touch devices.
-    // This isolates whether Lenis itself is the source of the "first
-    // couple of scroll gestures barely move, 3rd is normal" behavior on
-    // mobile, or whether something else is responsible. Desktop is
-    // untouched — Lenis still runs there exactly as before.
-    //
-    // With Lenis skipped, ScrollTrigger falls back to reading the native
-    // `window` scroll position directly (its default behavior without a
-    // scrollerProxy), so pinning/scrub/parallax still work on mobile —
-    // they just won't have Lenis's inertia easing layered on top.
-    //
-    // If this fixes the mobile issue: Lenis's touch handling was the
-    // cause, and the permanent fix is to keep this branch (mobile = native
-    // scroll, desktop = Lenis) rather than re-enabling Lenis for touch.
-    // If the issue persists even with Lenis off: Lenis was never the
-    // cause, and we look at ScrollTrigger/CinematicSection/About's own
-    // scroll-linked animations instead.
-    if (isCoarsePointer) {
-      pendingListeners = [];
-      return () => {
-        refCount = Math.max(0, refCount - 1);
-      };
-    }
-
     lenis = new Lenis({
-      // Cinematic, premium feel on desktop; still responsive, never floaty.
+      // lerp-driven (not duration/easing-driven) to match the reference
+      // "iron-man" site's buttery feel: with `lerp` set, Lenis moves the
+      // scroll position a constant 10%-of-remaining-distance every frame
+      // instead of running a fixed-length eased tween per scroll event.
+      // That constant catch-up rate is what gives the slightly-trailing,
+      // continuous "butter" feel rather than a snappier per-gesture ease.
+      // `duration`/`easing` are harmless to leave set below — Lenis ignores
+      // them whenever `lerp` is present — but kept for the `instant`
+      // (prefers-reduced-motion) case where lerp is intentionally skipped.
+      lerp: instant ? undefined : 0.1,
       duration: instant ? 0.1 : duration,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: !instant,
       wheelMultiplier: 1,
+      // syncTouch stays false — native touch physics, Lenis only smooths
+      // the release. touchMultiplier only affects how Lenis's own
+      // wheel-equivalent smoothing interprets touch deltas for that
+      // release/inertia phase, not raw finger tracking, so it can be tuned
+      // for "subtle inertia" without adding finger-to-paint lag. 1.1 matches
+      // the reference site's value.
+      touchMultiplier: isCoarsePointer ? 1.1 : 1.8,
+      // overscroll:true (default) keeps native rubber-banding at the very
+      // top/bottom instead of Lenis fighting the browser for it — this is
+      // what avoids "rubber-band fighting" on iOS.
       overscroll: true,
       autoResize: true,
     });
@@ -301,4 +296,9 @@ export function updateSmoothScrollOptions(options: SmoothScrollOptions): void {
   const { duration = 1.2, instant = false } = options;
   lenis.options.duration = instant ? 0.1 : duration;
   lenis.options.smoothWheel = !instant;
+  // Keep lerp in sync with the same instant/reduced-motion logic used at
+  // construction time (see startSmoothScroll) — otherwise toggling
+  // prefers-reduced-motion after mount would leave the old lerp value
+  // active and fight with the newly-instant duration.
+  lenis.options.lerp = instant ? undefined : 0.1;
 }
