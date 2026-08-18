@@ -851,12 +851,16 @@ function SpiralBinding({
       className="hidden lg:block absolute pointer-events-none"
       style={{
         left: "50%",
-        top: "-6px",
-        bottom: "-6px",
+        top: "-16px",
+        bottom: "-16px",
         width: "46px",
         transform: `translateX(-50%) scale(${scale})`,
         transformOrigin: "50% 50%",
-        zIndex: 100,
+        // Sits BEHIND the pages (startZIndex on the flipbook is 10), not on
+        // top of them — so the paper covers the coil the way it physically
+        // would, and only the bit of spine taller than the pages (top/bottom
+        // overhang) and the punched-hole edges stay visible.
+        zIndex: 5,
       }}
     >
       {/* thin central rod — the coil's axis, barely visible between loops */}
