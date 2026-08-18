@@ -1,4 +1,4 @@
-import { useRef, useMemo, useState, useEffect, useCallback, forwardRef } from "react";
+import { useRef, useMemo, useState, useEffect, forwardRef } from "react";
 import HTMLFlipBook from "react-pageflip";
 import {
   motion,
@@ -795,228 +795,45 @@ function PaperStack() {
 }
 
 /* ────────────────────────────────────────────────────────────
-   Spiral binding — a realistic wire-bound sketchbook spine sitting
-   in the gutter between the two open pages: a thin dark metal rod
-   running the full height, with evenly spaced C-shaped wire loops
-   threading through small punched holes on each page. Each loop
-   gets a tiny bit of per-index variance (curve depth) so the coil
-   reads as hand-photographed rather than a perfectly regular
-   vector pattern, plus a metallic gradient (light catch, dark
-   underside) and a soft drop shadow so it sits physically on the
-   paper rather than floating above it.
+   Notebook divider — a simple, clean center spine: a narrow dark
+   navy-black vertical bar with a soft vertical highlight so it
+   reads as a rounded binding rather than a flat painted line, plus
+   a subtle shadow cast onto both pages. Matches the plain, minimal
+   divider from the reference composition — no spiral loops, no
+   leather grain, just a quiet dark seam between the two pages.
 
    `scale` comes from a ResizeObserver on the notebook itself (see
    `notebookWidth` in the About component below) rather than a
-   fixed breakpoint, so the coil stays proportional to however big
-   react-pageflip actually renders the spread — no hardcoded pixel
-   width to go stale when the notebook's own `stretch`/`autoSize`
-   settings resize it.
-
-   `flipping` / `flipSide` come from react-pageflip's own
-   onChangeState/onFlip callbacks. The library doesn't expose the
-   turning page's live 3D transform, so this can't be a true
-   z-buffered "page passes behind the wire" the way a physically
-   simulated book would — instead, while a page is mid-turn, the
-   binding reacts the way a real coil visibly does at the moment a
-   page lifts off it: a soft light sweep travels down the wire, the
-   contact shadow on the side that's lifting deepens, and that
-   side's loops give the faintest settle-bounce when the page drops
-   back — all without the coil itself ever moving, scaling, or
-   changing position, so it never jumps, stretches, or floats free
-   of the spine.
+   fixed breakpoint, so it stays proportional to however big
+   react-pageflip actually renders the spread.
 
    Desktop-only: on mobile the flipbook renders a single full-width
-   page with no gutter for a spine to occupy.
+   page with no gutter for a divider to occupy.
    ──────────────────────────────────────────────────────────── */
 
-const SPIRAL_LOOP_COUNT = 16;
-const spiralPositions = Array.from(
-  { length: SPIRAL_LOOP_COUNT },
-  (_, i) => ((i + 0.5) / SPIRAL_LOOP_COUNT) * 100
-);
-
-function SpiralBinding({
-  scale = 1,
-  flipping = false,
-  flipSide = null,
-}: {
-  scale?: number;
-  flipping?: boolean;
-  flipSide?: "left" | "right" | null;
-}) {
-  const rm = useReducedMotion();
+function NotebookDivider({ scale = 1 }: { scale?: number }) {
   return (
     <div
       aria-hidden="true"
       className="hidden lg:block absolute pointer-events-none"
       style={{
         left: "50%",
-        top: "-16px",
-        bottom: "-16px",
-        width: "46px",
+        top: "-4px",
+        bottom: "-4px",
+        width: "10px",
         transform: `translateX(-50%) scale(${scale})`,
         transformOrigin: "50% 50%",
-        // Sits BEHIND the pages (startZIndex on the flipbook is 10), not on
-        // top of them — so the paper covers the coil the way it physically
-        // would, and only the bit of spine taller than the pages (top/bottom
-        // overhang) and the punched-hole edges stay visible.
-        zIndex: 5,
+        zIndex: 100,
+        borderRadius: "5px",
+        background:
+          "linear-gradient(90deg, #050608 0%, #12151d 30%, #262c3c 50%, #12151d 70%, #050608 100%)",
+        boxShadow:
+          "-5px 0 10px -6px rgba(0,0,0,0.5), 5px 0 10px -6px rgba(0,0,0,0.5), 0 6px 18px rgba(0,0,0,0.3)",
       }}
-    >
-      {/* thin central rod — the coil's axis, barely visible between loops */}
-      <div
-        className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0"
-        style={{
-          width: "2.5px",
-          borderRadius: "2px",
-          background:
-            "linear-gradient(90deg, #101010, #6e6e6e 45%, #1a1a1a 55%, #050505)",
-          boxShadow: "0 0 2px rgba(0,0,0,0.6)",
-          opacity: 0.85,
-        }}
-      />
-
-      {/* contact shadow that deepens on whichever side is currently mid-turn
-          — this is what's actually "moving with the turning page" rather
-          than the coil itself */}
-      <motion.div
-        aria-hidden="true"
-        className="absolute inset-y-0"
-        style={{
-          left: "-32px",
-          width: "28px",
-          background: "linear-gradient(90deg, transparent, rgba(0,0,0,0.28))",
-        }}
-        animate={{ opacity: flipping && flipSide === "left" ? 1 : 0 }}
-        transition={{ duration: rm ? 0.15 : 0.35, ease: "easeOut" }}
-      />
-      <motion.div
-        aria-hidden="true"
-        className="absolute inset-y-0"
-        style={{
-          right: "-32px",
-          width: "28px",
-          background: "linear-gradient(270deg, transparent, rgba(0,0,0,0.28))",
-        }}
-        animate={{ opacity: flipping && flipSide === "right" ? 1 : 0 }}
-        transition={{ duration: rm ? 0.15 : 0.35, ease: "easeOut" }}
-      />
-
-      {/* traveling light sweep down the coil while a page is turning —
-          the same trick used on the paper texture elsewhere in this
-          notebook, here timed to react to react-pageflip's own state */}
-      {!rm && (
-        <motion.div
-          aria-hidden="true"
-          className="absolute left-0 right-0 pointer-events-none"
-          style={{
-            height: "14%",
-            background:
-              "linear-gradient(180deg, transparent, rgba(255,255,255,0.4), transparent)",
-          }}
-          initial={{ top: "-14%", opacity: 0 }}
-          animate={
-            flipping
-              ? { top: ["-14%", "100%"], opacity: [0, 1, 0] }
-              : { opacity: 0 }
-          }
-          transition={{ duration: 0.8, ease: "easeInOut" }}
-        />
-      )}
-
-      {spiralPositions.map((pct, i) => {
-        // small per-loop imperfections so the coil doesn't read as a
-        // perfectly repeating vector pattern
-        const dip = 12 + ((i * 37) % 5) - 2; // 10–16px curve depth
-        const tilt = (i % 2 === 0 ? 1 : -1) * ((i * 13) % 3); // ±0–2px asymmetry
-        // every loop on the side that's currently lifting gets the same
-        // faint settle-bounce, staggered slightly top to bottom so it
-        // reads as the paper edge sliding along the wire rather than the
-        // whole coil flexing at once
-        const onActiveSide =
-          flipping &&
-          ((flipSide === "left" && i % 2 === 0) ||
-            (flipSide === "right" && i % 2 === 1));
-        return (
-          <motion.div
-            key={i}
-            className="absolute left-1/2 -translate-x-1/2"
-            style={{ top: `${pct}%` }}
-            animate={onActiveSide ? { y: [0, -1.5, 0] } : { y: 0 }}
-            transition={{
-              duration: rm ? 0.2 : 0.6,
-              delay: rm ? 0 : (i / SPIRAL_LOOP_COUNT) * 0.15,
-              ease: "easeInOut",
-            }}
-          >
-            {/* punched hole — left page */}
-            <div
-              className="absolute rounded-full"
-              style={{
-                left: "-20px",
-                top: "-4px",
-                width: "8px",
-                height: "8px",
-                background: "radial-gradient(circle at 35% 32%, #565656, #0a0a0a 72%)",
-                boxShadow:
-                  "inset 0 1px 1.5px rgba(0,0,0,0.75), 0 1px 0 rgba(255,255,255,0.18)",
-              }}
-            />
-            {/* punched hole — right page */}
-            <div
-              className="absolute rounded-full"
-              style={{
-                left: "12px",
-                top: "-4px",
-                width: "8px",
-                height: "8px",
-                background: "radial-gradient(circle at 35% 32%, #565656, #0a0a0a 72%)",
-                boxShadow:
-                  "inset 0 1px 1.5px rgba(0,0,0,0.75), 0 1px 0 rgba(255,255,255,0.18)",
-              }}
-            />
-
-            {/* the wire loop itself, threading through both holes */}
-            <svg
-              width="48"
-              height="20"
-              viewBox="0 0 48 20"
-              style={{ position: "absolute", left: "-24px", top: "-6px" }}
-            >
-              <defs>
-                <linearGradient id={`spiralWire${i}`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#f6f6f6" />
-                  <stop offset="38%" stopColor="#a3a3a3" />
-                  <stop offset="60%" stopColor="#3d3d3d" />
-                  <stop offset="100%" stopColor="#0a0a0a" />
-                </linearGradient>
-              </defs>
-              {/* soft shadow the loop casts on the paper beneath it */}
-              <ellipse cx="24" cy={4 + dip + 1.5} rx="17" ry="2" fill="rgba(0,0,0,0.15)" />
-              {/* the C-shaped wire, dipping down between the two punched
-                  holes and back up — this is the "loop" itself */}
-              <path
-                d={`M6 4 C 6 ${4 + dip + tilt}, 42 ${4 + dip - tilt}, 42 4`}
-                stroke={`url(#spiralWire${i})`}
-                strokeWidth="2.6"
-                fill="none"
-                strokeLinecap="round"
-              />
-              {/* thin metallic catchlight along the top edge of the wire */}
-              <path
-                d={`M9 5 C 9 ${4 + dip * 0.6}, 39 ${4 + dip * 0.6}, 39 5`}
-                stroke="rgba(255,255,255,0.5)"
-                strokeWidth="0.7"
-                fill="none"
-                strokeLinecap="round"
-              />
-            </svg>
-          </motion.div>
-        );
-      })}
-    </div>
+    />
   );
 }
+
 
 /* ────────────────────────────────────────────────────────────
    Scattered tech icon
@@ -1683,29 +1500,9 @@ export default function About() {
   const flipBook = useRef<{ pageFlip: () => { flipNext: () => void; flipPrev: () => void } } | null>(null);
   const flippedRef = useRef(false);
 
-  // Tracks react-pageflip's own flip lifecycle so the spiral binding can
-  // react to it (see SpiralBinding above) — a light sweep + deepened
-  // contact shadow on whichever side is mid-turn, rather than a static
-  // decal pasted on top of the pages. `prevPageIndexRef` just lets us
-  // compare consecutive onFlip events to know which direction the page
-  // just moved, since the library only reports the new index.
-  const [isFlipping, setIsFlipping] = useState(false);
-  const [flipSide, setFlipSide] = useState<"left" | "right" | null>(null);
-  const prevPageIndexRef = useRef(0);
-
-  const handleChangeState = useCallback((e: { data?: string }) => {
-    setIsFlipping(e?.data === "flipping");
-  }, []);
-
-  const handleFlip = useCallback((e: { data?: number }) => {
-    const newIndex = typeof e?.data === "number" ? e.data : prevPageIndexRef.current;
-    setFlipSide(newIndex > prevPageIndexRef.current ? "right" : "left");
-    prevPageIndexRef.current = newIndex;
-  }, []);
-
   // Real size of the notebook as react-pageflip actually renders it
-  // (`stretch` + `autoSize` mean that's not a fixed number) — the spiral
-  // binding scales off this via ResizeObserver rather than a hardcoded
+  // (`stretch` + `autoSize` mean that's not a fixed number) — the center
+  // divider scales off this via ResizeObserver rather than a hardcoded
   // pixel width or a breakpoint guess, so it stays proportional to the
   // real spread at any viewport width, including in between breakpoints.
   const [notebookWidth, setNotebookWidth] = useState(0);
@@ -1719,11 +1516,10 @@ export default function About() {
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  // 1100 is the reference two-page spread width the spiral's own
-  // dimensions (46px wide, 8px holes, etc.) were drawn against —
-  // clamped so it neither vanishes on a small spread nor balloons past
-  // a sensible size on an unusually large one.
-  const spiralScale = notebookWidth
+  // 1100 is the reference two-page spread width the divider's own
+  // dimensions were drawn against — clamped so it neither vanishes on a
+  // small spread nor balloons past a sensible size on an unusually large one.
+  const dividerScale = notebookWidth
     ? Math.min(1.15, Math.max(0.55, notebookWidth / 1100))
     : 1;
 
@@ -2027,11 +1823,9 @@ export default function About() {
                     the scroll-driven flip above) — same physical page-turn
                     animation either way, just one page in frame instead of
                     two. */}
-                {/* realistic spiral-bound sketchbook binding, sitting in
-                    the gutter between the two open pages — reacts to the
-                    flipbook's own flip state (below) rather than sitting
-                    static regardless of page turns */}
-                <SpiralBinding scale={spiralScale} flipping={isFlipping} flipSide={flipSide} />
+                {/* simple dark center divider, sitting in the gutter
+                    between the two open pages */}
+                <NotebookDivider scale={dividerScale} />
 
                 <HTMLFlipBook
                   key={isDesktopViewport ? "desktop" : "mobile"}
@@ -2057,8 +1851,6 @@ export default function About() {
                   swipeDistance={30}
                   showPageCorners
                   disableFlipByClick={false}
-                  onFlip={handleFlip}
-                  onChangeState={handleChangeState}
                   className="notebook-flipbook"
                   style={{}}
                 >
