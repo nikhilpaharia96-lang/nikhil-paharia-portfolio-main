@@ -84,13 +84,21 @@ export default function Navbar() {
       window.addEventListener("scroll", onNativeScroll, { passive: true });
       onNativeScroll();
       // Briefly poll for Lenis to finish initializing, then switch over.
+      // Capped at 3s: on touch devices where Lenis is intentionally not
+      // created (see smoothScroll.ts), `found` never appears, so this must
+      // not poll forever — native scroll fallback above already works fine
+      // on its own in that case.
+      let swapAttempts = 0;
       swapCheckId = window.setInterval(() => {
+        swapAttempts += 1;
         const found = getLenis();
         if (found) {
           if (onNativeScroll) window.removeEventListener("scroll", onNativeScroll);
           if (swapCheckId !== null) window.clearInterval(swapCheckId);
           lenis = found;
           attachToLenis(found);
+        } else if (swapAttempts >= 30) {
+          if (swapCheckId !== null) window.clearInterval(swapCheckId);
         }
       }, 100);
     }
