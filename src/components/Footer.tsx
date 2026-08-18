@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { RiArrowUpLine, RiGithubFill, RiLinkedinFill, RiInstagramLine, RiYoutubeFill } from "react-icons/ri";
+import { Link } from "wouter";
+import { RiArrowUpLine, RiGithubFill, RiLinkedinFill, RiInstagramLine, RiYoutubeFill, RiHeart3Fill } from "react-icons/ri";
 import teaBg from "../assets/images/tea-sunset-person-wide.webp";
 import Magnetic from "@/components/ui/Magnetic";
 import SplitText from "@/components/ui/SplitText";
@@ -90,6 +91,19 @@ export default function Footer() {
                 </motion.a>
               ))}
             </div>
+
+            {/* Support My Work — opens the dedicated /support page */}
+            <motion.div variants={cinChildSmall}>
+              <Magnetic range={50} strength={0.25}>
+                <Link
+                  href="/support"
+                  className="interactive inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-blue-200 text-primary text-sm font-bold uppercase tracking-widest hover:bg-primary hover:text-white hover:border-primary hover:-translate-y-0.5 transition-all duration-300 shadow-sm"
+                >
+                  <RiHeart3Fill className="text-base" aria-hidden />
+                  Support My Work
+                </Link>
+              </Magnetic>
+            </motion.div>
 
             {/* Social icons wrapped in Magnetic */}
             <div className="flex gap-4">

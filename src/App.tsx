@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { motion, MotionConfig, useReducedMotion } from "framer-motion";
+import { Route, Switch } from "wouter";
 import { startSmoothScroll, updateSmoothScrollOptions } from "@/lib/smoothScroll";
 import { MusicProvider } from "@/lib/MusicProvider";
 
@@ -21,8 +22,68 @@ import Testimonials from "@/components/testimonials/Testimonials";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import CinematicSection from "@/components/CinematicSection";
+import Support from "@/pages/Support";
+import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
+
+// The original single-page portfolio, unchanged — Hero, About, Projects,
+// Skills/Services, Testimonials, Contact, Footer all still live and render
+// exactly as before. This is now just the "/" route's content.
+function Portfolio() {
+  return (
+    <>
+      <Navbar />
+      <main className="max-w-full overflow-x-hidden">
+
+        {/* Hero — no wrapper, it's the opening scene */}
+        <Hero />
+
+        {/* Marquee — fast cut between scenes */}
+        <CinematicSection parallax={15} delay={0}>
+          <Marquee />
+        </CinematicSection>
+
+        {/* About — slow crane-up reveal */}
+        <CinematicSection parallax={40} delay={0.05}>
+          <About />
+        </CinematicSection>
+
+        
+
+        {/* Projects — dramatic entrance */}
+        <CinematicSection parallax={30} delay={0.05}>
+          <Projects />
+        </CinematicSection>
+
+        {/* Video — immersive pull-in */}
+        <CinematicSection parallax={25} delay={0}>
+          <VideoShowcase />
+        </CinematicSection>
+
+        {/* Services — lateral wipe feel */}
+        <CinematicSection parallax={35} delay={0.05}>
+          <Services />
+        </CinematicSection>
+
+        {/* Testimonials — soft fade */}
+        <CinematicSection parallax={30} delay={0.05}>
+          <Testimonials />
+        </CinematicSection>
+
+        {/* Contact — final scene */}
+        <CinematicSection parallax={40} delay={0.05}>
+          <Contact />
+        </CinematicSection>
+
+      </main>
+
+      <CinematicSection parallax={20} delay={0}>
+        <Footer />
+      </CinematicSection>
+    </>
+  );
+}
 
 function App() {
   const shouldReduceMotion = useReducedMotion();
@@ -76,54 +137,11 @@ function App() {
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
-          <Navbar />
-          <main className="max-w-full overflow-x-hidden">
-
-            {/* Hero — no wrapper, it's the opening scene */}
-            <Hero />
-
-            {/* Marquee — fast cut between scenes */}
-            <CinematicSection parallax={15} delay={0}>
-              <Marquee />
-            </CinematicSection>
-
-            {/* About — slow crane-up reveal */}
-            <CinematicSection parallax={40} delay={0.05}>
-              <About />
-            </CinematicSection>
-
-            
-
-            {/* Projects — dramatic entrance */}
-            <CinematicSection parallax={30} delay={0.05}>
-              <Projects />
-            </CinematicSection>
-
-            {/* Video — immersive pull-in */}
-            <CinematicSection parallax={25} delay={0}>
-              <VideoShowcase />
-            </CinematicSection>
-
-            {/* Services — lateral wipe feel */}
-            <CinematicSection parallax={35} delay={0.05}>
-              <Services />
-            </CinematicSection>
-
-            {/* Testimonials — soft fade */}
-            <CinematicSection parallax={30} delay={0.05}>
-              <Testimonials />
-            </CinematicSection>
-
-            {/* Contact — final scene */}
-            <CinematicSection parallax={40} delay={0.05}>
-              <Contact />
-            </CinematicSection>
-
-          </main>
-
-          <CinematicSection parallax={20} delay={0}>
-            <Footer />
-          </CinematicSection>
+          <Switch>
+            <Route path="/" component={Portfolio} />
+            <Route path="/support" component={Support} />
+            <Route component={NotFound} />
+          </Switch>
         </motion.div>
 
         <Toaster theme="light" position="bottom-right" />
