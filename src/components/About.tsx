@@ -1,4 +1,4 @@
-import { useRef, useMemo, useState, useEffect, forwardRef } from "react";
+import { useRef, useMemo, useState, useEffect, useCallback, forwardRef } from "react";
 import HTMLFlipBook from "react-pageflip";
 import {
   motion,
@@ -807,13 +807,21 @@ function PaperStack() {
    fixed breakpoint, so it stays proportional to however big
    react-pageflip actually renders the spread.
 
+   `visible` is driven by react-pageflip's own onChangeState callback —
+   the divider fades out the instant a page starts turning (dragging a
+   corner, mid-flip, etc.) and fades back in once it settles on 'read'.
+   Without this, the flat static bar cuts straight down through a page
+   that's folded diagonally mid-drag, which reads as a rendering glitch
+   rather than a binding.
+
    Desktop-only: on mobile the flipbook renders a single full-width
    page with no gutter for a divider to occupy.
    ──────────────────────────────────────────────────────────── */
 
-function NotebookDivider({ scale = 1 }: { scale?: number }) {
+function NotebookDivider({ scale = 1, visible = true }: { scale?: number; visible?: boolean }) {
+  const rm = useReducedMotion();
   return (
-    <div
+    <motion.div
       aria-hidden="true"
       className="hidden lg:block absolute pointer-events-none"
       style={{
@@ -830,6 +838,8 @@ function NotebookDivider({ scale = 1 }: { scale?: number }) {
         boxShadow:
           "-5px 0 10px -6px rgba(0,0,0,0.5), 5px 0 10px -6px rgba(0,0,0,0.5), 0 6px 18px rgba(0,0,0,0.3)",
       }}
+      animate={{ opacity: visible ? 1 : 0 }}
+      transition={{ duration: rm ? 0.1 : 0.2, ease: "easeOut" }}
     />
   );
 }
@@ -1500,6 +1510,15 @@ export default function About() {
   const flipBook = useRef<{ pageFlip: () => { flipNext: () => void; flipPrev: () => void } } | null>(null);
   const flippedRef = useRef(false);
 
+  // Whether a page is currently mid-turn (dragging a corner, flipping,
+  // settling) — the center divider hides while this is true (see
+  // NotebookDivider above) rather than sitting statically on top of a
+  // page that's folded diagonally mid-drag.
+  const [dividerVisible, setDividerVisible] = useState(true);
+  const handleFlipStateChange = useCallback((e: { data?: string }) => {
+    setDividerVisible(e?.data === "read");
+  }, []);
+
   // Real size of the notebook as react-pageflip actually renders it
   // (`stretch` + `autoSize` mean that's not a fixed number) — the center
   // divider scales off this via ResizeObserver rather than a hardcoded
@@ -1825,7 +1844,7 @@ export default function About() {
                     two. */}
                 {/* simple dark center divider, sitting in the gutter
                     between the two open pages */}
-                <NotebookDivider scale={dividerScale} />
+                <NotebookDivider scale={dividerScale} visible={dividerVisible} />
 
                 <HTMLFlipBook
                   key={isDesktopViewport ? "desktop" : "mobile"}
@@ -1851,6 +1870,7 @@ export default function About() {
                   swipeDistance={30}
                   showPageCorners
                   disableFlipByClick={false}
+                  onChangeState={handleFlipStateChange}
                   className="notebook-flipbook"
                   style={{}}
                 >
