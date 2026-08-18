@@ -181,18 +181,27 @@ export default function Hero() {
     }
   });
 
-  const cloudTransition = { layout: { type: "spring" as const, stiffness: 35, damping: 16, mass: 1.4 } };
-  // One-time entrance on first mount (page load): each cloud drifts in
-  // smoothly from its own side and fades in, independent of the `layout`
-  // crossover transition above (which only fires on scroll-direction
-  // changes, never on mount).
+  // Crossover effect, WITHOUT ever reordering the DOM or using Framer
+  // Motion's `layout` prop. Each cloud has one fixed DOM slot (left/right)
+  // for its entire lifetime; "crossing over" is done by animating `x` to
+  // shift it to the opposite slot's position instead of swapping array
+  // order. `layout` FLIP animations force a synchronous getBoundingClientRect
+  // measurement on every reorder, and that measurement running mid-swipe on
+  // mobile was stalling the momentum scroll for a frame or two — the exact
+  // "first couple of swipes barely move, then it's smooth" symptom. A plain
+  // `x` transform animation never triggers a layout reflow, so it can run
+  // freely during a scroll fling with zero risk of stealing main-thread time
+  // from it, however many times direction flips.
+  const cloudCrossoverTransition = { type: "spring" as const, stiffness: 35, damping: 16, mass: 1.4 };
   const cloudLeft = (
     <motion.img
       key="cloud-left"
-      layout
       initial={{ opacity: 0, x: -60 }}
-      animate={{ opacity: 0.7, x: 0 }}
-      transition={{ ...cloudTransition, opacity: { duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.3 }, x: { duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.3 } }}
+      animate={{ opacity: 0.7, x: isScrollingUp ? "calc(100% + 2rem)" : 0 }}
+      transition={{
+        opacity: { duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.3 },
+        x: cloudCrossoverTransition,
+      }}
       src={cloudImg}
       alt=""
       className="w-44 sm:w-72 lg:w-96 select-none pointer-events-none"
@@ -201,15 +210,18 @@ export default function Hero() {
   const cloudRight = (
     <motion.img
       key="cloud-right"
-      layout
       initial={{ opacity: 0, x: 60 }}
-      animate={{ opacity: 0.7, x: 0 }}
-      transition={{ ...cloudTransition, opacity: { duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.45 }, x: { duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.45 } }}
+      animate={{ opacity: 0.7, x: isScrollingUp ? "calc(-100% - 2rem)" : 0 }}
+      transition={{
+        opacity: { duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.45 },
+        x: cloudCrossoverTransition,
+      }}
       src={cloudImg}
       alt=""
       className="w-44 sm:w-72 lg:w-96 select-none pointer-events-none"
     />
   );
+
 
   return (
     <section ref={ref} className="relative lg:min-h-screen flex items-start lg:items-center overflow-hidden w-full max-w-full section-wrap" id="home">
@@ -272,9 +284,12 @@ export default function Hero() {
       </motion.div>
 
       {/* Decorative side clouds — LHS/RHS, vertically centered in the middle of the Hero section;
-          cross over to opposite sides (slowly) on scroll-up, reverse on scroll-down */}
-      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-0 flex justify-between px-1 sm:px-4 pointer-events-none">
-        {isScrollingUp ? [cloudRight, cloudLeft] : [cloudLeft, cloudRight]}
+          cross over to opposite sides (slowly) on scroll-up, reverse on scroll-down.
+          Both stay in fixed DOM slots — see cloudLeft/cloudRight above for why
+          (no `layout` FLIP / DOM reordering, so this never blocks a scroll fling). */}
+      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-0 flex justify-between px-1 sm:px-4 pointer-events-none overflow-hidden">
+        {cloudLeft}
+        {cloudRight}
       </div>
 
       <style>{`
