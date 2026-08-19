@@ -227,10 +227,13 @@ html.lenis, html.lenis body {
   .lenis.lenis-scrolling .animate-brands-marquee,
   .lenis.lenis-scrolling [style*="fogDrift"],
   .lenis.lenis-scrolling [style*="floatY"],
-  .lenis.lenis-scrolling [style*="ulGlow"],
-  .lenis.lenis-scrolling [style*="ulShine"],
-  .lenis.lenis-scrolling [style*="dropFloat"],
-  .lenis.lenis-scrolling [style*="dropPulse"] {
+  /* NOTE: ulGlow/ulShine/dropFloat/dropPulse are applied via className
+     (.ul-svg / .ul-shine / .paint-drops), not inline style — the previous
+     [style*="..."] selectors for those never matched anything. Targeting
+     the real classes below. */
+  .lenis.lenis-scrolling .ul-svg,
+  .lenis.lenis-scrolling .ul-shine,
+  .lenis.lenis-scrolling .paint-drops {
     animation-play-state: paused;
   }
 }
@@ -484,6 +487,29 @@ body::after {
   background-size: 180px 180px;
   opacity: 0.028;
   mix-blend-mode: multiply;
+}
+
+/* On mobile, drop the mix-blend-mode on the fixed film-grain layer above.
+   `mix-blend-mode` on a `position: fixed`, full-viewport layer forces the
+   browser to recompute the blend against whatever is underneath it on
+   EVERY frame anything beneath it moves -- which, on this page, is every
+   single scroll frame, on every device, unconditionally. It also prevents
+   the browser from promoting that layer to its own independent GPU
+   compositor layer, since a blended layer can't be composited in
+   isolation from what's under it. That is a much larger, constant tax on
+   the compositor than any individual decorative animation, and it's the
+   most likely real explanation for touch scroll "not moving enough per
+   swipe, needs repeated swipes" on mid-range mobile GPUs: frames are being
+   dropped by the compositor recomputing this blend, not by touch input
+   itself being throttled. At this layer's real-world opacity (2.8%),
+   normal blending versus multiply blending is visually indistinguishable,
+   so this is disabled for coarse-pointer (mobile) only -- desktop, which
+   isn't touch-scroll-constrained the same way, keeps the exact original
+   cinematic blend. */
+@media (pointer: coarse) {
+  body::after {
+    mix-blend-mode: normal;
+  }
 }
 
 /* Cinematic vignette — darkens edges like a camera lens */
