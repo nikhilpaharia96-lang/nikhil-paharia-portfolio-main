@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import crypto from "crypto";
 import Razorpay from "razorpay";
-import { checkRateLimit, getClientIp } from "./lib/rateLimit";
+import { checkRateLimit, getClientIp } from "./lib/rateLimit.js";
 
 // Verifies the payment signature Razorpay returns after checkout completes.
 // This is the step that actually confirms a payment is genuine — it must

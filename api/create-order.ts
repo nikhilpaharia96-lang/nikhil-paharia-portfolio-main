@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import Razorpay from "razorpay";
-import { checkRateLimit, getClientIp } from "./lib/rateLimit";
+import { checkRateLimit, getClientIp } from "./lib/rateLimit.js";
 
 // This function runs ONLY on Vercel's server. RAZORPAY_KEY_SECRET is read
 // from an environment variable and is never sent to the browser, returned
