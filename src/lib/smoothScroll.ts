@@ -338,7 +338,7 @@ export function getLenis(): Lenis | null {
  */
 export function updateSmoothScrollOptions(options: SmoothScrollOptions): void {
   if (!lenis) return;
-  const { duration = 110, instant = false } = options;
+  const { duration = 1.2, instant = false } = options;
   lenis.options.duration = instant ? 0.1 : duration;
   lenis.options.smoothWheel = !instant;
   // Keep lerp in sync with the same instant/reduced-motion logic used at
