@@ -168,7 +168,7 @@ export function startSmoothScroll(options: SmoothScrollOptions = {}): () => void
       // release/inertia phase, not raw finger tracking, so it can be tuned
       // for "subtle inertia" without adding finger-to-paint lag. 1.1 matches
       // the reference site's value.
-      touchMultiplier: isCoarsePointer ? 1.1 : 1.8,
+      touchMultiplier: isCoarsePointer ? 2 : 1.8,
       // overscroll:true (default) keeps native rubber-banding at the very
       // top/bottom instead of Lenis fighting the browser for it — this is
       // what avoids "rubber-band fighting" on iOS.

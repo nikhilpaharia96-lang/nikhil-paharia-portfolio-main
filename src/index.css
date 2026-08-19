@@ -209,6 +209,32 @@ html.lenis, html.lenis body {
   pointer-events: none;
 }
 
+/* Pause decorative, always-on CSS animations (Hero's fog orbs, floating
+   particles, glow pulses, marquees) for the duration of an active touch
+   scroll on coarse-pointer (mobile) devices only. These loops don't stop
+   or desync anything when paused mid-cycle -- animation-play-state just
+   freezes the current frame and resumes it exactly where it left off.
+   The point isn't the animations themselves (they're cheap on their own),
+   it's that several of them use blur() at a large radius, and continuously
+   repainting a large blurred layer on every compositor frame *while* the
+   page is also compositing a fast-moving scroll is what was competing for
+   the same frame budget on mid-range mobile GPUs -- read as the page
+   "not moving enough per swipe" because frames were being dropped, not
+   because touch input itself was being throttled. Desktop (fine pointer,
+   scrolls with a mouse/trackpad, far less GPU-constrained) is untouched. */
+@media (pointer: coarse) {
+  .lenis.lenis-scrolling .animate-feature-marquee,
+  .lenis.lenis-scrolling .animate-brands-marquee,
+  .lenis.lenis-scrolling [style*="fogDrift"],
+  .lenis.lenis-scrolling [style*="floatY"],
+  .lenis.lenis-scrolling [style*="ulGlow"],
+  .lenis.lenis-scrolling [style*="ulShine"],
+  .lenis.lenis-scrolling [style*="dropFloat"],
+  .lenis.lenis-scrolling [style*="dropPulse"] {
+    animation-play-state: paused;
+  }
+}
+
 .section-padding { @apply py-16 sm:py-20 md:py-28 lg:py-32; }
 .container-tight { @apply container mx-auto px-4 sm:px-6 max-w-7xl; }
 
