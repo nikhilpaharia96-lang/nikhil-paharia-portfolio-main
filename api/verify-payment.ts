@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import crypto from "crypto";
 import Razorpay from "razorpay";
-import { checkRateLimit, getClientIp } from "./_lib/rateLimit";
+import { checkRateLimit, getClientIp } from "./lib/rateLimit";
 
 // Verifies the payment signature Razorpay returns after checkout completes.
 // This is the step that actually confirms a payment is genuine — it must
@@ -10,7 +10,7 @@ import { checkRateLimit, getClientIp } from "./_lib/rateLimit";
 // is the single source of truth, and it only ever returns
 // `{ verified: true }` when the HMAC signature checks out.
 
-// Best-effort abuse protection — see api/_lib/rateLimit.ts for caveats.
+// Best-effort abuse protection — see api/lib/rateLimit.ts for caveats.
 const RATE_LIMIT = { limit: 15, windowMs: 60_000 }; // 15 verify attempts / IP / minute
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

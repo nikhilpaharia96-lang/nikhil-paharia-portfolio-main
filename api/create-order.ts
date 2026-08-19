@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import Razorpay from "razorpay";
-import { checkRateLimit, getClientIp } from "./_lib/rateLimit";
+import { checkRateLimit, getClientIp } from "./lib/rateLimit";
 
 // This function runs ONLY on Vercel's server. RAZORPAY_KEY_SECRET is read
 // from an environment variable and is never sent to the browser, returned
@@ -12,7 +12,7 @@ import { checkRateLimit, getClientIp } from "./_lib/rateLimit";
 const MIN_AMOUNT_INR = 1;
 const MAX_AMOUNT_INR = 500000; // sanity ceiling to avoid accidental huge charges
 
-// Best-effort abuse protection — see api/_lib/rateLimit.ts for caveats.
+// Best-effort abuse protection — see api/lib/rateLimit.ts for caveats.
 const RATE_LIMIT = { limit: 8, windowMs: 60_000 }; // 8 order-creation attempts / IP / minute
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
