@@ -2,7 +2,7 @@ import { RiArrowRightLine, RiArrowDownLine, RiMapPinLine, RiCodeSSlashLine, RiVi
 import { SiReact, SiNodedotjs, SiJavascript } from "react-icons/si";
 import { FaGithub, FaLinkedinIn, FaInstagram, FaYoutube, FaWhatsapp } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-import { motion, useScroll, useTransform, useSpring, useVelocity, useMotionValueEvent, useInView, useReducedMotion } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring, useMotionValueEvent, useInView, useReducedMotion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import teaBg from "../assets/images/file_0000000066b08207b18b1ec1e8269869.png";
 import teaBgMobile from "../assets/images/tea-brush-mobile.webp";
@@ -123,20 +123,18 @@ export default function Hero() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
 
-  const scrollVelocity = useVelocity(scrollYProgress);
-
-  const rawPlaneY  = useTransform(scrollYProgress, [0, 1], [0, -120]);
-  const rawPlaneX  = useTransform(scrollYProgress, [0, 1], [0, 60]);
-  const rawRotate  = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [-38, -55, -25, -10]);
-  const rawScale   = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.15, 0.85]);
-  const rawOpacity = useTransform(scrollYProgress, [0, 0.75, 1], [1, 1, 0]);
-  const trailOpacity = useTransform(scrollYProgress, [0, 0.4, 1], [1, 0.6, 0]);
-
-  const springCfg = { stiffness: 80, damping: 20, mass: 0.8 };
-  const planeY   = useSpring(rawPlaneY,  springCfg);
-  const planeX   = useSpring(rawPlaneX,  springCfg);
-  const planeRot = useSpring(rawRotate,  { stiffness: 60, damping: 18 });
-  const planeScl = useSpring(rawScale,   springCfg);
+  // NOTE: this section used to also compute a scroll-linked flying-plane
+  // animation here (scrollVelocity + 4 useSpring-driven transforms for the
+  // plane's position/rotation/scale + 2 opacity transforms). The plane is
+  // now a simple one-time float-in on mount (see the <motion.img
+  // src={cleanPaperPlane} .../> below, driven by initial/animate/transition,
+  // not by scroll) — but those old scroll-linked hooks were left behind
+  // unused. Each of the 4 useSpring calls runs its own continuous
+  // requestAnimationFrame physics loop for as long as scrollYProgress is
+  // actively changing, i.e. on every scroll frame while Hero is in view,
+  // for zero visual effect (nothing ever read their output). Removed as
+  // dead weight competing with native touch scrolling for main-thread time
+  // during exactly the section where that's most likely to be felt.
 
   // Background landscape parallax
   const bgY = useTransform(scrollYProgress, [0, 1], [0, 120]);
