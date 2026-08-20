@@ -89,6 +89,38 @@ function App() {
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
+    // Warm up every CinematicSection's + Hero's + About's scroll-linked
+    // measurements (Framer Motion's useScroll, and the plain
+    // getBoundingClientRect() reads several components do) *before* the
+    // user's actual first touch, instead of letting the browser do all of
+    // it in response to that first real gesture.
+    //
+    // Framer Motion's useScroll doesn't eagerly measure each target's
+    // position at mount -- it measures lazily, the first time a relevant
+    // scroll/resize event actually fires. With 8-9 CinematicSection
+    // wrappers on this page (each doing its own measurement) all deferred
+    // to that same first event, the user's first real swipe of the
+    // session is the one that pays for all of it at once: several
+    // synchronous layout reads back-to-back, right as the browser is also
+    // trying to run the touch-driven scroll fling. That read as "the first
+    // swipe (or two) barely moves the page, then it's smooth" -- because
+    // it genuinely was busy measuring, not failing to receive the touch.
+    //
+    // Firing one harmless 1px-and-back scroll shortly after mount (well
+    // before the user has had time to touch the screen) makes the browser
+    // dispatch a real `scroll` event, which triggers exactly those lazy
+    // measurements to run now, on an idle frame with nothing else
+    // competing for the main thread -- so by the time the user's actual
+    // first swipe happens, everything is already warm.
+    const warmupId = window.setTimeout(() => {
+      const y = window.scrollY;
+      window.scrollTo(0, y + 1);
+      window.scrollTo(0, y);
+    }, 50);
+    return () => window.clearTimeout(warmupId);
+  }, []);
+
+  useEffect(() => {
     // Single shared Lenis instance + GSAP ticker + ScrollTrigger sync,
     // enabled on every device (see src/lib/smoothScroll.ts for the full
     // rationale). Ref-counted internally, so this is also StrictMode-safe:

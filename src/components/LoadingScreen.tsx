@@ -12,6 +12,16 @@ export default function LoadingScreen() {
 
   const finish = () => {
     if (!containerRef.current) return;
+    // Stop intercepting touch/click the instant the fade begins, not only
+    // once React unmounts this 450ms later. Without this, this element
+    // (fixed inset-0, z-[10000] -- above literally everything else on the
+    // page including the real scrollable content) keeps swallowing every
+    // touchstart/touchmove that lands on it for the full fade duration.
+    // On mobile, a swipe that starts during that window never reaches the
+    // real page at all -- it's consumed by this invisible-but-still-there
+    // overlay, which reads exactly like "the first swipe(s) after the page
+    // loads do nothing."
+    containerRef.current.style.pointerEvents = "none";
     containerRef.current.style.transition = `opacity ${FADE_MS}ms ease`;
     containerRef.current.style.opacity = "0";
     setTimeout(() => setDone(true), FADE_MS);
