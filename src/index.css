@@ -406,6 +406,58 @@ html.lenis, html.lenis body {
   opacity: 1;
 }
 
+/* ── Progressive nav blur ──
+   Layered backdrop-filter + mask stack (from the pro-skill "progressive-blur"
+   playbook) so content scrolling under the fixed navbar fades through a
+   graduated blur instead of hitting a hard backdrop-blur edge. Sits behind
+   the nav's own content/background, in front of page content. */
+.nav-progressive-blur {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 130px;
+  z-index: 150;
+  pointer-events: none;
+}
+
+.nav-progressive-blur > div,
+.nav-progressive-blur::before,
+.nav-progressive-blur::after {
+  position: absolute;
+  inset: 0;
+}
+
+.nav-progressive-blur::before {
+  content: "";
+  z-index: 1;
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
+  mask: linear-gradient(to top, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 20%, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 60%);
+}
+
+.nav-progressive-blur > div:nth-of-type(1) {
+  z-index: 2;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  mask: linear-gradient(to top, rgba(0,0,0,0) 20%, rgba(0,0,0,1) 40%, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 75%);
+}
+
+.nav-progressive-blur > div:nth-of-type(2) {
+  z-index: 3;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  mask: linear-gradient(to top, rgba(0,0,0,0) 40%, rgba(0,0,0,1) 60%, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 90%);
+}
+
+.nav-progressive-blur::after {
+  content: "";
+  z-index: 4;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  mask: linear-gradient(to top, rgba(0,0,0,0) 60%, rgba(0,0,0,1) 90%, rgba(0,0,0,1) 100%);
+}
+
 /* ── Custom Keyframe Animations ── */
 
 @keyframes floatUpDown {
