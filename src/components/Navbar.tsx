@@ -143,7 +143,13 @@ export default function Navbar() {
       }`}
       style={{ paddingTop: `max(env(safe-area-inset-top, 0px), ${isScrolled ? '10px' : '16px'})` }}
     >
-      <div className="container-tight px-3.5 sm:px-6 flex items-center justify-between h-11 gap-2">
+      {/* Layered progressive blur — smooths the hand-off between scrolling
+          content and the navbar's flat background instead of a hard edge. */}
+      <div className="nav-progressive-blur" aria-hidden="true">
+        <div /><div />
+      </div>
+
+      <div className="container-tight px-3.5 sm:px-6 flex items-center justify-between h-11 gap-2 relative">
         <Magnetic range={50} strength={0.3}>
          <a 
   href="#home" 
