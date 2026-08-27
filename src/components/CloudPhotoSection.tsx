@@ -1,0 +1,26 @@
+import { motion, useReducedMotion } from "framer-motion";
+import cloudPhoto from "../assets/images/cloud.1ec8ee4225bd9e83bdc5.webp";
+
+/**
+ * A single decorative photo reveal directly below Hero. Uses the same
+ * whileInView + easing pattern as the rest of the site (see
+ * CinematicSection's cinChild variants) so it feels consistent with
+ * every other section, rather than introducing a new animation style.
+ */
+export default function CloudPhotoSection() {
+  const prefersReducedMotion = useReducedMotion();
+
+  return (
+    <section className="relative w-full max-w-full overflow-hidden py-10 sm:py-14 lg:py-20 flex justify-center">
+      <motion.img
+        src={cloudPhoto}
+        alt=""
+        initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 50, scale: 0.96 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-3xl px-4 select-none pointer-events-none"
+      />
+    </section>
+  );
+}
