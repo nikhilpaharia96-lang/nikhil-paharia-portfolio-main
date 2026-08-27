@@ -1,0 +1,8 @@
+node_modules
+dist
+
+# Local environment files — never commit real Razorpay keys.
+.env
+.env.local
+.env*.local
+.vercel
