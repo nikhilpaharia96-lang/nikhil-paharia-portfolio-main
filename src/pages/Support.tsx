@@ -1,21 +1,56 @@
 import { useState, useRef, type FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { RiHeart3Fill, RiShieldCheckFill, RiArrowLeftLine, RiLoader4Line } from "react-icons/ri";
+import {
+  RiShieldCheckFill,
+  RiArrowLeftLine,
+  RiLoader4Line,
+  RiLockFill,
+  RiBookOpenFill,
+  RiFlashlightFill,
+  RiTeamFill,
+  RiHeart3Fill,
+  RiUserLine,
+  RiGraduationCapLine,
+  RiCloseLine,
+  RiInformationFill,
+  RiArrowRightSLine,
+  RiAlertLine,
+  RiArrowDownSLine,
+} from "react-icons/ri";
 import { Button } from "@/components/ui/button";
 import { loadRazorpayScript } from "@/lib/loadRazorpayScript";
 import type { RazorpayCheckoutResponse } from "@/types/razorpay";
-import profilePhoto from "../assets/images/profile-nobg.png";
 
 type PaymentStatus = "idle" | "loading" | "success" | "failed";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
-const QUICK_AMOUNTS = [99, 199, 499, 999];
+const QUICK_AMOUNTS = [50, 100, 200, 500];
+
+const SEMESTERS = [
+  "1st Semester",
+  "2nd Semester",
+  "3rd Semester",
+  "4th Semester",
+  "5th Semester",
+  "6th Semester",
+  "7th Semester",
+  "8th Semester",
+];
 
 export default function Support() {
-  const [amount, setAmount] = useState<string>("199");
+  const [studentName, setStudentName] = useState<string>("");
+  const [semester, setSemester] = useState<string>("");
+  const [amount, setAmount] = useState<string>("500");
   const [status, setStatus] = useState<PaymentStatus>("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [touched, setTouched] = useState<{ name?: boolean; semester?: boolean }>({});
+  const [semesterFocused, setSemesterFocused] = useState(false);
+
+  // Successful-payment context, captured once verification succeeds, so the
+  // success screen can show the right name/amount even though the form
+  // fields above it aren't re-read at that point.
+  const [receipt, setReceipt] = useState<{ name: string; amount: number; paymentId: string } | null>(null);
 
   // Hard guard against double-submit (rapid double-click / double-tap /
   // Enter-key repeat). React state alone is enough in practice since the
@@ -30,6 +65,10 @@ export default function Support() {
   // payment that's already being verified.
   const paymentHandledRef = useRef(false);
 
+  const trimmedName = studentName.trim();
+  const isNameValid = trimmedName.length > 0 && trimmedName.length <= 100;
+  const isSemesterValid = SEMESTERS.includes(semester);
+
   const parsedAmount = Number(amount);
   const isValidAmount =
     amount.trim() !== "" &&
@@ -37,6 +76,8 @@ export default function Support() {
     parsedAmount > 0 &&
     Number.isInteger(parsedAmount) &&
     parsedAmount <= 500000;
+
+  const isFormValid = isNameValid && isSemesterValid && isValidAmount;
 
   const handleAmountChange = (value: string) => {
     // Allow only digits so negative/zero/decimal-junk can't be typed.
@@ -46,7 +87,8 @@ export default function Support() {
 
   const startPayment = async (e: FormEvent) => {
     e.preventDefault();
-    if (!isValidAmount || isSubmittingRef.current) return;
+    setTouched({ name: true, semester: true });
+    if (!isFormValid || isSubmittingRef.current) return;
 
     isSubmittingRef.current = true;
     paymentHandledRef.current = false;
@@ -62,7 +104,7 @@ export default function Support() {
       const orderRes = await fetch("/api/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: parsedAmount }),
+        body: JSON.stringify({ amount: parsedAmount, studentName: trimmedName, semester }),
       });
 
       const orderData = await orderRes.json();
@@ -75,10 +117,10 @@ export default function Support() {
         amount: orderData.amount,
         currency: orderData.currency,
         order_id: orderData.orderId,
-        name: "Nikhil Paharia",
-        description: "Support My Work",
-        image: profilePhoto,
+        name: "Teacher's Day Celebration 2026",
+        description: `Contribution by ${trimmedName} (${semester})`,
         theme: { color: "#1D6FEB" },
+        prefill: { name: trimmedName },
         handler: async (response: RazorpayCheckoutResponse) => {
           // Mark this as "being handled" immediately, before the await,
           // so a near-simultaneous `ondismiss` (Razorpay closes the modal
@@ -89,7 +131,7 @@ export default function Support() {
             const verifyRes = await fetch("/api/verify-payment", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(response),
+              body: JSON.stringify({ ...response, studentName: trimmedName, semester, amount: parsedAmount }),
             });
             const verifyData = await verifyRes.json();
 
@@ -98,6 +140,7 @@ export default function Support() {
             // a valid HMAC-SHA256 signature check. The frontend has no way
             // to set `status = "success"` on its own.
             if (verifyRes.ok && verifyData.verified === true) {
+              setReceipt({ name: trimmedName, amount: parsedAmount, paymentId: verifyData.paymentId || response.razorpay_payment_id });
               setStatus("success");
             } else {
               setErrorMessage(verifyData?.error || "We couldn't verify this payment.");
@@ -143,8 +186,17 @@ export default function Support() {
     setErrorMessage("");
   };
 
+  const isLoading = status === "loading";
+
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden flex items-center justify-center px-4 py-16 sm:py-24">
+    <div className="relative min-h-screen w-full overflow-x-hidden flex items-start sm:items-center justify-center px-4 py-6 sm:py-16">
+      {/* Soft lavender/purple atmosphere */}
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-24 -left-20 w-72 h-72 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute top-1/3 -right-24 w-80 h-80 rounded-full bg-sky-300/15 blur-3xl" />
+        <div className="absolute bottom-0 left-1/4 w-64 h-64 rounded-full bg-violet-300/10 blur-3xl" />
+      </div>
+
       <div className="w-full max-w-md mx-auto">
         {/* Back to portfolio */}
         <motion.a
@@ -152,7 +204,7 @@ export default function Support() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease }}
-          className="interactive inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-slate-500 hover:text-primary transition-colors mb-8"
+          className="interactive inline-flex items-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-widest text-slate-500 hover:text-primary transition-colors mb-4 sm:mb-8"
         >
           <RiArrowLeftLine className="text-base" />
           Back to Portfolio
@@ -162,32 +214,39 @@ export default function Support() {
           initial={{ opacity: 0, y: 24, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.6, ease }}
-          className="glass-premium p-6 sm:p-10 relative overflow-hidden"
+          className="glass-premium p-5 sm:p-10 relative overflow-hidden"
         >
           <AnimatePresence mode="wait">
-            {status === "success" ? (
+            {status === "success" && receipt ? (
               <motion.div
                 key="success"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.4, ease }}
-                className="text-center py-6"
+                className="text-center py-4 sm:py-6"
               >
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.1, type: "spring", stiffness: 260, damping: 18 }}
-                  className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center"
+                  className="w-16 h-16 mx-auto mb-5 rounded-full bg-primary/10 flex items-center justify-center"
                 >
                   <RiHeart3Fill className="text-3xl text-primary" />
                 </motion.div>
-                <h1 className="text-3xl sm:text-4xl font-serif font-bold text-foreground mb-3">
-                  Thank You <span aria-hidden>❤️</span>
+                <h1 className="text-2xl sm:text-3xl font-serif font-bold text-foreground mb-2">
+                  Payment Successful
                 </h1>
-                <p className="text-slate-500 mb-8 leading-relaxed">
-                  Your support means a lot and helps me continue creating.
+                <p className="text-slate-600 font-semibold mb-1">
+                  Thank you, {receipt.name}!
                 </p>
+                <p className="text-slate-500 mb-6 leading-relaxed text-sm sm:text-base">
+                  Your contribution of ₹{receipt.amount} for Teacher's Day Celebration 2026 has been successfully received.
+                </p>
+                <div className="rounded-xl border border-blue-100 bg-blue-50/50 px-4 py-3 mb-6 text-left">
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Payment ID</p>
+                  <p className="text-sm font-mono text-slate-600 break-all">{receipt.paymentId}</p>
+                </div>
                 <Button asChild size="lg" className="btn-primary w-full sm:w-auto">
                   <a href="/">Back to Portfolio</a>
                 </Button>
@@ -199,15 +258,15 @@ export default function Support() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.4, ease }}
-                className="text-center py-6"
+                className="text-center py-4 sm:py-6"
               >
-                <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-red-50 flex items-center justify-center">
-                  <span className="text-3xl" aria-hidden>✕</span>
+                <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-red-50 flex items-center justify-center">
+                  <RiCloseLine className="text-3xl text-red-400" />
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-serif font-bold text-foreground mb-3">
+                <h1 className="text-xl sm:text-2xl font-serif font-bold text-foreground mb-3">
                   {errorMessage === "Payment cancelled" ? "Payment cancelled" : "Something went wrong"}
                 </h1>
-                <p className="text-slate-500 mb-8 leading-relaxed">
+                <p className="text-slate-500 mb-8 leading-relaxed text-sm sm:text-base">
                   {errorMessage && errorMessage !== "Payment cancelled" && errorMessage !== "Something went wrong"
                     ? errorMessage
                     : "You can try again whenever you're ready."}
@@ -224,34 +283,148 @@ export default function Support() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                {/* Avatar + heading */}
-                <div className="text-center mb-8">
-                  <motion.img
-                    src={profilePhoto}
-                    alt="Nikhil Paharia"
+                {/* Icon + heading */}
+                <div className="text-center mb-5 sm:mb-8">
+                  <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.1, duration: 0.5, ease }}
-                    className="w-20 h-20 rounded-full object-cover mx-auto mb-5 border-2 border-blue-100 shadow-sm bg-blue-50"
-                  />
-                  <h1 className="text-3xl sm:text-4xl font-serif font-bold text-foreground mb-3">
-                    Support My Work
+                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl mx-auto mb-3 sm:mb-5 border border-blue-100 shadow-sm bg-gradient-to-br from-primary/10 to-sky-300/10 flex items-center justify-center"
+                  >
+                    <RiGraduationCapLine className="text-2xl sm:text-3xl text-primary" />
+                  </motion.div>
+                  <h1 className="text-2xl sm:text-4xl font-serif font-bold text-foreground mb-1 sm:mb-2 leading-tight">
+                    Teacher's Day
                   </h1>
-                  <p className="text-slate-500 leading-relaxed">
-                    If you enjoy my work and want to support what I create, you can contribute any amount.
+                  <p className="text-lg sm:text-2xl font-serif font-bold text-primary mb-2 sm:mb-3">
+                    Celebration 2026
+                  </p>
+                  <h2 className="text-sm sm:text-base font-bold text-foreground mb-2">
+                    Make Your Contribution
+                  </h2>
+                  <p className="text-slate-500 leading-relaxed text-xs sm:text-sm max-w-sm mx-auto">
+                    We're a group of students collecting contributions to organize our college Teacher's Day celebration.
+                    Your contribution will help us make this day special and memorable for our teachers.
                   </p>
                 </div>
 
-                {/* Personal message */}
-                <p className="text-sm text-slate-500 italic text-center mb-8 leading-relaxed">
-                  Every bit of support helps me keep building, learning, and sharing projects like this one.
-                  Thank you for stopping by.
-                </p>
+                <form onSubmit={startPayment} className="space-y-4 sm:space-y-5">
+                  {/* Student name — same visual language as the Contact form fields */}
+                  <div>
+                    <label
+                      htmlFor="student-name"
+                      className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2"
+                    >
+                      Student Name
+                    </label>
+                    <div className="relative">
+                      <RiUserLine className={`absolute left-4 top-1/2 -translate-y-1/2 w-[18px] h-[18px] transition-colors duration-300 ${
+                        touched.name && !isNameValid ? "text-red-400" : "text-slate-400"
+                      }`} />
+                      <input
+                        id="student-name"
+                        name="studentName"
+                        type="text"
+                        autoComplete="name"
+                        maxLength={100}
+                        aria-required="true"
+                        aria-invalid={touched.name && !isNameValid}
+                        aria-describedby={touched.name && !isNameValid ? "student-name-error" : undefined}
+                        disabled={isLoading}
+                        value={studentName}
+                        onChange={(e) => setStudentName(e.target.value)}
+                        onBlur={() => setTouched((t) => ({ ...t, name: true }))}
+                        placeholder="Enter your full name"
+                        className={`w-full h-12 sm:h-14 pl-11 pr-4 rounded-xl border bg-white/70 text-sm sm:text-base font-medium text-foreground shadow-sm focus:outline-none focus-visible:ring-2 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed ${
+                          touched.name && !isNameValid
+                            ? "border-red-400 focus-visible:ring-red-200"
+                            : "border-slate-200 hover:border-slate-300 focus-visible:ring-primary/25 focus-visible:border-primary"
+                        }`}
+                      />
+                    </div>
+                    <AnimatePresence>
+                      {touched.name && !isNameValid && (
+                        <motion.p
+                          id="student-name-error"
+                          role="alert"
+                          initial={{ opacity: 0, y: -4, height: 0 }}
+                          animate={{ opacity: 1, y: 0, height: "auto" }}
+                          exit={{ opacity: 0, y: -4, height: 0 }}
+                          className="flex items-center gap-1.5 text-red-500 text-xs font-medium mt-1.5 pl-1"
+                        >
+                          <RiAlertLine className="w-3.5 h-3.5 shrink-0" /> Please enter your name
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </div>
 
-                <form onSubmit={startPayment} className="space-y-6">
+                  {/* Semester dropdown — same shell as the name field */}
+                  <div>
+                    <label
+                      htmlFor="student-semester"
+                      className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2"
+                    >
+                      Semester
+                    </label>
+                    <div className="relative">
+                      <RiBookOpenFill className={`absolute left-4 top-1/2 -translate-y-1/2 w-[18px] h-[18px] z-10 pointer-events-none transition-colors duration-300 ${
+                        touched.semester && !isSemesterValid ? "text-red-400" : semesterFocused ? "text-primary" : "text-slate-400"
+                      }`} />
+                      <select
+                        id="student-semester"
+                        name="semester"
+                        value={semester}
+                        disabled={isLoading}
+                        aria-required="true"
+                        aria-invalid={touched.semester && !isSemesterValid}
+                        aria-describedby={touched.semester && !isSemesterValid ? "student-semester-error" : undefined}
+                        onFocus={() => setSemesterFocused(true)}
+                        onBlur={() => {
+                          setSemesterFocused(false);
+                          setTouched((t) => ({ ...t, semester: true }));
+                        }}
+                        onChange={(e) => setSemester(e.target.value)}
+                        className={`w-full h-12 sm:h-14 appearance-none pl-11 pr-11 rounded-xl border bg-white/70 text-sm sm:text-base font-medium cursor-pointer shadow-sm focus:outline-none focus-visible:ring-2 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed ${
+                          semester ? "text-foreground" : "text-slate-400"
+                        } ${
+                          touched.semester && !isSemesterValid
+                            ? "border-red-400 focus-visible:ring-red-200"
+                            : "border-slate-200 hover:border-slate-300 focus-visible:ring-primary/25 focus-visible:border-primary"
+                        }`}
+                      >
+                        <option value="" disabled hidden>
+                          Select your semester
+                        </option>
+                        {SEMESTERS.map((s) => (
+                          <option key={s} value={s} className="text-foreground bg-white">
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+                      <RiArrowDownSLine className={`absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none transition-colors duration-300 ${
+                        touched.semester && !isSemesterValid ? "text-red-400" : semesterFocused ? "text-primary" : "text-slate-400"
+                      }`} />
+                    </div>
+                    <AnimatePresence>
+                      {touched.semester && !isSemesterValid && (
+                        <motion.p
+                          id="student-semester-error"
+                          role="alert"
+                          initial={{ opacity: 0, y: -4, height: 0 }}
+                          animate={{ opacity: 1, y: 0, height: "auto" }}
+                          exit={{ opacity: 0, y: -4, height: 0 }}
+                          className="flex items-center gap-1.5 text-red-500 text-xs font-medium mt-1.5 pl-1"
+                        >
+                          <RiAlertLine className="w-3.5 h-3.5 shrink-0" /> Please select your semester
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* Contribution amount */}
                   <div>
                     <label htmlFor="support-amount" className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">
-                      Enter Amount
+                      Enter Contribution Amount
                     </label>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-slate-400 select-none">
@@ -266,28 +439,28 @@ export default function Support() {
                         autoComplete="off"
                         aria-describedby="amount-help"
                         aria-invalid={!isValidAmount}
-                        disabled={status === "loading"}
+                        disabled={isLoading}
                         value={amount}
                         onChange={(e) => handleAmountChange(e.target.value)}
                         placeholder="Enter Amount"
-                        className="w-full h-14 pl-9 pr-4 rounded-xl border border-blue-100 bg-white text-2xl font-bold text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:border-primary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="w-full h-12 sm:h-14 pl-9 pr-4 rounded-xl border border-blue-100 bg-white text-xl sm:text-2xl font-bold text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:border-primary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                       />
                     </div>
                     <p id="amount-help" className="text-xs text-slate-400 mt-2">
                       {isValidAmount ? "\u00A0" : "Enter a whole number amount of ₹1 or more."}
                     </p>
 
-                    {/* Quick-select chips */}
-                    <div className="flex flex-wrap gap-2 mt-3">
+                    {/* Quick-select — 2x2 grid on mobile, row on larger screens */}
+                    <div className="grid grid-cols-4 gap-2 mt-3">
                       {QUICK_AMOUNTS.map((val) => (
                         <button
                           key={val}
                           type="button"
-                          disabled={status === "loading"}
+                          disabled={isLoading}
                           onClick={() => setAmount(String(val))}
-                          className={`interactive px-4 py-2 rounded-full text-sm font-semibold border transition-colors min-h-[40px] disabled:opacity-60 disabled:cursor-not-allowed ${
+                          className={`interactive px-2 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border transition-colors min-h-[40px] disabled:opacity-60 disabled:cursor-not-allowed ${
                             amount === String(val)
-                              ? "bg-primary text-white border-primary"
+                              ? "bg-primary text-white border-primary shadow-sm shadow-blue-200"
                               : "bg-white text-slate-600 border-blue-100 hover:border-primary hover:text-primary"
                           }`}
                         >
@@ -299,31 +472,68 @@ export default function Support() {
 
                   <Button
                     type="submit"
-                    disabled={!isValidAmount || status === "loading"}
-                    className="btn-primary w-full min-h-[48px] text-base"
+                    disabled={isLoading}
+                    className="btn-primary w-full min-h-[48px] text-sm sm:text-base"
                   >
-                    {status === "loading" ? (
+                    {isLoading ? (
                       <>
                         <RiLoader4Line className="animate-spin text-lg" />
                         Processing...
                       </>
                     ) : (
                       <>
-                        <RiHeart3Fill className="text-lg" />
-                        Pay Now
+                        <RiLockFill className="text-base" />
+                        Pay Securely
+                        <RiArrowRightSLine className="text-lg" />
                       </>
                     )}
                   </Button>
 
                   <div className="flex items-center justify-center gap-2 text-xs text-slate-400 pt-1">
                     <RiShieldCheckFill className="text-sm text-primary" />
-                    Secured by Razorpay · payments are encrypted
+                    Secured by Razorpay · Payments are encrypted
                   </div>
                 </form>
+
+                {/* Trust badges */}
+                <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-6 pt-5 border-t border-blue-100/70">
+                  {[
+                    { Icon: RiShieldCheckFill, title: "100% Secure", desc: "Safe with Razorpay" },
+                    { Icon: RiFlashlightFill, title: "Instant Payment", desc: "Quick & seamless" },
+                    { Icon: RiTeamFill, title: "For Our Teachers", desc: "Makes it special" },
+                  ].map(({ Icon, title, desc }) => (
+                    <div key={title} className="flex flex-col items-center text-center gap-1.5">
+                      <div className="w-8 h-8 sm:w-9 sm:h-9 shrink-0 rounded-full border border-primary/25 bg-primary/5 flex items-center justify-center">
+                        <Icon className="w-4 h-4 text-primary" />
+                      </div>
+                      <p className="text-[10px] sm:text-xs font-medium text-slate-600 leading-tight">
+                        <span className="block font-semibold text-slate-700">{title}</span>
+                        <span className="hidden sm:inline">{desc}</span>
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
         </motion.div>
+
+        {/* Note card */}
+        {status !== "success" && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5, ease }}
+            className="mt-4 sm:mt-6 rounded-2xl border border-blue-100 bg-white/70 backdrop-blur-sm px-4 py-3 sm:py-4 flex items-start gap-3"
+          >
+            <div className="w-7 h-7 shrink-0 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
+              <RiInformationFill className="w-4 h-4 text-primary" />
+            </div>
+            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+              <span className="font-semibold text-slate-600">Note:</span> This contribution is for Teacher's Day Celebration 2026, organized by the students.
+            </p>
+          </motion.div>
+        )}
       </div>
     </div>
   );
