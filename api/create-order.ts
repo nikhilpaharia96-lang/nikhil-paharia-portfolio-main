@@ -12,6 +12,19 @@ import { checkRateLimit, getClientIp } from "./lib/rateLimit.js";
 const MIN_AMOUNT_INR = 1;
 const MAX_AMOUNT_INR = 500000; // sanity ceiling to avoid accidental huge charges
 
+const VALID_SEMESTERS = [
+  "1st Semester",
+  "2nd Semester",
+  "3rd Semester",
+  "4th Semester",
+  "5th Semester",
+  "6th Semester",
+  "7th Semester",
+  "8th Semester",
+];
+
+const MAX_NAME_LENGTH = 100;
+
 // Best-effort abuse protection — see api/lib/rateLimit.ts for caveats.
 const RATE_LIMIT = { limit: 8, windowMs: 60_000 }; // 8 order-creation attempts / IP / minute
 
@@ -47,7 +60,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: "Invalid request body." });
   }
 
-  const amount = (body as { amount?: unknown } | null)?.amount;
+  const { amount, studentName: rawStudentName, semester } = (body ?? {}) as {
+    amount?: unknown;
+    studentName?: unknown;
+    semester?: unknown;
+  };
 
   // Server-side validation — the browser's amount is never trusted as-is.
   // Rejects: missing, non-number, NaN, Infinity/-Infinity, decimals,
@@ -60,6 +77,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     amount > MAX_AMOUNT_INR
   ) {
     return res.status(400).json({ error: "Enter a valid amount between ₹1 and ₹5,00,000." });
+  }
+
+  // Student name: required, trimmed, bounded length. The frontend already
+  // enforces this, but the server never trusts client-side validation.
+  const studentName = typeof rawStudentName === "string" ? rawStudentName.trim() : "";
+  if (!studentName || studentName.length > MAX_NAME_LENGTH) {
+    return res.status(400).json({ error: "Enter your full name." });
+  }
+
+  // Semester: required, must be one of the known values.
+  if (typeof semester !== "string" || !VALID_SEMESTERS.includes(semester)) {
+    return res.status(400).json({ error: "Select your semester." });
   }
 
   // amount is already a validated positive integer number of rupees here,
@@ -79,7 +108,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // capture would sit in `authorized` state and never actually settle.
       payment_capture: true,
       notes: {
-        source: "portfolio-support-page",
+        source: "teachers-day-2026-support-page",
+        studentName,
+        semester,
       },
     });
 

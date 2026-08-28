@@ -2,6 +2,21 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import crypto from "crypto";
 import Razorpay from "razorpay";
 import { checkRateLimit, getClientIp } from "./lib/rateLimit.js";
+import { sendNotificationEmail } from "./lib/sendEmail.js";
+import { markNotifiedIfNew } from "./lib/sentPayments.js";
+
+const VALID_SEMESTERS = [
+  "1st Semester",
+  "2nd Semester",
+  "3rd Semester",
+  "4th Semester",
+  "5th Semester",
+  "6th Semester",
+  "7th Semester",
+  "8th Semester",
+];
+
+const MAX_NAME_LENGTH = 100;
 
 // Verifies the payment signature Razorpay returns after checkout completes.
 // This is the step that actually confirms a payment is genuine — it must
@@ -46,10 +61,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     razorpay_order_id,
     razorpay_payment_id,
     razorpay_signature,
+    studentName: rawStudentName,
+    semester,
+    amount,
   } = (body ?? {}) as {
     razorpay_order_id?: unknown;
     razorpay_payment_id?: unknown;
     razorpay_signature?: unknown;
+    studentName?: unknown;
+    semester?: unknown;
+    amount?: unknown;
   };
 
   if (
@@ -62,6 +83,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   ) {
     return res.status(400).json({ verified: false, error: "Missing payment details." });
   }
+
+  // Student info is used only for the confirmation email — it plays no
+  // role in the cryptographic verification below, so we validate it
+  // loosely and simply omit it from the email if it looks off, rather
+  // than failing an otherwise-genuine payment over a display detail.
+  const studentName =
+    typeof rawStudentName === "string" && rawStudentName.trim().length > 0 && rawStudentName.trim().length <= MAX_NAME_LENGTH
+      ? rawStudentName.trim()
+      : "Anonymous Student";
+  const semesterLabel = typeof semester === "string" && VALID_SEMESTERS.includes(semester) ? semester : "Not specified";
+  const amountLabel = typeof amount === "number" && Number.isFinite(amount) && amount > 0 ? amount : null;
 
   // --- Step 1: HMAC-SHA256 signature check (authoritative check) ---
   // Formula per Razorpay docs: HMAC_SHA256(order_id + "|" + payment_id, key_secret)
@@ -123,6 +155,47 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const message = err instanceof Error ? err.message : "unknown error";
       console.warn("Razorpay payment fetch failed during verification (failing open on signature check):", message);
       // Fall through — signature check already passed.
+    }
+  }
+
+  // --- Step 3: verified-payment notification email ---
+  // Reached ONLY after the HMAC signature check above passed (and, best
+  // effort, the capture-status check). Never send this email from the
+  // frontend, and never send it before this point in the code.
+  //
+  // markNotifiedIfNew guards against sending a duplicate email if this
+  // endpoint is somehow called twice for the same payment (e.g. a client
+  // retry after a dropped response).
+  if (markNotifiedIfNew(razorpay_payment_id)) {
+    const timestamp = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+    const amountText = amountLabel !== null ? `₹${amountLabel}` : "Amount unavailable";
+
+    const emailBody = [
+      "Teacher's Day Celebration 2026",
+      "",
+      "A new contribution has been successfully received.",
+      "",
+      `Student Name: ${studentName}`,
+      `Semester: ${semesterLabel}`,
+      `Amount: ${amountText}`,
+      `Payment ID: ${razorpay_payment_id}`,
+      `Order ID: ${razorpay_order_id}`,
+      "Payment Status: Verified",
+      `Date/Time: ${timestamp} (IST)`,
+      "",
+      "This payment was made for the student-organized Teacher's Day Celebration 2026.",
+    ].join("\n");
+
+    // Fire-and-forget from the response's perspective, but still awaited so
+    // any failure is logged server-side — a failed email must never change
+    // the verified payment outcome already decided above.
+    const emailResult = await sendNotificationEmail({
+      subject: `Teacher's Day Contribution Received — ${studentName}`,
+      text: emailBody,
+    });
+
+    if (!emailResult.sent) {
+      console.error("Verified payment succeeded but notification email failed:", emailResult.error);
     }
   }
 
