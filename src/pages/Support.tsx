@@ -16,6 +16,7 @@ import {
   RiArrowRightSLine,
   RiAlertLine,
   RiArrowDownSLine,
+  RiSparkling2Fill,
 } from "react-icons/ri";
 import { Button } from "@/components/ui/button";
 import { loadRazorpayScript } from "@/lib/loadRazorpayScript";
@@ -28,21 +29,6 @@ import {
   getDefaultAmountForSemester,
   getQuickAmountsForSemester,
 } from "../../shared/semesterRules";
-
-// Decorative Teacher's Day illustration assets — used sparingly and
-// distributed around the page (never a single giant decoration, never
-// covering text/inputs/buttons — see the "Decorative layer" section below).
-import gradCapImg from "@/assets/images/teachers-day/grad-cap.png";
-import openBookImg from "@/assets/images/teachers-day/open-book.png";
-import penPencilImg from "@/assets/images/teachers-day/pen-pencil.png";
-import bouquetImg from "@/assets/images/teachers-day/bouquet.png";
-import booksPlantImg from "@/assets/images/teachers-day/books-plant.png";
-import heartImg from "@/assets/images/teachers-day/heart.png";
-import sparklesImg from "@/assets/images/teachers-day/sparkles.png";
-import diplomaImg from "@/assets/images/teachers-day/diploma.png";
-import blobOneImg from "@/assets/images/teachers-day/abstract-blob-1.png";
-import blobTwoImg from "@/assets/images/teachers-day/abstract-blob-2.png";
-import waveRibbonImg from "@/assets/images/teachers-day/wave-ribbon.png";
 
 type PaymentStatus = "idle" | "loading" | "success" | "failed";
 
@@ -230,63 +216,56 @@ export default function Support() {
         <div className="absolute bottom-0 left-1/4 w-64 h-64 rounded-full bg-violet-300/10 blur-3xl" />
       </div>
 
-      {/* Decorative Teacher's Day illustration layer.
-          Rules followed throughout:
+      {/* Decorative Teacher's Day layer — built entirely from CSS shapes and
+          the icon set already used elsewhere on the page (no external image
+          files required). Rules followed throughout:
           - pointer-events-none + aria-hidden: never intercepts clicks or screen readers
-          - z-index below the card (-z-10 / z-0, card content is relative + z-10 via glass-premium)
-          - low opacity ambient shapes are allowed on mobile (subtle, clipped by overflow-x-hidden)
-          - individual "sticker" illustrations (cap, book, pen, bouquet, etc.) are
-            hidden below `lg` so they never sit anywhere near the form on phones/tablets
-          - positioned near viewport edges (not percentages) so they can never drift
-            over the centered max-w-md card even on ultra-wide screens */}
+          - positioned behind the card (-z-10) and clipped by overflow-hidden,
+            so nothing can ever sit over text/inputs/buttons or cause horizontal scroll
+          - individual icon accents are hidden below `lg` so they never
+            crowd the form on phones/tablets; soft gradient blobs stay subtle
+            and visible at all sizes */}
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 overflow-hidden select-none">
-        {/* Ambient watermark shapes — visible at all sizes, very low opacity */}
-        <img src={blobOneImg} alt="" className="absolute -top-10 -right-16 w-64 sm:w-80 lg:w-[26rem] opacity-[0.12]" />
-        <img src={blobTwoImg} alt="" className="absolute -bottom-16 -left-20 w-64 sm:w-80 lg:w-[26rem] opacity-[0.10] rotate-180" />
-        <img src={waveRibbonImg} alt="" className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-3xl opacity-[0.08]" />
+        {/* Ambient gradient blobs — visible at all sizes, very low opacity */}
+        <div className="absolute -top-16 -right-20 w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-gradient-to-br from-blue-300/20 to-primary/10 blur-3xl" />
+        <div className="absolute -bottom-20 -left-24 w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-gradient-to-tr from-sky-300/15 to-violet-300/10 blur-3xl" />
 
-        {/* Distributed illustration accents — desktop/wide screens only */}
-        <motion.img
-          src={gradCapImg}
-          alt=""
+        {/* Distributed icon accents — desktop/wide screens only */}
+        <motion.div
           animate={{ y: [0, -10, 0] }}
           transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          className="hidden lg:block absolute top-16 left-10 xl:left-24 w-20 xl:w-24 opacity-90 drop-shadow-sm"
-        />
-        <motion.img
-          src={penPencilImg}
-          alt=""
+          className="hidden lg:flex absolute top-16 left-10 xl:left-24 w-14 h-14 xl:w-16 xl:h-16 rounded-2xl border border-blue-100 bg-white/60 shadow-sm items-center justify-center"
+        >
+          <RiGraduationCapLine className="text-2xl text-primary/70" />
+        </motion.div>
+        <motion.div
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
-          className="hidden lg:block absolute top-24 right-12 xl:right-28 w-14 xl:w-16 opacity-85 drop-shadow-sm"
-        />
-        <motion.img
-          src={bouquetImg}
-          alt=""
+          className="hidden lg:flex absolute top-24 right-12 xl:right-28 w-11 h-11 xl:w-12 xl:h-12 rounded-full border border-blue-100 bg-white/60 shadow-sm items-center justify-center"
+        >
+          <RiBookOpenFill className="text-lg text-primary/60" />
+        </motion.div>
+        <motion.div
           animate={{ y: [0, -8, 0] }}
           transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
-          className="hidden xl:block absolute bottom-40 right-16 2xl:right-32 w-20 opacity-85 drop-shadow-sm"
-        />
-        <motion.img
-          src={openBookImg}
-          alt=""
+          className="hidden xl:flex absolute bottom-40 right-16 2xl:right-32 w-12 h-12 rounded-full border border-blue-100 bg-white/60 shadow-sm items-center justify-center"
+        >
+          <RiHeart3Fill className="text-lg text-primary/60" />
+        </motion.div>
+        <motion.div
           animate={{ y: [0, 9, 0] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
-          className="hidden lg:block absolute bottom-28 left-12 xl:left-28 w-24 xl:w-28 opacity-85 drop-shadow-sm"
+          className="hidden lg:block absolute bottom-28 left-12 xl:left-28 w-3 h-3 rounded-full bg-primary/25"
         />
-        <motion.img
-          src={booksPlantImg}
-          alt=""
+        <motion.div
           animate={{ y: [0, -7, 0] }}
           transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
-          className="hidden xl:block absolute top-1/2 left-8 2xl:left-20 w-24 opacity-80 drop-shadow-sm"
+          className="hidden xl:block absolute top-1/2 left-8 2xl:left-20 w-2.5 h-2.5 rounded-full bg-sky-400/30"
         />
-        <motion.img
-          src={diplomaImg}
-          alt=""
+        <motion.div
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 5.2, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          className="hidden xl:block absolute bottom-16 right-10 2xl:right-24 w-20 opacity-85 drop-shadow-sm"
+          className="hidden xl:block absolute bottom-16 right-10 2xl:right-24 w-2 h-2 rounded-full bg-violet-400/25"
         />
       </div>
 
@@ -396,11 +375,9 @@ export default function Support() {
                   >
                     <RiGraduationCapLine className="text-2xl sm:text-3xl text-primary" />
                     {/* Small sparkle accent — sits just outside the badge corner, never over the icon or heading text */}
-                    <img
-                      src={sparklesImg}
-                      alt=""
+                    <RiSparkling2Fill
                       aria-hidden="true"
-                      className="pointer-events-none select-none absolute -top-2.5 -right-2.5 w-5 sm:w-6"
+                      className="pointer-events-none select-none absolute -top-2 -right-2 text-lg sm:text-xl text-amber-400"
                     />
                   </motion.div>
                   <h1 className="text-2xl sm:text-4xl font-serif font-bold text-foreground mb-1 sm:mb-2 leading-tight">
@@ -648,12 +625,12 @@ export default function Support() {
             className="relative mt-4 sm:mt-6 rounded-2xl border border-blue-100 bg-white/70 backdrop-blur-sm px-4 py-3 sm:py-4 flex items-start gap-3"
           >
             {/* Small heart accent — sits outside the card's top-right corner, never over the note text */}
-            <img
-              src={heartImg}
-              alt=""
+            <div
               aria-hidden="true"
-              className="hidden sm:block pointer-events-none select-none absolute -top-3 -right-3 w-8 opacity-90"
-            />
+              className="hidden sm:flex pointer-events-none select-none absolute -top-3 -right-3 w-7 h-7 rounded-full bg-primary/10 border border-blue-100 items-center justify-center"
+            >
+              <RiHeart3Fill className="w-3.5 h-3.5 text-primary/80" />
+            </div>
             <div className="w-7 h-7 shrink-0 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
               <RiInformationFill className="w-4 h-4 text-primary" />
             </div>
