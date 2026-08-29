@@ -39,7 +39,7 @@ const ease = [0.16, 1, 0.3, 1] as const;
 export default function Support() {
   const [studentName, setStudentName] = useState<string>("");
   const [semester, setSemester] = useState<Semester | "">("");
-  const [gateway, setGateway] = useState<Gateway>("razorpay");
+  const [gateway, setGateway] = useState<Gateway>("cashfree");
   const [amount, setAmount] = useState<string>(String(getDefaultAmountForSemester("")));
   const [status, setStatus] = useState<PaymentStatus>("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -656,7 +656,7 @@ export default function Support() {
                       Payment Method
                     </label>
                     <div className="grid grid-cols-2 gap-2">
-                      {(["razorpay", "cashfree"] as const).map((option) => (
+                      {(["cashfree", "razorpay"] as const).map((option) => (
                         <button
                           key={option}
                           type="button"
