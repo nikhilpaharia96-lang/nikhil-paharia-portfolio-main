@@ -44,19 +44,10 @@ function Portfolio() {
           <Marquee />
         </CinematicSection>
 
-        {/* About — has its own dedicated scroll-scrubbed "notebook" reveal
-            (ScrollTrigger on this exact element, see About.tsx) rather than
-            the generic Cinematic treatment. Deliberately NOT wrapped in
-            CinematicSection: that wrapper continuously animates this
-            element's own translateY/scale as the user scrolls, which shifts
-            its getBoundingClientRect() — and GSAP's ScrollTrigger start/end
-            for the notebook phases are computed from that same rect. Two
-            independent scroll-transform systems stacked on the same element
-            means the notebook's phase boundaries drift out of sync with the
-            actual scroll position the longer/faster you scroll. About's own
-            effect is the more important, more specific one here, so it wins
-            and the redundant outer fade/parallax is skipped for this section only. */}
-        <About />
+        {/* About — slow crane-up reveal */}
+        <CinematicSection parallax={40} delay={0.05}>
+          <About />
+        </CinematicSection>
 
         
 
@@ -180,7 +171,7 @@ function App() {
         >
           <Switch>
             <Route path="/" component={Portfolio} />
-            <Route path="/support" component={Support} />
+            <Route path="/payment" component={Support} />
             <Route component={NotFound} />
           </Switch>
         </motion.div>
