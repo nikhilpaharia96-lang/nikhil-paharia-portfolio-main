@@ -4,17 +4,7 @@ import Razorpay from "razorpay";
 import { checkRateLimit, getClientIp } from "./lib/rateLimit.js";
 import { sendNotificationEmail } from "./lib/sendEmail.js";
 import { markNotifiedIfNew } from "./lib/sentPayments.js";
-
-const VALID_SEMESTERS = [
-  "1st Semester",
-  "2nd Semester",
-  "3rd Semester",
-  "4th Semester",
-  "5th Semester",
-  "6th Semester",
-  "7th Semester",
-  "8th Semester",
-];
+import { isValidSemester } from "../shared/semesterRules.js";
 
 const MAX_NAME_LENGTH = 100;
 
@@ -92,7 +82,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     typeof rawStudentName === "string" && rawStudentName.trim().length > 0 && rawStudentName.trim().length <= MAX_NAME_LENGTH
       ? rawStudentName.trim()
       : "Anonymous Student";
-  const semesterLabel = typeof semester === "string" && VALID_SEMESTERS.includes(semester) ? semester : "Not specified";
+  const semesterLabel = isValidSemester(semester) ? semester : "Not specified";
   const amountLabel = typeof amount === "number" && Number.isFinite(amount) && amount > 0 ? amount : null;
 
   // --- Step 1: HMAC-SHA256 signature check (authoritative check) ---

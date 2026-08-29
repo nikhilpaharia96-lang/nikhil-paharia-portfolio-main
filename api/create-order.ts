@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import Razorpay from "razorpay";
 import { checkRateLimit, getClientIp } from "./lib/rateLimit.js";
+import { isValidSemester, getMinAmountForSemester } from "../shared/semesterRules.js";
 
 // This function runs ONLY on Vercel's server. RAZORPAY_KEY_SECRET is read
 // from an environment variable and is never sent to the browser, returned
@@ -9,19 +10,7 @@ import { checkRateLimit, getClientIp } from "./lib/rateLimit.js";
 //   RAZORPAY_KEY_ID
 //   RAZORPAY_KEY_SECRET
 
-const MIN_AMOUNT_INR = 1;
 const MAX_AMOUNT_INR = 500000; // sanity ceiling to avoid accidental huge charges
-
-const VALID_SEMESTERS = [
-  "1st Semester",
-  "2nd Semester",
-  "3rd Semester",
-  "4th Semester",
-  "5th Semester",
-  "6th Semester",
-  "7th Semester",
-  "8th Semester",
-];
 
 const MAX_NAME_LENGTH = 100;
 
@@ -66,19 +55,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     semester?: unknown;
   };
 
-  // Server-side validation — the browser's amount is never trusted as-is.
-  // Rejects: missing, non-number, NaN, Infinity/-Infinity, decimals,
-  // zero, negative, and unreasonably large values.
-  if (
-    typeof amount !== "number" ||
-    !Number.isFinite(amount) ||
-    !Number.isInteger(amount) ||
-    amount < MIN_AMOUNT_INR ||
-    amount > MAX_AMOUNT_INR
-  ) {
-    return res.status(400).json({ error: "Enter a valid amount between ₹1 and ₹5,00,000." });
-  }
-
   // Student name: required, trimmed, bounded length. The frontend already
   // enforces this, but the server never trusts client-side validation.
   const studentName = typeof rawStudentName === "string" ? rawStudentName.trim() : "";
@@ -86,9 +62,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: "Enter your full name." });
   }
 
-  // Semester: required, must be one of the known values.
-  if (typeof semester !== "string" || !VALID_SEMESTERS.includes(semester)) {
+  // Semester: required, must be one of the known values. Validated before
+  // amount because the minimum allowed amount depends on the semester.
+  if (!isValidSemester(semester)) {
     return res.status(400).json({ error: "Select your semester." });
+  }
+
+  // Server-side validation — the browser's amount is never trusted as-is.
+  // Rejects: missing, non-number, NaN, Infinity/-Infinity, decimals,
+  // below this semester's minimum, and unreasonably large values.
+  const minAmountForSemester = getMinAmountForSemester(semester);
+  if (
+    typeof amount !== "number" ||
+    !Number.isFinite(amount) ||
+    !Number.isInteger(amount) ||
+    amount < minAmountForSemester ||
+    amount > MAX_AMOUNT_INR
+  ) {
+    return res.status(400).json({
+      error: `Enter a valid amount of at least ₹${minAmountForSemester} for ${semester} (up to ₹5,00,000).`,
+    });
   }
 
   // amount is already a validated positive integer number of rupees here,
