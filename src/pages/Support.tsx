@@ -20,28 +20,38 @@ import {
 import { Button } from "@/components/ui/button";
 import { loadRazorpayScript } from "@/lib/loadRazorpayScript";
 import type { RazorpayCheckoutResponse } from "@/types/razorpay";
+import {
+  SEMESTERS,
+  type Semester,
+  isValidSemester,
+  getMinAmountForSemester,
+  getDefaultAmountForSemester,
+  getQuickAmountsForSemester,
+} from "../../shared/semesterRules";
+
+// Decorative Teacher's Day illustration assets — used sparingly and
+// distributed around the page (never a single giant decoration, never
+// covering text/inputs/buttons — see the "Decorative layer" section below).
+import gradCapImg from "@/assets/images/teachers-day/grad-cap.png";
+import openBookImg from "@/assets/images/teachers-day/open-book.png";
+import penPencilImg from "@/assets/images/teachers-day/pen-pencil.png";
+import bouquetImg from "@/assets/images/teachers-day/bouquet.png";
+import booksPlantImg from "@/assets/images/teachers-day/books-plant.png";
+import heartImg from "@/assets/images/teachers-day/heart.png";
+import sparklesImg from "@/assets/images/teachers-day/sparkles.png";
+import diplomaImg from "@/assets/images/teachers-day/diploma.png";
+import blobOneImg from "@/assets/images/teachers-day/abstract-blob-1.png";
+import blobTwoImg from "@/assets/images/teachers-day/abstract-blob-2.png";
+import waveRibbonImg from "@/assets/images/teachers-day/wave-ribbon.png";
 
 type PaymentStatus = "idle" | "loading" | "success" | "failed";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
-const QUICK_AMOUNTS = [50, 100, 200, 500];
-
-const SEMESTERS = [
-  "1st Semester",
-  "2nd Semester",
-  "3rd Semester",
-  "4th Semester",
-  "5th Semester",
-  "6th Semester",
-  "7th Semester",
-  "8th Semester",
-];
-
 export default function Support() {
   const [studentName, setStudentName] = useState<string>("");
-  const [semester, setSemester] = useState<string>("");
-  const [amount, setAmount] = useState<string>("500");
+  const [semester, setSemester] = useState<Semester | "">("");
+  const [amount, setAmount] = useState<string>(String(getDefaultAmountForSemester("")));
   const [status, setStatus] = useState<PaymentStatus>("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [touched, setTouched] = useState<{ name?: boolean; semester?: boolean }>({});
@@ -50,7 +60,7 @@ export default function Support() {
   // Successful-payment context, captured once verification succeeds, so the
   // success screen can show the right name/amount even though the form
   // fields above it aren't re-read at that point.
-  const [receipt, setReceipt] = useState<{ name: string; amount: number; paymentId: string } | null>(null);
+  const [receipt, setReceipt] = useState<{ name: string; semester: string; amount: number; paymentId: string } | null>(null);
 
   // Hard guard against double-submit (rapid double-click / double-tap /
   // Enter-key repeat). React state alone is enough in practice since the
@@ -67,7 +77,12 @@ export default function Support() {
 
   const trimmedName = studentName.trim();
   const isNameValid = trimmedName.length > 0 && trimmedName.length <= 100;
-  const isSemesterValid = SEMESTERS.includes(semester);
+  const isSemesterValid = isValidSemester(semester);
+
+  // Minimum contribution and quick-amount chips both depend on the
+  // selected semester — see shared/semesterRules.ts for the source of truth.
+  const minAmountForSemester = getMinAmountForSemester(semester);
+  const quickAmounts = getQuickAmountsForSemester(semester);
 
   const parsedAmount = Number(amount);
   const isValidAmount =
@@ -75,6 +90,7 @@ export default function Support() {
     Number.isFinite(parsedAmount) &&
     parsedAmount > 0 &&
     Number.isInteger(parsedAmount) &&
+    parsedAmount >= minAmountForSemester &&
     parsedAmount <= 500000;
 
   const isFormValid = isNameValid && isSemesterValid && isValidAmount;
@@ -83,6 +99,18 @@ export default function Support() {
     // Allow only digits so negative/zero/decimal-junk can't be typed.
     const sanitized = value.replace(/[^0-9]/g, "");
     setAmount(sanitized);
+  };
+
+  const handleSemesterChange = (value: string) => {
+    if (!isValidSemester(value)) {
+      setSemester("");
+      return;
+    }
+    setSemester(value);
+    // Auto-fill / reset the amount to this semester's minimum every time
+    // the semester selection changes, per the Teacher's Day contribution
+    // rules — the student can still raise it manually afterwards.
+    setAmount(String(getDefaultAmountForSemester(value)));
   };
 
   const startPayment = async (e: FormEvent) => {
@@ -140,7 +168,12 @@ export default function Support() {
             // a valid HMAC-SHA256 signature check. The frontend has no way
             // to set `status = "success"` on its own.
             if (verifyRes.ok && verifyData.verified === true) {
-              setReceipt({ name: trimmedName, amount: parsedAmount, paymentId: verifyData.paymentId || response.razorpay_payment_id });
+              setReceipt({
+                name: trimmedName,
+                semester,
+                amount: parsedAmount,
+                paymentId: verifyData.paymentId || response.razorpay_payment_id,
+              });
               setStatus("success");
             } else {
               setErrorMessage(verifyData?.error || "We couldn't verify this payment.");
@@ -190,14 +223,74 @@ export default function Support() {
 
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden flex items-start sm:items-center justify-center px-4 py-6 sm:py-16">
-      {/* Soft lavender/purple atmosphere */}
-      <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      {/* Soft lavender/purple atmosphere — ambient blurred glows behind everything */}
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-20 overflow-hidden">
         <div className="absolute -top-24 -left-20 w-72 h-72 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute top-1/3 -right-24 w-80 h-80 rounded-full bg-sky-300/15 blur-3xl" />
         <div className="absolute bottom-0 left-1/4 w-64 h-64 rounded-full bg-violet-300/10 blur-3xl" />
       </div>
 
-      <div className="w-full max-w-md mx-auto">
+      {/* Decorative Teacher's Day illustration layer.
+          Rules followed throughout:
+          - pointer-events-none + aria-hidden: never intercepts clicks or screen readers
+          - z-index below the card (-z-10 / z-0, card content is relative + z-10 via glass-premium)
+          - low opacity ambient shapes are allowed on mobile (subtle, clipped by overflow-x-hidden)
+          - individual "sticker" illustrations (cap, book, pen, bouquet, etc.) are
+            hidden below `lg` so they never sit anywhere near the form on phones/tablets
+          - positioned near viewport edges (not percentages) so they can never drift
+            over the centered max-w-md card even on ultra-wide screens */}
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 overflow-hidden select-none">
+        {/* Ambient watermark shapes — visible at all sizes, very low opacity */}
+        <img src={blobOneImg} alt="" className="absolute -top-10 -right-16 w-64 sm:w-80 lg:w-[26rem] opacity-[0.12]" />
+        <img src={blobTwoImg} alt="" className="absolute -bottom-16 -left-20 w-64 sm:w-80 lg:w-[26rem] opacity-[0.10] rotate-180" />
+        <img src={waveRibbonImg} alt="" className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-3xl opacity-[0.08]" />
+
+        {/* Distributed illustration accents — desktop/wide screens only */}
+        <motion.img
+          src={gradCapImg}
+          alt=""
+          animate={{ y: [0, -10, 0] }}
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+          className="hidden lg:block absolute top-16 left-10 xl:left-24 w-20 xl:w-24 opacity-90 drop-shadow-sm"
+        />
+        <motion.img
+          src={penPencilImg}
+          alt=""
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
+          className="hidden lg:block absolute top-24 right-12 xl:right-28 w-14 xl:w-16 opacity-85 drop-shadow-sm"
+        />
+        <motion.img
+          src={bouquetImg}
+          alt=""
+          animate={{ y: [0, -8, 0] }}
+          transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
+          className="hidden xl:block absolute bottom-40 right-16 2xl:right-32 w-20 opacity-85 drop-shadow-sm"
+        />
+        <motion.img
+          src={openBookImg}
+          alt=""
+          animate={{ y: [0, 9, 0] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+          className="hidden lg:block absolute bottom-28 left-12 xl:left-28 w-24 xl:w-28 opacity-85 drop-shadow-sm"
+        />
+        <motion.img
+          src={booksPlantImg}
+          alt=""
+          animate={{ y: [0, -7, 0] }}
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
+          className="hidden xl:block absolute top-1/2 left-8 2xl:left-20 w-24 opacity-80 drop-shadow-sm"
+        />
+        <motion.img
+          src={diplomaImg}
+          alt=""
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 5.2, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          className="hidden xl:block absolute bottom-16 right-10 2xl:right-24 w-20 opacity-85 drop-shadow-sm"
+        />
+      </div>
+
+      <div className="w-full max-w-md mx-auto relative">
         {/* Back to portfolio */}
         <motion.a
           href="/"
@@ -241,11 +334,21 @@ export default function Support() {
                   Thank you, {receipt.name}!
                 </p>
                 <p className="text-slate-500 mb-6 leading-relaxed text-sm sm:text-base">
-                  Your contribution of ₹{receipt.amount} for Teacher's Day Celebration 2026 has been successfully received.
+                  Your contribution of ₹{receipt.amount} towards Teacher's Day Celebration 2026 has been successfully received.
                 </p>
-                <div className="rounded-xl border border-blue-100 bg-blue-50/50 px-4 py-3 mb-6 text-left">
-                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Payment ID</p>
-                  <p className="text-sm font-mono text-slate-600 break-all">{receipt.paymentId}</p>
+                <div className="rounded-xl border border-blue-100 bg-blue-50/50 px-4 py-3 mb-6 text-left space-y-2.5">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Semester</p>
+                    <p className="text-sm font-medium text-slate-600">{receipt.semester}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Amount</p>
+                    <p className="text-sm font-medium text-slate-600">₹{receipt.amount}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Payment ID</p>
+                    <p className="text-sm font-mono text-slate-600 break-all">{receipt.paymentId}</p>
+                  </div>
                 </div>
                 <Button asChild size="lg" className="btn-primary w-full sm:w-auto">
                   <a href="/">Back to Portfolio</a>
@@ -284,14 +387,21 @@ export default function Support() {
                 transition={{ duration: 0.3 }}
               >
                 {/* Icon + heading */}
-                <div className="text-center mb-5 sm:mb-8">
+                <div className="text-center mb-5 sm:mb-8 relative">
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.1, duration: 0.5, ease }}
-                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl mx-auto mb-3 sm:mb-5 border border-blue-100 shadow-sm bg-gradient-to-br from-primary/10 to-sky-300/10 flex items-center justify-center"
+                    className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl mx-auto mb-3 sm:mb-5 border border-blue-100 shadow-sm bg-gradient-to-br from-primary/10 to-sky-300/10 flex items-center justify-center"
                   >
                     <RiGraduationCapLine className="text-2xl sm:text-3xl text-primary" />
+                    {/* Small sparkle accent — sits just outside the badge corner, never over the icon or heading text */}
+                    <img
+                      src={sparklesImg}
+                      alt=""
+                      aria-hidden="true"
+                      className="pointer-events-none select-none absolute -top-2.5 -right-2.5 w-5 sm:w-6"
+                    />
                   </motion.div>
                   <h1 className="text-2xl sm:text-4xl font-serif font-bold text-foreground mb-1 sm:mb-2 leading-tight">
                     Teacher's Day
@@ -303,8 +413,8 @@ export default function Support() {
                     Make Your Contribution
                   </h2>
                   <p className="text-slate-500 leading-relaxed text-xs sm:text-sm max-w-sm mx-auto">
-                    We're a group of students collecting contributions to organize our college Teacher's Day celebration.
-                    Your contribution will help us make this day special and memorable for our teachers.
+                    We are collecting contributions from students to help organize our Teacher's Day celebration.
+                    Your contribution will help us make the celebration special and memorable for our teachers.
                   </p>
                 </div>
 
@@ -383,7 +493,7 @@ export default function Support() {
                           setSemesterFocused(false);
                           setTouched((t) => ({ ...t, semester: true }));
                         }}
-                        onChange={(e) => setSemester(e.target.value)}
+                        onChange={(e) => handleSemesterChange(e.target.value)}
                         className={`w-full h-12 sm:h-14 appearance-none pl-11 pr-11 rounded-xl border bg-white/70 text-sm sm:text-base font-medium cursor-pointer shadow-sm focus:outline-none focus-visible:ring-2 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed ${
                           semester ? "text-foreground" : "text-slate-400"
                         } ${
@@ -423,9 +533,16 @@ export default function Support() {
 
                   {/* Contribution amount */}
                   <div>
-                    <label htmlFor="support-amount" className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">
-                      Enter Contribution Amount
-                    </label>
+                    <div className="flex items-baseline justify-between gap-2 mb-2">
+                      <label htmlFor="support-amount" className="block text-xs font-bold uppercase tracking-widest text-slate-500">
+                        Enter Contribution Amount
+                      </label>
+                      {isSemesterValid && (
+                        <span className="text-[11px] font-semibold text-primary whitespace-nowrap">
+                          Min ₹{minAmountForSemester}
+                        </span>
+                      )}
+                    </div>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-slate-400 select-none">
                         ₹
@@ -447,12 +564,16 @@ export default function Support() {
                       />
                     </div>
                     <p id="amount-help" className="text-xs text-slate-400 mt-2">
-                      {isValidAmount ? "\u00A0" : "Enter a whole number amount of ₹1 or more."}
+                      {isValidAmount
+                        ? "\u00A0"
+                        : `Enter a whole number amount of ₹${minAmountForSemester} or more.`}
                     </p>
 
-                    {/* Quick-select — 2x2 grid on mobile, row on larger screens */}
+                    {/* Quick-select — 2x2 grid on mobile, row on larger screens.
+                        Options depend on the selected semester and are always
+                        >= that semester's minimum (see shared/semesterRules.ts). */}
                     <div className="grid grid-cols-4 gap-2 mt-3">
-                      {QUICK_AMOUNTS.map((val) => (
+                      {quickAmounts.map((val) => (
                         <button
                           key={val}
                           type="button"
@@ -524,8 +645,15 @@ export default function Support() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5, ease }}
-            className="mt-4 sm:mt-6 rounded-2xl border border-blue-100 bg-white/70 backdrop-blur-sm px-4 py-3 sm:py-4 flex items-start gap-3"
+            className="relative mt-4 sm:mt-6 rounded-2xl border border-blue-100 bg-white/70 backdrop-blur-sm px-4 py-3 sm:py-4 flex items-start gap-3"
           >
+            {/* Small heart accent — sits outside the card's top-right corner, never over the note text */}
+            <img
+              src={heartImg}
+              alt=""
+              aria-hidden="true"
+              className="hidden sm:block pointer-events-none select-none absolute -top-3 -right-3 w-8 opacity-90"
+            />
             <div className="w-7 h-7 shrink-0 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
               <RiInformationFill className="w-4 h-4 text-primary" />
             </div>
