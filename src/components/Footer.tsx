@@ -92,11 +92,11 @@ export default function Footer() {
               ))}
             </div>
 
-            {/* Support My Work — opens the dedicated /support page */}
+            {/* Support My Work — opens the dedicated /payment page */}
             <motion.div variants={cinChildSmall}>
               <Magnetic range={50} strength={0.25}>
                 <Link
-                  href="/support"
+                  href="/payment"
                   className="interactive inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-blue-200 text-primary text-sm font-bold uppercase tracking-widest hover:bg-primary hover:text-white hover:border-primary hover:-translate-y-0.5 transition-all duration-300 shadow-sm"
                 >
                   <RiHeart3Fill className="text-base" aria-hidden />
