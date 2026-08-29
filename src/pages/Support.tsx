@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { loadRazorpayScript } from "@/lib/loadRazorpayScript";
 import type { RazorpayCheckoutResponse } from "@/types/razorpay";
+import { loadCashfreeScript } from "@/lib/loadCashfreeScript";
 import {
   SEMESTERS,
   type Semester,
@@ -31,12 +32,14 @@ import {
 } from "../../shared/semesterRules";
 
 type PaymentStatus = "idle" | "loading" | "success" | "failed";
+type Gateway = "razorpay" | "cashfree";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
 export default function Support() {
   const [studentName, setStudentName] = useState<string>("");
   const [semester, setSemester] = useState<Semester | "">("");
+  const [gateway, setGateway] = useState<Gateway>("razorpay");
   const [amount, setAmount] = useState<string>(String(getDefaultAmountForSemester("")));
   const [status, setStatus] = useState<PaymentStatus>("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -99,6 +102,10 @@ export default function Support() {
     setAmount(String(getDefaultAmountForSemester(value)));
   };
 
+  // Entry point for the form's submit — the only thing this does is route
+  // to whichever gateway the student picked in the payment-method selector
+  // below. Both branches share the exact same client-side validation above
+  // and both are verified server-side before ever reaching the success screen.
   const startPayment = async (e: FormEvent) => {
     e.preventDefault();
     setTouched({ name: true, semester: true });
@@ -109,6 +116,15 @@ export default function Support() {
     setErrorMessage("");
     setStatus("loading");
 
+    if (gateway === "cashfree") {
+      await startCashfreePayment();
+      return;
+    }
+
+    await startRazorpayPayment();
+  };
+
+  const startRazorpayPayment = async () => {
     try {
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded || !window.Razorpay) {
@@ -195,6 +211,70 @@ export default function Support() {
       isSubmittingRef.current = false;
       setErrorMessage(err instanceof Error ? err.message : "Something went wrong");
       setStatus("failed");
+    }
+  };
+
+  const startCashfreePayment = async () => {
+    try {
+      const scriptLoaded = await loadCashfreeScript();
+      if (!scriptLoaded || !window.Cashfree) {
+        throw new Error("Could not load the payment window. Check your connection and try again.");
+      }
+
+      const orderRes = await fetch("/api/cashfree/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: parsedAmount, studentName: trimmedName, semester }),
+      });
+
+      const orderData = await orderRes.json();
+      if (!orderRes.ok) {
+        throw new Error(orderData?.error || "Could not start payment.");
+      }
+
+      const cashfree = window.Cashfree({ mode: orderData.cashfreeEnv === "PRODUCTION" ? "production" : "sandbox" });
+
+      // Unlike Razorpay's `handler` callback, Cashfree's Drop-in checkout
+      // never hands the browser a signed "this succeeded" payload — its
+      // promise here only tells us the checkout attempt is *over*, not
+      // whether it succeeded. So regardless of the outcome below, the
+      // actual success/failure decision always comes from our own server
+      // in the /api/cashfree/verify-payment call further down, which asks
+      // Cashfree's API directly. Mark this as "being handled" now so a
+      // stray retry can't race with verification below.
+      paymentHandledRef.current = true;
+      const result = await cashfree.checkout({
+        paymentSessionId: orderData.paymentSessionId,
+        redirectTarget: "_modal",
+      });
+
+      const verifyRes = await fetch("/api/cashfree/verify-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: orderData.orderId, studentName: trimmedName, semester, amount: parsedAmount }),
+      });
+      const verifyData = await verifyRes.json();
+
+      // The ONLY path to the success screen: a 200 response with
+      // verified === true from our server, which only happens after
+      // Cashfree's own API confirms the order was actually paid.
+      if (verifyRes.ok && verifyData.verified === true) {
+        setReceipt({
+          name: trimmedName,
+          semester,
+          amount: parsedAmount,
+          paymentId: verifyData.paymentId || orderData.orderId,
+        });
+        setStatus("success");
+      } else {
+        setErrorMessage(verifyData?.error || (result.error ? "Payment was not completed." : "We couldn't verify this payment."));
+        setStatus("failed");
+      }
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "Something went wrong");
+      setStatus("failed");
+    } finally {
+      isSubmittingRef.current = false;
     }
   };
 
@@ -568,6 +648,33 @@ export default function Support() {
                     </div>
                   </div>
 
+                  {/* Payment method — same chip styling as the quick-amount
+                      buttons above, so it reads as part of the same form
+                      rather than a bolted-on addition. */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">
+                      Payment Method
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {(["razorpay", "cashfree"] as const).map((option) => (
+                        <button
+                          key={option}
+                          type="button"
+                          disabled={isLoading}
+                          onClick={() => setGateway(option)}
+                          aria-pressed={gateway === option}
+                          className={`interactive px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border transition-colors min-h-[44px] disabled:opacity-60 disabled:cursor-not-allowed ${
+                            gateway === option
+                              ? "bg-primary text-white border-primary shadow-sm shadow-blue-200"
+                              : "bg-white text-slate-600 border-blue-100 hover:border-primary hover:text-primary"
+                          }`}
+                        >
+                          {option === "razorpay" ? "Razorpay" : "Cashfree"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <Button
                     type="submit"
                     disabled={isLoading}
@@ -589,14 +696,14 @@ export default function Support() {
 
                   <div className="flex items-center justify-center gap-2 text-xs text-slate-400 pt-1">
                     <RiShieldCheckFill className="text-sm text-primary" />
-                    Secured by Razorpay · Payments are encrypted
+                    Secured by {gateway === "cashfree" ? "Cashfree" : "Razorpay"} · Payments are encrypted
                   </div>
                 </form>
 
                 {/* Trust badges */}
                 <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-6 pt-5 border-t border-blue-100/70">
                   {[
-                    { Icon: RiShieldCheckFill, title: "100% Secure", desc: "Safe with Razorpay" },
+                    { Icon: RiShieldCheckFill, title: "100% Secure", desc: `Safe with ${gateway === "cashfree" ? "Cashfree" : "Razorpay"}` },
                     { Icon: RiFlashlightFill, title: "Instant Payment", desc: "Quick & seamless" },
                     { Icon: RiTeamFill, title: "For Our Teachers", desc: "Makes it special" },
                   ].map(({ Icon, title, desc }) => (
