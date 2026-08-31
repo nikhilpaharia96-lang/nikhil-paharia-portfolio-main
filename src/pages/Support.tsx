@@ -623,7 +623,9 @@ export default function Support() {
                     <p id="amount-help" className="text-xs text-slate-400 mt-2">
                       {isValidAmount
                         ? "\u00A0"
-                        : `Enter a whole number amount of ₹${minAmountForSemester} or more.`}
+                        : isSemesterValid
+                          ? `For ${semester}, the minimum contribution is ₹${minAmountForSemester}.`
+                          : `Enter a whole number amount of ₹${minAmountForSemester} or more.`}
                     </p>
 
                     {/* Quick-select — 2x2 grid on mobile, row on larger screens.
