@@ -28,19 +28,19 @@ export type Semester = (typeof SEMESTERS)[number];
 // intentionally absent — they fall back to DEFAULT_MIN_AMOUNT /
 // DEFAULT_QUICK_AMOUNTS below ("keep existing/default behavior").
 const SEMESTER_MIN_AMOUNT: Partial<Record<Semester, number>> = {
-  "1st Semester": 150,
+  "1st Semester": 70,
   "2nd Semester": 150,
-  "3rd Semester": 200,
-  "4th Semester": 200,
-  "5th Semester": 200,
+  "3rd Semester": 150,
+  "4th Semester": 150,
+  "5th Semester": 150,
 };
 
 const SEMESTER_QUICK_AMOUNTS: Partial<Record<Semester, number[]>> = {
-  "1st Semester": [150, 200, 500, 1000],
+  "1st Semester": [70, 100, 200, 500],
   "2nd Semester": [150, 200, 500, 1000],
-  "3rd Semester": [200, 300, 500, 1000],
-  "4th Semester": [200, 300, 500, 1000],
-  "5th Semester": [200, 300, 500, 1000],
+  "3rd Semester": [150, 200, 500, 1000],
+  "4th Semester": [150, 200, 500, 1000],
+  "5th Semester": [150, 200, 500, 1000],
 };
 
 // Pre-existing default behavior, unchanged, used for 6th/7th/8th semester
