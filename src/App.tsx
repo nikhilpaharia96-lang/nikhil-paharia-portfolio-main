@@ -112,12 +112,33 @@ function App() {
     // measurements to run now, on an idle frame with nothing else
     // competing for the main thread -- so by the time the user's actual
     // first swipe happens, everything is already warm.
+    //
+    // FIX (mobile initial scroll): the previous version called
+    // window.scrollTo(0, y+1) then window.scrollTo(0, y) back-to-back in
+    // the same synchronous tick. With no frame rendered in between, the
+    // net scroll offset is zero -- many mobile browser compositors treat
+    // that as "nothing happened" and never dispatch a `scroll` event at
+    // all, silently no-op'ing this entire warmup on touch devices (desktop
+    // browsers are more lenient, which is why this only ever showed up on
+    // mobile). Splitting the two calls across a real requestAnimationFrame
+    // forces an actual painted frame at the nudged offset, and explicitly
+    // dispatching `scroll` + `resize` afterward guarantees Framer Motion's
+    // lazy measurement fires regardless of how any given browser treats
+    // the nudge.
+    let rafId: number | null = null;
     const warmupId = window.setTimeout(() => {
       const y = window.scrollY;
       window.scrollTo(0, y + 1);
-      window.scrollTo(0, y);
+      rafId = window.requestAnimationFrame(() => {
+        window.scrollTo(0, y);
+        window.dispatchEvent(new Event("scroll"));
+        window.dispatchEvent(new Event("resize"));
+      });
     }, 50);
-    return () => window.clearTimeout(warmupId);
+    return () => {
+      window.clearTimeout(warmupId);
+      if (rafId !== null) window.cancelAnimationFrame(rafId);
+    };
   }, []);
 
   useEffect(() => {
