@@ -1555,7 +1555,7 @@ export default function About() {
   // URLs rather than bundled assets, so swapping any one of these later is
   // a one-line change here rather than a re-import + rebuild.
   const galleryPages = [
-    { src: about3, label: "03", caption: "Hi, Nikhil." },
+    { src: about3, label: "03", caption: "Hi, I'm Massoom Ahmed." },
     { src: about4, label: "04", caption: "Skill." },
     { src: about5, label: "05", caption: "My team member." },
     { src: "https://www.gopalkrishnatea.com/static/media/Brochure7.993bd0c86c8cd0f40c24.webp", label: "06", caption: "Home, from every angle." },
