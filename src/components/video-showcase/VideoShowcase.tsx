@@ -22,13 +22,13 @@ export default function VideoShowcase() {
   return (
     <section
       id="videos"
-      className="relative overflow-hidden section-wrap max-w-full py-20 sm:py-28 md:py-36 lg:py-40"
+      className="relative overflow-hidden section-wrap max-w-full pt-20 sm:pt-28 md:pt-36 lg:pt-40 pb-8 sm:pb-10"
       aria-label="Cinematic Reels — My Cinematic Work"
     >
       <BackgroundGlow />
 
       <div className="container-tight relative z-10 max-w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-10 items-start mb-16 sm:mb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-10 items-start">
           {/* ═══════════════ LEFT COLUMN ═══════════════ */}
           <div className="lg:col-span-4 lg:sticky lg:top-32 relative">
             <FloatingChip icon={Film} className="top-[-2.2rem] right-4" delay={0} duration={7} />
