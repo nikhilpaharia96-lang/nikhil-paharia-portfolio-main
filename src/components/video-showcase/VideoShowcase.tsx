@@ -84,7 +84,7 @@ export default function VideoShowcase() {
               transition={{ duration: 0.8, ease }}
               className="font-serif font-bold text-[2.4rem] sm:text-5xl lg:text-[3.1rem] leading-[1.08] text-foreground mb-6"
             >
-              <SplitText type="words">Cinematic Stories That People Remember.</SplitText>
+              <SplitText type="words">Social Media Marketing &amp; Video Editing</SplitText>
             </motion.h2>
 
             <motion.p
