@@ -28,6 +28,10 @@ import profilePhoto from "../assets/images/profile-nobg.png";
 import myNewPhoto from "../assets/images/my-new-photo.jpg";
 import teaGardenAbout from "../assets/images/tea-sunset-portrait.webp";
 import teaSunsetPortrait from "../assets/images/tea-sunset-portrait.webp";
+// Gallery pages 3–5: put your three images in src/assets/images/ with exactly these names
+import about3 from "../assets/images/about-3.webp";
+import about4 from "../assets/images/about-4.webp";
+import about5 from "../assets/images/about-5.webp";
 import SplitText from "@/components/ui/SplitText";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -1547,9 +1551,9 @@ export default function About() {
   // URLs rather than bundled assets, so swapping any one of these later is
   // a one-line change here rather than a re-import + rebuild.
   const galleryPages = [
-    { src: "https://arrogant-black-fxqo69j6.edgeone.dev/", label: "03", caption: "Hi, Nikhil." },
-    { src: "https://autonomous-gray-ipvwcmsz.edgeone.dev/", label: "04", caption: "Skill." },
-    { src: "https://guilty-tan-rryjvpk9.edgeone.dev/", label: "05", caption: "My tem mambar ." },
+    { src: about3, label: "03", caption: "Hi, Nikhil." },
+    { src: about4, label: "04", caption: "Skill." },
+    { src: about5, label: "05", caption: "My team member." },
     { src: "https://www.gopalkrishnatea.com/static/media/Brochure7.993bd0c86c8cd0f40c24.webp", label: "06", caption: "Home, from every angle." },
     { src: "https://www.gopalkrishnatea.com/static/media/Brochure11.b8524a9ef142de897823.webp", label: "07", caption: "The hills don't change much." },
     { src: "https://www.gopalkrishnatea.com/static/media/Brochure12.214390bf5cd20d1cb55e.webp", label: "08", caption: "This is what I'm building toward." },
