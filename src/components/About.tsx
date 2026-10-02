@@ -1549,7 +1549,7 @@ export default function About() {
   const galleryPages = [
     { src: "https://arrogant-black-fxqo69j6.edgeone.dev/", label: "03", caption: "Hi, Nikhil." },
     { src: "https://autonomous-gray-ipvwcmsz.edgeone.dev/", label: "04", caption: "Skill." },
-    { src: "https://www.gopalkrishnatea.com/static/media/Brochure4.39118e0077fb90e90be1.webp", label: "05", caption: "Still my favorite view." },
+    { src: "https://guilty-tan-rryjvpk9.edgeone.dev/", label: "05", caption: "My tem mambar ." },
     { src: "https://www.gopalkrishnatea.com/static/media/Brochure7.993bd0c86c8cd0f40c24.webp", label: "06", caption: "Home, from every angle." },
     { src: "https://www.gopalkrishnatea.com/static/media/Brochure11.b8524a9ef142de897823.webp", label: "07", caption: "The hills don't change much." },
     { src: "https://www.gopalkrishnatea.com/static/media/Brochure12.214390bf5cd20d1cb55e.webp", label: "08", caption: "This is what I'm building toward." },
