@@ -1484,7 +1484,11 @@ export default function About() {
   // through the viewport; every component below simply asks "is my phase
   // active yet?" via a boolean prop, and Framer Motion handles the actual
   // eased transition to/from that state.
-  const [phase, setPhase] = useState(rm ? TOTAL_PHASES : 1);
+  // Everything is visible from the first paint — the scroll no longer gates
+  // any text/image reveal (phase is fixed at its final value). Scroll only
+  // drives the desktop page-turn below.
+  const phase = TOTAL_PHASES;
+  void progressToPhase;
 
   // Mirrors Tailwind's `lg` breakpoint (1024px). Drives two things: (1)
   // whether scroll auto-turns page 1→2 (desktop) or leaves turning entirely
@@ -1568,23 +1572,16 @@ export default function About() {
       // transition already collapses to a quick, simple fade. The
       // flip-book still renders (so page 2's content stays reachable via
       // its own click/drag corners), it just isn't auto-flipped by scroll.
-      setPhase(TOTAL_PHASES);
       return;
     }
     if (!sectionRef.current) return;
 
-    const lastPhase = { current: 1 };
     const trigger = ScrollTrigger.create({
       trigger: sectionRef.current,
       start: "top 78%",
       end: "bottom 55%",
       scrub: 0.6, // smooths the raw scroll input into real "paper inertia" rather than snapping straight to each phase
       onUpdate: (self) => {
-        const next = progressToPhase(self.progress);
-        if (next !== lastPhase.current) {
-          lastPhase.current = next;
-          setPhase(next);
-        }
         // Turn page 1 → page 2 once the reader is past the section's
         // midpoint, and turn it back once they scroll back above it —
         // so the physical page-turn tracks scroll direction exactly like
@@ -1605,10 +1602,6 @@ export default function About() {
         // full reveal, matching the site's established reversible-scroll
         // convention. Page 1 and 2 fold shut against the spine again too,
         // so re-entering the section always starts from a closed notebook.
-        if (lastPhase.current !== 1) {
-          lastPhase.current = 1;
-          setPhase(1);
-        }
         if (!isDesktopViewport) return;
         if (flippedRef.current) {
           flippedRef.current = false;
@@ -2276,7 +2269,7 @@ export default function About() {
                         <img
                           src={g.src}
                           alt={g.caption}
-                          loading="lazy"
+                          loading="eager"
                           className="absolute inset-0 w-full h-full object-cover"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
