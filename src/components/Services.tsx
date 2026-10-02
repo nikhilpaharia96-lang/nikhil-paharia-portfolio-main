@@ -55,7 +55,7 @@ export const services = [
     price: "From $150",
   },
   {
-    title: "Social Media Reels",
+    title: "Social Media Marketing",
     desc: "Fast-paced, engaging short-form content for TikTok and IG.",
     icon: SiInstagram,
     color: "#E1306C",
