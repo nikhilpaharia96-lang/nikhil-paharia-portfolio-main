@@ -1547,7 +1547,7 @@ export default function About() {
   // URLs rather than bundled assets, so swapping any one of these later is
   // a one-line change here rather than a re-import + rebuild.
   const galleryPages = [
-    { src: "https://www.gopalkrishnatea.com/static/media/Brochure2.fffe0aadeb5725549632.webp", label: "03", caption: "The garden, as it's always looked." },
+    { src: "https://favourable-crimson-kdewzlx9.edgeone.dev/", label: "03", caption: "The garden, as it's always looked." },
     { src: "https://www.gopalkrishnatea.com/static/media/Brochure3.1bbd6be736527cebd0f1.webp", label: "04", caption: "Where the mornings start." },
     { src: "https://www.gopalkrishnatea.com/static/media/Brochure4.39118e0077fb90e90be1.webp", label: "05", caption: "Still my favorite view." },
     { src: "https://www.gopalkrishnatea.com/static/media/Brochure7.993bd0c86c8cd0f40c24.webp", label: "06", caption: "Home, from every angle." },
