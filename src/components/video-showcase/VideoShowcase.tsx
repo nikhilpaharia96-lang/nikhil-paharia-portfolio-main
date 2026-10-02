@@ -9,7 +9,6 @@ import BackgroundGlow from "./BackgroundGlow";
 import FloatingChip from "./FloatingChip";
 import FeaturedVideoCard from "./FeaturedVideoCard";
 import ProjectCarousel from "./ProjectCarousel";
-import FeatureStrip from "./FeatureStrip";
 import VideoLightbox from "./VideoLightbox";
 
 export default function VideoShowcase() {
@@ -106,8 +105,6 @@ export default function VideoShowcase() {
             <ProjectCarousel onPlay={handlePlayProject} />
           </div>
         </div>
-
-        <FeatureStrip />
       </div>
 
       <VideoLightbox
