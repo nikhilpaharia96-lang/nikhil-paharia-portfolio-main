@@ -56,7 +56,7 @@ export const services = [
   },
   {
     title: "Social Media Marketing",
-    desc: "Fast-paced, engaging short-form content for TikTok and IG.",
+    desc: "High ROAS 4.5x to 9.5x, Low CAC, data optimization, engagement ",
     icon: SiInstagram,
     color: "#E1306C",
     price: "From $50",
