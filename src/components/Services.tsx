@@ -9,7 +9,6 @@ import {
 } from "framer-motion";
 import { SiReact, SiCss, SiNextdotjs, SiMongodb, SiFigma, SiInstagram } from "react-icons/si";
 import ServicesMobileStack from "@/components/ServicesMobileStack";
-import { playCardPop } from "@/lib/sound";
 import premiereProLogo from "../assets/logos/premiere-pro.svg";
 import afterEffectsLogo from "../assets/logos/after-effects.svg";
 
@@ -110,61 +109,9 @@ export default function Services() {
           <div className="section-divider mx-auto" />
         </motion.div>
 
-        {/* Desktop — unchanged grid, lg+ only */}
-        <div className="hidden lg:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-          {services.map((service, index) => {
-            const Icon = service.icon;
-            const num = (index + 1).toString().padStart(2, '0');
-            const col = index % 4;
-            const fromX = col < 2 ? -50 : 50;
-
-            return (
-              <motion.div
-                key={service.title}
-                initial={{ opacity: 0, x: fromX, y: 20 }}
-                whileInView={{ opacity: 1, x: 0, y: 0 }}
-                viewport={{ once: false, margin: "-40px" }}
-                onViewportEnter={() => !rm && playCardPop()}
-                transition={{ duration: 0.55, delay: (index % 4) * 0.08, type: "spring", stiffness: 120 }}
-                whileHover={{ y: -12, scale: 1.02 }}
-                className="group p-8 interactive cursor-pointer relative overflow-hidden bg-white border border-blue-100 rounded-3xl transition-shadow duration-500 hover:shadow-[0_20px_40px_rgba(29,111,235,0.12)] gradient-border"
-              >
-                {/* Reverse-direction shine sweep on hover */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
-                  style={{ background: 'linear-gradient(135deg, transparent 0%, rgba(29,111,235,0.04) 50%, transparent 100%)', animation: 'lightSweep 1.2s ease-out forwards' }} />
-
-                {/* Background number */}
-                <div className="absolute -right-4 -top-6 text-[120px] font-serif font-black text-blue-50/50 group-hover:text-primary/5 transition-colors duration-500 select-none z-0">
-                  {num}
-                </div>
-
-                <motion.div
-                  whileHover={{ rotate: -8, scale: 1.15 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                  className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/10 to-sky-400/10 flex items-center justify-center mb-8 relative z-10 shadow-inner overflow-hidden"
-                >
-                  {service.logo ? (
-                    <img src={service.logo} alt="" className="w-9 h-9 rounded-md" />
-                  ) : Icon ? (
-                    <Icon className="text-3xl transition-colors duration-500" style={{ color: service.color }} />
-                  ) : null}
-                </motion.div>
-
-                <h3 className="text-2xl font-serif font-bold text-foreground mb-4 relative z-10 group-hover:text-primary transition-colors">{service.title}</h3>
-                <p className="text-slate-600 text-base leading-relaxed mb-8 relative z-10 font-light">{service.desc}</p>
-
-                <div className="mt-auto pt-6 border-t border-blue-100/50 flex items-center justify-between relative z-10">
-                  <motion.span whileHover={{ scale: 1.08 }} className="px-4 py-1.5 rounded-full bg-primary/10 text-primary font-mono text-sm font-bold inline-block">
-                    {service.price}
-                  </motion.span>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Mobile / tablet — fanned overlapping card stack */}
-        <div className="lg:hidden">
+        {/* Fanned overlapping card stack — same on mobile and desktop
+            (width capped on large screens so the cards don't stretch) */}
+        <div className="max-w-xl md:max-w-2xl mx-auto">
           <ServicesMobileStack services={services} />
         </div>
       </div>
