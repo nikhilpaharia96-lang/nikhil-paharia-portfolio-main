@@ -235,8 +235,8 @@ const PROJECTS: Project[] = [
   {
     id: 6,
     number: "06",
-    title: "Portfolio Website",
-    headline: "Built From Scratch",
+    title: "Gopal krishna tea",
+    headline: "The Taste of Assam, Reimagined",
     category: "Personal Site",
     filterKey: "Web",
     tagline: "This very site — built with love, precision and purpose.",
@@ -251,8 +251,8 @@ const PROJECTS: Project[] = [
     metrics: { screens: "10+", components: "60+", apis: "05+", score: "99%" },
     image: img6,
     imagePosition: "object-top",
-    live: "#",
-    github: "#",
+    live: "https://www.gopalkrishnatea.com/",
+    github: "https://github.com/nikhilpaharia96-lang/nikhil-paharia-portfolio-main.git",
     caseStudy: "#",
   },
 ];
