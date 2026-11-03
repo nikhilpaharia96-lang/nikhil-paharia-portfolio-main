@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import type { Readable } from "node:stream";
 import crypto from "crypto";
 import { sendNotificationEmail } from "../lib/sendEmail.js";
+import { buildBookingEmail } from "../lib/bookingEmail.js";
 import { markNotifiedIfNew } from "../lib/sentPayments.js";
 import { getCashfreeConfig } from "../lib/cashfree.js";
 
@@ -118,6 +119,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const paymentId = String(payment.cf_payment_id);
   const orderId = order?.order_id || "Unknown";
+
+  // Service bookings (Learn More → Book Now) get their own email — same one verify-booking-payment sends.
+  if (order?.order_tags?.source === "service-booking") {
+    if (markNotifiedIfNew(`cashfree:${paymentId}`)) {
+      const mail = buildBookingEmail({
+        tags: order.order_tags,
+        paymentId,
+        orderId,
+        tokenPaid: typeof payment.payment_amount === "number" ? payment.payment_amount : 0,
+      });
+      if (mail) {
+        const emailResult = await sendNotificationEmail(mail);
+        if (!emailResult.sent) console.error("Booking webhook email failed:", emailResult.error);
+      }
+    }
+    return res.status(200).json({ received: true });
+  }
   const studentName = order?.order_tags?.studentName || "Anonymous Student";
   const semesterLabel = order?.order_tags?.semester || "Not specified";
   const amountLabel = typeof payment.payment_amount === "number" ? `₹${payment.payment_amount}` : "Amount unavailable";

@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { checkRateLimit, getClientIp } from "../lib/rateLimit.js";
 import { sendNotificationEmail } from "../lib/sendEmail.js";
+import { buildBookingEmail } from "../lib/bookingEmail.js";
 import { markNotifiedIfNew } from "../lib/sentPayments.js";
 import {
   getCashfreeConfig,
@@ -85,32 +86,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const service = SERVICE_PRICES[tags.service];
 
     if (markNotifiedIfNew(`cashfree:${paymentId}`)) {
-      const timestamp = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
-      const emailResult = await sendNotificationEmail({
-        subject: `New booking — ${service.title} — ${tags.name ?? "Client"}`,
-        text: [
-          "New service booking (booking token paid)",
-          "",
-          `Service: ${service.title}`,
-          `Client: ${tags.name ?? "-"}`,
-          `Email: ${tags.email ?? "-"}`,
-          `Phone: ${tags.phone ?? "-"}`,
-          "",
-          `Total project cost: ₹${total}`,
-          `Booking token paid (${tags.token_pct ?? "?"}%): ₹${token}`,
-          `Additional advance due at project start (${tags.start_pct ?? "?"}%): ₹${startAdvance}`,
-          `Remaining due after completion: ₹${remaining}`,
-          "Payment status: Booking token paid (verified)",
-          `Payment ID: ${paymentId}`,
-          `Order ID: ${orderId}`,
-          `Gateway: Cashfree`,
-          `Date/Time: ${timestamp} (IST)`,
-          "",
-          "Requirements:",
-          requirements || "(not provided)",
-        ].join("\n"),
-      });
-      if (!emailResult.sent) console.error("Verified booking but notification email failed:", emailResult.error);
+      const mail = buildBookingEmail({ tags, paymentId, orderId, tokenPaid: token, requirements });
+      if (mail) {
+        const emailResult = await sendNotificationEmail(mail);
+        if (!emailResult.sent) console.error("Verified booking but notification email failed:", emailResult.error);
+      }
     }
 
     return res.status(200).json({

@@ -99,6 +99,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           name: name.slice(0, 100),
           email: email.slice(0, 120),
           phone,
+          req: requirements.slice(0, 240),
         },
         order_note: `Booking token for ${service.title}`.slice(0, 200),
       }),
