@@ -1,0 +1,174 @@
+/* TechIcons — floating, interactive tech badges in the hero.
+ * Layers (so transforms never fight each other):
+ *   .tech-icon            absolute position + stacking
+ *   .tech-icon__btn       hit-area (measured for the cursor offset, never transformed)
+ *   .tech-icon__move      hover/tap: scale + cursor-follow shift + glow halo
+ *   .tech-icon__badge     idle animation per icon (float / pulse / drift)
+ *   .tech-icon__glyph     the logo itself (React rotates, video clap)
+ * Hover (mouse) and tap (touch) both just set data-active="true" from JS.
+ */
+
+.tech-icon {
+  position: absolute;
+  pointer-events: auto;
+}
+.tech-icon[data-active="true"],
+.tech-icon:focus-within {
+  z-index: 40;
+}
+
+/* Per-icon glow colour */
+.tech-icon[data-kind="react"] { --glow: 97, 218, 251; }
+.tech-icon[data-kind="js"]    { --glow: 247, 223, 30; }
+.tech-icon[data-kind="node"]  { --glow: 60, 180, 80; }
+.tech-icon[data-kind="code"]  { --glow: 18, 102, 241; }
+.tech-icon[data-kind="video"] { --glow: 225, 29, 72; }
+
+.tech-icon__btn {
+  position: relative;
+  display: block;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 9999px;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.tech-icon__btn:focus-visible {
+  outline: 2px solid rgb(var(--glow));
+  outline-offset: 3px;
+}
+
+/* ── Hover / tap state: scale + cursor-follow shift ── */
+.tech-icon__move {
+  position: relative;
+  display: block;
+  transform: translate3d(var(--tx, 0px), var(--ty, 0px), 0) scale(1);
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+}
+.tech-icon[data-active="true"] .tech-icon__move,
+.tech-icon__btn:focus-visible .tech-icon__move {
+  transform: translate3d(var(--tx, 0px), var(--ty, 0px), 0) scale(1.18);
+}
+
+/* Glow halo behind the badge (opacity only → cheap to animate) */
+.tech-icon__move::before {
+  content: "";
+  position: absolute;
+  inset: -45%;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(var(--glow), 0.55) 0%, rgba(var(--glow), 0) 68%);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+.tech-icon[data-active="true"] .tech-icon__move::before,
+.tech-icon__btn:focus-visible .tech-icon__move::before {
+  opacity: 1;
+  animation: none;
+}
+
+.tech-icon__badge {
+  position: relative;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.tech-icon[data-active="true"] .tech-icon__badge {
+  box-shadow: 0 0 0 1px rgba(var(--glow), 0.55), 0 8px 22px -4px rgba(var(--glow), 0.55);
+}
+
+/* ── Idle animations ── */
+/* React: slow rotation of the logo */
+.tech-icon[data-kind="react"] .tech-icon__glyph {
+  animation: ti-spin 16s linear infinite;
+}
+/* JavaScript: subtle float + breathing glow */
+.tech-icon[data-kind="js"] .tech-icon__badge {
+  animation: ti-float 4.2s ease-in-out var(--d, 0s) infinite;
+}
+.tech-icon[data-kind="js"] .tech-icon__move::before {
+  animation: ti-glow 3.6s ease-in-out var(--d, 0s) infinite;
+}
+/* Node.js: gentle pulse */
+.tech-icon[data-kind="node"] .tech-icon__badge {
+  animation: ti-pulse 2.8s ease-in-out var(--d, 0s) infinite;
+}
+/* Code: horizontal drift */
+.tech-icon[data-kind="code"] .tech-icon__badge {
+  animation: ti-drift 5s ease-in-out var(--d, 0s) infinite;
+}
+/* Video editing: still until hovered / tapped, then a little "clap" */
+.tech-icon[data-kind="video"][data-active="true"] .tech-icon__glyph {
+  animation: ti-clap 0.7s ease-in-out;
+}
+/* React spins a bit faster while active */
+.tech-icon[data-kind="react"][data-active="true"] .tech-icon__glyph {
+  animation-duration: 3s;
+}
+
+@keyframes ti-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes ti-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+@keyframes ti-glow {
+  0%, 100% { opacity: 0.12; }
+  50% { opacity: 0.55; }
+}
+@keyframes ti-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.09); }
+}
+@keyframes ti-drift {
+  0%, 100% { transform: translateX(-7px); }
+  50% { transform: translateX(7px); }
+}
+@keyframes ti-clap {
+  0% { transform: rotate(0) scale(1); }
+  25% { transform: rotate(-16deg) scale(1.12); }
+  50% { transform: rotate(9deg) scale(1.05); }
+  75% { transform: rotate(-5deg) scale(1.08); }
+  100% { transform: rotate(0) scale(1); }
+}
+
+/* ── Tooltip ── */
+.tech-icon__tip {
+  position: absolute;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: rgba(23, 32, 51, 0.94);
+  color: #fff;
+  font: 600 11px/1.3 system-ui, sans-serif;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(var(--tipx, -50%), var(--tipy, 4px));
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.tech-icon__tip[data-side="top"] { bottom: calc(100% + 10px); --tipy: 4px; }
+.tech-icon__tip[data-side="bottom"] { top: calc(100% + 10px); --tipy: -4px; }
+.tech-icon__tip[data-align="center"] { left: 50%; --tipx: -50%; }
+.tech-icon__tip[data-align="start"] { left: 0; --tipx: 0px; }
+.tech-icon__tip[data-align="end"] { right: 0; --tipx: 0px; }
+.tech-icon[data-active="true"] .tech-icon__tip,
+.tech-icon__btn:focus-visible .tech-icon__tip {
+  opacity: 1;
+  transform: translate(var(--tipx, -50%), 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tech-icon__badge,
+  .tech-icon__glyph,
+  .tech-icon__move::before {
+    animation: none !important;
+  }
+  .tech-icon__move,
+  .tech-icon__tip {
+    transition: none;
+  }
+}

@@ -1,8 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   motion,
   AnimatePresence,
   useInView,
+  useReducedMotion,
   type PanInfo,
 } from "framer-motion";
 import {
@@ -32,6 +34,65 @@ import img5 from "../assets/images/project-5.webp"; // CreatorHub
 import img6 from "../assets/images/project-6.webp"; // Portfolio Website
 
 const ease = [0.16, 1, 0.3, 1] as const;
+
+/* ── scroll-direction-aware reveal ────────────────────────────────
+ * Every piece re-animates each time it enters the viewport — scrolling down OR up.
+ * It leaves toward the side it exits from, so it comes back in from that same side:
+ * scroll down → things rise in from below; scroll back up → they drop in from above. */
+const scrollDir: { current: "down" | "up" } = { current: "down" };
+let scrollDirBound = false;
+function bindScrollDir() {
+  if (scrollDirBound || typeof window === "undefined") return;
+  scrollDirBound = true;
+  let lastY = window.scrollY;
+  window.addEventListener(
+    "scroll",
+    () => {
+      const y = window.scrollY;
+      if (Math.abs(y - lastY) < 3) return;
+      scrollDir.current = y > lastY ? "down" : "up";
+      lastY = y;
+    },
+    { passive: true },
+  );
+}
+
+function Reveal({
+  children, className, style, fromX = 0, fromY = 56, rotate = 0, delay = 0, amount = 0.08,
+}: {
+  children: React.ReactNode; className?: string; style?: React.CSSProperties;
+  fromX?: number; fromY?: number; rotate?: number; delay?: number; amount?: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
+  const inView = useInView(ref, { margin: "-60px 0px -60px 0px", amount });
+  const [exitY, setExitY] = useState(fromY);
+
+  useEffect(() => {
+    bindScrollDir();
+  }, []);
+  useEffect(() => {
+    if (!inView) setExitY(scrollDir.current === "down" ? -fromY * 0.8 : fromY);
+  }, [inView, fromY]);
+
+  if (reduce) {
+    return <div ref={ref} className={className} style={style}>{children}</div>;
+  }
+  const hidden = { opacity: 0, x: fromX, y: exitY, rotate, scale: 0.97 };
+  return (
+    <motion.div
+      ref={ref}
+      className={className}
+      style={style}
+      initial={{ opacity: 0, x: fromX, y: fromY, rotate, scale: 0.97 }}
+      animate={inView ? { opacity: 1, x: 0, y: 0, rotate: 0, scale: 1 } : hidden}
+      transition={{ duration: 0.65, ease, delay: inView ? delay : 0 }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 const FONT_TITLE = "'Caveat', cursive";
 const FONT_NOTE = "'Kalam', cursive";
 
@@ -271,11 +332,19 @@ const STATUS_STYLES: Record<Status, { dot: string; bg: string; text: string }> =
   "In Progress": { dot: "bg-amber-500",   bg: "bg-amber-50 border-amber-200",     text: "text-amber-700" },
 };
 
-const TONE_STYLES: Record<Tone, { bg: string; text: string; sub: string; border: string }> = {
-  cream: { bg: "#F7F2E7", text: "#1a1a1a", sub: "#6b6456", border: "rgba(255,255,255,0.5)" },
-  blue:  { bg: "#2563eb", text: "#ffffff", sub: "rgba(255,255,255,0.75)", border: "rgba(255,255,255,0.3)" },
-  ink:   { bg: "#14161c", text: "#ffffff", sub: "rgba(255,255,255,0.6)", border: "rgba(255,255,255,0.22)" },
+const FONT_CONDENSED = "'Anton', 'Impact', sans-serif";
+const FONT_BODY = "'DM Sans', 'Inter', sans-serif";
+const INK = "#050d2b";
+const HARD_SHADOW = `10px 10px 0 ${INK}`;
+
+const TONE_STYLES: Record<Tone, { bg: string; text: string; sub: string; border: string; line: string; tape: string; frame: string }> = {
+  cream: { bg: "#F0ECE3", text: "#1a1a1a", sub: "#5c5648", border: "rgba(255,255,255,0.5)", line: "rgba(37,70,230,0.45)", tape: "rgba(15,23,42,0.85)", frame: INK },
+  blue:  { bg: "#0b35e8", text: "#F4EFE4", sub: "rgba(255,255,255,0.75)", border: "rgba(255,255,255,0.3)", line: "rgba(255,255,255,0.25)", tape: "rgba(255,255,255,0.72)", frame: INK },
+  ink:   { bg: "#050f24", text: "#ffffff", sub: "rgba(255,255,255,0.65)", border: "rgba(255,255,255,0.22)", line: "rgba(255,255,255,0.18)", tape: "rgba(255,255,255,0.7)", frame: "#0b35e8" },
 };
+
+/** Small tilt per row so the stack looks hand-dropped, like loose paper. */
+const TILTS = [-1.3, 0.9, -0.7, 1.1, -1, 0.8];
 
 /* ── tiny hand-drawn decorations (kept subtle, used sparingly) ── */
 function TapeStrip({ className = "", rotate = -4 }: { className?: string; rotate?: number }) {
@@ -437,10 +506,9 @@ function TechChip({ tag }: { tag: string }) {
   );
 }
 
-/* ── compact "peeking" folder tab (shown behind the active one) ── */
 /** Shared header block — identical markup in both collapsed and expanded states,
  *  so growing from one to the other reads as continuous rather than a swap. */
-function FolderHeader({ project, showHint }: { project: Project; showHint: boolean }) {
+function FolderHeader({ project, collapsed }: { project: Project; collapsed: boolean }) {
   const tone = TONE_STYLES[project.tone];
   const statusStyle = STATUS_STYLES[project.status];
 
@@ -448,46 +516,69 @@ function FolderHeader({ project, showHint }: { project: Project; showHint: boole
     <div>
       <div className="flex items-center gap-3 sm:gap-4 px-5 sm:px-7 pt-4 sm:pt-5">
         <span
-          className="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-[11px] font-black shrink-0"
-          style={{ background: "rgba(0,0,0,0.08)", color: tone.text }}
+          className="text-lg sm:text-xl uppercase tracking-wide truncate shrink-0 max-w-[60%]"
+          style={{ color: tone.text, fontFamily: FONT_CONDENSED }}
         >
-          {project.number}
-        </span>
-        <span className="font-black text-sm sm:text-base tracking-tight truncate" style={{ color: tone.text }}>
           {project.title}
         </span>
-        <span className="hidden md:block text-xs truncate flex-1" style={{ color: tone.sub }}>
+        <span
+          className="hidden md:block text-xs font-medium truncate flex-1"
+          style={{ color: tone.sub, fontFamily: FONT_BODY }}
+        >
           {project.tagline}
         </span>
-        <span className={`ml-auto shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusStyle.bg} ${statusStyle.text}`}>
-          <span className={`h-1.5 w-1.5 rounded-full ${statusStyle.dot}`} />
-          {project.status}
-        </span>
+        {collapsed ? (
+          <span
+            className="ml-auto shrink-0 block h-4 w-12 sm:w-[50px] -rotate-2"
+            style={{ background: tone.tape }}
+            aria-hidden="true"
+          />
+        ) : (
+          <span className={`ml-auto shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusStyle.bg} ${statusStyle.text}`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${statusStyle.dot}`} />
+            {project.status}
+          </span>
+        )}
       </div>
-      <div className="h-px mx-5 sm:mx-7 mt-3" style={{ background: tone.border }} />
-      <div className="relative flex items-end justify-between gap-3 px-5 sm:px-7 pt-2 pb-4 sm:pb-5">
+      <div className="h-px mx-5 sm:mx-7 mt-3" style={{ background: tone.line }} />
+      <div className="relative flex items-end justify-between gap-3 px-5 sm:px-7 pt-3 pb-5 sm:pb-6">
         <h3
-          className="text-3xl sm:text-5xl leading-none truncate"
+          className="text-4xl sm:text-6xl md:text-7xl leading-none font-bold truncate"
           style={{ color: tone.text, fontFamily: FONT_TITLE }}
         >
           {project.headline}
         </h3>
-        <span className="hidden sm:block shrink-0 text-[11px] font-bold whitespace-nowrap" style={{ color: tone.sub, fontFamily: FONT_NOTE }}>
+        <span
+          className="hidden sm:block shrink-0 text-[11px] font-bold uppercase tracking-wider whitespace-nowrap"
+          style={{ color: tone.sub, fontFamily: FONT_BODY }}
+        >
           // {project.timeline}
         </span>
-
-        {showHint && (
-          <span
-            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-                       hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wide
-                       bg-slate-900 text-white opacity-0 scale-90 transition-all duration-200 group-hover/peek:opacity-100 group-hover/peek:scale-100"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-white" />
-            Click to expand
-          </span>
-        )}
       </div>
     </div>
+  );
+}
+
+/** Custom cursor shown over a collapsed card: ring + dot + "CLICK TO EXPAND" label. */
+function ExpandCursor({ x, y }: { x: number; y: number }) {
+  if (typeof document === "undefined") return null;
+  return createPortal(
+    <div
+      className="pointer-events-none fixed left-0 top-0 z-[9999] hidden sm:flex items-center gap-1.5"
+      style={{ transform: `translate(${x - 22}px, ${y - 22}px)` }}
+      aria-hidden="true"
+    >
+      <span className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-slate-900 bg-white">
+        <span className="h-3.5 w-3.5 rounded-full bg-slate-900" />
+      </span>
+      <span
+        className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white whitespace-nowrap"
+        style={{ background: "#050505", fontFamily: FONT_BODY }}
+      >
+        Click to expand
+      </span>
+    </div>,
+    document.body,
   );
 }
 
@@ -495,19 +586,23 @@ function FolderPeek({
   project, onSelect,
 }: { project: Project; onSelect: () => void }) {
   const tone = TONE_STYLES[project.tone];
+  const [pointer, setPointer] = useState<{ x: number; y: number } | null>(null);
 
   return (
-    <button
-      onClick={onSelect}
-      aria-label={`Expand ${project.title}`}
-      className="group/peek block w-full rounded-lg cursor-pointer text-left overflow-hidden
-                 border-2 shadow-[0_10px_28px_-8px_rgba(0,0,0,0.5)]
-                 transition-transform duration-200 hover:-translate-y-0.5
-                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
-      style={{ background: tone.bg, borderColor: tone.border }}
-    >
-      <FolderHeader project={project} showHint />
-    </button>
+    <>
+      <button
+        onClick={onSelect}
+        onMouseMove={(e) => setPointer({ x: e.clientX, y: e.clientY })}
+        onMouseLeave={() => setPointer(null)}
+        aria-label={`Expand ${project.title}`}
+        className="block w-full rounded-none text-left overflow-hidden border-2 sm:cursor-none
+                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+        style={{ background: tone.bg, borderColor: tone.frame, boxShadow: HARD_SHADOW }}
+      >
+        <FolderHeader project={project} collapsed />
+      </button>
+      {pointer && <ExpandCursor x={pointer.x} y={pointer.y} />}
+    </>
   );
 }
 
@@ -528,10 +623,10 @@ function FolderExpanded({
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.12}
       onDragEnd={handleDragEnd}
-      className={`relative rounded-lg sm:rounded-xl overflow-hidden border-2 shadow-[0_30px_70px_-15px_rgba(0,0,0,0.55)] ${total > 1 ? "cursor-grab active:cursor-grabbing" : ""}`}
-      style={{ background: tone.bg, borderColor: tone.border }}
+      className={`relative rounded-none overflow-hidden border-2 ${total > 1 ? "cursor-grab active:cursor-grabbing" : ""}`}
+      style={{ background: tone.bg, borderColor: tone.frame, boxShadow: HARD_SHADOW }}
     >
-      <FolderHeader project={project} showHint={false} />
+      <FolderHeader project={project} collapsed={false} />
 
       {/* browser mockup — real chrome, not just a bare screenshot */}
       <div className="group/shot relative mx-4 sm:mx-6 rounded-xl overflow-hidden bg-slate-900 select-none shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]">
@@ -684,28 +779,21 @@ function FolderRow({
   project: Project; isActive: boolean; idx: number;
   onSelect: () => void; onNext: () => void; onPrev: () => void; total: number; position: number;
 }) {
-  // A small repeating pattern of horizontal drift, tilt and width so the stack reads like
-  // real papers thrown down slightly off-true — not a perfectly symmetric block.
-  const ASYMMETRY = [
-    { x: 0, rotate: 0, inset: 0 },
-    { x: -10, rotate: -0.7, inset: 10 },
-    { x: 14, rotate: 0.6, inset: 22 },
-    { x: -6, rotate: -0.5, inset: 6 },
-  ];
-  const a = isActive ? { x: 0, rotate: 0, inset: 0 } : ASYMMETRY[idx % ASYMMETRY.length];
+  // Collapsed cards sit at a slight tilt; the expanded one straightens up.
+  const tilt = isActive ? 0 : TILTS[idx % TILTS.length];
 
   return (
     <motion.div
       layout
       transition={{ type: "spring", stiffness: 280, damping: 32 }}
       className="relative"
-      style={{ zIndex: idx, marginTop: idx === 0 ? 0 : -18 }}
     >
       <motion.div
         layoutId={`folder-${project.id}`}
         layout
         transition={{ type: "spring", stiffness: 280, damping: 32 }}
-        animate={{ x: a.x, rotate: a.rotate, marginRight: a.inset }}
+        animate={{ rotate: tilt }}
+        whileHover={isActive ? undefined : { rotate: tilt * 0.4, y: -3 }}
       >
         <AnimatePresence mode="wait" initial={false}>
           {isActive ? (
@@ -737,7 +825,7 @@ function FolderStack({ projects }: { projects: Project[] }) {
 
   if (!projects.length) {
     return (
-      <div className="py-20 text-center text-slate-400 text-sm font-semibold">
+      <div className="py-20 text-center text-white/60 text-sm font-semibold">
         No projects in this category yet.
       </div>
     );
@@ -750,15 +838,15 @@ function FolderStack({ projects }: { projects: Project[] }) {
   };
 
   return (
-    <motion.div layout className="flex flex-col">
-      {projects.map((p, idx) => (
-        <motion.div
-          key={p.id}
-          initial={{ opacity: 0, x: idx % 2 === 0 ? -90 : 90 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.65, ease, delay: Math.min(idx, 3) * 0.06 }}
-        >
+    <motion.div layout className="flex flex-col pb-4">
+      {projects.map((p, idx) => {
+        // Overlap each card over the one above so only its title strip peeks out.
+        // No overlap right after the expanded card, so its controls stay visible.
+        const prevActive = idx > 0 && projects[idx - 1].id === activeId;
+        const overlap = idx === 0 ? 0 : prevActive || p.id === activeId ? 18 : -62;
+        return (
+        <Reveal key={p.id} fromY={48} delay={Math.min(idx, 3) * 0.06}
+          style={{ position: "relative", zIndex: idx + 1, marginTop: overlap }}>
           <FolderRow
             project={p}
             idx={idx}
@@ -769,16 +857,15 @@ function FolderStack({ projects }: { projects: Project[] }) {
             total={projects.length}
             position={activeIndex}
           />
-        </motion.div>
-      ))}
+        </Reveal>
+        );
+      })}
     </motion.div>
   );
 }
 /* ── main section ─────────────────────────────────────────────── */
 export default function Projects() {
   const [activeFilter, setActiveFilter] = useState("All");
-  const headerRef = useRef(null);
-  const headerInView = useInView(headerRef, { once: true, margin: "-80px" });
 
   const filtered = activeFilter === "All"
     ? PROJECTS
@@ -819,24 +906,19 @@ export default function Projects() {
 
       <div className="relative max-w-5xl mx-auto px-6 sm:px-8">
         {/* ── Header ── */}
-        <div ref={headerRef} className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-10 items-start mb-14">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-10 items-start mb-14">
           <div>
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={headerInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, ease }}
-              className="inline-flex items-center gap-2 mb-5 px-3 py-1.5 rounded-md text-xs font-black uppercase tracking-widest border-2"
-              style={{ borderColor: "#1d6feb", color: "#1d6feb", background: "#fff" }}
-            >
-              03 — Selected Work
-            </motion.div>
+            <Reveal fromY={26} className="mb-5">
+              <div
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-black uppercase tracking-widest border-2"
+                style={{ borderColor: "#1d6feb", color: "#1d6feb", background: "#fff" }}
+              >
+                03 — Selected Work
+              </div>
+            </Reveal>
 
-            <motion.h2
-              initial={{ opacity: 0, x: 100 }}
-              animate={headerInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.7, delay: 0.1, ease }}
-              className="relative inline-block mb-4"
-            >
+            <Reveal fromX={100} fromY={30} delay={0.1} className="mb-4">
+            <h2 className="relative inline-block">
               <span
                 className="absolute inset-0 -m-4 sm:-m-5 rounded-2xl"
                 style={{ background: "#0b0d12", transform: "rotate(-2deg)", boxShadow: "0 18px 38px -12px rgba(11,13,18,0.45)" }}
@@ -851,29 +933,28 @@ export default function Projects() {
                   <path d="M2 8c40-8 140-8 216 2" stroke="#7fb2ff" strokeWidth="4" strokeLinecap="round" fill="none" />
                 </svg>
               </span>
-            </motion.h2>
+            </h2>
+            </Reveal>
 
-            <motion.p
-              initial={{ opacity: 0, y: 14 }}
-              animate={headerInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: 0.2, ease }}
-              className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-md mt-3"
-              style={{ fontFamily: FONT_NOTE }}
-            >
-              Every project represents a problem solved, late nights, continuous
-              learning, and real <Highlight>impact</Highlight>.
-            </motion.p>
+            <Reveal fromY={26} delay={0.2} className="mt-3">
+              <p
+                className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-md"
+                style={{ fontFamily: FONT_NOTE }}
+              >
+                Every project represents a problem solved, late nights, continuous
+                learning, and real <Highlight>impact</Highlight>.
+              </p>
+            </Reveal>
           </div>
 
           {/* sticky note */}
-          <motion.div
-            initial={{ opacity: 0, y: 14, rotate: 6 }}
-            animate={headerInView ? { opacity: 1, y: 0, rotate: 3 } : {}}
-            transition={{ duration: 0.55, delay: 0.25, ease }}
-            className="relative justify-self-start lg:justify-self-end w-full max-w-[280px] rounded-sm p-5"
+          <Reveal fromY={30} rotate={6} delay={0.25} className="justify-self-start lg:justify-self-end w-full max-w-[280px]">
+          <div
+            className="relative rounded-sm p-5"
             style={{
               background: "#FFF6D6",
               boxShadow: "0 16px 34px -12px rgba(15,23,42,0.25)",
+              transform: "rotate(3deg)",
             }}
           >
             <TapeStrip className="-top-3 left-8" rotate={-6} />
@@ -884,11 +965,13 @@ export default function Projects() {
               Worth a look. Every project below solved a real problem.
             </p>
             <SquigglyArrow className="absolute -bottom-8 -right-6 opacity-70" />
-          </motion.div>
+          </div>
+          </Reveal>
         </div>
 
         {/* ── Filter tabs ── */}
-        <div className="flex flex-wrap gap-1 mb-10 border-b border-slate-300/70">
+        <Reveal fromY={22} className="mb-10">
+        <div className="flex flex-wrap gap-1 border-b border-slate-300/70">
           {FILTER_TABS.map((tab) => {
             const isActive = activeFilter === tab.key;
             return (
@@ -914,22 +997,21 @@ export default function Projects() {
             );
           })}
         </div>
+        </Reveal>
 
         {/* ── The stack ── */}
         <FolderStack projects={filtered} />
 
         {/* ── closing note ── */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.1, ease }}
-          className="mt-10 flex items-center justify-center gap-2 text-slate-400 text-sm"
-          style={{ fontFamily: FONT_NOTE }}
-        >
-          <Star size={14} className="text-blue-400" />
-          More projects coming soon…
-        </motion.div>
+        <Reveal fromY={30} delay={0.1} className="mt-10">
+          <div
+            className="flex items-center justify-center gap-2 text-slate-400 text-sm"
+            style={{ fontFamily: FONT_NOTE }}
+          >
+            <Star size={14} className="text-blue-400" />
+            More projects coming soon…
+          </div>
+        </Reveal>
       </div>
     </section>
   );

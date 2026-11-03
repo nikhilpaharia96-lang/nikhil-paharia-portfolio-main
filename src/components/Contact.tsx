@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "@/lib/static-motion";
 import { toast } from "sonner";
 import {
   Send, Mail, Phone, MapPin, Check,
@@ -10,8 +10,8 @@ import {
   RiGithubFill, RiLinkedinFill, RiInstagramLine, RiYoutubeFill, RiWhatsappFill,
 } from "react-icons/ri";
 import Magnetic from "@/components/ui/Magnetic";
-import SplitText from "@/components/ui/SplitText";
-import { staggerContainer, cinChildSmall } from "@/components/CinematicSection";
+import { staggerContainer, cinChildSmall } from "@/lib/revealVariants";
+import connectBg from "@/assets/images/showcase-bg.webp";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -44,7 +44,7 @@ function FloatField({ id, name, label, type = "text", required, multiline, rows 
 
   const sharedClass = `
     w-full bg-white/70 border rounded-xl pt-6 pb-3 ${hasIcon ? "pl-11 pr-4" : "px-4"} text-foreground resize-none
-    focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 transition-all duration-300 peer
+    focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/25   peer
     ${error
       ? "border-red-400 shadow-[0_0_0_3px_rgba(239,68,68,0.12)]"
       : focused
@@ -58,7 +58,7 @@ function FloatField({ id, name, label, type = "text", required, multiline, rows 
       {/* Leading icon */}
       {Icon && (
         <div className={`absolute left-4 ${multiline ? "top-4" : "top-1/2 -translate-y-1/2"} pointer-events-none z-10`}>
-          <Icon className={`w-[18px] h-[18px] transition-colors duration-300 ${error ? "text-red-400" : focused ? "text-primary" : "text-slate-400"}`} />
+          <Icon className={`w-[18px] h-[18px]   ${error ? "text-red-400" : focused ? "text-primary" : "text-slate-400"}`} />
         </div>
       )}
 
@@ -71,7 +71,7 @@ function FloatField({ id, name, label, type = "text", required, multiline, rows 
           x: hasIcon && !lifted ? 4 : 0,
           color: error ? "#ef4444" : lifted ? "#1d6feb" : "#94a3b8",
         }}
-        transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+
         className={`absolute ${hasIcon ? "left-11" : "left-4"} top-4 origin-left pointer-events-none font-medium text-sm z-10`}
       >
         {label}{required && <span className="text-primary/70"> *</span>}
@@ -117,7 +117,7 @@ function FloatField({ id, name, label, type = "text", required, multiline, rows 
       {/* Animated bottom accent line */}
       <motion.div
         animate={{ scaleX: focused && !error ? 1 : 0, opacity: focused && !error ? 1 : 0 }}
-        transition={{ duration: 0.25 }}
+
         className="absolute bottom-0 left-4 right-4 h-0.5 rounded-full bg-gradient-to-r from-primary to-sky-400 origin-left"
       />
 
@@ -127,9 +127,9 @@ function FloatField({ id, name, label, type = "text", required, multiline, rows 
           <motion.p
             id={`${id}-error`}
             role="alert"
-            initial={{ opacity: 0, y: -4, height: 0 }}
+
             animate={{ opacity: 1, y: 0, height: "auto" }}
-            exit={{ opacity: 0, y: -4, height: 0 }}
+
             className="flex items-center gap-1.5 text-red-500 text-xs font-medium mt-1.5 pl-1"
           >
             <AlertCircle className="w-4 h-4 shrink-0" /> {error}
@@ -162,7 +162,7 @@ function FloatSelect({ id, name, label, options, required, error, value, onValue
   const sharedClass = `
     w-full appearance-none bg-white/70 dark:bg-white/10 border rounded-xl pt-6 pb-3 ${hasIcon ? "pl-11" : "pl-4"} pr-11
     text-foreground dark:text-white
-    focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 transition-all duration-300 peer cursor-pointer
+    focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/25   peer cursor-pointer
     ${error
       ? "border-red-400 dark:border-red-400/70 shadow-[0_0_0_3px_rgba(239,68,68,0.12)]"
       : focused
@@ -176,7 +176,7 @@ function FloatSelect({ id, name, label, options, required, error, value, onValue
       {/* Leading icon */}
       {Icon && (
         <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
-          <Icon className={`w-[18px] h-[18px] transition-colors duration-300 ${error ? "text-red-400" : focused ? "text-primary" : "text-slate-400"}`} />
+          <Icon className={`w-[18px] h-[18px]   ${error ? "text-red-400" : focused ? "text-primary" : "text-slate-400"}`} />
         </div>
       )}
 
@@ -189,7 +189,7 @@ function FloatSelect({ id, name, label, options, required, error, value, onValue
           x: hasIcon && !lifted ? 4 : 0,
           color: error ? "#ef4444" : lifted ? "#1d6feb" : "#94a3b8",
         }}
-        transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+
         className={`absolute ${hasIcon ? "left-11" : "left-4"} top-4 origin-left pointer-events-none font-medium text-sm z-10`}
       >
         {label}{required && <span className="text-primary/70"> *</span>}
@@ -219,7 +219,7 @@ function FloatSelect({ id, name, label, options, required, error, value, onValue
       {/* Custom dropdown arrow */}
       <motion.div
         animate={{ rotate: focused ? 180 : 0, color: error ? "#ef4444" : focused ? "#1d6feb" : "#94a3b8" }}
-        transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+
         className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none z-10"
       >
         <ChevronDown className="w-5 h-5" />
@@ -228,7 +228,7 @@ function FloatSelect({ id, name, label, options, required, error, value, onValue
       {/* Animated bottom accent line */}
       <motion.div
         animate={{ scaleX: focused && !error ? 1 : 0, opacity: focused && !error ? 1 : 0 }}
-        transition={{ duration: 0.25 }}
+
         className="absolute bottom-0 left-4 right-4 h-0.5 rounded-full bg-gradient-to-r from-primary to-sky-400 origin-left"
       />
 
@@ -238,9 +238,9 @@ function FloatSelect({ id, name, label, options, required, error, value, onValue
           <motion.p
             id={`${id}-error`}
             role="alert"
-            initial={{ opacity: 0, y: -4, height: 0 }}
+
             animate={{ opacity: 1, y: 0, height: "auto" }}
-            exit={{ opacity: 0, y: -4, height: 0 }}
+
             className="flex items-center gap-1.5 text-red-500 text-xs font-medium mt-1.5 pl-1"
           >
             <AlertCircle className="w-4 h-4 shrink-0" /> {error}
@@ -252,12 +252,14 @@ function FloatSelect({ id, name, label, options, required, error, value, onValue
 }
 
 const SUBJECT_OPTIONS = [
-  "Full-Stack Web Development",
-  "Landing Page",
-  "Web Design",
-  "Admin Dashboard",
+  "Website Development",
   "Video Editing",
-  "Social Media Content",
+  "Digital Marketing",
+  "Graphic Designing",
+  "UI/UX Design",
+  "Automation & AI Solutions",
+  "E-Commerce Solutions",
+  "Cinematography & Video Production",
   "Other",
 ];
 
@@ -306,6 +308,19 @@ export default function Contact() {
   const [form, setForm] = useState<FormState>({ name: "", email: "", phone: "", subject: "", budget: "", message: "" });
   const [errors, setErrors] = useState<FormErrors>({});
   const formRef = useRef<HTMLFormElement>(null);
+
+  // "Book Now" on a service card pre-selects that service here.
+  useEffect(() => {
+    const onBook = (e: Event) => {
+      const title = (e as CustomEvent<string>).detail;
+      if (SUBJECT_OPTIONS.includes(title)) {
+        setForm((f) => ({ ...f, subject: title }));
+        setErrors((er) => ({ ...er, subject: undefined }));
+      }
+    };
+    window.addEventListener("book-service", onBook);
+    return () => window.removeEventListener("book-service", onBook);
+  }, []);
 
   const setField = (key: keyof FormState) => (v: string) => {
     setForm((f) => ({ ...f, [key]: v }));
@@ -385,13 +400,13 @@ export default function Contact() {
       <motion.div
         aria-hidden="true"
         animate={{ y: [0, -22, 0], x: [0, 14, 0] }}
-        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+
         className="absolute top-10 right-[8%] w-56 h-56 rounded-full bg-sky-300/20 blur-3xl pointer-events-none z-0"
       />
       <motion.div
         aria-hidden="true"
         animate={{ y: [0, 20, 0], x: [0, -16, 0] }}
-        transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+
         className="absolute bottom-0 right-1/3 w-72 h-72 rounded-full bg-primary/10 blur-3xl pointer-events-none z-0"
       />
 
@@ -401,53 +416,64 @@ export default function Contact() {
           {/* Left — title + contact info + socials */}
           <div className="w-full relative">
             <motion.div
-              initial={{ opacity: 0, x: -50 }}
+
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: false, margin: "-80px" }}
-              transition={{ duration: 0.8, ease }}
+
+
             >
-              {/* Eyebrow */}
-              <div className="inline-flex items-center gap-2 mb-6 px-3.5 py-1.5 rounded-full bg-white/60 backdrop-blur-md border border-primary/20 shadow-[0_2px_12px_rgba(29,111,235,0.08)]">
-                <Send className="w-3.5 h-3.5 text-primary" />
-                <span className="text-xs font-semibold text-primary tracking-[0.14em] uppercase">Let's Connect</span>
+              {/* Mountain sky backdrop — fades softly into the page */}
+              <div aria-hidden="true" className="pointer-events-none absolute -inset-x-6 -top-10 h-[34rem] sm:h-[36rem] -z-10 overflow-hidden rounded-[2rem] [mask-image:linear-gradient(to_bottom,#000_55%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,#000_55%,transparent_100%)]">
+                <img src={connectBg} alt="" className="w-full h-full object-cover object-left opacity-90" loading="lazy" />
+                <div className="absolute inset-0 bg-gradient-to-b from-white/55 via-white/65 to-white/85" />
+                {/* tiny birds */}
+                <svg viewBox="0 0 60 30" className="absolute right-6 top-24 w-14 text-[#0f2a5c]" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+                  <path d="M4 12c4-5 8-5 11 0 3-5 7-5 11 0" />
+                  <path d="M34 22c3-4 6-4 8.5 0 2.5-4 5.5-4 8.5 0" />
+                </svg>
               </div>
 
-              <h2 className="text-5xl md:text-6xl font-serif font-bold mb-8 leading-[1.1] text-foreground max-w-full">
-                <SplitText type="words">Let's Build Something</SplitText>
-                <br />
-                <span className="relative inline-block">
-                  <SplitText type="words" delay={0.15} charClassName="text-gradient">Amazing</SplitText>
-                  {/* Hand-drawn brush-stroke underline accent */}
-                  <motion.svg
-                    aria-hidden="true"
-                    viewBox="0 0 180 14"
-                    className="absolute left-0 -bottom-2 w-full h-3 text-primary/70"
-                    initial={{ pathLength: 0, opacity: 0 }}
-                    whileInView={{ pathLength: 1, opacity: 1 }}
-                    viewport={{ once: false, margin: "-80px" }}
-                    transition={{ duration: 0.9, delay: 0.5, ease: "easeInOut" }}
-                  >
-                    <path
-                      d="M2 10.5C40 4 90 2 130 6C150 8 165 6 178 4"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                      strokeLinecap="round"
-                      fill="none"
-                    />
-                  </motion.svg>
-                </span>{" "}
-                <SplitText type="words" delay={0.22}>Together.</SplitText>
-              </h2>
-              <p className="text-xl text-slate-600 mb-10 font-light max-w-lg leading-relaxed">
+              {/* Eyebrow — red dot pill */}
+              <div className="inline-flex items-center gap-2 mb-7 px-4 py-1.5 rounded-full bg-white/85 backdrop-blur-xl border border-white/80 shadow-[0_8px_24px_-12px_rgba(15,45,90,0.25)]">
+                <span className="w-2 h-2 rounded-full bg-red-500" aria-hidden="true" />
+                <span className="text-[11px] sm:text-xs font-bold tracking-[0.12em] uppercase text-slate-800">Let's Connect</span>
+              </div>
+
+              <div className="relative">
+                {/* Handwritten note + curved arrow */}
+                <div aria-hidden="true" className="hidden sm:block absolute -left-4 lg:-left-20 top-6 font-script font-bold text-xl leading-[1.15] text-[#14284f] -rotate-[10deg] select-none">
+                  Creative<br />Ideas<br />Collaboration
+                  <svg viewBox="0 0 70 60" className="mt-1 ml-6 w-14 h-12 text-primary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M6 4C10 30 28 46 58 50" />
+                    <path d="M48 42l11 8-12 6" />
+                  </svg>
+                </div>
+
+                <h2 className="font-sans font-extrabold tracking-tight text-[2.9rem] sm:text-6xl lg:text-[4.2rem] leading-[0.98] text-[#0a0f1e] mb-7 sm:pl-14 lg:pl-0">
+                  Let's Build
+                  <br />
+                  Something
+                  <br />
+                  <span className="relative inline-block font-script font-bold italic text-primary text-[1.18em] leading-none -rotate-3 align-baseline my-1">
+                    Amazing
+                    <svg aria-hidden="true" className="absolute left-0 -bottom-2 w-full h-3 text-primary" viewBox="0 0 200 12" preserveAspectRatio="none" fill="none">
+                      <path d="M3 8 C 40 2, 110 2, 197 6" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" />
+                    </svg>
+                  </span>
+                  <br />
+                  Together.
+                </h2>
+              </div>
+
+              <p className="text-base sm:text-[1.05rem] text-slate-700 mb-10 max-w-md leading-relaxed">
                 Have a project in mind or just want to say hi? Tell me what you're building and I'll get back to you as soon as possible.
               </p>
 
               {/* Contact info cards */}
               <motion.div
                 variants={staggerContainer}
-                initial="hidden"
+
                 whileInView="show"
-                viewport={{ once: false, margin: "-60px" }}
+
                 className="flex flex-col gap-3 mb-10 max-w-md"
               >
                 {contactInfo.map(({ Icon, label, value, href }) => {
@@ -459,13 +485,13 @@ export default function Contact() {
                       {...(href ? { href } : {})}
                       {...(isExternal ? { target: "_blank", rel: "noreferrer" } : {})}
                       variants={cinChildSmall}
-                      whileHover={href ? { y: -4, scale: 1.015 } : undefined}
-                      className={`interactive group flex items-center gap-4 p-3.5 rounded-xl border border-blue-100/70 bg-white/50 backdrop-blur-sm transition-colors transition-shadow duration-300 min-h-[48px] ${href ? "hover:bg-white/80 hover:border-primary/30 hover:shadow-[0_10px_30px_rgba(29,111,235,0.15)]" : ""}`}
+
+                      className={`interactive group flex items-center gap-4 p-3.5 rounded-xl border border-blue-100/70 bg-white/50 backdrop-blur-sm    min-h-[48px] ${href ? "hover:bg-white/80 hover:border-primary/30 hover:shadow-[0_10px_30px_rgba(29,111,235,0.15)]" : ""}`}
                     >
                       <motion.div
-                        whileHover={{ rotate: -8, scale: 1.1 }}
-                        transition={{ type: "spring", stiffness: 300 }}
-                        className="w-10 h-10 shrink-0 rounded-lg bg-primary/10 group-hover:bg-primary/15 flex items-center justify-center transition-colors"
+
+
+                        className="w-10 h-10 shrink-0 rounded-lg bg-primary/10 group-hover:bg-primary/15 flex items-center justify-center "
                       >
                         <Icon className="w-[18px] h-[18px] text-primary" />
                       </motion.div>
@@ -476,7 +502,7 @@ export default function Contact() {
                       {href && (
                         <div
                           aria-hidden="true"
-                          className="shrink-0 text-slate-300 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-primary transition-all duration-300"
+                          className="shrink-0 text-slate-300 opacity-0 -translate-x-1 group-hover:opacity-100  group-hover:text-primary  "
                         >
                           <ArrowRight className="w-5 h-5" />
                         </div>
@@ -489,9 +515,9 @@ export default function Contact() {
               {/* Social icons — circular glass buttons */}
               <motion.div
                 variants={staggerContainer}
-                initial="hidden"
+
                 whileInView="show"
-                viewport={{ once: false, margin: "-60px" }}
+
                 className="flex gap-4 flex-wrap"
               >
                 {socials.map(({ Icon, href, label }) => (
@@ -502,9 +528,9 @@ export default function Contact() {
                       rel={href.startsWith("http") ? "noreferrer" : undefined}
                       aria-label={label}
                       variants={cinChildSmall}
-                      whileHover={{ y: -3, boxShadow: "0 10px 24px rgba(29,111,235,0.18)" }}
-                      whileTap={{ scale: 0.9 }}
-                      className="interactive w-11 h-11 rounded-full flex items-center justify-center border border-blue-100/70 bg-white/50 backdrop-blur-md hover:bg-white/80 hover:border-primary/40 transition-colors text-slate-700 hover:text-primary"
+
+
+                      className="interactive w-11 h-11 rounded-full flex items-center justify-center border border-blue-100/70 bg-white/50 backdrop-blur-md hover:bg-white/80 hover:border-primary/40  text-slate-700 hover:text-primary"
                     >
                       <Icon className="w-5 h-5" />
                     </motion.a>
@@ -516,10 +542,10 @@ export default function Contact() {
 
           {/* Right — form */}
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
+
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, margin: "-80px" }}
-            transition={{ duration: 0.8, ease }}
+
+
             className="w-full max-w-full relative"
           >
             {/* Soft blue glow behind the glass card */}
@@ -538,8 +564,8 @@ export default function Contact() {
               <div className="mb-1">
                 <div className="flex items-center gap-3 mb-2">
                   <motion.div
-                    whileHover={{ rotate: -12, scale: 1.08 }}
-                    transition={{ type: "spring", stiffness: 300 }}
+
+
                     className="w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br from-primary/15 to-sky-400/15 flex items-center justify-center shadow-inner"
                     aria-hidden="true"
                   >
@@ -566,34 +592,34 @@ export default function Contact() {
                 <motion.button
                   type="submit"
                   disabled={isSubmitting}
-                  whileHover={{ boxShadow: "0 0 40px rgba(29,111,235,0.5)", y: -2 }}
-                  whileTap={{ scale: 0.97 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 18 }}
-                  className={`w-full py-4 font-bold rounded-xl transition-all flex items-center justify-center gap-3 disabled:opacity-80 mt-2 relative overflow-hidden text-white shadow-lg shadow-blue-200/60 ${sent ? "bg-green-500" : "bg-gradient-to-r from-primary to-sky-500"}`}
+
+
+
+                  className={`w-full py-4 font-bold rounded-xl  flex items-center justify-center gap-3 disabled:opacity-80 mt-2 relative overflow-hidden text-white shadow-lg shadow-blue-200/60 ${sent ? "bg-green-500" : "bg-gradient-to-r from-primary to-sky-500"}`}
                 >
                   {/* Shine sweep on hover */}
                   <motion.div
                     className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none"
-                    whileHover={{ translateX: "200%" }}
-                    transition={{ duration: 0.6 }}
+
+
                   />
                   <AnimatePresence mode="wait">
                     {isSubmitting ? (
                       <motion.div
                         key="spinner"
-                        initial={{ opacity: 0, scale: 0.8 }}
+
                         animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
+
                         role="status"
                         aria-label="Sending message"
-                        className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"
+                        className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full "
                       />
                     ) : sent ? (
                       <motion.span
                         key="sent"
-                        initial={{ opacity: 0, scale: 0.8 }}
+
                         animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
+
                         className="flex items-center gap-2"
                       >
                         Sent <Check className="w-5 h-5" />
@@ -601,9 +627,9 @@ export default function Contact() {
                     ) : (
                       <motion.span
                         key="label"
-                        initial={{ opacity: 0, y: 6 }}
+
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -6 }}
+
                         className="flex items-center gap-3"
                       >
                         <Send className="w-5 h-5" /> Send Message

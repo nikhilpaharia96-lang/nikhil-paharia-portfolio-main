@@ -1,0 +1,110 @@
+/* PortraitFX — transforms, opacity and filters only. */
+
+.portrait-fx {
+  position: relative;
+  width: 100%;
+  --mx: 50%;
+  --my: 40%;
+  --prox: 0;
+}
+
+/* E. blue dusk halo (opacity driven by scroll) */
+.portrait-fx__halo {
+  position: absolute;
+  inset: -14% -18%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgba(29, 111, 235, 0.34), rgba(96, 165, 250, 0.2) 55%, rgba(96, 165, 250, 0) 100%);
+  filter: blur(10px);
+  opacity: 0;
+}
+
+/* C. spotlight: box is larger than the portrait so the glow can spill around it */
+.portrait-fx__spot {
+  position: absolute;
+  inset: -220px;
+  pointer-events: none;
+  background: radial-gradient(
+    circle 260px at calc(var(--mx) + 220px) calc(var(--my) + 220px),
+    rgba(18, 102, 241, 0.34),
+    rgba(18, 102, 241, 0.14) 45%,
+    rgba(18, 102, 241, 0) 72%
+  );
+  opacity: var(--prox);
+  transition: opacity 0.25s ease-out;
+}
+
+.portrait-fx__scale {
+  position: relative;
+  will-change: transform;
+}
+
+/* B. floating */
+.portrait-fx__float {
+  animation: portrait-float 7s ease-in-out infinite;
+  will-change: transform;
+}
+.portrait-fx[data-paused="true"] .portrait-fx__float {
+  animation-play-state: paused;
+}
+
+/* A. reveal — soft-edged wipe, bottom → top */
+.portrait-fx__reveal {
+  position: relative;
+}
+.portrait-fx__reveal[data-phase="pending"] {
+  opacity: 0;
+}
+.portrait-fx__reveal[data-phase="revealing"] {
+  -webkit-mask-image: linear-gradient(to top, #000 40%, transparent 60%);
+  mask-image: linear-gradient(to top, #000 40%, transparent 60%);
+  -webkit-mask-size: 100% 250%;
+  mask-size: 100% 250%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  animation: portrait-reveal 1.7s cubic-bezier(0.22, 0.8, 0.24, 1) 0.15s both;
+}
+
+/* D. rim light */
+.portrait-fx__rim {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 0 1.5px rgba(110, 170, 255, 0.95)) drop-shadow(0 0 11px rgba(18, 102, 241, 0.6));
+  opacity: calc(0.3 + var(--prox) * 0.65);
+  transition: opacity 0.25s ease-out;
+}
+
+.portrait-fx__img {
+  position: relative;
+  display: block;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+@keyframes portrait-float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(0, -9px, 0); }
+}
+
+@keyframes portrait-reveal {
+  from { -webkit-mask-position: 0 0%;   mask-position: 0 0%; }
+  to   { -webkit-mask-position: 0 100%; mask-position: 0 100%; }
+}
+
+@media (max-width: 767px) {
+  .portrait-fx__float { animation-duration: 8s; }
+  @keyframes portrait-float {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50%      { transform: translate3d(0, -6px, 0); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portrait-fx__float { animation: none; }
+  .portrait-fx__reveal[data-phase] { animation: none; opacity: 1; -webkit-mask-image: none; mask-image: none; }
+  .portrait-fx__spot { display: none; }
+}

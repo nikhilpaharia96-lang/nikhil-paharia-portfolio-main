@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import teaBg from "@/assets/images/tea-sunset-person-wide.webp";
+import showcaseBg from "@/assets/images/showcase-bg.webp";
 import { useReducedFx } from "@/hooks/use-reduced-fx";
 
 export default function BackgroundGlow() {
@@ -13,19 +13,17 @@ export default function BackgroundGlow() {
     <>
       <div className="absolute inset-0 z-0">
         <motion.img
-          src={teaBg}
+          src={showcaseBg}
           alt=""
           aria-hidden="true"
           loading="lazy"
           decoding="async"
-          className="w-full h-full object-cover object-center scale-110"
-          style={{ filter: "brightness(0.88) saturate(0.92)" }}
-          animate={animate ? { scale: [1.1, 1.17, 1.1], x: [0, 14, 0] } : undefined}
+          className="w-full h-full object-cover object-[center_30%] scale-105"
+          animate={animate ? { scale: [1.05, 1.1, 1.05], x: [0, 10, 0] } : undefined}
           transition={animate ? { duration: 36, repeat: Infinity, ease: "easeInOut" } : undefined}
         />
-        <div className="absolute inset-0 backdrop-blur-[2px]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/93 via-white/80 to-white/93" />
-        <div className="absolute inset-0 bg-gradient-to-l from-white/85 via-transparent to-blue-50/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/55" />
+        <div className="absolute inset-0 bg-gradient-to-r from-white/70 via-white/25 to-transparent" />
         <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_100%,transparent_20%,rgba(8,20,45,0.06)_100%)]" />
       </div>
 

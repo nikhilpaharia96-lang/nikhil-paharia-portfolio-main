@@ -48,7 +48,7 @@ type CarouselControlsProps = {
 
 export default function CarouselControls({ onPrev, onNext, canScrollPrev, canScrollNext }: CarouselControlsProps) {
   return (
-    <div className="hidden md:flex items-center gap-3 justify-end mt-6">
+    <div className="hidden md:flex items-center gap-3 justify-end">
       <Magnetic strength={0.4}>
         <button
           type="button"

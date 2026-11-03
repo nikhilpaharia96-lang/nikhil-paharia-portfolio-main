@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "@/lib/static-motion";
 import { X, Star, Upload, CheckCircle2, AlertCircle, Loader2, User } from "lucide-react";
 import { submitTestimonial } from "@/lib/submitTestimonial";
 import { lockBodyScroll } from "@/lib/scrollLock";
@@ -153,10 +153,10 @@ export default function SubmitTestimonialModal({ open, onClose }: SubmitTestimon
     <AnimatePresence>
       {open && (
         <motion.div
-          initial={{ opacity: 0 }}
+
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
+
+
           className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 sm:p-6"
           role="dialog"
           aria-modal="true"
@@ -164,10 +164,10 @@ export default function SubmitTestimonialModal({ open, onClose }: SubmitTestimon
           onClick={onClose}
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 16 }}
+
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.97, y: 8 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+
+
             onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-[28px] bg-white/95 backdrop-blur-2xl border border-white/80 shadow-[0_40px_90px_-24px_rgba(15,45,90,0.4)]"
           >
@@ -196,7 +196,7 @@ export default function SubmitTestimonialModal({ open, onClose }: SubmitTestimon
                   <button
                     type="button"
                     onClick={onClose}
-                    className="interactive mt-6 px-5 py-2.5 rounded-full bg-primary text-white text-sm font-semibold shadow-sm hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                    className="interactive mt-6 px-5 py-2.5 rounded-full bg-primary text-white text-sm font-semibold shadow-sm hover:bg-primary/90  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
                   >
                     Done
                   </button>
@@ -289,7 +289,7 @@ export default function SubmitTestimonialModal({ open, onClose }: SubmitTestimon
                             <User className="w-5 h-5 text-slate-400" aria-hidden="true" />
                           )}
                         </div>
-                        <label className="interactive inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-600 cursor-pointer transition-colors">
+                        <label className="interactive inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-600 cursor-pointer ">
                           <Upload className="w-3.5 h-3.5" aria-hidden="true" />
                           {photoDataUrl ? "Change image" : "Upload image"}
                           <input type="file" accept="image/*" className="sr-only" onChange={handlePhoto} />
@@ -315,7 +315,7 @@ export default function SubmitTestimonialModal({ open, onClose }: SubmitTestimon
                               className="interactive p-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded"
                             >
                               <Star
-                                className={`w-6 h-6 transition-colors ${
+                                className={`w-6 h-6  ${
                                   filled ? "text-amber-400 fill-amber-400" : "text-slate-300"
                                 }`}
                               />
@@ -393,11 +393,11 @@ export default function SubmitTestimonialModal({ open, onClose }: SubmitTestimon
                     <button
                       type="submit"
                       disabled={status === "submitting"}
-                      className="interactive w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-primary text-white text-sm font-semibold shadow-[0_10px_28px_-10px_rgba(29,111,235,0.5)] hover:bg-primary/90 transition-colors disabled:opacity-70 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                      className="interactive w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-primary text-white text-sm font-semibold shadow-[0_10px_28px_-10px_rgba(29,111,235,0.5)] hover:bg-primary/90  disabled:opacity-70 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
                     >
                       {status === "submitting" ? (
                         <>
-                          <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+                          <Loader2 className="w-4 h-4 " aria-hidden="true" />
                           Submitting…
                         </>
                       ) : (

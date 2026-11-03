@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "@/lib/static-motion";
 import { Quote } from "lucide-react";
 
 type QuoteIconProps = {
@@ -25,7 +25,7 @@ export default function QuoteIcon({
       aria-hidden="true"
       className={className}
       animate={shouldFloat ? { y: [0, -8, 0] } : undefined}
-      transition={shouldFloat ? { duration: 5, repeat: Infinity, ease: "easeInOut" } : undefined}
+
       style={{ opacity }}
     >
       <Quote style={{ width: size, height: size, color }} fill={color} />

@@ -1,0 +1,184 @@
+/* Service card footer — price pill + "Book Now" button. Transform/opacity/shadow transitions only. */
+
+.svc-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* ── Price pill ── */
+.svc-price {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 9px 18px;
+  border-radius: 9999px;
+  overflow: hidden;
+  isolation: isolate;
+  font-weight: 600;
+  line-height: 1.1;
+  white-space: nowrap;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease;
+}
+.svc-price__label {
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.78;
+}
+.svc-price__amount {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+/* white pill, blue text — for blue / sky / navy cards */
+.svc-price[data-tone="light"] {
+  background: #fff;
+  color: #1266f1;
+  box-shadow: 0 8px 20px -10px rgba(15, 23, 42, 0.55);
+}
+/* blue pill, white text — for the cream card */
+.svc-price[data-tone="dark"] {
+  background: linear-gradient(135deg, #1d6feb, #1266f1 55%, #0f58d6);
+  color: #fff;
+  box-shadow: 0 10px 22px -10px rgba(18, 102, 241, 0.7);
+}
+/* soft light sweep */
+.svc-price::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.55) 50%, transparent 70%);
+  transform: translateX(-130%);
+  transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.svc-price[data-tone="dark"]::after {
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
+}
+
+/* ── Book Now button ── */
+.svc-book {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 6px 6px 20px;
+  border: 0;
+  text-decoration: none;
+  border-radius: 9999px;
+  overflow: hidden;
+  isolation: isolate;
+  cursor: pointer;
+  font: 700 14px/1 inherit;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: #0f172a;
+  box-shadow: 0 10px 22px -10px rgba(15, 23, 42, 0.75);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease, background-color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.svc-book[data-tone="on-navy"] {
+  background: #1266f1;
+  box-shadow: 0 10px 22px -10px rgba(18, 102, 241, 0.8);
+}
+/* colour fill that rises from the bottom on hover */
+.svc-book::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(135deg, #1d6feb, #38a0ff);
+  transform: translateY(101%);
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.svc-book[data-tone="on-navy"]::before {
+  background: linear-gradient(135deg, #ffffff, #dbeafe);
+}
+.svc-book[data-tone="on-navy"]:hover,
+.svc-book[data-tone="on-navy"]:focus-visible {
+  color: #0f172a;
+}
+.svc-book__arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9999px;
+  background: #fff;
+  color: #0f172a;
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.3s ease;
+}
+.svc-book[data-tone="on-navy"] .svc-book__arrow {
+  background: #0f172a;
+  color: #fff;
+}
+.svc-book__arrow svg {
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ── Hover / focus / press (only on real hover devices for the lift) ── */
+@media (hover: hover) {
+  .svc-price:hover {
+    transform: translateY(-3px) scale(1.03);
+  }
+  .svc-price[data-tone="light"]:hover {
+    box-shadow: 0 16px 28px -12px rgba(15, 23, 42, 0.6), 0 0 0 4px rgba(255, 255, 255, 0.25);
+  }
+  .svc-price[data-tone="dark"]:hover {
+    box-shadow: 0 16px 30px -12px rgba(18, 102, 241, 0.85), 0 0 0 4px rgba(18, 102, 241, 0.18);
+  }
+  .svc-price:hover::after {
+    transform: translateX(130%);
+  }
+  .svc-book:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 30px -12px rgba(18, 102, 241, 0.85);
+  }
+  .svc-book:hover::before {
+    transform: translateY(0);
+  }
+  .svc-book:hover .svc-book__arrow {
+    transform: rotate(-45deg) scale(1.06);
+  }
+  .svc-book:hover .svc-book__arrow svg {
+    animation: svc-arrow-nudge 0.9s ease-in-out infinite;
+  }
+}
+.svc-book:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.9);
+  outline-offset: 3px;
+}
+.svc-book:focus-visible::before {
+  transform: translateY(0);
+}
+.svc-book:active {
+  transform: translateY(0) scale(0.97);
+}
+
+@keyframes svc-arrow-nudge {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .svc-price,
+  .svc-price::after,
+  .svc-book,
+  .svc-book::before,
+  .svc-book__arrow,
+  .svc-book__arrow svg {
+    transition: none;
+    animation: none !important;
+  }
+  .svc-price:hover,
+  .svc-book:hover {
+    transform: none;
+  }
+}

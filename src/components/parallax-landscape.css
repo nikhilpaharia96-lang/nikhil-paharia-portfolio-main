@@ -1,0 +1,92 @@
+/* ParallaxLandscape — transform + opacity animations only. */
+
+.px-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: layout paint;
+}
+
+/* One stacked layer of the photo / fog / light. */
+.px-layer {
+  position: absolute;
+  inset: 0;
+}
+
+/* Photo layers share the same background image, size and position. */
+.px-img {
+  background-image: var(--src);
+  background-size: cover;
+  background-position: var(--pos);
+  background-repeat: no-repeat;
+  filter: var(--filter, none);
+}
+
+/* Soft alpha cut-out, authored in photo coordinates → same cover/position as the photo. */
+.px-masked {
+  -webkit-mask-image: var(--mask);
+  mask-image: var(--mask);
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  -webkit-mask-position: var(--pos);
+  mask-position: var(--pos);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+/* ── Fog ── */
+.px-fog {
+  overflow: hidden;
+  opacity: var(--fog-o, 0.3);
+}
+/* Twice as wide as the stage; the cloud pattern tiles every 50% so sliding by -50% loops seamlessly. */
+.px-fog__drift {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  background-repeat: repeat-x;
+  background-size: 50% 100%;
+  background-image:
+    radial-gradient(ellipse 28% 40% at 22% 55%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 70%),
+    radial-gradient(ellipse 34% 34% at 55% 45%, rgba(222, 236, 255, 0.9), rgba(222, 236, 255, 0) 70%),
+    radial-gradient(ellipse 26% 42% at 80% 60%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 70%);
+  animation: px-fog-slide var(--fog-dur, 120s) linear infinite;
+  will-change: transform;
+}
+.px-fog--rev .px-fog__drift {
+  animation-direction: reverse;
+}
+@keyframes px-fog-slide {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+/* ── Ambient sunlight ── */
+.px-light {
+  background: radial-gradient(circle at 50% 50%, #fff4d6 0%, #ffe9b8 55%, #fff4d6 100%);
+  mix-blend-mode: screen;
+  animation: px-light-pulse 11s ease-in-out infinite;
+}
+@keyframes px-light-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.85; }
+}
+
+/* Pause while off-screen */
+.px-stage[data-paused="true"] .px-fog__drift,
+.px-stage[data-paused="true"] .px-light {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .px-fog__drift,
+  .px-light {
+    animation: none;
+  }
+  .px-light {
+    opacity: 0.5;
+  }
+}

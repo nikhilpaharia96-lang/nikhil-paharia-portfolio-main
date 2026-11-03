@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } from "framer-motion";
-import { Eye, Play } from "lucide-react";
+import { Eye, Play, MapPin } from "lucide-react";
 import type { CardVariant, Project } from "@/types/video";
 import { ease, cardSpring, tiltSpring } from "@/animations/videoShowcase.motion";
 
@@ -43,8 +43,8 @@ export default function ProjectCard({ project, variant, distance, index, onSelec
   };
 
   const weight = 1 - Math.min(Math.abs(distance), 2) / 2;
-  const scale = isActive ? 1.05 : 0.92 + weight * 0.05;
-  const opacity = isActive ? 1 : 0.55 + weight * 0.25;
+  const scale = isActive ? 1.04 : 0.93 + weight * 0.04;
+  const opacity = isActive ? 1 : 0.9;
 
   return (
     <motion.div
@@ -95,6 +95,7 @@ export default function ProjectCard({ project, variant, distance, index, onSelec
 
             <div className="absolute inset-0 bg-white/0 group-hover:bg-white/[0.04] backdrop-blur-0 group-hover:backdrop-blur-[1px] transition-all duration-500" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/15 to-black/10" />
+            <div aria-hidden="true" className={`pointer-events-none absolute inset-0 bg-[#0a1220] transition-opacity duration-500 ${isActive ? "opacity-0" : "opacity-25"}`} />
 
             <motion.div
               className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -102,10 +103,10 @@ export default function ProjectCard({ project, variant, distance, index, onSelec
             />
 
             <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
-              <span className="px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold uppercase tracking-wider">
+              <span className="px-3 py-1 rounded-full bg-white/90 border border-white text-slate-800 text-[10px] font-bold uppercase tracking-wider shadow-sm">
                 {project.category}
               </span>
-              <span className="text-white/85 text-[11px] font-mono font-semibold">{project.duration}</span>
+              <span className="px-2.5 py-1 rounded-full bg-black/45 backdrop-blur-md text-white text-[11px] font-mono font-semibold">{project.duration}</span>
             </div>
 
             {/* Preview control — a real button now, focusable and clickable
@@ -118,7 +119,7 @@ export default function ProjectCard({ project, variant, distance, index, onSelec
                   if (project.videoUrl) onPlay?.(project);
                 }}
                 aria-label={project.videoUrl ? `Play "${project.title}"` : `Bring "${project.title}" to focus`}
-                className="interactive w-14 h-14 rounded-full bg-white/90 backdrop-blur flex items-center justify-center shadow-lg opacity-90 scale-100 md:opacity-0 md:group-hover:opacity-100 md:scale-90 md:group-hover:scale-100 transition-all duration-400 focus-visible:opacity-100 focus-visible:scale-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40"
+                className={`interactive w-14 h-14 rounded-full bg-white/90 backdrop-blur flex items-center justify-center shadow-lg opacity-90 scale-100 ${isActive ? "md:opacity-100 md:scale-100" : "md:opacity-0 md:group-hover:opacity-100 md:scale-90 md:group-hover:scale-100"} transition-all duration-400 focus-visible:opacity-100 focus-visible:scale-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40`}
               >
                 {project.videoUrl ? (
                   <Play className="w-5 h-5 text-primary ml-0.5" fill="currentColor" aria-hidden="true" />
@@ -129,7 +130,14 @@ export default function ProjectCard({ project, variant, distance, index, onSelec
             </div>
 
             <div className="absolute bottom-0 left-0 right-0 p-5 z-10">
-              <h4 className="font-serif font-bold text-lg text-white leading-snug">{project.title}</h4>
+              <h4 className="font-serif font-bold text-xl text-white leading-snug">{project.title}</h4>
+              <p className="mt-1.5 flex items-center gap-1.5 text-xs text-white/75">
+                <MapPin className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                {project.location}
+              </p>
+              {isActive && (
+                <p className="mt-2 text-xs leading-snug text-white/70 line-clamp-2">{project.description}</p>
+              )}
             </div>
           </div>
         </div>

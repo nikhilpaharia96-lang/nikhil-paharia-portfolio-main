@@ -1,0 +1,42 @@
+/* Marquee — two rows moving in opposite directions (transform only, seamless loop).
+   Each track holds two identical groups, so translating by -50% lands exactly on the start. */
+.marquee-track {
+  display: inline-flex;
+  width: max-content;
+  will-change: transform;
+  --marquee-dur: 68s;
+  animation: marquee-left var(--marquee-dur) linear infinite;
+}
+.marquee-track--right {
+  --marquee-dur: 62s; /* slightly different speed from the other row, so they never sync up */
+  animation-name: marquee-right;
+}
+.marquee-group {
+  display: inline-block;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@keyframes marquee-left {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+@keyframes marquee-right {
+  from { transform: translate3d(-50%, 0, 0); }
+  to   { transform: translate3d(0, 0, 0); }
+}
+
+/* Pause under the cursor on desktop. */
+@media (hover: hover) {
+  .marquee-row:hover .marquee-track { animation-play-state: paused; }
+}
+
+/* Phones: shorter loop (the text is smaller there). */
+@media (max-width: 767px) {
+  .marquee-track { --marquee-dur: 58s; }
+  .marquee-track--right { --marquee-dur: 52s; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+}

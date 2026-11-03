@@ -1,0 +1,32 @@
+/* Brush-stroke reveal — the blue paint stroke is "painted on" along its own length, left → right
+ * (name side → portrait side), via an animated soft-edged mask. Mask moves with the element, so
+ * it follows whatever rotation the stroke has. */
+
+@property --brush-p {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 100%;
+}
+
+.brush-reveal {
+  -webkit-mask-image: linear-gradient(100deg, #000 var(--brush-p), transparent calc(var(--brush-p) + 16%));
+  mask-image: linear-gradient(100deg, #000 var(--brush-p), transparent calc(var(--brush-p) + 16%));
+  animation: brush-wipe 1.9s cubic-bezier(0.55, 0.05, 0.25, 1) var(--brush-delay, 0.5s) both;
+}
+.brush-reveal--accent {
+  --brush-delay: 1.6s;
+  animation-duration: 0.9s;
+}
+
+@keyframes brush-wipe {
+  from { --brush-p: -16%; }
+  to { --brush-p: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brush-reveal {
+    animation: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}

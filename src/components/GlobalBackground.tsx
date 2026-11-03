@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "@/lib/static-motion";
 import { useReducedFx } from "@/hooks/use-reduced-fx";
 
 export default function GlobalBackground() {
@@ -17,7 +17,7 @@ export default function GlobalBackground() {
   const blurMd = reducedFx ? "blur-[40px]" : "blur-[130px]";
   const blurMd2 = reducedFx ? "blur-[44px]" : "blur-[140px]";
   const blurMd3 = reducedFx ? "blur-[36px]" : "blur-[120px]";
-  const pulse = reducedFx ? "" : "animate-pulse";
+  const pulse = reducedFx ? "" : "";
 
   return (
     <div className="fixed inset-0 -z-50 overflow-hidden pointer-events-none bg-[#f8fbff]">
@@ -25,11 +25,11 @@ export default function GlobalBackground() {
       <div className="absolute inset-0 opacity-45">
         <div
           className={`absolute top-[-5vw] left-[-5vw] w-[60vw] h-[60vw] rounded-full bg-gradient-to-br from-blue-100/50 via-sky-100/30 to-transparent ${blurLg} ${pulse}`}
-          style={{ animationDuration: "14s" }}
+          style={{ }}
         />
         <div
           className={`absolute bottom-[-10vw] right-[-10vw] w-[55vw] h-[55vw] rounded-full bg-gradient-to-tr from-indigo-100/40 via-blue-50/30 to-transparent ${blurLg2} ${pulse}`}
-          style={{ animationDuration: "18s", animationDelay: "2.5s" }}
+          style={{  }}
         />
       </div>
 
@@ -60,16 +60,16 @@ export default function GlobalBackground() {
       <motion.div style={{ y: reducedFx ? 0 : smoothY }} className="absolute inset-0 opacity-[0.3]">
         <div
           className={`absolute top-[18%] left-[8%] w-[380px] h-[380px] bg-blue-200/20 rounded-full ${blurMd} ${pulse}`}
-          style={{ animationDuration: "15s" }}
+          style={{ }}
         />
         <div
           className={`absolute top-[52%] right-[4%] w-[420px] h-[420px] bg-sky-200/25 rounded-full ${blurMd2} ${pulse}`}
-          style={{ animationDuration: "20s", animationDelay: "1.5s" }}
+          style={{  }}
         />
         {!reducedFx && (
           <div
             className={`absolute top-[82%] left-[4%] w-[320px] h-[320px] bg-indigo-200/15 rounded-full ${blurMd3} ${pulse}`}
-            style={{ animationDuration: "17s", animationDelay: "3s" }}
+            style={{  }}
           />
         )}
       </motion.div>
@@ -91,7 +91,7 @@ export default function GlobalBackground() {
               style={{
                 left: pt.left,
                 top: pt.top,
-                animation: `floatY ${pt.dur} ease-in-out infinite ${pt.delay}`,
+                
               }}
             />
           ))}

@@ -1,6 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Syne:wght@400..800&display=swap');
 @import "tailwindcss";
-@import "tw-animate-css";
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
@@ -171,10 +171,6 @@
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }
 
@@ -194,7 +190,6 @@ html.lenis, html.lenis body {
 }
 
 .lenis.lenis-smooth {
-  scroll-behavior: auto !important;
 }
 
 .lenis.lenis-smooth [data-lenis-prevent] {
@@ -234,7 +229,6 @@ html.lenis, html.lenis body {
   .lenis.lenis-scrolling .ul-svg,
   .lenis.lenis-scrolling .ul-shine,
   .lenis.lenis-scrolling .paint-drops {
-    animation-play-state: paused;
   }
 }
 
@@ -249,31 +243,14 @@ html.lenis, html.lenis body {
   display: none;
 }
 
-@keyframes feature-marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    /* Track is duplicated content, so -50% is exactly one full cycle. */
-    transform: translateX(-50%);
-  }
-}
+
 
 .animate-feature-marquee {
-  animation: feature-marquee 16s linear infinite;
 }
 
-@keyframes brands-marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
+
 
 .animate-brands-marquee {
-  animation: brands-marquee 30s linear infinite;
 }
 
 .section-wrap {
@@ -302,7 +279,6 @@ html.lenis, html.lenis body {
 }
 
 .hover-glow {
-  transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .hover-glow:hover {
@@ -322,11 +298,11 @@ html.lenis, html.lenis body {
 }
 
 .btn-primary {
-  @apply px-8 py-4 bg-primary text-white rounded-full font-bold uppercase tracking-wider text-sm transition-all duration-300 hover:shadow-[0_0_32px_rgba(29,111,235,0.45)] hover:-translate-y-1 shadow-lg shadow-blue-200 min-h-[48px] flex items-center justify-center;
+  @apply px-8 py-4 bg-primary text-white rounded-full font-bold uppercase tracking-wider text-sm   hover:shadow-[0_0_32px_rgba(29,111,235,0.45)]  shadow-lg shadow-blue-200 min-h-[48px] flex items-center justify-center;
 }
 
 .btn-outline {
-  @apply px-8 py-4 bg-white/80 backdrop-blur border border-blue-200 text-primary rounded-full font-bold uppercase tracking-wider text-sm transition-all duration-300 hover:bg-blue-50 hover:border-primary hover:-translate-y-1 min-h-[48px] flex items-center justify-center;
+  @apply px-8 py-4 bg-white/80 backdrop-blur border border-blue-200 text-primary rounded-full font-bold uppercase tracking-wider text-sm   hover:bg-blue-50 hover:border-primary  min-h-[48px] flex items-center justify-center;
 }
 
 .glass {
@@ -342,7 +318,6 @@ html.lenis, html.lenis body {
 }
 
 .card-hover {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
 }
 
@@ -378,7 +353,6 @@ html.lenis, html.lenis body {
 }
 
 .glow-hover {
-  @apply transition-all duration-300;
 }
 
 .glow-hover:hover {
@@ -400,7 +374,6 @@ html.lenis, html.lenis body {
   background: linear-gradient(to right, hsl(var(--primary)), hsl(var(--secondary)));
   z-index: -1;
   opacity: 0;
-  transition: opacity 0.3s ease;
 }
 .glow-border:hover::before {
   opacity: 1;
@@ -460,59 +433,25 @@ html.lenis, html.lenis body {
 
 /* ── Custom Keyframe Animations ── */
 
-@keyframes floatUpDown {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-14px); }
-}
 
-@keyframes lightSweep {
-  0%   { opacity: 0; transform: translateX(-100%) skewX(-12deg); }
-  40%  { opacity: 1; }
-  60%  { opacity: 0.6; }
-  100% { opacity: 0; transform: translateX(200%) skewX(-12deg); }
-}
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
 
-@keyframes shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
 
-@keyframes particles {
-  0% { transform: translateY(0) translateX(0); opacity: 0; }
-  50% { opacity: 1; }
-  100% { transform: translateY(-100px) translateX(20px); opacity: 0; }
-}
 
-@keyframes marqueeScroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
 
-@keyframes marqueeScrollReverse {
-  from { transform: translateX(-50%); }
-  to { transform: translateX(0); }
-}
 
-@keyframes floatY {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-18px); }
-}
 
-@keyframes fogDrift {
-  0% { opacity: 0.3; transform: translateX(-10%); }
-  50% { opacity: 0.6; }
-  100% { opacity: 0.3; transform: translateX(10%); }
-}
 
-@keyframes pulseGlow {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.7; }
-}
+
+
+
+
+
+
+
+
+
+
 
 .particle {
   position: absolute;
@@ -520,7 +459,6 @@ html.lenis, html.lenis body {
   height: 4px;
   background-color: hsl(var(--primary));
   border-radius: 50%;
-  animation: particles 4s infinite ease-in-out;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -579,43 +517,24 @@ body::before {
 }
 
 /* ── Cinematic reveal keyframes ── */
-@keyframes cinBlurIn {
-  from { filter: blur(12px); opacity: 0; transform: scale(0.96) translateY(30px); }
-  to   { filter: blur(0px);  opacity: 1; transform: scale(1)    translateY(0px);  }
-}
 
-@keyframes cinSlideUp {
-  from { opacity: 0; transform: translateY(60px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
 
-@keyframes cinSlideLeft {
-  from { opacity: 0; transform: translateX(60px) blur(8px); }
-  to   { opacity: 1; transform: translateX(0)    blur(0px); }
-}
 
-@keyframes cinWipe {
-  from { clip-path: inset(0 100% 0 0); opacity: 0; }
-  to   { clip-path: inset(0 0% 0 0);   opacity: 1; }
-}
 
-@keyframes cinScaleIn {
-  from { transform: scale(0.94); opacity: 0; filter: blur(8px); }
-  to   { transform: scale(1);    opacity: 1; filter: blur(0px); }
-}
 
-@keyframes cinFloat {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33%       { transform: translateY(-12px) rotate(1deg); }
-  66%       { transform: translateY(-6px)  rotate(-0.5deg); }
-}
+
+
+
+
+
+
 
 /* Utility classes for cinematic animations */
-.cin-blur-in  { animation: cinBlurIn  0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.cin-slide-up { animation: cinSlideUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.cin-wipe     { animation: cinWipe    0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.cin-scale-in { animation: cinScaleIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.cin-float    { animation: cinFloat   6s ease-in-out infinite; }
+.cin-blur-in  {  }
+.cin-slide-up {  }
+.cin-wipe     {  }
+.cin-scale-in {  }
+.cin-float    {  }
 
 /* ═══════════════════════════════════════════════════════════
    MUSIC CONTROL — inline navbar pill (replaces old Hire Me slot)
@@ -627,7 +546,6 @@ body::before {
   display: flex;
   align-items: center;
   overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   opacity: 0;
   width: 0;
   transform: translateX(6px);
@@ -668,7 +586,6 @@ body::before {
   box-shadow: 0 0 0 2px #fafafa, 0 1px 3px rgba(0, 0, 0, 0.15);
   cursor: pointer;
   margin-top: -4.5px;
-  transition: transform 0.15s ease;
 }
 
 .np-audio-slider::-webkit-slider-thumb:hover {
@@ -697,7 +614,6 @@ body::before {
   background: currentColor;
   box-shadow: 0 0 0 2px #fafafa, 0 1px 3px rgba(0, 0, 0, 0.15);
   cursor: pointer;
-  transition: transform 0.15s ease;
 }
 
 .np-audio-slider::-moz-range-thumb:hover {
@@ -713,7 +629,6 @@ body::before {
   align-items: center;
   justify-content: center;
   opacity: 0.8;
-  transition: transform 0.2s ease, opacity 0.2s ease;
   border-radius: 999px;
 }
 
@@ -741,7 +656,6 @@ body::before {
 @media (prefers-reduced-motion: reduce) {
   .np-volume-slider-container-inline,
   .np-mute-btn {
-    transition: none !important;
   }
 }
 
@@ -758,4 +672,65 @@ body::before {
   opacity: 0.07;
   pointer-events: none;
   z-index: 0;
+}
+
+/* Handwritten accent used by the video showcase */
+.font-script { font-family: 'Caveat', cursive; }
+
+/* Navbar entrance — plays once; skipped for reduced-motion users */
+@keyframes nav-enter {
+  from { opacity: 0; transform: translateY(-14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.nav-enter { animation: nav-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .nav-enter { animation: none; }
+}
+
+/* Testimonials — photo fades into the glass card */
+.testi-photo {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 30%, #000 70%);
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 30%, #000 70%);
+}
+@media (min-width: 360px) {
+  .testi-photo {
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.55) 30%, #000 62%);
+    mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.55) 30%, #000 62%);
+  }
+}
+@keyframes testi-swap {
+  from { opacity: 0; transform: translateX(14px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.testi-swap { animation: testi-swap 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .testi-swap { animation: none; }
+}
+/* Testimonials — interactive play button: blue glow + gentle pulse ring on hover / keyboard focus */
+.play-btn { transition: transform 0.2s ease, box-shadow 0.25s ease; }
+.play-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid rgba(8, 102, 255, 0.6);
+  opacity: 0;
+  pointer-events: none;
+}
+.play-btn:hover,
+.play-btn:focus-visible {
+  transform: scale(1.06);
+  box-shadow: 0 0 0 6px rgba(8, 102, 255, 0.22), 0 0 38px 12px rgba(8, 102, 255, 0.62), 0 18px 40px -10px rgba(15, 45, 90, 0.5);
+}
+.play-btn:hover::before,
+.play-btn:focus-visible::before { animation: play-pulse 1.6s ease-out infinite; }
+.play-btn:active { transform: scale(0.96); }
+@keyframes play-pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .play-btn { transition: box-shadow 0.25s ease; }
+  .play-btn:hover, .play-btn:focus-visible, .play-btn:active { transform: none; }
+  .play-btn:hover::before, .play-btn:focus-visible::before { animation: none; }
 }

@@ -5,10 +5,9 @@ import {
   useSpring,
   useTransform,
   useReducedMotion,
-} from "framer-motion";
+} from "@/lib/static-motion";
 import { BadgeCheck } from "lucide-react";
 import type { CardVariant, Testimonial } from "@/types/testimonial";
-import { ease, cardSpring, tiltSpring } from "@/animations/testimonials.motion";
 import AvatarImage from "./AvatarImage";
 import StarRating from "./StarRating";
 import QuoteIcon from "./QuoteIcon";
@@ -28,8 +27,8 @@ export default function TestimonialCard({ t, variant, distance = 0, index = 0 }:
   const ref = useRef<HTMLDivElement>(null);
   const mx = useMotionValue(0.5);
   const my = useMotionValue(0.5);
-  const rotateX = useSpring(useTransform(my, [0, 1], [3, -3]), tiltSpring);
-  const rotateY = useSpring(useTransform(mx, [0, 1], [-3, 3]), tiltSpring);
+  const rotateX = useSpring(useTransform(my, [0, 1], [3, -3]), undefined);
+  const rotateY = useSpring(useTransform(mx, [0, 1], [-3, 3]), undefined);
   const glowX = useTransform(mx, (v) => `${v * 100}%`);
   const glowY = useTransform(my, (v) => `${v * 100}%`);
   const glowBg = useTransform(
@@ -59,17 +58,17 @@ export default function TestimonialCard({ t, variant, distance = 0, index = 0 }:
   return (
     <motion.div
       className="h-full"
-      initial={prefersReducedMotion ? undefined : { opacity: 0, y: 30 }}
+
       whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.6, delay: index * 0.05, ease }}
+
+
     >
       <motion.div
         ref={ref}
         onMouseMove={handleMove}
         onMouseLeave={handleLeave}
         animate={{ scale, opacity }}
-        transition={cardSpring}
+
         style={{
           rotateX: prefersReducedMotion || !isActive ? 0 : rotateX,
           rotateY: prefersReducedMotion || !isActive ? 0 : rotateY,
@@ -79,7 +78,7 @@ export default function TestimonialCard({ t, variant, distance = 0, index = 0 }:
       >
         {/* Thin translucent blue edge — consistent icy-blue identity on every card */}
         <div
-          className="absolute inset-0 rounded-[28px] opacity-80 group-hover:opacity-100 transition-opacity duration-500"
+          className="absolute inset-0 rounded-[28px] opacity-80 group-hover:opacity-100  "
           style={{
             background:
               "linear-gradient(135deg, rgba(29,111,235,0.38), rgba(255,255,255,0.3) 45%, rgba(29,111,235,0.16))",
@@ -88,7 +87,7 @@ export default function TestimonialCard({ t, variant, distance = 0, index = 0 }:
 
         {/* Soft blue glow behind the active card — slightly stronger than side cards */}
         <div
-          className="absolute -inset-6 rounded-[40px] bg-primary/15 blur-3xl -z-10 transition-opacity duration-700"
+          className="absolute -inset-6 rounded-[40px] bg-primary/15 blur-3xl -z-10  "
           style={{ opacity: isActive ? 0.45 : 0.15 }}
           aria-hidden="true"
         />
@@ -103,7 +102,7 @@ export default function TestimonialCard({ t, variant, distance = 0, index = 0 }:
         >
           {/* Mouse-follow glow — active card only */}
           <motion.div
-            className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100  "
             style={{ background: glowBg }}
           />
           <div className="absolute top-0 inset-x-6 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />

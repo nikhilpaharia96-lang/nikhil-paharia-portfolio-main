@@ -1,5 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 
+export type TestimonialCategory = "Creators" | "Businesses" | "Travel & Tourism" | "Education" | "Startups";
+
 /** A single client testimonial entry. */
 export type Testimonial = {
   id: number;
@@ -15,9 +17,14 @@ export type Testimonial = {
   companyLogo: string;
   flag: string;
   country: string;
+  category: TestimonialCategory;
   projectType: string;
   result: string;
   content: string;
+  /** Optional client video message: a direct .mp4/.webm file (local import or URL) or a YouTube / Instagram link. */
+  videoUrl?: string;
+  /** Optional poster image shown behind the play button (defaults to the scenic background). */
+  videoPoster?: string;
 };
 
 /** A single entry in the trust / stats bar. */
@@ -45,3 +52,16 @@ export type TrustedBrand = {
 
 /** Visual weight of a carousel slide relative to the selected one. */
 export type CardVariant = "featured" | "active" | "side";
+
+/** Payload sent when a visitor submits the "Worked with me?" form. */
+export interface TestimonialSubmission {
+  name: string;
+  company: string;
+  role: string;
+  rating: number;
+  content: string;
+  projectName?: string;
+  website?: string;
+  photoDataUrl?: string;
+  submittedAt: string;
+}

@@ -1,14 +1,31 @@
 import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { Link } from "wouter";
+import { ArrowRight } from "lucide-react";
 import { playCardPop } from "@/lib/sound";
+import "./services-cta.css";
+
+export type ServiceBadge = {
+  label: string;
+  /** brand colour for the icon / text */
+  color: string;
+  icon?: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+  /** image logo (svg/png) */
+  logo?: string;
+  /** short text mark, e.g. "Ps" — for brands without an icon in react-icons */
+  text?: string;
+};
 
 export type ServiceItem = {
+  /** URL slug of the service's detail page: /services/:slug */
+  slug: string;
   title: string;
   desc: string;
-  icon?: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
-  logo?: string;
-  color?: string;
-  price: string;
+  /** 1–2 small icon/logo badges shown at the top of the card */
+  badges?: ServiceBadge[];
+  /** Optional transparent cut-out illustration, floating below the description (no frame). */
+  image?: string;
+  price?: string;
 };
 
 type CardColor = "blue" | "cream" | "navy" | "sky";
@@ -34,7 +51,6 @@ const tiltPattern = [-3, 2.5, -2, 3, -2.5, 2, -3, 2.5];
 function FanDeckCard({ service, index, total }: { service: ServiceItem; index: number; total: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const rm = useReducedMotion();
-  const Icon = service.icon;
   const num = (index + 1).toString().padStart(2, "0");
   const color = colorCycle[index % colorCycle.length];
   const p = palette[color];
@@ -77,15 +93,30 @@ function FanDeckCard({ service, index, total }: { service: ServiceItem; index: n
         </span>
 
         <div className="relative p-6 sm:p-7">
-          <div className="flex items-start justify-between mb-5">
-            <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white flex items-center justify-center shadow-sm overflow-hidden">
-              {service.logo ? (
-                <img src={service.logo} alt="" className="w-7 h-7 sm:w-8 sm:h-8 rounded-md" />
-              ) : Icon ? (
-                <Icon className="text-2xl sm:text-3xl" style={{ color: service.color }} />
-              ) : null}
-            </span>
-          </div>
+          {service.badges && service.badges.length > 0 && (
+            <div className="flex items-center gap-2.5 mb-5">
+              {service.badges.map((b) => {
+                const Icon = b.icon;
+                return (
+                  <span
+                    key={b.label}
+                    title={b.label}
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white flex items-center justify-center shadow-sm overflow-hidden"
+                  >
+                    {b.logo ? (
+                      <img src={b.logo} alt={b.label} className="w-7 h-7 sm:w-8 sm:h-8 rounded-md" />
+                    ) : Icon ? (
+                      <Icon className="text-2xl sm:text-3xl" style={{ color: b.color }} />
+                    ) : (
+                      <span className="font-extrabold text-lg sm:text-xl tracking-tight leading-none" style={{ color: b.color }}>
+                        {b.text}
+                      </span>
+                    )}
+                  </span>
+                );
+              })}
+            </div>
+          )}
 
           <h3 className={`font-serif font-black text-xl sm:text-2xl uppercase tracking-tight leading-snug mb-3 ${p.text}`}>
             {service.title}
@@ -94,11 +125,38 @@ function FanDeckCard({ service, index, total }: { service: ServiceItem; index: n
             {service.desc}
           </p>
 
-          <div className={`flex items-center justify-between pt-5 border-t ${color === "cream" ? "border-slate-900/10" : "border-white/20"}`}>
-            <span className={`px-4 py-1.5 rounded-full font-mono text-sm font-bold ${p.priceBg} ${p.priceText}`}>
-              {service.price}
-            </span>
-          </div>
+          {service.image && (
+            <img
+              src={service.image}
+              alt={`${service.title} illustration`}
+              width={1200}
+              height={800}
+              loading="lazy"
+              decoding="async"
+              draggable={false}
+              className="block w-full h-auto mb-5 mt-1 select-none pointer-events-none drop-shadow-[0_14px_26px_rgba(2,6,23,0.35)]"
+            />
+          )}
+
+          {service.price && (
+            <div className={`svc-foot pt-5 border-t ${color === "cream" ? "border-slate-900/10" : "border-white/20"}`}>
+              <span className="svc-price" data-tone={color === "cream" ? "dark" : "light"}>
+                <span className="svc-price__label">Starting From</span>
+                <span className="svc-price__amount">{service.price}</span>
+              </span>
+              <Link
+                href={`/services/${service.slug}`}
+                className="svc-book"
+                data-tone={color === "navy" ? "on-navy" : undefined}
+                aria-label={`Learn more about ${service.title}`}
+              >
+                Learn More
+                <span className="svc-book__arrow" aria-hidden="true">
+                  <ArrowRight size={16} strokeWidth={2.6} />
+                </span>
+              </Link>
+            </div>
+          )}
         </div>
       </motion.article>
     </div>

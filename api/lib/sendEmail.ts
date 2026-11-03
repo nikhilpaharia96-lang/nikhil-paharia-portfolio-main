@@ -12,13 +12,13 @@
  *
  * Required env vars (set in Vercel Project Settings -> Environment Variables):
  *   EMAIL_API_KEY  — Resend API key (server-only secret)
- *   EMAIL_TO       — where contribution notifications should be delivered
+ *   EMAIL_TO       — where booking notifications should be delivered
  *   EMAIL_FROM     — verified sender address/domain in Resend
  *                    (optional — falls back to Resend's shared test sender)
  */
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
-const FALLBACK_FROM = "Teacher's Day Celebration 2026 <onboarding@resend.dev>";
+const FALLBACK_FROM = "Nikhil Paharia Portfolio <onboarding@resend.dev>";
 
 export interface SendEmailInput {
   subject: string;

@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "@/lib/static-motion";
 import { loopedDistance } from "@/utils/carousel";
 
-const AUTOPLAY_INTERVAL_MS = 5200;
 
 export function useTestimonialsCarousel(slideCount: number) {
   const prefersReducedMotion = useReducedMotion();
@@ -11,7 +10,7 @@ export function useTestimonialsCarousel(slideCount: number) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
     align: "center",
-    duration: 28,
+    duration: 0, // instant slide change (no scroll animation)
     skipSnaps: false,
   });
 
@@ -39,33 +38,6 @@ export function useTestimonialsCarousel(slideCount: number) {
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
   const scrollTo = useCallback((index: number) => emblaApi?.scrollTo(index), [emblaApi]);
-
-  // Autoplay — pauses on hover, keyboard focus, reduced-motion preference,
-  // and whenever the tab isn't visible, so it never fights a screen reader
-  // or burns CPU on a backgrounded tab.
-  useEffect(() => {
-    if (!emblaApi || prefersReducedMotion) return;
-
-    let id: ReturnType<typeof setInterval> | null = null;
-
-    const stop = () => {
-      if (id) clearInterval(id);
-      id = null;
-    };
-
-    const start = () => {
-      stop();
-      if (isPaused || isFocused || document.hidden) return;
-      id = setInterval(() => emblaApi.scrollNext(), AUTOPLAY_INTERVAL_MS);
-    };
-
-    start();
-    document.addEventListener("visibilitychange", start);
-    return () => {
-      stop();
-      document.removeEventListener("visibilitychange", start);
-    };
-  }, [emblaApi, isPaused, isFocused, prefersReducedMotion]);
 
   // Arrow-key navigation while the carousel region has focus.
   const onKeyDown = useCallback(

@@ -1,12 +1,13 @@
-import { motion } from "framer-motion";
-import { Link } from "wouter";
-import { RiArrowUpLine, RiGithubFill, RiLinkedinFill, RiInstagramLine, RiYoutubeFill, RiHeart3Fill } from "react-icons/ri";
-import teaBg from "../assets/images/tea-sunset-person-wide.webp";
+import { motion } from "@/lib/static-motion";
+import { RiArrowUpLine, RiGithubFill, RiLinkedinFill, RiInstagramLine, RiYoutubeFill } from "react-icons/ri";
+import footerBg from "../assets/images/footer-bg.webp";
 import Magnetic from "@/components/ui/Magnetic";
 import SplitText from "@/components/ui/SplitText";
-import { staggerContainer, cinChildSmall } from "@/components/CinematicSection";
+import { staggerContainer, cinChildSmall } from "@/lib/revealVariants";
 
 const ease = [0.16, 1, 0.3, 1] as const;
+const FONT_CONDENSED = "'Anton', 'Impact', sans-serif";
+const bigText = "text-6xl sm:text-7xl leading-[0.95] uppercase text-foreground";
 
 const socials = [
   { Icon: RiGithubFill,    href: "#", label: "GitHub",    hoverBg: "hover:bg-slate-900"   },
@@ -23,12 +24,20 @@ const navLinks = [
 ];
 
 export default function Footer() {
-  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "auto" });
 
   return (
-    <footer className="relative bg-gradient-to-b from-blue-50/30 to-white pt-32 pb-12 border-t border-blue-100 overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.03] mix-blend-multiply pointer-events-none">
-        <img src={teaBg} className="w-full h-full object-cover object-center grayscale" alt="" />
+    <footer className="relative bg-blue-50 pt-32 pb-12 border-t border-blue-100 overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+        <img
+          src={footerBg}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          className="w-full h-full object-cover object-[center_64%]"
+        />
+        <div className="absolute inset-0 bg-white/30" />
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white/80 to-transparent" />
       </div>
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
@@ -36,16 +45,16 @@ export default function Footer() {
 
         {/* Hero text */}
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, margin: "-100px" }}
-          transition={{ duration: 0.8, ease }}
+
+
           className="text-center mb-24 max-w-2xl mx-auto"
         >
           <h2 className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-6">
             <SplitText type="words">Let's build the future.</SplitText>
           </h2>
-          <p className="text-lg text-slate-500 font-light">
+          <p className="text-lg text-slate-600 font-light">
             Available for freelance opportunities globally. Bring your boldest ideas.
           </p>
         </motion.div>
@@ -54,67 +63,56 @@ export default function Footer() {
 
           {/* Brand — from LEFT */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
+
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: false, margin: "-80px" }}
-            transition={{ duration: 0.65, ease }}
+
+
             className="text-center md:text-left"
           >
             <Magnetic range={50} strength={0.2}>
-              <a href="#home" className="font-mono text-3xl font-bold tracking-wider block mb-3 flex items-center justify-center md:justify-start gap-2 text-foreground hover:opacity-80 transition-opacity">
+              <a href="#home" className="font-mono text-3xl font-bold tracking-wider block mb-3 flex items-center justify-center md:justify-start gap-2 text-foreground hover:opacity-80 ">
                 Nikhil <span className="text-primary">Paharia</span>
               </a>
             </Magnetic>
-            <p className="text-slate-500 text-base">Crafting cinematic digital experiences.</p>
+            <p className="text-slate-600 text-base">Crafting cinematic digital experiences.</p>
           </motion.div>
 
           {/* Nav + Socials — from RIGHT */}
           <motion.div
             variants={staggerContainer}
-            initial="hidden"
+
             whileInView="show"
-            viewport={{ once: false, margin: "-80px" }}
-            transition={{ delayChildren: 0.1 }}
+
+
             className="flex flex-col items-center gap-6"
           >
             {/* Nav links */}
+            <h3 className={bigText} style={{ fontFamily: FONT_CONDENSED }}>Explore</h3>
             <div className="flex flex-wrap justify-center gap-8 text-sm font-bold uppercase tracking-widest text-slate-600">
               {navLinks.map((link) => (
                 <motion.a
                   key={link.label}
                   href={link.href}
-                  whileHover={{ y: -2, color: "#1D6FEB" }}
+
                   variants={cinChildSmall}
-                  className="hover:text-primary transition-colors interactive"
+                  className="hover:text-primary  interactive"
                 >
                   {link.label}
                 </motion.a>
               ))}
             </div>
 
-            {/* Payment — opens the dedicated /payment page */}
-            <motion.div variants={cinChildSmall}>
-              <Magnetic range={50} strength={0.25}>
-                <Link
-                  href="/payment"
-                  className="interactive inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-blue-200 text-primary text-sm font-bold uppercase tracking-widest hover:bg-primary hover:text-white hover:border-primary hover:-translate-y-0.5 transition-all duration-300 shadow-sm"
-                >
-                  <RiHeart3Fill className="text-base" aria-hidden />
-                  Payment
-                </Link>
-              </Magnetic>
-            </motion.div>
-
             {/* Social icons wrapped in Magnetic */}
+            <h3 className={`${bigText} mt-4`} style={{ fontFamily: FONT_CONDENSED }}>Social</h3>
             <div className="flex gap-4">
               {socials.map(({ Icon, href, label, hoverBg }) => (
                 <Magnetic key={label} range={45} strength={0.4} scaleHover={1.15}>
                   <motion.a
                     href={href}
                     aria-label={label}
-                    whileTap={{ scale: 0.88 }}
+
                     variants={cinChildSmall}
-                    className={`interactive w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center ${hoverBg} hover:text-white transition-colors duration-300`}
+                    className={`interactive w-10 h-10 rounded-full bg-white/80 backdrop-blur flex items-center justify-center ${hoverBg} hover:text-white  `}
                   >
                     <Icon className="text-lg" />
                   </motion.a>
@@ -126,35 +124,30 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, margin: "-60px" }}
-          transition={{ duration: 0.5, delay: 0.2, ease }}
+
+
           className="flex flex-col md:flex-row justify-between items-center gap-6 pt-8 border-t border-blue-100"
         >
-          <p className="text-slate-500 text-sm font-medium">
+          <p className="text-slate-700 text-sm font-medium">
             © {new Date().getFullYear()} Nikhil Paharia. <span className="hidden sm:inline">All rights reserved.</span>
           </p>
-          <p className="text-slate-500 text-sm italic">Crafted in Assam, for the world.</p>
+          <p className="text-slate-700 text-sm italic">Crafted in Assam, for the world.</p>
 
           {/* Back-to-top — elastic morph button with Magnetic */}
           <Magnetic range={60} strength={0.45} scaleHover={1.1}>
             <motion.button
               onClick={scrollToTop}
-              whileHover={{
-                scale: 1.15,
-                y: -4,
-                borderRadius: "14px",
-                boxShadow: "0 0 24px rgba(29,111,235,0.45)",
-              }}
-              whileTap={{ scale: 0.9, rotate: 180 }}
-              transition={{ type: "spring", stiffness: 280, damping: 18 }}
-              className="interactive w-12 h-12 rounded-full bg-white border border-blue-200 flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-colors duration-300 text-slate-600"
+
+
+
+              className="interactive w-12 h-12 rounded-full bg-white/90 border border-blue-200 flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary   text-slate-600"
               aria-label="Scroll to top"
             >
               <motion.div
-                whileHover={{ y: -2 }}
-                transition={{ type: "spring", stiffness: 400 }}
+
+
               >
                 <RiArrowUpLine className="text-2xl" />
               </motion.div>
