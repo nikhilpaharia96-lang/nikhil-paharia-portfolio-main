@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import crypto from "crypto";
 import Razorpay from "razorpay";
-import { checkRateLimit, getClientIp } from "../lib/rateLimit.js";
-import { markNotifiedIfNew } from "../lib/sentPayments.js";
-import { notifyBooking } from "../lib/bookingEmail.js";
+import { checkRateLimit, getClientIp } from "../_lib/rateLimit.js";
+import { markNotifiedIfNew } from "../_lib/sentPayments.js";
+import { notifyBooking } from "../_lib/bookingEmail.js";
 import { isServiceSlug, SERVICE_PRICES } from "../../shared/servicePricing.js";
 
 // Verifies a booking-token payment: (1) HMAC-SHA256 signature from Razorpay Checkout, then

@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import crypto from "crypto";
 import Razorpay from "razorpay";
-import { checkRateLimit, getClientIp } from "./lib/rateLimit.js";
-import { sendNotificationEmail } from "./lib/sendEmail.js";
-import { markNotifiedIfNew } from "./lib/sentPayments.js";
+import { checkRateLimit, getClientIp } from "./_lib/rateLimit.js";
+import { sendNotificationEmail } from "./_lib/sendEmail.js";
+import { markNotifiedIfNew } from "./_lib/sentPayments.js";
 import { isValidSemester } from "../shared/semesterRules.js";
 
 const MAX_NAME_LENGTH = 100;
@@ -15,7 +15,7 @@ const MAX_NAME_LENGTH = 100;
 // is the single source of truth, and it only ever returns
 // `{ verified: true }` when the HMAC signature checks out.
 
-// Best-effort abuse protection — see api/lib/rateLimit.ts for caveats.
+// Best-effort abuse protection — see api/_lib/rateLimit.ts for caveats.
 const RATE_LIMIT = { limit: 15, windowMs: 60_000 }; // 15 verify attempts / IP / minute
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

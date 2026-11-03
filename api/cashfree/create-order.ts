@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { checkRateLimit, getClientIp } from "../lib/rateLimit.js";
-import { getCashfreeConfig, cashfreeHeaders, type CashfreeOrderResponse } from "../lib/cashfree.js";
+import { checkRateLimit, getClientIp } from "../_lib/rateLimit.js";
+import { getCashfreeConfig, cashfreeHeaders, type CashfreeOrderResponse } from "../_lib/cashfree.js";
 import { isValidSemester, getMinAmountForSemester } from "../../shared/semesterRules.js";
 
 // This function runs ONLY on Vercel's server. CASHFREE_SECRET_KEY is read
@@ -18,7 +18,7 @@ const MAX_AMOUNT_INR = 500000;
 
 const MAX_NAME_LENGTH = 100;
 
-// Best-effort abuse protection — see api/lib/rateLimit.ts for caveats.
+// Best-effort abuse protection — see api/_lib/rateLimit.ts for caveats.
 const RATE_LIMIT = { limit: 8, windowMs: 60_000 }; // 8 order-creation attempts / IP / minute
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

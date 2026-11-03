@@ -2,7 +2,7 @@
  * Shared Cashfree Payment Gateway configuration and request helpers.
  *
  * This calls Cashfree's REST API directly via `fetch` — deliberately NOT an
- * official Cashfree SDK package — for the same reason api/lib/sendEmail.ts
+ * official Cashfree SDK package — for the same reason api/_lib/sendEmail.ts
  * avoids the `resend` package: it adds zero new dependencies to the project.
  *
  * This module must only ever be imported from `/api` serverless functions.

@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import Razorpay from "razorpay";
-import { checkRateLimit, getClientIp } from "../lib/rateLimit.js";
+import { checkRateLimit, getClientIp } from "../_lib/rateLimit.js";
 import {
   isServiceSlug,
   SERVICE_PRICES,

@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { checkRateLimit, getClientIp } from "../lib/rateLimit.js";
-import { sendNotificationEmail } from "../lib/sendEmail.js";
-import { markNotifiedIfNew } from "../lib/sentPayments.js";
+import { checkRateLimit, getClientIp } from "../_lib/rateLimit.js";
+import { sendNotificationEmail } from "../_lib/sendEmail.js";
+import { markNotifiedIfNew } from "../_lib/sentPayments.js";
 import { isValidSemester } from "../../shared/semesterRules.js";
-import { getCashfreeConfig, cashfreeHeaders, type CashfreeOrderResponse, type CashfreeOrderPayment } from "../lib/cashfree.js";
+import { getCashfreeConfig, cashfreeHeaders, type CashfreeOrderResponse, type CashfreeOrderPayment } from "../_lib/cashfree.js";
 
 const MAX_NAME_LENGTH = 100;
 
@@ -16,7 +16,7 @@ const MAX_NAME_LENGTH = 100;
 // from Cashfree using our server-only secret key. The frontend can never
 // mark a payment successful on its own.
 
-// Best-effort abuse protection — see api/lib/rateLimit.ts for caveats.
+// Best-effort abuse protection — see api/_lib/rateLimit.ts for caveats.
 const RATE_LIMIT = { limit: 15, windowMs: 60_000 }; // 15 verify attempts / IP / minute
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

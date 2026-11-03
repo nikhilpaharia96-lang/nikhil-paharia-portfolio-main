@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import type { Readable } from "node:stream";
 import crypto from "crypto";
-import { sendNotificationEmail } from "../lib/sendEmail.js";
-import { markNotifiedIfNew } from "../lib/sentPayments.js";
-import { getCashfreeConfig } from "../lib/cashfree.js";
+import { sendNotificationEmail } from "../_lib/sendEmail.js";
+import { markNotifiedIfNew } from "../_lib/sentPayments.js";
+import { getCashfreeConfig } from "../_lib/cashfree.js";
 
 // OPTIONAL, defense-in-depth only. api/cashfree/verify-payment.ts (called
 // by the frontend right after checkout) is already the authoritative check

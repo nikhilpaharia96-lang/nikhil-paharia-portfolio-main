@@ -4,7 +4,7 @@
  * e.g. if the client retries /api/verify-payment after a flaky network
  * response, or double-fires the request.
  *
- * Same caveat as api/lib/rateLimit.ts: Vercel functions are stateless and
+ * Same caveat as api/_lib/rateLimit.ts: Vercel functions are stateless and
  * may run as multiple concurrent instances, so this Map is NOT a durable,
  * cross-instance guarantee. For a stronger guarantee, back this with a
  * shared store (e.g. Upstash Redis) keyed by payment ID. This in-memory

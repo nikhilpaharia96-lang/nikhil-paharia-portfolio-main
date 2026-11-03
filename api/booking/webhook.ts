@@ -2,8 +2,8 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import type { Readable } from "node:stream";
 import crypto from "crypto";
 import Razorpay from "razorpay";
-import { markNotifiedIfNew } from "../lib/sentPayments.js";
-import { notifyBooking } from "../lib/bookingEmail.js";
+import { markNotifiedIfNew } from "../_lib/sentPayments.js";
+import { notifyBooking } from "../_lib/bookingEmail.js";
 
 // OPTIONAL safety net: Razorpay calls this after a captured payment, so the Gmail alert is
 // still sent if the client closes the tab before /api/booking/verify-payment runs. The same
