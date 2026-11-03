@@ -23,6 +23,12 @@ const FALLBACK_FROM = "Nikhil Paharia Portfolio <onboarding@resend.dev>";
 export interface SendEmailInput {
   subject: string;
   text: string;
+  /** Optional HTML version (the plain text stays as the fallback). */
+  html?: string;
+  /** Recipient. Defaults to EMAIL_TO (the site owner's inbox). */
+  to?: string;
+  /** Where replies go — set to the owner's inbox on emails sent to clients. */
+  replyTo?: string;
 }
 
 export interface SendEmailResult {
@@ -30,9 +36,9 @@ export interface SendEmailResult {
   error?: string;
 }
 
-export async function sendNotificationEmail({ subject, text }: SendEmailInput): Promise<SendEmailResult> {
+export async function sendNotificationEmail({ subject, text, html, to: toOverride, replyTo }: SendEmailInput): Promise<SendEmailResult> {
   const apiKey = process.env.EMAIL_API_KEY;
-  const to = process.env.EMAIL_TO;
+  const to = toOverride || process.env.EMAIL_TO;
   const from = process.env.EMAIL_FROM || FALLBACK_FROM;
 
   if (!apiKey || !to) {
@@ -54,6 +60,8 @@ export async function sendNotificationEmail({ subject, text }: SendEmailInput): 
         to: [to],
         subject,
         text,
+        ...(html ? { html } : {}),
+        ...(replyTo ? { reply_to: replyTo } : {}),
       }),
     });
 

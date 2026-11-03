@@ -2,9 +2,8 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import crypto from "crypto";
 import Razorpay from "razorpay";
 import { checkRateLimit, getClientIp } from "../lib/rateLimit.js";
-import { sendNotificationEmail } from "../lib/sendEmail.js";
 import { markNotifiedIfNew } from "../lib/sentPayments.js";
-import { buildBookingEmail } from "../lib/bookingEmail.js";
+import { notifyBooking } from "../lib/bookingEmail.js";
 import { isServiceSlug, SERVICE_PRICES } from "../../shared/servicePricing.js";
 
 // Verifies a booking-token payment: (1) HMAC-SHA256 signature from Razorpay Checkout, then
@@ -79,11 +78,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const remaining = Math.max(0, total - token - startAdvance);
 
     if (markNotifiedIfNew(`razorpay:${paymentId}`)) {
-      const mail = buildBookingEmail({ tags: notes, paymentId, orderId, tokenPaid: token, requirements, gateway: "Razorpay" });
-      if (mail) {
-        const result = await sendNotificationEmail(mail);
-        if (!result.sent) console.error("Verified booking but notification email failed:", result.error);
-      }
+      await notifyBooking({ tags: notes, paymentId, orderId, tokenPaid: token, requirements });
     }
 
     return res.status(200).json({

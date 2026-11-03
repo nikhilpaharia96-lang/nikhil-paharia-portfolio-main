@@ -11,6 +11,7 @@ import { RiCameraLensLine, RiRobot2Line, RiPaletteLine, RiLightbulbFlashLine } f
 import premiereProLogo from "../assets/logos/premiere-pro.svg";
 import afterEffectsLogo from "../assets/logos/after-effects.svg";
 import { SERVICE_PRICES, type ServiceSlug } from "../../shared/servicePricing";
+import { SERVICE_INFO } from "../../shared/serviceInfo";
 
 export type Tool = {
   label: string;
@@ -72,6 +73,7 @@ export const WHY_CHOOSE_ME = [
 export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
   "website-development": {
     slug: "website-development",
+    ...SERVICE_INFO["website-development"],
     seoDescription: "Fast, modern, responsive websites for businesses and brands — landing pages, business sites and custom web apps by Nikhil Paharia.",
     intro: {
       what: "I design and build fast, responsive, modern websites — from a single landing page to a complete business website or custom web application — that look great on every screen.",
@@ -108,19 +110,13 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
       { label: "Vercel", icon: SiVercel, color: "#000000" },
       { label: "Netlify", icon: SiNetlify, color: "#00C7B7" },
     ],
-    timeline: [
-      { label: "Landing page", value: "3 – 5 days" },
-      { label: "Business website (5–8 pages)", value: "7 – 12 days" },
-      { label: "Custom web app", value: "3 – 6 weeks" },
-    ],
-    delivery: "3 – 12 days (depending on pages)",
-    included: ["Responsive single-page website", "Contact form", "Basic SEO setup", "1 round of revisions", "Deployment support"],
     suggestedTotal: 9999,
     quickTotals: [2999, 9999, 19999, 39999],
   },
 
   "video-editing": {
     slug: "video-editing",
+    ...SERVICE_INFO["video-editing"],
     seoDescription: "Professional video editing for YouTube, Instagram Reels, ads and corporate videos — cuts, colour, sound and motion graphics.",
     intro: {
       what: "Professional editing that turns raw footage into engaging videos — YouTube videos, Instagram Reels, ads, promos and corporate films — with sharp cuts, colour, sound and motion graphics.",
@@ -154,19 +150,13 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
       { label: "Google Drive", icon: SiGoogledrive, color: "#4285F4" },
       { label: "YouTube", icon: SiYoutube, color: "#FF0000" },
     ],
-    timeline: [
-      { label: "Reel / Short", value: "1 – 2 days" },
-      { label: "YouTube video (up to 10 min)", value: "3 – 5 days" },
-      { label: "Ad / promo / corporate video", value: "4 – 7 days" },
-    ],
-    delivery: "1 – 5 days (depending on length)",
-    included: ["Edit up to 60 seconds", "Colour correction", "Music & basic sound design", "Captions", "1 round of revisions"],
     suggestedTotal: 1499,
     quickTotals: [499, 1499, 4999, 9999],
   },
 
   "digital-marketing": {
     slug: "digital-marketing",
+    ...SERVICE_INFO["digital-marketing"],
     seoDescription: "Social media marketing, Google Ads, SEO and lead generation to grow your brand — monthly digital marketing by Nikhil Paharia.",
     intro: {
       what: "Monthly digital marketing that grows your brand: social media management, Google & Meta ads, SEO and lead-generation funnels, all tracked with real numbers.",
@@ -201,19 +191,13 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
       { label: "Semrush", icon: SiSemrush, color: "#FF642D" },
       { label: "Mailchimp", icon: SiMailchimp, color: "#FFE01B" },
     ],
-    timeline: [
-      { label: "Setup & strategy", value: "3 – 5 days" },
-      { label: "First campaign live", value: "Within 1 week" },
-      { label: "Visible results", value: "30 – 60 days" },
-    ],
-    delivery: "Setup in ~1 week, then monthly",
-    included: ["Monthly content plan", "Social media posting", "Basic ad setup", "Monthly report"],
     suggestedTotal: 4999,
     quickTotals: [1999, 4999, 9999, 19999],
   },
 
   "graphic-designing": {
     slug: "graphic-designing",
+    ...SERVICE_INFO["graphic-designing"],
     seoDescription: "Logos, banners, social media posts, branding and print design — professional graphic design by Nikhil Paharia.",
     intro: {
       what: "Logos, social media creatives, banners, brochures, packaging and complete brand identities — designed to look professional and consistent everywhere.",
@@ -245,19 +229,13 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
       { label: "Palette & Branding", icon: RiPaletteLine, color: "#7C3AED" },
       { label: "Creative Concepts", icon: RiLightbulbFlashLine, color: "#F59E0B" },
     ],
-    timeline: [
-      { label: "Social post / banner", value: "1 – 2 days" },
-      { label: "Logo design", value: "3 – 5 days" },
-      { label: "Full branding kit", value: "7 – 10 days" },
-    ],
-    delivery: "1 – 7 days (depending on scope)",
-    included: ["Up to 2 concepts", "Print & web-ready files", "1 round of revisions"],
     suggestedTotal: 999,
     quickTotals: [499, 999, 2999, 7999],
   },
 
   "ui-ux-design": {
     slug: "ui-ux-design",
+    ...SERVICE_INFO["ui-ux-design"],
     seoDescription: "User-friendly UI/UX design for websites, web apps and mobile apps — wireframes, prototypes and design systems in Figma.",
     intro: {
       what: "User research, wireframes and polished interface design for websites and mobile apps — delivered as clickable Figma prototypes and developer-ready files.",
@@ -289,19 +267,13 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
       { label: "Miro", icon: SiMiro, color: "#FFD02F" },
       { label: "Sketch", icon: SiSketch, color: "#F7B500" },
     ],
-    timeline: [
-      { label: "Wireframes", value: "2 – 3 days" },
-      { label: "Website UI (5 screens)", value: "5 – 7 days" },
-      { label: "Mobile app UI", value: "2 – 3 weeks" },
-    ],
-    delivery: "5 – 14 days (depending on screens)",
-    included: ["Up to 5 screens", "Clickable prototype", "Basic design system", "1 round of revisions"],
     suggestedTotal: 4999,
     quickTotals: [1499, 4999, 9999, 19999],
   },
 
   "automation-ai-solutions": {
     slug: "automation-ai-solutions",
+    ...SERVICE_INFO["automation-ai-solutions"],
     seoDescription: "WhatsApp chatbots, workflow automation, CRM and API integration — save hours every week with AI and automation by Nikhil Paharia.",
     intro: {
       what: "I automate repetitive work with chatbots, workflow automation, CRM set-ups and API integrations so your business replies faster and runs with less manual effort.",
@@ -339,19 +311,13 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
       { label: "HubSpot", icon: SiHubspot, color: "#FF7A59" },
       { label: "Postman", icon: SiPostman, color: "#FF6C37" },
     ],
-    timeline: [
-      { label: "Simple automation", value: "2 – 4 days" },
-      { label: "WhatsApp chatbot", value: "5 – 8 days" },
-      { label: "CRM + multi-app workflow", value: "10 – 15 days" },
-    ],
-    delivery: "3 – 12 days (depending on complexity)",
-    included: ["1 workflow or chatbot", "Up to 3 app integrations", "Testing & walkthrough", "Basic documentation"],
     suggestedTotal: 9999,
     quickTotals: [4999, 9999, 19999, 39999],
   },
 
   "e-commerce-solutions": {
     slug: "e-commerce-solutions",
+    ...SERVICE_INFO["e-commerce-solutions"],
     seoDescription: "Online store development, product setup, payment integration and store management on Shopify, WooCommerce and WordPress.",
     intro: {
       what: "Complete online stores — design, product upload, payment and shipping set-up and store management — so you can start selling online with confidence.",
@@ -384,19 +350,13 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
       { label: "Stripe", icon: SiStripe, color: "#635BFF" },
       { label: "Figma", icon: SiFigma, color: "#F24E1E" },
     ],
-    timeline: [
-      { label: "Store setup (up to 20 products)", value: "5 – 8 days" },
-      { label: "Custom design store", value: "10 – 15 days" },
-      { label: "Large catalogue / custom features", value: "3 – 5 weeks" },
-    ],
-    delivery: "5 – 15 days (depending on catalogue)",
-    included: ["Store set-up", "Up to 10 products", "Payment gateway integration", "Basic shipping set-up", "1 round of revisions"],
     suggestedTotal: 9999,
     quickTotals: [4999, 9999, 19999, 39999],
   },
 
   "cinematography-video-production": {
     slug: "cinematography-video-production",
+    ...SERVICE_INFO["cinematography-video-production"],
     seoDescription: "Professional video shooting, cinematography, promotional videos and content creation — end-to-end video production by Nikhil Paharia.",
     intro: {
       what: "End-to-end video production — planning, shooting with cinematic cameras and lighting, and post-production — for promos, brand films, product videos and social content.",
@@ -431,13 +391,6 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
       { label: "OBS Studio", icon: SiObsstudio, color: "#302E31" },
       { label: "Blender", icon: SiBlender, color: "#F5792A" },
     ],
-    timeline: [
-      { label: "Pre-production", value: "2 – 3 days" },
-      { label: "Shoot", value: "1 – 2 days" },
-      { label: "Post-production", value: "4 – 7 days" },
-    ],
-    delivery: "7 – 12 days (shoot to final)",
-    included: ["Half-day shoot", "1 short promo / reel", "Editing & colour grading", "1 round of revisions"],
     suggestedTotal: 7999,
     quickTotals: [2999, 7999, 14999, 29999],
   },

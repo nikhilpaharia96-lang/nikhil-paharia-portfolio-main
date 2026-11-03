@@ -2,9 +2,8 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import type { Readable } from "node:stream";
 import crypto from "crypto";
 import Razorpay from "razorpay";
-import { sendNotificationEmail } from "../lib/sendEmail.js";
 import { markNotifiedIfNew } from "../lib/sentPayments.js";
-import { buildBookingEmail } from "../lib/bookingEmail.js";
+import { notifyBooking } from "../lib/bookingEmail.js";
 
 // OPTIONAL safety net: Razorpay calls this after a captured payment, so the Gmail alert is
 // still sent if the client closes the tab before /api/booking/verify-payment runs. The same
@@ -62,17 +61,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (notes.source !== "service-booking") return res.status(200).json({ received: true, ignored: true });
 
     if (markNotifiedIfNew(`razorpay:${pay.id}`)) {
-      const mail = buildBookingEmail({
+      await notifyBooking({
         tags: notes,
         paymentId: pay.id,
         orderId: pay.order_id,
         tokenPaid: Number(pay.amount ?? 0) / 100,
-        gateway: "Razorpay",
       });
-      if (mail) {
-        const result = await sendNotificationEmail(mail);
-        if (!result.sent) console.error("Booking webhook email failed:", result.error);
-      }
     }
     return res.status(200).json({ received: true });
   } catch (err) {
