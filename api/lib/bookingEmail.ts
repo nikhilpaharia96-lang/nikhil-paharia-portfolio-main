@@ -2,8 +2,8 @@ import { isServiceSlug, SERVICE_PRICES } from "../../shared/servicePricing.js";
 
 /**
  * Builds the "new booking" notification email sent to the site owner's inbox.
- * Used by BOTH api/cashfree/verify-booking-payment.ts (browser-triggered) and
- * api/cashfree/webhook.ts (Cashfree-triggered, in case the tab was closed), so
+ * Used by BOTH api/booking/verify-payment.ts (browser-triggered) and
+ * api/booking/webhook.ts (Razorpay-triggered, in case the tab was closed), so
  * the email is identical whichever arrives first.
  */
 export function buildBookingEmail(args: {
@@ -12,6 +12,7 @@ export function buildBookingEmail(args: {
   orderId: string;
   tokenPaid: number;
   requirements?: string;
+  gateway?: string;
 }): { subject: string; text: string } | null {
   const { tags, paymentId, orderId, tokenPaid } = args;
   if (tags.source !== "service-booking" || !isServiceSlug(tags.service)) return null;
@@ -41,7 +42,7 @@ export function buildBookingEmail(args: {
       "Payment status: Booking token paid (verified)",
       `Payment ID: ${paymentId}`,
       `Order ID: ${orderId}`,
-      "Gateway: Cashfree",
+      `Gateway: ${args.gateway ?? "Razorpay"}`,
       `Date/Time: ${when} (IST)`,
       "",
       "Requirements:",

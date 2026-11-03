@@ -1,4 +1,4 @@
-import { loadCashfreeScript } from "@/lib/loadCashfreeScript";
+import { loadRazorpayScript } from "@/lib/loadRazorpayScript";
 
 export interface BookingInput {
   service: string; // slug
@@ -39,32 +39,56 @@ async function postJson(url: string, body: unknown) {
 }
 
 /**
- * Pays the 5% booking token through the portfolio's existing Cashfree integration.
+ * Pays the 5% booking token through the portfolio's existing Razorpay integration.
  *
- *   1. POST /api/cashfree/create-booking-order  → server computes the token, creates the order
- *   2. Cashfree checkout (modal)
- *   3. POST /api/cashfree/verify-booking-payment → server asks Cashfree if the order is PAID,
- *      saves the booking details in the Cashfree order and emails the admin
+ *   1. POST /api/booking/create-order    → server computes the token and creates the Razorpay order
+ *   2. Razorpay Checkout (modal)
+ *   3. POST /api/booking/verify-payment  → server checks the signature, re-reads the order and
+ *      payment from Razorpay, and emails the admin
  *
  * The success state can only come from step 3's `verified: true`.
  */
 export async function payBookingToken(input: BookingInput): Promise<BookingReceipt> {
-  const loaded = await loadCashfreeScript();
-  if (!loaded || !window.Cashfree) {
+  const loaded = await loadRazorpayScript();
+  if (!loaded || !window.Razorpay) {
     throw new PaymentError("Could not load the payment window. Check your connection and try again.");
   }
 
-  const order = await postJson("/api/cashfree/create-booking-order", input);
+  const order = await postJson("/api/booking/create-order", input);
   if (!order.ok) throw new PaymentError(order.data?.error || "Could not start payment.");
+  const Razorpay = window.Razorpay;
 
-  const cashfree = window.Cashfree({ mode: order.data.cashfreeEnv === "PRODUCTION" ? "production" : "sandbox" });
-  await cashfree.checkout({ paymentSessionId: order.data.paymentSessionId, redirectTarget: "_modal" });
-
-  const verify = await postJson("/api/cashfree/verify-booking-payment", {
-    orderId: order.data.orderId,
-    requirements: input.requirements,
+  return new Promise<BookingReceipt>((resolve, reject) => {
+    let handled = false;
+    const rzp = new Razorpay({
+      key: order.data.keyId,
+      amount: order.data.amount,
+      currency: order.data.currency,
+      order_id: order.data.orderId,
+      name: "Nikhil Paharia",
+      description: `Booking token — ${order.data.serviceTitle}`,
+      theme: { color: "#1266F1" },
+      prefill: { name: input.name, email: input.email, contact: input.phone },
+      handler: async (response) => {
+        handled = true;
+        try {
+          const verify = await postJson("/api/booking/verify-payment", { ...response, requirements: input.requirements });
+          if (verify.ok && verify.data.verified === true) resolve(verify.data as BookingReceipt);
+          else reject(new PaymentError(verify.data?.error || "We couldn't verify this payment."));
+        } catch {
+          reject(new PaymentError("We couldn't verify this payment. If you were charged, please contact me."));
+        }
+      },
+      modal: {
+        ondismiss: () => {
+          if (!handled) reject(new PaymentError("Payment was not completed.", true));
+        },
+      },
+    });
+    rzp.on("payment.failed", () => {
+      handled = true;
+      reject(new PaymentError("Payment failed. You haven't been charged — please try again."));
+    });
+    rzp.open();
   });
-  if (verify.ok && verify.data.verified === true) return verify.data as BookingReceipt;
-
-  throw new PaymentError(verify.data?.error || "We couldn't verify this payment.", verify.data?.error === "Payment was not completed.");
 }
