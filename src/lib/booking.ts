@@ -34,7 +34,15 @@ async function postJson(url: string, body: unknown) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  const data = await res.json().catch(() => ({}));
+  const data = await res.json().catch(() => null);
+  // A gateway/proxy error page (HTML, not our JSON) → friendly message instead of a raw failure.
+  if (data === null) {
+    throw new PaymentError(
+      res.status >= 500
+        ? "The payment service is temporarily unavailable (server busy). Please try again in a minute."
+        : "Something went wrong. Please try again.",
+    );
+  }
   return { ok: res.ok, data };
 }
 
@@ -54,7 +62,9 @@ export async function payBookingToken(input: BookingInput): Promise<BookingRecei
     throw new PaymentError("Could not load the payment window. Check your connection and try again.");
   }
 
-  const order = await postJson("/api/booking/create-order", input);
+  const order = await postJson("/api/booking/create-order", input).catch((e) => {
+    throw e instanceof PaymentError ? e : new PaymentError("Could not reach the payment service. Check your connection and try again.");
+  });
   if (!order.ok) throw new PaymentError(order.data?.error || "Could not start payment.");
   const Razorpay = window.Razorpay;
 

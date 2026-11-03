@@ -66,11 +66,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     b.total as number,
     normalizeSplit(process.env.BOOKING_TOKEN_PERCENT, process.env.START_ADVANCE_PERCENT),
   );
-  const service = SERVICE_PRICES[b.service];
+  const slug = b.service;
+  const service = SERVICE_PRICES[slug];
 
   try {
     const razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
-    const order = await razorpay.orders.create({
+    const createOrder = () =>
+      razorpay.orders.create({
       amount: quote.token * 100, // whole rupees → paise (exact)
       currency: "INR",
       receipt: `booking_${Date.now()}`,
@@ -78,7 +80,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Read back server-side in verify-payment / webhook, so the browser can't alter them.
       notes: {
         source: "service-booking",
-        service: b.service,
+        service: slug,
         total: String(quote.total),
         token_pct: String(quote.tokenPercent),
         start_pct: String(quote.startPercent),
@@ -88,6 +90,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         req: requirements.slice(0, 240),
       },
     });
+
+    // Razorpay's gateway occasionally answers 502/503 for a moment — retry once before giving up.
+    let order;
+    try {
+      order = await createOrder();
+    } catch (first) {
+      const status = (first as { statusCode?: number }).statusCode ?? 0;
+      if (status < 500) throw first;
+      await new Promise((r) => setTimeout(r, 700));
+      order = await createOrder();
+    }
 
     return res.status(200).json({
       orderId: order.id,
@@ -101,7 +114,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       total: quote.total,
     });
   } catch (err) {
-    console.error("Razorpay booking order failed:", err instanceof Error ? err.message : "unknown error");
-    return res.status(502).json({ error: "Could not start payment. Please try again." });
+    // Log what Razorpay said (status + description) to make Vercel logs useful — never keys.
+    const e = err as { statusCode?: number; error?: { description?: string }; message?: string };
+    console.error("Razorpay booking order failed:", e.statusCode ?? "", e.error?.description ?? e.message ?? "unknown error");
+    return res.status(502).json({ error: "Payment service is temporarily unavailable. Please try again in a minute." });
   }
 }
