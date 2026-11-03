@@ -27,7 +27,7 @@ import nodemailer from "nodemailer";
  *  2. Resend      — EMAIL_API_KEY (+ EMAIL_FROM on a verified domain to reach clients).
  * Gmail is used whenever it is configured.
  */
-async function sendViaGmail(opts: { to: string; subject: string; text: string; html?: string; replyTo?: string }): Promise<SendEmailResult> {
+async function sendViaGmail(opts: { to: string; subject: string; text: string; html?: string; replyTo?: string; attachments?: SendEmailInput["attachments"] }): Promise<SendEmailResult> {
   const user = process.env.GMAIL_USER as string;
   try {
     const transport = nodemailer.createTransport({
@@ -43,6 +43,7 @@ async function sendViaGmail(opts: { to: string; subject: string; text: string; h
       text: opts.text,
       ...(opts.html ? { html: opts.html } : {}),
       ...(opts.replyTo ? { replyTo: opts.replyTo } : {}),
+      ...(opts.attachments?.length ? { attachments: opts.attachments } : {}),
     });
     return { sent: true };
   } catch (err) {
@@ -63,6 +64,8 @@ export interface SendEmailInput {
   to?: string;
   /** Where replies go — set to the owner's inbox on emails sent to clients. */
   replyTo?: string;
+  /** Optional file attachments (e.g. the booking PDF). */
+  attachments?: { filename: string; content: Buffer }[];
 }
 
 export interface SendEmailResult {
@@ -70,10 +73,10 @@ export interface SendEmailResult {
   error?: string;
 }
 
-export async function sendNotificationEmail({ subject, text, html, to: toOverride, replyTo }: SendEmailInput): Promise<SendEmailResult> {
+export async function sendNotificationEmail({ subject, text, html, to: toOverride, replyTo, attachments }: SendEmailInput): Promise<SendEmailResult> {
   if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
     const gmailTo = toOverride || process.env.EMAIL_TO || process.env.GMAIL_USER;
-    return sendViaGmail({ to: gmailTo, subject, text, html, replyTo: replyTo || process.env.EMAIL_TO || process.env.GMAIL_USER });
+    return sendViaGmail({ to: gmailTo, subject, text, html, attachments, replyTo: replyTo || process.env.EMAIL_TO || process.env.GMAIL_USER });
   }
 
   const apiKey = process.env.EMAIL_API_KEY;
@@ -101,6 +104,7 @@ export async function sendNotificationEmail({ subject, text, html, to: toOverrid
         text,
         ...(html ? { html } : {}),
         ...(replyTo ? { reply_to: replyTo } : {}),
+        ...(attachments?.length ? { attachments: attachments.map((a) => ({ filename: a.filename, content: a.content.toString("base64") })) } : {}),
       }),
     });
 

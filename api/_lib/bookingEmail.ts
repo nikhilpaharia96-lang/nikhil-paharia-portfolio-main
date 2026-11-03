@@ -1,6 +1,8 @@
 import { isServiceSlug, SERVICE_PRICES } from "../../shared/servicePricing.js";
 import { SERVICE_INFO } from "../../shared/serviceInfo.js";
 import { sendNotificationEmail } from "./sendEmail.js";
+import { buildBookingPdf } from "./bookingPdf.js";
+import { sendBookingPdfWhatsApp } from "./whatsapp.js";
 
 /**
  * Builds the "new booking" notification email sent to the site owner's inbox.
@@ -153,7 +155,11 @@ export function buildClientQuotationEmail(args: {
   return { to: tags.email, subject: `Your booking & quotation — ${service.title}`, text, html };
 }
 
-/** Sends BOTH emails for a verified booking: the alert to the owner and the quotation to the client. */
+/**
+ * After a verified booking: (1) alert email to the owner, (2) quotation email to the client,
+ * (3) the booking PDF to the client's WhatsApp. The PDF is also attached to both emails.
+ * Each step is independent — one failing never blocks the others.
+ */
 export async function notifyBooking(args: {
   tags: Record<string, string>;
   paymentId: string;
@@ -161,15 +167,36 @@ export async function notifyBooking(args: {
   tokenPaid: number;
   requirements?: string;
 }): Promise<void> {
+  let pdf: Buffer | null = null;
+  try {
+    pdf = await buildBookingPdf(args);
+  } catch (err) {
+    console.error("Booking PDF generation failed:", err instanceof Error ? err.message : "unknown error");
+  }
+  const filename = `Booking-${args.orderId}.pdf`;
+  const attachments = pdf ? [{ filename, content: pdf }] : undefined;
+
   const admin = buildBookingEmail({ ...args, gateway: "Razorpay" });
   if (admin) {
-    const r = await sendNotificationEmail(admin);
+    const r = await sendNotificationEmail({ ...admin, attachments });
     if (!r.sent) console.error("Booking owner email failed:", r.error);
   }
+
   const client = buildClientQuotationEmail(args);
   if (client) {
     // Replies go to the owner's inbox.
-    const r = await sendNotificationEmail({ ...client, replyTo: process.env.EMAIL_TO });
+    const r = await sendNotificationEmail({ ...client, replyTo: process.env.EMAIL_TO, attachments });
     if (!r.sent) console.error("Booking client email failed:", r.error);
+  }
+
+  if (pdf && args.tags.phone && isServiceSlug(args.tags.service)) {
+    const r = await sendBookingPdfWhatsApp({
+      phone: args.tags.phone,
+      clientName: args.tags.name || "there",
+      serviceTitle: SERVICE_PRICES[args.tags.service].title,
+      pdf,
+      filename,
+    });
+    if (!r.sent && r.error !== "WhatsApp is not configured.") console.error("Booking WhatsApp failed:", r.error);
   }
 }
