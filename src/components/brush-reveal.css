@@ -30,3 +30,16 @@
     mask-image: none;
   }
 }
+
+/* Mobile fix — the site is intentionally static (no animation), and the animated mask relies on
+ * @property + var()-in-gradient, which many mobile browsers (older iOS Safari, in-app browsers)
+ * don't interpolate: the stroke then gets stuck partly/fully masked and looks broken or invisible.
+ * On mobile/tablet we skip the wipe entirely and just paint the stroke fully. */
+@media (max-width: 1023px) {
+  .brush-reveal {
+    animation: none !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+    max-width: none;
+  }
+}
