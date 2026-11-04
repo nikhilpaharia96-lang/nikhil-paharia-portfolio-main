@@ -9,10 +9,12 @@
  *   WHATSAPP_PHONE_NUMBER_ID  the sending number's Phone Number ID
  *   WHATSAPP_TEMPLATE_NAME    approved template name   (default: booking_confirmation)
  *   WHATSAPP_TEMPLATE_LANG    template language code   (default: en)
+ *   WHATSAPP_GRAPH_VERSION    Graph API version        (default: v23.0)
  * If these are not set, sending is skipped silently (email still goes out).
  */
 
-const GRAPH = "https://graph.facebook.com/v21.0";
+// Graph API version is configurable (older versions get retired by Meta over time).
+const GRAPH = `https://graph.facebook.com/${process.env.WHATSAPP_GRAPH_VERSION || "v23.0"}`;
 
 export interface WhatsAppResult {
   sent: boolean;
