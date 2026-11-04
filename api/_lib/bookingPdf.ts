@@ -1,4 +1,6 @@
-import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
+import { PDFDocument, rgb, type PDFFont, type PDFPage } from "pdf-lib";
+import fontkit from "@pdf-lib/fontkit";
+import { INTER_REGULAR_BASE64, INTER_BOLD_BASE64 } from "./pdfFonts.js";
 import { isServiceSlug, SERVICE_PRICES } from "../../shared/servicePricing.js";
 import { SERVICE_INFO } from "../../shared/serviceInfo.js";
 
@@ -6,18 +8,13 @@ import { SERVICE_INFO } from "../../shared/serviceInfo.js";
  * Builds the booking confirmation + quotation PDF (A4) that is sent to the client on WhatsApp
  * and as an email attachment. Pure JS (pdf-lib) so it runs inside a Vercel function.
  *
- * Standard PDF fonts can't draw "₹", so amounts are written as "Rs." and any other character
- * outside Latin-1 is replaced.
+ * Uses an embedded Unicode font (Inter, subset to Latin + "₹") so the rupee symbol renders
+ * properly. Page size is A4 (595.28 x 841.89 pt).
  */
 
-const safe = (s: string) =>
-  s
-    .replace(/₹/g, "Rs. ")
-    .replace(/[–—]/g, "-")
-    .replace(/[“”]/g, '"')
-    .replace(/[‘’]/g, "'")
-    .replace(/[^\x20-\x7E -ÿ]/g, "?");
-const rs = (n: number) => `Rs. ${n.toLocaleString("en-IN")}`;
+// Characters the embedded font subset covers; anything else is replaced so drawing never throws.
+const safe = (s: string) => s.replace(/[^\x20-\x7E\u00A0-\u00FF\u2013\u2014\u2018\u2019\u201C\u201D\u2022\u20B9]/g, "?");
+const rs = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
 const BLUE = rgb(0.07, 0.4, 0.945);
 const NAVY = rgb(0.06, 0.09, 0.16);
@@ -49,9 +46,11 @@ export async function buildBookingPdf(args: BookingPdfInput): Promise<Buffer | n
   const pdf = await PDFDocument.create();
   pdf.setTitle(`Booking confirmation - ${service.title}`);
   pdf.setAuthor("Nikhil Paharia");
-  const regular = await pdf.embedFont(StandardFonts.Helvetica);
-  const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
+  pdf.registerFontkit(fontkit);
+  const regular = await pdf.embedFont(Buffer.from(INTER_REGULAR_BASE64, "base64"));
+  const bold = await pdf.embedFont(Buffer.from(INTER_BOLD_BASE64, "base64"));
 
+  // A4 portrait
   const W = 595.28;
   const H = 841.89;
   const M = 44;
@@ -85,7 +84,7 @@ export async function buildBookingPdf(args: BookingPdfInput): Promise<Buffer | n
   };
   const heading = (t: string) => {
     need(40);
-    y -= 26;
+    y -= 22;
     text(t.toUpperCase(), M, 10, bold, BLUE);
     y -= 6;
     page.drawLine({ start: { x: M, y }, end: { x: W - M, y }, thickness: 0.6, color: rgb(0.86, 0.9, 0.97) });
@@ -94,13 +93,13 @@ export async function buildBookingPdf(args: BookingPdfInput): Promise<Buffer | n
   const para = (t: string, size = 10.5, font = regular, indent = 0, color = NAVY) => {
     for (const l of wrap(t, size, font, W - 2 * M - indent)) {
       need(size + 6);
-      y -= size + 5;
+      y -= size + 4;
       text(l, M + indent, size, font, color);
     }
   };
   const row = (k: string, v: string, strong = false) => {
-    need(22);
-    y -= 20;
+    need(20);
+    y -= 18;
     text(k, M + 4, 10.5, regular, GREY);
     const w = (strong ? bold : regular).widthOfTextAtSize(safe(v), 11);
     page.drawText(safe(v), { x: W - M - 4 - w, y, size: 11, font: strong ? bold : regular, color: strong ? BLUE : NAVY });
@@ -132,10 +131,10 @@ export async function buildBookingPdf(args: BookingPdfInput): Promise<Buffer | n
   row(`Remaining after completion (${remainingPct}%)`, rs(remaining));
 
   heading("What's included");
-  info.included.forEach((i) => para(`-  ${i}`, 10.5, regular, 4));
+  info.included.forEach((i) => para(`•  ${i}`, 10.5, regular, 4));
 
   heading("Typical timelines");
-  info.timeline.forEach((t) => para(`-  ${t.label}: ${t.value}`, 10.5, regular, 4));
+  info.timeline.forEach((t) => para(`•  ${t.label}: ${t.value}`, 10.5, regular, 4));
 
   if (requirements) {
     heading("Your requirements");
@@ -152,7 +151,7 @@ export async function buildBookingPdf(args: BookingPdfInput): Promise<Buffer | n
   para(`Order ID: ${orderId}`, 9.5, regular, 4, GREY);
 
   pdf.getPages().forEach((p, i, all) => {
-    p.drawText(safe(`Nikhil Paharia  -  This is a computer-generated confirmation.  Page ${i + 1} of ${all.length}`), {
+    p.drawText(safe(`Nikhil Paharia  ·  This is a computer-generated confirmation.  Page ${i + 1} of ${all.length}`), {
       x: M,
       y: 24,
       size: 8,
