@@ -625,9 +625,9 @@ export default function Hero() {
 
               className="brush-reveal absolute pointer-events-none select-none z-0"
               style={{
-                width: '150%',
-                top: '29%',
-                left: '7%',
+                width: '118%',
+                top: '34%',
+                left: '50%',
                 transform: 'translate(-50%, 0) rotate(-7deg)',
               }}
             />
