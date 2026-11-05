@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { X, ArrowUpRight } from "lucide-react";
-import brandLogo from "../assets/logos/nikhil-paharia-logo.webp";
+import brandLogo from "../assets/logos/nikhil-paharia-logo-v2.webp";
 import { lockBodyScroll } from "@/lib/scrollLock";
 
 const navLinks = [
@@ -162,10 +162,10 @@ export default function Navbar() {
           <img
             src={brandLogo}
             alt=""
-            width={1993}
-            height={331}
+            width={1100}
+            height={261}
             decoding="async"
-            className="h-[min(34px,calc((100vw-168px)/6.02))] sm:h-11 xl:h-[46px] 2xl:h-[54px] w-auto max-w-full shrink-0 transition duration-300 group-hover:scale-[1.03] group-hover:drop-shadow-[0_4px_10px_rgba(18,102,241,0.3)] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            className="h-[min(44px,calc((100vw-168px)/4.215))] sm:h-12 xl:h-[54px] 2xl:h-[62px] w-auto max-w-full shrink-0 transition duration-300 group-hover:scale-[1.03] group-hover:drop-shadow-[0_4px_10px_rgba(18,102,241,0.3)] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
         </a>
 
