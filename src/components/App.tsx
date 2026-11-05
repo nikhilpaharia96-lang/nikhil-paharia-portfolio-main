@@ -94,12 +94,12 @@ function App() {
             <Hero />
 
             {/* Marquee — fast cut between scenes */}
-            <CinematicSection parallax={15} delay={0}>
+            <CinematicSection parallax={0} delay={0}>
               <Marquee />
             </CinematicSection>
 
             {/* About — slow crane-up reveal */}
-            <CinematicSection parallax={40} delay={0.05}>
+            <CinematicSection parallax={0} delay={0.05}>
               <About />
             </CinematicSection>
 

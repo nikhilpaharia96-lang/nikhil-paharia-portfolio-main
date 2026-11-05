@@ -57,8 +57,6 @@ export default function Marquee() {
 
   return (
     <div className="marquee-section section-wrap" role="marquee" aria-label="Digital Creator, Assam India. Full-stack developer, freelancer, storyteller.">
-      <div className="marquee-bg" aria-hidden="true" />
-
       {/* Black band (tilted) — moves RIGHT */}
       <div className="marquee-band marquee-band--black">
         <div className="marquee-row">

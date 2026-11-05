@@ -6,25 +6,13 @@
   width: 100%;
   max-width: 100%;
   overflow: hidden;
-  padding: 3.5rem 0 3rem;
-  background: #fafafc;
+  padding: 0;
+  background: transparent;
   --m-coral: #ff4d4d;
   --m-ink: #0a0a0a;
+  --m-rise: 2.4vw; /* how far the tilted black band's edge swings above/below its centre line */
 }
-@media (min-width: 768px) { .marquee-section { padding: 5.5rem 0 4.5rem; } }
 
-/* faint wave lines in the background */
-.marquee-bg {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.55;
-  background-image:
-    repeating-radial-gradient(ellipse 120% 70% at 15% 0%, transparent 0 7px, rgba(148,156,190,.22) 7px 8px),
-    repeating-radial-gradient(ellipse 120% 70% at 85% 100%, transparent 0 7px, rgba(148,156,190,.22) 7px 8px);
-  -webkit-mask-image: radial-gradient(ellipse at center, transparent 25%, #000 85%);
-          mask-image: radial-gradient(ellipse at center, transparent 25%, #000 85%);
-}
 
 .marquee-band {
   position: relative;
@@ -36,23 +24,27 @@
 .marquee-band--black {
   background: var(--m-ink);
   color: #fff;
-  height: 4.5rem;
+  box-sizing: border-box;
+  height: calc(4.5rem + var(--m-rise));
+  padding-top: var(--m-rise);
+  margin-top: calc(var(--m-rise) * -1);
   transform: rotate(-2.2deg);
   z-index: 2;
-  box-shadow: 0 10px 30px rgba(0,0,0,.18);
 }
 .marquee-band--coral {
   background: linear-gradient(90deg, #ff1f3a 0%, #ff5a4d 45%, #ff8068 100%);
   color: var(--m-ink);
-  height: 3.25rem;
-  margin-top: -0.4rem;
+  box-sizing: border-box;
+  height: calc(3.25rem + var(--m-rise) * 2);
+  padding-top: calc(var(--m-rise) * 2);
+  margin-top: calc(var(--m-rise) * -2);
+  margin-bottom: -0.8vw;
   transform: rotate(-0.4deg);
   z-index: 1;
-  box-shadow: 0 12px 30px rgba(255,77,77,.25);
 }
 @media (min-width: 768px) {
-  .marquee-band--black { height: 6.5rem; }
-  .marquee-band--coral { height: 4.5rem; margin-top: -0.6rem; }
+  .marquee-band--black { height: calc(6.5rem + var(--m-rise)); }
+  .marquee-band--coral { height: calc(4.5rem + var(--m-rise) * 2); }
 }
 
 /* text fades out near the edges */
