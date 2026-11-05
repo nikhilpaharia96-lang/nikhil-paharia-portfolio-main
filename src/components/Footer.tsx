@@ -7,10 +7,10 @@ import { staggerContainer, cinChildSmall } from "@/lib/revealVariants";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const FONT_CONDENSED = "'Anton', 'Impact', sans-serif";
-const bigText = "text-6xl sm:text-7xl leading-[0.95] uppercase text-foreground";
+const bigText = "text-4xl sm:text-6xl md:text-7xl leading-[0.95] uppercase text-foreground";
 
 const socials = [
-  { Icon: RiGithubFill,    href: "#", label: "GitHub",    hoverBg: "hover:bg-slate-900"   },
+  { Icon: RiGithubFill,    href: "https://github.com/nikhilpaharia96-lang", label: "GitHub",    hoverBg: "hover:bg-slate-900"   },
   { Icon: RiLinkedinFill,  href: "#", label: "LinkedIn",  hoverBg: "hover:bg-[#0A66C2]"   },
   { Icon: RiInstagramLine, href: "#", label: "Instagram", hoverBg: "hover:bg-[#E1306C]"   },
   { Icon: RiYoutubeFill,   href: "#", label: "YouTube",   hoverBg: "hover:bg-[#FF0000]"   },
@@ -27,7 +27,7 @@ export default function Footer() {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "auto" });
 
   return (
-    <footer className="relative bg-blue-50 pt-32 pb-12 border-t border-blue-100 overflow-hidden">
+    <footer className="relative bg-blue-50 pt-20 md:pt-32 pb-12 border-t border-blue-100 overflow-hidden">
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <img
           src={footerBg}
@@ -49,17 +49,17 @@ export default function Footer() {
           whileInView={{ opacity: 1, y: 0 }}
 
 
-          className="text-center mb-24 max-w-2xl mx-auto"
+          className="text-center mb-12 md:mb-24 max-w-2xl mx-auto"
         >
-          <h2 className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-6">
-            <SplitText type="words">Let's build the future.</SplitText>
+          <h2 className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-6 text-center">
+            <SplitText type="words" className="justify-center">Let's build the future.</SplitText>
           </h2>
           <p className="text-lg text-slate-600 font-light">
             Available for freelance opportunities globally. Bring your boldest ideas.
           </p>
         </motion.div>
 
-        <div className="flex flex-col md:flex-row justify-between items-center gap-12 mb-16">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-8 md:gap-12 mb-10 md:mb-16">
 
           {/* Brand — from LEFT */}
           <motion.div
@@ -88,7 +88,7 @@ export default function Footer() {
           >
             {/* Nav links */}
             <h3 className={bigText} style={{ fontFamily: FONT_CONDENSED }}>Explore</h3>
-            <div className="flex flex-wrap justify-center gap-8 text-sm font-bold uppercase tracking-widest text-slate-600">
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 md:gap-8 text-xs sm:text-sm font-bold uppercase tracking-widest text-slate-600">
               {navLinks.map((link) => (
                 <motion.a
                   key={link.label}
@@ -110,6 +110,7 @@ export default function Footer() {
                   <motion.a
                     href={href}
                     aria-label={label}
+                    {...(href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
 
                     variants={cinChildSmall}
                     className={`interactive w-10 h-10 rounded-full bg-white/80 backdrop-blur flex items-center justify-center ${hoverBg} hover:text-white  `}
