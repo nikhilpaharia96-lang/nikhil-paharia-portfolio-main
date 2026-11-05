@@ -16,6 +16,7 @@ import creatorPhoto from "@/assets/images/my-new-photo.jpg";
 import vid1 from "@/assets/images/video-1.png";
 import vid2 from "@/assets/images/video-2.png";
 import vid3 from "@/assets/images/video-3.png";
+import bkJewellers from "@/assets/images/bk-jewellers.webp";
 import type {
   FeaturedVideo,
   Project,
@@ -108,12 +109,12 @@ export const projects: Project[] = [
   },
   {
     id: 7,
-    title: "Instagram Reel",
-    category: "Social Media",
+    title: "B.K. Jewellers — Special Invitation",
+    category: "Commercial",
     duration: "Reel",
-    image: vid1,
-    description: "A short-form edit, watch it right here in the player.",
-    location: "India",
+    image: bkJewellers,
+    description: "A promo reel inviting customers to B.K. Jewellers' 3-day event — trusted since 1965 for gold, diamond & silver jewellery.",
+    location: "Jagiroad, Assam",
     videoUrl: "https://www.instagram.com/reel/DeOg4CbOw6L/?psln=MXFhb3JhbGRocGM5cg==",
   },
 ];
