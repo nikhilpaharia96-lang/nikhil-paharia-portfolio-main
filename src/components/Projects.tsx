@@ -874,7 +874,7 @@ export default function Projects() {
   return (
     <section
       id="projects"
-      className="relative pt-10 sm:pt-14 md:pt-16 pb-24 md:pb-32 overflow-hidden"
+      className="relative pt-10 sm:pt-14 md:pt-16 pb-12 md:pb-32 overflow-hidden"
       style={{
         backgroundImage: `
           linear-gradient(rgba(201,220,255,0.16) 1px, transparent 1px),

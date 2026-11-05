@@ -13,7 +13,7 @@ export default function Testimonials() {
   return (
     <section
       id="testimonials"
-      className="relative overflow-hidden section-wrap max-w-full pt-28 pb-14 sm:pt-32 sm:pb-20 lg:py-32"
+      className="relative overflow-hidden section-wrap max-w-full pt-14 pb-14 sm:pt-32 sm:pb-20 lg:py-32"
       aria-label="Testimonials — Client Stories"
     >
       <BackgroundGlow />
