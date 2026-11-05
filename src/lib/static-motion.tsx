@@ -233,7 +233,10 @@ const cache = new Map<string, React.ComponentType<any>>();
 export const motion: Record<string, React.ForwardRefExoticComponent<any>> = new Proxy(
   {},
   {
-    get(_t, tag: string) {
+    get(target, tag: string | symbol) {
+      // Symbols (Symbol.toPrimitive, Symbol.toStringTag, ...) are probed by tooling such as React
+      // Refresh and devtools; they are not element tags, so never build a component for them.
+      if (typeof tag !== "string") return Reflect.get(target, tag);
       if (!cache.has(tag)) cache.set(tag, makeStatic(tag));
       return cache.get(tag);
     },

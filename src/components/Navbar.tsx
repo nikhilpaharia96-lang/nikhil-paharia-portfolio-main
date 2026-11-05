@@ -248,7 +248,7 @@ export default function Navbar() {
       <div
         id="mobile-menu"
         aria-hidden={!menuOpen}
-        {...(!menuOpen ? { inert: true } : {})}
+        {...(!menuOpen ? { inert: "" } : {})}
         className={`xl:hidden pointer-events-auto w-full mt-0 rounded-none border-0 border-b border-white/85 bg-white/[0.86] backdrop-blur-[18px] backdrop-saturate-150 shadow-[0_18px_48px_rgba(30,100,200,0.20)] overflow-hidden origin-top transition duration-300 motion-reduce:transition-none ${
           menuOpen ? "opacity-100 translate-y-0 scale-100 visible" : "opacity-0 -translate-y-2 scale-[0.98] invisible pointer-events-none"
         }`}
