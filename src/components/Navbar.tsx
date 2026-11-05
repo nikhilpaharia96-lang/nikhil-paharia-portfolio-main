@@ -25,12 +25,37 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
+  // Smart navbar: slides away while reading down, slides back the moment the visitor scrolls up.
+  const [hidden, setHidden] = useState(false);
+  const lastY = useRef(0);
+  const menuOpenRef = useRef(false);
+  const progressRef = useRef<HTMLSpanElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
 
-  // Scrolled state (glass gets a little more opaque) — passive listener, one cheap state flip.
   useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 40);
+    menuOpenRef.current = menuOpen;
+    if (menuOpen) setHidden(false);
+  }, [menuOpen]);
+
+  // Scroll behaviour — passive listener: glass gets more opaque after 40px, the bar hides on
+  // scroll-down / returns on scroll-up (ignores tiny jitters and iOS rubber-band overscroll),
+  // and a thin progress line under the bar shows how far down the page the visitor is.
+  useEffect(() => {
+    const onScroll = () => {
+      const y = Math.max(window.scrollY, 0);
+      setIsScrolled(y > 40);
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      if (progressRef.current) {
+        progressRef.current.style.transform = `scaleX(${max > 0 ? Math.min(y / max, 1) : 0})`;
+      }
+      const dy = y - lastY.current;
+      if (Math.abs(dy) < 8) return;
+      lastY.current = y;
+      if (y < 80 || menuOpenRef.current) setHidden(false);
+      else setHidden(dy > 0);
+    };
+    lastY.current = Math.max(window.scrollY, 0);
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
@@ -107,14 +132,17 @@ export default function Navbar() {
   return (
     <header
       ref={headerRef}
-      className="fixed inset-x-0 top-0 z-[200] pointer-events-none"
+      onFocusCapture={() => setHidden(false)}
+      className={`fixed inset-x-0 top-0 z-[200] pointer-events-none transition-transform duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+        hidden ? "-translate-y-full" : "translate-y-0"
+      }`}
       style={{
         paddingTop: "env(safe-area-inset-top, 0px)",
       }}
     >
       <nav
         aria-label="Primary"
-        className={`nav-enter pointer-events-auto w-full flex items-center justify-between gap-3 xl:gap-6 rounded-none border-0 border-b px-4 sm:px-6 lg:px-10 h-[64px] sm:h-[70px] xl:h-[74px] transition-[background-color,box-shadow,border-color] duration-300 motion-reduce:transition-none ${
+        className={`nav-enter relative pointer-events-auto w-full flex items-center justify-between gap-3 xl:gap-6 rounded-none border-0 border-b px-4 sm:px-6 lg:px-10 h-[64px] sm:h-[70px] xl:h-[74px] transition-[background-color,box-shadow,border-color] duration-300 motion-reduce:transition-none ${
           isScrolled
             ? "bg-white/[0.92] border-white/85 backdrop-blur-[18px] backdrop-saturate-150 shadow-[0_10px_36px_rgba(30,100,200,0.18)]"
             : "bg-white/80 border-white/60 backdrop-blur-[12px] backdrop-saturate-150 shadow-[0_6px_24px_rgba(30,100,200,0.08)]"
@@ -206,6 +234,14 @@ export default function Navbar() {
             )}
           </button>
         </div>
+
+        {/* Reading-progress line */}
+        <span
+          ref={progressRef}
+          aria-hidden="true"
+          className="absolute left-0 bottom-0 h-[2px] w-full origin-left bg-[#1266F1] pointer-events-none"
+          style={{ transform: "scaleX(0)" }}
+        />
       </nav>
 
       {/* Mobile / tablet menu — always mounted so open/close can transition */}
