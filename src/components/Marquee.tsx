@@ -46,6 +46,10 @@ export default function Marquee() {
         <span key={i} className="marquee-item">
           <span>FULL-STACK DEVELOPER</span>
           <Dot />
+          <span>VIDEO EDITING</span>
+          <Dot />
+          <span>DIGITAL MARKETING</span>
+          <Dot />
           <span>FREELANCER</span>
           <Dot />
           <span>STORYTELLER</span>
@@ -56,7 +60,7 @@ export default function Marquee() {
   );
 
   return (
-    <div className="marquee-section section-wrap" role="marquee" aria-label="Digital Creator, Assam India. Full-stack developer, freelancer, storyteller.">
+    <div className="marquee-section section-wrap" role="marquee" aria-label="Digital Creator, Assam India. Full-stack developer, video editing, digital marketing, freelancer, storyteller.">
       {/* Black band (tilted) — moves RIGHT */}
       <div className="marquee-band marquee-band--black">
         <div className="marquee-row">
