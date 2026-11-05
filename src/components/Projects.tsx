@@ -948,7 +948,7 @@ export default function Projects() {
           </div>
 
           {/* sticky note */}
-          <Reveal fromY={30} rotate={6} delay={0.25} className="justify-self-start lg:justify-self-end w-full max-w-[280px]">
+          <Reveal fromY={30} rotate={6} delay={0.25} className="hidden md:block justify-self-start lg:justify-self-end w-full max-w-[280px]">
           <div
             className="relative rounded-sm p-5"
             style={{
@@ -970,7 +970,7 @@ export default function Projects() {
         </div>
 
         {/* ── Filter tabs ── */}
-        <Reveal fromY={22} className="mb-10">
+        <Reveal fromY={22} className="hidden md:block mb-10">
         <div className="flex flex-wrap gap-1 border-b border-slate-300/70">
           {FILTER_TABS.map((tab) => {
             const isActive = activeFilter === tab.key;
