@@ -19,10 +19,7 @@ import * as React from "react";
 
 const STORAGE_KEY_MUTED = "np-portfolio-audio-muted";
 const STORAGE_KEY_VOLUME = "np-portfolio-audio-volume";
-const TRACK_SOURCES = [
-  { src: "/audio/ambient-cinematic.ogg", type: "audio/ogg" },
-  { src: "/audio/ambient-cinematic.mp3", type: "audio/mpeg" },
-];
+const TRACK_SOURCES = [{ src: "/audio/kyon.mp3", type: "audio/mpeg" }];
 const DEFAULT_VOLUME = 0.3; // matches the reference site's "cozy background" level
 
 function readMuted(): boolean {
@@ -80,7 +77,7 @@ export function useBackgroundMusic() {
     audio.volume = readVolume();
     audio.muted = readMuted();
 
-    const source = TRACK_SOURCES.find((s) => audio.canPlayType(s.type) !== "") ?? TRACK_SOURCES[1];
+    const source = TRACK_SOURCES.find((s) => audio.canPlayType(s.type) !== "") ?? TRACK_SOURCES[0];
     audio.src = source.src;
 
     const onError = () => {
