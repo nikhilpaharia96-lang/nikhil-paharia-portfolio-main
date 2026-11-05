@@ -106,6 +106,16 @@ export const projects: Project[] = [
     location: "Arunachal Pradesh, India",
     videoUrl: "https://www.instagram.com/reel/DbdGUJjuSoH/?igsh=MzRpcWpwem1tdzhn",
   },
+  {
+    id: 7,
+    title: "Instagram Reel",
+    category: "Social Media",
+    duration: "Reel",
+    image: vid1,
+    description: "A short-form edit, watch it right here in the player.",
+    location: "India",
+    videoUrl: "https://www.instagram.com/reel/DeOg4CbOw6L/?psln=MXFhb3JhbGRocGM5cg==",
+  },
 ];
 
 export const showcaseStats: ShowcaseStat[] = [
