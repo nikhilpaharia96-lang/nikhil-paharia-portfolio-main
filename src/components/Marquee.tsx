@@ -1,34 +1,81 @@
 import "./marquee.css";
 
-export default function Marquee() {
-  const content = "WEB DEVELOPER ✦ VIDEO EDITOR ✦ FREELANCER ✦ STORYTELLER ✦ DIGITAL CREATOR ✦ ASSAM, INDIA ✦ ";
-  // Each group repeats the phrase 3× so it is wider than even a 4K screen; the track holds two groups.
-  const group = content.repeat(3);
+const Chevrons = () => (
+  <svg className="marquee-chevrons" viewBox="0 0 66 44" fill="none" aria-hidden="true">
+    {[0, 18, 36].map((x) => (
+      <path
+        key={x}
+        d={`M${x + 2} 2 L${x + 20} 22 L${x + 2} 42 L${x + 12} 42 L${x + 30} 22 L${x + 12} 2 Z`}
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinejoin="round"
+      />
+    ))}
+  </svg>
+);
 
-  const textClass = "font-bold tracking-[0.2em] text-lg md:text-xl uppercase";
+const Star = () => (
+  <svg className="marquee-star" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 0 C13 8 16 11 24 12 C16 13 13 16 12 24 C11 16 8 13 0 12 C8 11 11 8 12 0 Z" fill="currentColor" />
+  </svg>
+);
+
+const Dot = () => <span className="marquee-dot" aria-hidden="true" />;
+
+export default function Marquee() {
+  // Each group is repeated so it is wider than a 4K screen; the track holds two groups for a seamless loop.
+  const reps = Array.from({ length: 3 });
+
+  const topGroup = (
+    <span className="marquee-group marquee-group--top">
+      {reps.map((_, i) => (
+        <span key={i} className="marquee-item">
+          <Chevrons />
+          <span>DIGITAL CREATOR</span>
+          <Star />
+          <span>ASSAM, INDIA</span>
+          <Star />
+        </span>
+      ))}
+    </span>
+  );
+
+  const bottomGroup = (
+    <span className="marquee-group marquee-group--bottom">
+      {reps.map((_, i) => (
+        <span key={i} className="marquee-item">
+          <span>FULL-STACK DEVELOPER</span>
+          <Dot />
+          <span>FREELANCER</span>
+          <Dot />
+          <span>STORYTELLER</span>
+          <Dot />
+        </span>
+      ))}
+    </span>
+  );
 
   return (
-    <div className="w-full py-6 md:py-8 bg-gradient-to-r from-blue-800 via-blue-700 to-sky-700 relative overflow-hidden flex flex-col gap-4 section-wrap max-w-full">
-      {/* Texture overlay */}
-      <div className="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMSIvPgo8L3N2Zz4=')] mix-blend-overlay pointer-events-none" />
+    <div className="marquee-section section-wrap" role="marquee" aria-label="Digital Creator, Assam India. Full-stack developer, freelancer, storyteller.">
+      <div className="marquee-bg" aria-hidden="true" />
 
-      {/* Gradient fade edges */}
-      <div className="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-blue-800 to-transparent z-10 pointer-events-none" />
-      <div className="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-sky-700 to-transparent z-10 pointer-events-none" />
-
-      {/* Row 1 (top): moves RIGHT */}
-      <div className="marquee-row relative flex overflow-hidden">
-        <div className="marquee-track marquee-track--right text-white">
-          <span className={`marquee-group ${textClass}`}>{group}</span>
-          <span className={`marquee-group ${textClass}`} aria-hidden="true">{group}</span>
+      {/* Black band (tilted) — moves RIGHT */}
+      <div className="marquee-band marquee-band--black">
+        <div className="marquee-row">
+          <div className="marquee-track marquee-track--right">
+            {topGroup}
+            <span aria-hidden="true">{topGroup}</span>
+          </div>
         </div>
       </div>
 
-      {/* Row 2 (bottom): moves LEFT */}
-      <div className="marquee-row relative flex overflow-hidden">
-        <div className="marquee-track text-white/70">
-          <span className={`marquee-group ${textClass}`}>{group}</span>
-          <span className={`marquee-group ${textClass}`} aria-hidden="true">{group}</span>
+      {/* Coral band — moves LEFT */}
+      <div className="marquee-band marquee-band--coral">
+        <div className="marquee-row">
+          <div className="marquee-track">
+            {bottomGroup}
+            <span aria-hidden="true">{bottomGroup}</span>
+          </div>
         </div>
       </div>
     </div>

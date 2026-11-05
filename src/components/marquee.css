@@ -1,20 +1,125 @@
-/* Marquee — two rows moving in opposite directions (transform only, seamless loop).
+/* Marquee — tilted black band + coral band, opposite directions (transform only, seamless loop).
    Each track holds two identical groups, so translating by -50% lands exactly on the start. */
+
+.marquee-section {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 3.5rem 0 3rem;
+  background: #fafafc;
+  --m-coral: #ff4d4d;
+  --m-ink: #0a0a0a;
+}
+@media (min-width: 768px) { .marquee-section { padding: 5.5rem 0 4.5rem; } }
+
+/* faint wave lines in the background */
+.marquee-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.55;
+  background-image:
+    repeating-radial-gradient(ellipse 120% 70% at 15% 0%, transparent 0 7px, rgba(148,156,190,.22) 7px 8px),
+    repeating-radial-gradient(ellipse 120% 70% at 85% 100%, transparent 0 7px, rgba(148,156,190,.22) 7px 8px);
+  -webkit-mask-image: radial-gradient(ellipse at center, transparent 25%, #000 85%);
+          mask-image: radial-gradient(ellipse at center, transparent 25%, #000 85%);
+}
+
+.marquee-band {
+  position: relative;
+  width: 112%;
+  margin-left: -6%;
+  display: flex;
+  align-items: center;
+}
+.marquee-band--black {
+  background: var(--m-ink);
+  color: #fff;
+  height: 4.5rem;
+  transform: rotate(-2.2deg);
+  z-index: 2;
+  box-shadow: 0 10px 30px rgba(0,0,0,.18);
+}
+.marquee-band--coral {
+  background: linear-gradient(90deg, #ff1f3a 0%, #ff5a4d 45%, #ff8068 100%);
+  color: var(--m-ink);
+  height: 3.25rem;
+  margin-top: -0.4rem;
+  transform: rotate(-0.4deg);
+  z-index: 1;
+  box-shadow: 0 12px 30px rgba(255,77,77,.25);
+}
+@media (min-width: 768px) {
+  .marquee-band--black { height: 6.5rem; }
+  .marquee-band--coral { height: 4.5rem; margin-top: -0.6rem; }
+}
+
+/* text fades out near the edges */
+.marquee-row {
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  -webkit-mask-image: linear-gradient(90deg, rgba(0,0,0,.12) 0, #000 14%, #000 86%, rgba(0,0,0,.12) 100%);
+          mask-image: linear-gradient(90deg, rgba(0,0,0,.12) 0, #000 14%, #000 86%, rgba(0,0,0,.12) 100%);
+}
+
 .marquee-track {
   display: inline-flex;
   width: max-content;
   will-change: transform;
-  --marquee-dur: 68s;
+  --marquee-dur: 70s;
   animation: marquee-left var(--marquee-dur) linear infinite;
 }
 .marquee-track--right {
-  --marquee-dur: 62s; /* slightly different speed from the other row, so they never sync up */
+  --marquee-dur: 62s;
   animation-name: marquee-right;
 }
+.marquee-track > span { display: inline-flex; }
+
 .marquee-group {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   flex-shrink: 0;
   white-space: nowrap;
+}
+.marquee-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.1rem;
+  padding-right: 1.1rem;
+}
+@media (min-width: 768px) { .marquee-item { gap: 2rem; padding-right: 2rem; } }
+
+.marquee-group--top {
+  font-family: "Montserrat", "Inter", system-ui, sans-serif;
+  font-weight: 800;
+  font-style: italic;
+  font-size: 1.6rem;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+.marquee-group--bottom {
+  font-family: "Montserrat", "Inter", system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.14em;
+}
+@media (min-width: 768px) {
+  .marquee-group--top { font-size: 3rem; }
+  .marquee-group--bottom { font-size: 1.5rem; }
+}
+
+.marquee-chevrons { height: 1.4rem; width: auto; color: var(--m-coral); }
+.marquee-star { height: 1.4rem; width: 1.4rem; color: var(--m-coral); }
+.marquee-dot {
+  width: 0.5rem; height: 0.5rem; border-radius: 50%;
+  background: var(--m-ink); flex-shrink: 0;
+}
+@media (min-width: 768px) {
+  .marquee-chevrons { height: 2.7rem; }
+  .marquee-star { height: 2.6rem; width: 2.6rem; }
+  .marquee-dot { width: 0.8rem; height: 0.8rem; }
 }
 
 @keyframes marquee-left {
@@ -26,17 +131,13 @@
   to   { transform: translate3d(0, 0, 0); }
 }
 
-/* Pause under the cursor on desktop. */
 @media (hover: hover) {
-  .marquee-row:hover .marquee-track { animation-play-state: paused; }
+  .marquee-band:hover .marquee-track { animation-play-state: paused; }
 }
-
-/* Phones: shorter loop (the text is smaller there). */
 @media (max-width: 767px) {
-  .marquee-track { --marquee-dur: 58s; }
-  .marquee-track--right { --marquee-dur: 52s; }
+  .marquee-track { --marquee-dur: 55s; }
+  .marquee-track--right { --marquee-dur: 50s; }
 }
-
 @media (prefers-reduced-motion: reduce) {
   .marquee-track { animation: none; }
 }
