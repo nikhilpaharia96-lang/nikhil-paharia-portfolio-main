@@ -734,3 +734,17 @@ body::before {
   .play-btn:hover, .play-btn:focus-visible, .play-btn:active { transform: none; }
   .play-btn:hover::before, .play-btn:focus-visible::before { animation: none; }
 }
+
+/* Testimonials — "Trusted by People & Brands" endless marquee.
+   The track holds the brand list repeated; translating -50% loops seamlessly. */
+@keyframes brand-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.brand-marquee-track { animation: brand-marquee 32s linear infinite; will-change: transform; }
+.brand-marquee:hover .brand-marquee-track,
+.brand-marquee:focus-within .brand-marquee-track { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .brand-marquee-track { animation: none; }
+  .brand-marquee { overflow-x: auto; }
+}
