@@ -1,19 +1,52 @@
+import { useState } from "react";
 import { trustedBrands } from "@/constants/testimonials";
-import AvatarImage from "./AvatarImage";
 
 type Brand = (typeof trustedBrands)[number];
 
-function BrandItem({ brand }: { brand: Brand }) {
-  return (
-    <li className="flex items-center gap-2 shrink-0 px-[clamp(0.9rem,4vw,1.75rem)] border-l border-slate-300/60">
+// Display names for the strip (the data file keeps raw site names / handles).
+const DISPLAY_NAME: Record<string, string> = {
+  theoutdoorbackpacke: "The Outdoor Backpacker",
+};
+
+/** Logo on a clean white disc (so transparent / dark logos stay readable); coloured initials if it fails. */
+function BrandLogo({ brand }: { brand: Brand }) {
+  const [failed, setFailed] = useState(false);
+  const size = "w-[clamp(2rem,9vw,2.5rem)] h-[clamp(2rem,9vw,2.5rem)]";
+  if (failed) {
+    return (
       <div
-        className="w-[clamp(1.8rem,8vw,2.3rem)] h-[clamp(1.8rem,8vw,2.3rem)] rounded-full overflow-hidden flex items-center justify-center text-white text-[10px] font-black shrink-0 shadow-[0_4px_10px_-4px_rgba(15,45,90,0.4)]"
+        className={`${size} rounded-full flex items-center justify-center text-white text-[11px] font-black shrink-0 shadow-[0_4px_10px_-4px_rgba(15,45,90,0.45)]`}
         style={{ backgroundColor: brand.color }}
         aria-hidden="true"
       >
-        <AvatarImage src={brand.logo} alt="" fallback={brand.shortName} />
+        {brand.shortName}
       </div>
-      <span className="font-semibold text-[clamp(0.72rem,3vw,0.875rem)] text-slate-800 whitespace-nowrap">{brand.name}</span>
+    );
+  }
+  return (
+    <div
+      className={`${size} rounded-full bg-white ring-1 ring-slate-200 shadow-[0_4px_10px_-4px_rgba(15,45,90,0.35)] flex items-center justify-center overflow-hidden shrink-0`}
+      aria-hidden="true"
+    >
+      <img
+        src={brand.logo}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        referrerPolicy="no-referrer"
+        className="w-full h-full object-contain p-[14%]"
+        onError={() => setFailed(true)}
+      />
+    </div>
+  );
+}
+
+function BrandItem({ brand }: { brand: Brand }) {
+  const name = DISPLAY_NAME[brand.name] ?? brand.name;
+  return (
+    <li className="flex items-center gap-2.5 shrink-0 mr-[clamp(0.6rem,2.5vw,1rem)] pl-1.5 pr-[clamp(0.9rem,3.5vw,1.25rem)] py-1.5 rounded-full bg-white/80 border border-slate-200/80 shadow-[0_6px_16px_-10px_rgba(15,45,90,0.35)]">
+      <BrandLogo brand={brand} />
+      <span className="font-semibold text-[clamp(0.75rem,3.2vw,0.9rem)] text-slate-800 whitespace-nowrap">{name}</span>
     </li>
   );
 }
