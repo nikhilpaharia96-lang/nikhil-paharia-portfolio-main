@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_CLARITY_ALLOWED_HOSTS?: string;
   /** "false" disables Clarity everywhere; "true" forces it on in dev (for local verification). */
   readonly VITE_CLARITY_ENABLED?: string;
+  /** "false" disables the anonymous visit-notification email ping (server side is also switchable). */
+  readonly VITE_VISIT_NOTIFY_ENABLED?: string;
 }
 
 declare module "*.png" {

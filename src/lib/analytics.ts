@@ -48,13 +48,19 @@ function browserOptedOut(): boolean {
   return nav.doNotTrack === "1" || nav.msDoNotTrack === "1" || (window as { doNotTrack?: string }).doNotTrack === "1" || nav.globalPrivacyControl === true;
 }
 
-export function isAnalyticsEnabled(): boolean {
+/**
+ * Shared gate for every analytics feature (Clarity + visit notifications): production build (or explicitly
+ * forced on for local testing), an allowed hostname, and no browser-level opt-out (Do Not Track / GPC).
+ */
+export function trackingEligible(): boolean {
   if (typeof window === "undefined") return false;
-  if (import.meta.env.VITE_CLARITY_ENABLED === "false") return false;
-  // Production builds only, unless explicitly forced on for local verification.
   if (!import.meta.env.PROD && import.meta.env.VITE_CLARITY_ENABLED !== "true") return false;
-  if (!projectId || !hostAllowed()) return false;
-  return !browserOptedOut();
+  return hostAllowed() && !browserOptedOut();
+}
+
+export function isAnalyticsEnabled(): boolean {
+  if (import.meta.env.VITE_CLARITY_ENABLED === "false") return false;
+  return Boolean(projectId) && trackingEligible();
 }
 
 /* ───────────────────────── Consent ───────────────────────── */
@@ -115,7 +121,7 @@ function injectTag(): void {
   else document.head.appendChild(s);
 }
 
-function whenIdle(cb: () => void): void {
+export function whenIdle(cb: () => void): void {
   const run = () => {
     const ric = (window as Window & { requestIdleCallback?: (fn: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
     if (ric) ric(cb, { timeout: 4000 });

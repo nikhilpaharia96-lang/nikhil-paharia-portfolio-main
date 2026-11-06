@@ -8,6 +8,7 @@ import {
   setConsent,
   track,
 } from "@/lib/analytics";
+import { notifyVisit } from "@/lib/visitNotify";
 
 /* ── Click classification ─────────────────────────────────────────────────────
  * One delegated listener (capture + passive) instead of per-component handlers:
@@ -97,6 +98,7 @@ export default function Analytics() {
   // One-time setup: Clarity loader, click delegation, consent banner visibility.
   useEffect(() => {
     initAnalytics();
+    notifyVisit(); // no-op unless allowed (and, in consent-required regions, accepted)
     if (!isAnalyticsEnabled()) return;
     setShowConsent(consentRequired() && getStoredConsent() === null);
     document.addEventListener("click", handleClick, { capture: true, passive: true });
@@ -168,6 +170,7 @@ export default function Analytics() {
   const choose = (state: "granted" | "denied") => {
     setConsent(state);
     setShowConsent(false);
+    if (state === "granted") notifyVisit();
   };
 
   return (
@@ -177,8 +180,9 @@ export default function Analytics() {
       className="fixed bottom-4 left-4 right-4 sm:right-auto sm:max-w-sm z-[300] border border-white/80 bg-white/95 p-4 text-slate-700 shadow-[0_10px_36px_rgba(30,100,200,0.18)] backdrop-blur"
     >
       <p className="text-xs leading-relaxed">
-        This site uses Microsoft Clarity to understand how visitors use it (anonymised session recordings and heatmaps).
-        Cookies are only set if you accept. Form fields and payment details are never recorded.
+        This site uses Microsoft Clarity to understand how visitors use it (anonymised session recordings and heatmaps)
+        and sends the site owner a simple anonymous visit notice (page, device type, country). Nothing is collected unless
+        you accept. Form fields and payment details are never recorded.
       </p>
       <div className="mt-3 flex gap-2">
         <button
