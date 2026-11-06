@@ -15,6 +15,8 @@ import connectBg from "@/assets/images/showcase-bg.webp";
 import cloudImg from "@/assets/images/cloud2.895414a23f99e60c66ea.webp";
 import { useReducedFx } from "@/hooks/use-reduced-fx";
 import "./video-showcase/showcase-fx.css";
+import "./contact-autofill.css";
+import { useContactFormHint } from "@/hooks/useContactFormHint";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -337,6 +339,7 @@ export default function Contact() {
   const [form, setForm] = useState<FormState>({ name: "", email: "", phone: "", subject: "", budget: "", message: "" });
   const [errors, setErrors] = useState<FormErrors>({});
   const formRef = useRef<HTMLFormElement>(null);
+  useContactFormHint(formRef); // one-time, non-intrusive cue when the form scrolls into view
 
   // "Book Now" on a service card pre-selects that service here.
   useEffect(() => {
@@ -616,6 +619,7 @@ export default function Contact() {
               onSubmit={handleSubmit}
               noValidate
               aria-label="Contact form"
+              autoComplete="on"
               data-clarity-mask="true"
               className="glass-premium p-5 sm:p-8 md:p-12 flex flex-col gap-5 sm:gap-6 relative"
             >

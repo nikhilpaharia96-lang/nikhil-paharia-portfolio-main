@@ -1,0 +1,20 @@
+/* One-shot attention cue for the Contact form's Name field (see hooks/useContactFormHint.ts).
+   Purely decorative: a soft ring that pulses once, then the class is removed. */
+@keyframes np-field-hint {
+  0%   { box-shadow: 0 0 0 0 rgba(29, 111, 235, 0.45); }
+  55%  { box-shadow: 0 0 0 7px rgba(29, 111, 235, 0.18); }
+  100% { box-shadow: 0 0 0 3px rgba(29, 111, 235, 0.13); }
+}
+
+[data-np-hint="true"] {
+  border-color: #1d6feb;
+  animation: np-field-hint 1.4s ease-out 1 both;
+}
+
+/* Reduced motion: same cue, no movement — a static ring for the same duration. */
+@media (prefers-reduced-motion: reduce) {
+  [data-np-hint="true"] {
+    animation: none;
+    box-shadow: 0 0 0 3px rgba(29, 111, 235, 0.18);
+  }
+}
