@@ -592,6 +592,8 @@ function FolderPeek({
     <>
       <button
         onClick={onSelect}
+        data-track-event="project_card_click"
+        data-track-label={project.title}
         onMouseMove={(e) => setPointer({ x: e.clientX, y: e.clientY })}
         onMouseLeave={() => setPointer(null)}
         aria-label={`Expand ${project.title}`}
@@ -712,6 +714,7 @@ function FolderExpanded({
         <div className="grid grid-cols-3 gap-2 mt-6 text-xs font-bold">
           <a
             href={project.live}
+            data-track-event="project_link_click" data-track-kind="live" data-track-label={project.title}
             target="_blank" rel="noopener noreferrer"
             onPointerDown={(e) => e.stopPropagation()}
             className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-white"
@@ -721,6 +724,7 @@ function FolderExpanded({
           </a>
           <a
             href={project.github ?? project.live}
+            data-track-event="project_link_click" data-track-kind="code" data-track-label={project.title}
             target="_blank" rel="noopener noreferrer"
             onPointerDown={(e) => e.stopPropagation()}
             className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl"
@@ -730,6 +734,7 @@ function FolderExpanded({
           </a>
           <a
             href={project.caseStudy}
+            data-track-event="project_link_click" data-track-kind="case_study" data-track-label={project.title}
             target="_blank" rel="noopener noreferrer"
             onPointerDown={(e) => e.stopPropagation()}
             className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl"

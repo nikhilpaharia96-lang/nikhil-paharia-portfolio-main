@@ -210,7 +210,7 @@ export default function SubmitTestimonialModal({ open, onClose }: SubmitTestimon
                     Worked with me on a project? I'd love to hear how it went — submissions are reviewed before appearing on the site.
                   </p>
 
-                  <form onSubmit={handleSubmit} noValidate className="space-y-4">
+                  <form onSubmit={handleSubmit} noValidate data-clarity-mask="true" className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label htmlFor="tf-name" className="block text-xs font-semibold text-slate-600 mb-1.5">

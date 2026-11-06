@@ -288,7 +288,7 @@ export default function Support() {
   const isLoading = status === "loading";
 
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden flex items-start sm:items-center justify-center px-4 py-6 sm:py-16">
+    <div data-clarity-mask="true" className="relative min-h-screen w-full overflow-x-hidden flex items-start sm:items-center justify-center px-4 py-6 sm:py-16">
       {/* Soft lavender/purple atmosphere — ambient blurred glows behind everything */}
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-20 overflow-hidden">
         <div className="absolute -top-24 -left-20 w-72 h-72 rounded-full bg-primary/10 blur-3xl" />

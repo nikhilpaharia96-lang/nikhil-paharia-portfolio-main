@@ -82,7 +82,7 @@ export default function BookingDialog({ open, onOpenChange, slug, serviceTitle, 
 
   return (
     <Dialog open={open} onOpenChange={(o) => (!busy ? onOpenChange(o) : undefined)}>
-      <DialogContent className="max-h-[92vh] w-[calc(100%-24px)] max-w-lg overflow-y-auto rounded-3xl border-0 bg-white p-0 shadow-2xl [&>button]:z-10 [&>button]:text-white [&>button]:opacity-80">
+      <DialogContent data-clarity-mask="true" className="max-h-[92vh] w-[calc(100%-24px)] max-w-lg overflow-y-auto rounded-3xl border-0 bg-white p-0 shadow-2xl [&>button]:z-10 [&>button]:text-white [&>button]:opacity-80">
         <div className="bg-slate-900 px-6 pb-5 pt-7 text-white sm:px-8">
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-300">Book this service</p>
           <DialogTitle className="mt-1 font-serif text-xl font-black uppercase tracking-tight sm:text-2xl">{serviceTitle}</DialogTitle>

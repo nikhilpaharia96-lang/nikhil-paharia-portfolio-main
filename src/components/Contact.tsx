@@ -616,6 +616,7 @@ export default function Contact() {
               onSubmit={handleSubmit}
               noValidate
               aria-label="Contact form"
+              data-clarity-mask="true"
               className="glass-premium p-5 sm:p-8 md:p-12 flex flex-col gap-5 sm:gap-6 relative"
             >
               {/* Form header — paper-plane icon + title + subtitle */}

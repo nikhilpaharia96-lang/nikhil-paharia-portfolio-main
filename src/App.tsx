@@ -19,6 +19,7 @@ import Footer from "@/components/Footer";
 import NotFound from "@/pages/not-found";
 import ServiceDetail from "@/pages/ServiceDetail";
 import Support from "@/pages/Support";
+import Analytics from "@/components/Analytics";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,7 @@ function App() {
             </Switch>
           </div>
           <Toaster theme="light" position="bottom-right" />
+          <Analytics />
         </MusicProvider>
       </TooltipProvider>
     </QueryClientProvider>

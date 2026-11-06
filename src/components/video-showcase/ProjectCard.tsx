@@ -149,6 +149,8 @@ export default function ProjectCard({ project, variant, distance, index, onSelec
             <div className={`absolute inset-x-0 flex items-center justify-center z-10 ${premium ? "top-[34%]" : "inset-y-0"}`}>
               <button
                 type="button"
+                data-track-event="video_card_click"
+                data-track-label={project.title}
                 onClick={() => {
                   onSelect();
                   if (project.videoUrl) onPlay?.(project);
