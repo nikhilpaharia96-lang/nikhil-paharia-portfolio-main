@@ -122,6 +122,17 @@ export const projects: Project[] = [
   },
 ];
 
+/** True for short-form links only: Instagram Reels and YouTube Shorts. */
+export const isReelUrl = (url?: string): boolean =>
+  !!url && /instagram\.com\/(reel|reels)\//i.test(url) || /youtube\.com\/shorts\//i.test(url ?? "");
+
+/**
+ * The carousel under the featured video shows short-form reels only.
+ * Long YouTube films live in the featured card above; entries without a
+ * reel link stay in `projects` (so nothing is lost) but aren't shown here.
+ */
+export const reelProjects: Project[] = projects.filter((p) => isReelUrl(p.videoUrl));
+
 export const showcaseStats: ShowcaseStat[] = [
   { icon: Clapperboard, value: "50+", label: "Videos Edited" },
   { icon: Film, value: "10+", label: "Cinematic Films" },

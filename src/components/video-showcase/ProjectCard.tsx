@@ -18,7 +18,6 @@ export default function ProjectCard({ project, variant, distance, index, onSelec
   const isActive = variant === "active";
   const ref = useRef<HTMLDivElement>(null);
   const premium = !!project.premium;
-  const isReel = !!project.videoUrl && /instagram\.com\/reel/i.test(project.videoUrl);
   
   const mx = useMotionValue(0.5);
   const my = useMotionValue(0.5);
@@ -134,16 +133,15 @@ export default function ProjectCard({ project, variant, distance, index, onSelec
               >
                 {project.category}
               </span>
-              {premium ? (
-                isReel && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold uppercase tracking-wider">
-                    <Clapperboard className="w-3 h-3" aria-hidden="true" />
-                    Reel
-                  </span>
-                )
-              ) : (
-                <span className="px-2.5 py-1 rounded-full bg-black/45 backdrop-blur-md text-white text-[11px] font-mono font-semibold">{project.duration}</span>
-              )}
+              {/* Every project card shows a single "Reel" badge — no duration. */}
+              <span
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider ${
+                  premium ? "bg-black/50 border border-white/20" : "bg-black/45"
+                }`}
+              >
+                <Clapperboard className="w-3 h-3" aria-hidden="true" />
+                Reel
+              </span>
             </div>
 
             {/* Preview control — a real button now, focusable and clickable

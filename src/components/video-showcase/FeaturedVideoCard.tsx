@@ -2,7 +2,7 @@ import { useMemo, useRef, useState, useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } from "framer-motion";
 import { Play, Volume2, Settings, Maximize, X } from "lucide-react";
 import bgVideo from "@/assets/videos/loading-bg-desktop.mp4";
-import { featuredVideo, projects } from "@/constants/videoShowcase";
+import { featuredVideo, projects, reelProjects } from "@/constants/videoShowcase";
 import { parseVideoUrl } from "@/utils/videoEmbed";
 import { ease, tiltSpring } from "@/animations/videoShowcase.motion";
 
@@ -50,7 +50,7 @@ export default function FeaturedVideoCard() {
         url: featuredVideo.videoUrl,
       });
     }
-    projects.forEach(
+    reelProjects.forEach(
       (p) => p.videoUrl && add({ key: `p-${p.id}`, title: p.title, desc: p.description, image: p.image, url: p.videoUrl }),
     );
     return items;

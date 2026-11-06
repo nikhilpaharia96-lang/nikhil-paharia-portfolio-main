@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { Project } from "@/types/video";
-import { featuredVideo, projects } from "@/constants/videoShowcase";
+import { featuredVideo, reelProjects } from "@/constants/videoShowcase";
 import BackgroundGlow from "./BackgroundGlow";
 import ShowcaseIntro from "./ShowcaseIntro";
 import FeaturedVideoCard from "./FeaturedVideoCard";
@@ -52,7 +52,7 @@ export default function VideoShowcase() {
               show: { opacity: 1, y: 0, transition: { duration: reduce ? 0.01 : 0.9, ease } },
             }}
           >
-            <ProjectCarousel items={projects} onPlay={handlePlayProject} paused={!!activeVideo} />
+            <ProjectCarousel items={reelProjects} onPlay={handlePlayProject} paused={!!activeVideo} />
           </motion.div>
         </motion.div>
       </div>

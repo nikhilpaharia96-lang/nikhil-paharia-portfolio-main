@@ -3,7 +3,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { LayoutGrid, Mountain, FileText, ShoppingBag, Camera, Clapperboard, MoreHorizontal } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { VideoFilter } from "@/types/video";
-import { filters, projects } from "@/constants/videoShowcase";
+import { filters, reelProjects as projects } from "@/constants/videoShowcase";
 import { pillSpring } from "@/animations/videoShowcase.motion";
 
 const icons: Record<VideoFilter, LucideIcon> = {

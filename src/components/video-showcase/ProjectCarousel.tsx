@@ -1,4 +1,4 @@
-import { projects as allProjects } from "@/constants/videoShowcase";
+import { reelProjects as allProjects } from "@/constants/videoShowcase";
 import { useProjectCarousel } from "@/hooks/useProjectCarousel";
 import type { Project } from "@/types/video";
 import ProjectCard from "./ProjectCard";
