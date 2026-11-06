@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { Project } from "@/types/video";
 import { featuredVideo, reelProjects } from "@/constants/videoShowcase";
@@ -8,16 +8,46 @@ import FeaturedVideoCard from "./FeaturedVideoCard";
 import ProjectCarousel from "./ProjectCarousel";
 import GradingCompare from "./GradingCompare";
 import FeatureStrip from "./FeatureStrip";
-import VideoLightbox from "./VideoLightbox";
+import VideoLightbox, { type LightboxItem } from "./VideoLightbox";
 import { ease } from "@/animations/videoShowcase.motion";
 
 export default function VideoShowcase() {
-  const [activeVideo, setActiveVideo] = useState<{ url: string; title: string } | null>(null);
+  const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const reduce = !!useReducedMotion();
 
+  // Playlist for the player: the featured showreel first, then every reel in the carousel.
+  const playlist = useMemo<LightboxItem[]>(() => {
+    const list: LightboxItem[] = [];
+    if (featuredVideo.videoUrl) {
+      list.push({
+        key: "featured",
+        url: featuredVideo.videoUrl,
+        title: `${featuredVideo.title} — ${featuredVideo.subtitle}`,
+        image: featuredVideo.image,
+        category: featuredVideo.category,
+      });
+    }
+    reelProjects.forEach((p) => {
+      if (!p.videoUrl) return;
+      list.push({
+        key: `p-${p.id}`,
+        url: p.videoUrl,
+        title: p.title,
+        image: p.image,
+        category: p.category,
+        location: p.location,
+        client: p.client,
+        description: p.description,
+      });
+    });
+    return list;
+  }, []);
+
   const handlePlayProject = (project: Project) => {
-    if (project.videoUrl) setActiveVideo({ url: project.videoUrl, title: project.title });
+    const i = playlist.findIndex((it) => it.key === `p-${project.id}`);
+    if (i >= 0) setActiveIdx(i);
   };
+  const closePlayer = useCallback(() => setActiveIdx(null), []);
 
   return (
     <section
@@ -31,9 +61,10 @@ export default function VideoShowcase() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           <div className="lg:col-span-5">
             <ShowcaseIntro
-              onWatchShowreel={() =>
-                featuredVideo.videoUrl && setActiveVideo({ url: featuredVideo.videoUrl, title: featuredVideo.title })
-              }
+              onWatchShowreel={() => {
+                const i = playlist.findIndex((it) => it.key === "featured");
+                if (i >= 0) setActiveIdx(i);
+              }}
             />
           </div>
           <div className="lg:col-span-7">
@@ -54,7 +85,7 @@ export default function VideoShowcase() {
               show: { opacity: 1, y: 0, transition: { duration: reduce ? 0.01 : 0.9, ease } },
             }}
           >
-            <ProjectCarousel items={reelProjects} onPlay={handlePlayProject} paused={!!activeVideo} />
+            <ProjectCarousel items={reelProjects} onPlay={handlePlayProject} paused={activeIdx !== null} />
           </motion.div>
         </motion.div>
 
@@ -62,11 +93,7 @@ export default function VideoShowcase() {
         <FeatureStrip />
       </div>
 
-      <VideoLightbox
-        url={activeVideo?.url ?? null}
-        title={activeVideo?.title}
-        onClose={() => setActiveVideo(null)}
-      />
+      <VideoLightbox items={playlist} index={activeIdx} onIndexChange={setActiveIdx} onClose={closePlayer} />
     </section>
   );
 }
