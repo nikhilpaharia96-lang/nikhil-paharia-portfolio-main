@@ -30,3 +30,8 @@
 @media (prefers-reduced-motion: reduce) {
   .vsx-layer, .vsx-mist { animation: none !important; }
 }
+
+/* Testimonials — slow Ken Burns drift on the video-message photo (transform only). */
+.testi-kenburns { animation: testi-kenburns 26s ease-in-out infinite alternate; will-change: transform; }
+@keyframes testi-kenburns { from { transform: scale(1) translate3d(0,0,0); } to { transform: scale(1.07) translate3d(-1.5%, -1%, 0); } }
+@media (prefers-reduced-motion: reduce) { .testi-kenburns { animation: none; } }

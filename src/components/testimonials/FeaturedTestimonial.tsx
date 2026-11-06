@@ -102,7 +102,7 @@ export default function FeaturedTestimonial() {
             height={941}
             loading="lazy"
             decoding="async"
-            className="testi-photo absolute inset-0 w-full h-full object-cover object-[18%_30%] pointer-events-none"
+            className="testi-photo testi-kenburns absolute inset-0 w-full h-full object-cover object-[18%_30%] pointer-events-none"
           />
           <button
             ref={playRef}

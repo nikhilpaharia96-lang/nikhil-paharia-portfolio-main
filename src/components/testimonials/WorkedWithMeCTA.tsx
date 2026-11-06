@@ -24,7 +24,7 @@ export default function WorkedWithMeCTA({ onOpen, variant }: WorkedWithMeCTAProp
                    motion-reduce:transition-none motion-reduce:hover:translate-y-0
                    focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40"
       >
-        <span className="shrink-0 rounded-full bg-[#cfe3fd] flex items-center justify-center w-[clamp(1.5rem,7vw,3.5rem)] h-[clamp(1.5rem,7vw,3.5rem)] lg:w-14 lg:h-14">
+        <span className="shrink-0 rounded-full bg-[#cfe3fd] flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6 motion-reduce:transition-none w-[clamp(1.5rem,7vw,3.5rem)] h-[clamp(1.5rem,7vw,3.5rem)] lg:w-14 lg:h-14">
           <MessageSquareHeart className="w-[48%] h-[48%] text-[#1a6bff]" strokeWidth={2} aria-hidden="true" />
         </span>
 

@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { trustedBrands } from "@/constants/testimonials";
+import { ease } from "@/animations/videoShowcase.motion";
 
 type Brand = (typeof trustedBrands)[number];
 
@@ -55,13 +57,27 @@ export default function TrustedByBrands() {
   // Two identical halves (each = list twice, so a half is always wider than the panel)
   // → animating -50% loops with no jump. The second half is hidden from screen readers.
   const half = [...trustedBrands, ...trustedBrands];
+  const reduce = !!useReducedMotion();
 
   return (
-    <div className="mt-[clamp(0.75rem,3.2vw,1.25rem)] lg:mt-10 rounded-[clamp(1rem,4.5vw,1.5rem)] py-[clamp(0.8rem,3.6vw,1.4rem)] bg-white/75 backdrop-blur-xl border border-white/90 shadow-[0_1px_0_rgba(255,255,255,0.9)_inset,0_20px_44px_-28px_rgba(15,45,90,0.4)]">
+    <motion.div
+      initial={{ opacity: 0, y: reduce ? 0 : 36 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: reduce ? 0.01 : 0.9, ease }}
+      className="mt-[clamp(0.75rem,3.2vw,1.25rem)] lg:mt-10 rounded-[clamp(1rem,4.5vw,1.5rem)] py-[clamp(0.8rem,3.6vw,1.4rem)] bg-white/75 backdrop-blur-xl border border-white/90 shadow-[0_1px_0_rgba(255,255,255,0.9)_inset,0_20px_44px_-28px_rgba(15,45,90,0.4)]"
+    >
       <div className="text-center mb-[clamp(0.7rem,3.2vw,1.1rem)] px-4">
         <h3 className="inline-block relative font-sans font-bold text-[clamp(0.85rem,3.6vw,1.05rem)] text-[#101828]">
           Trusted by People &amp; Brands
-          <span aria-hidden="true" className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-7 h-[3px] rounded-full bg-primary" />
+          <motion.span
+            aria-hidden="true"
+            className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-7 h-[3px] rounded-full bg-primary origin-center"
+            initial={{ scaleX: reduce ? 1 : 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease, delay: 0.5 }}
+          />
         </h3>
       </div>
 
@@ -79,6 +95,6 @@ export default function TrustedByBrands() {
           </ul>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "@/lib/static-motion";
+import { motion as fm, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { toast } from "sonner";
 import {
   Send, Mail, Phone, MapPin, Check,
@@ -10,8 +11,10 @@ import {
   RiGithubFill, RiLinkedinFill, RiInstagramLine, RiYoutubeFill, RiWhatsappFill,
 } from "react-icons/ri";
 import Magnetic from "@/components/ui/Magnetic";
-import { staggerContainer, cinChildSmall } from "@/lib/revealVariants";
 import connectBg from "@/assets/images/showcase-bg.webp";
+import cloudImg from "@/assets/images/cloud2.895414a23f99e60c66ea.webp";
+import { useReducedFx } from "@/hooks/use-reduced-fx";
+import "./video-showcase/showcase-fx.css";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -303,6 +306,32 @@ type FormErrors = Partial<Record<keyof FormState, string>>;
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/mgodegyo";
 
 export default function Contact() {
+  const reduce = !!useReducedMotion();
+  const reduceFx = useReducedFx();
+  const rich = !reduce && !reduceFx; // clouds / parallax / ambient loops: desktop + capable devices only
+  const sectionRef = useRef<HTMLElement>(null);
+  const cloudsRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start end", "end start"] });
+  const cloudY = useTransform(scrollYProgress, [0, 1], rich ? [-46, 46] : [0, 0]);
+  useEffect(() => {
+    const root = sectionRef.current;
+    const clouds = cloudsRef.current;
+    if (!root || !clouds) return;
+    const io = new IntersectionObserver(([e]) => { clouds.dataset.paused = e.isIntersecting ? "false" : "true"; });
+    io.observe(root);
+    return () => io.disconnect();
+  }, [rich]);
+
+  const dur = reduce ? 0.01 : 0.8;
+  const container = { hidden: {}, show: { transition: { staggerChildren: 0.11, delayChildren: 0.05 } } };
+  const item = { hidden: { opacity: 0, y: reduce ? 0 : 26 }, show: { opacity: 1, y: 0, transition: { duration: dur, ease } } };
+  const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.09 } } };
+  const child = { hidden: { opacity: 0, y: reduce ? 0 : 18 }, show: { opacity: 1, y: 0, transition: { duration: reduce ? 0.01 : 0.65, ease } } };
+  const drawPath = (delay: number) => ({
+    hidden: { pathLength: reduce ? 1 : 0 },
+    show: { pathLength: 1, transition: { duration: reduce ? 0.01 : 0.9, delay: reduce ? 0 : delay, ease } },
+  });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
   const [form, setForm] = useState<FormState>({ name: "", email: "", phone: "", subject: "", budget: "", message: "" });
@@ -392,34 +421,54 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="section-padding relative overflow-hidden bg-transparent section-wrap max-w-full">
+    <section ref={sectionRef} id="contact" className="section-padding relative overflow-hidden bg-transparent section-wrap max-w-full">
       <div className="absolute right-0 top-0 w-1/2 h-full bg-gradient-to-l from-blue-50/50 to-transparent -z-10" />
       <div className="absolute -left-20 top-1/4 w-80 h-80 bg-primary/10 rounded-full blur-3xl pointer-events-none z-0" />
 
       {/* Floating blurred background elements — soft blue glow, premium depth */}
-      <motion.div
+      <fm.div
         aria-hidden="true"
-        animate={{ y: [0, -22, 0], x: [0, 14, 0] }}
-
+        animate={rich ? { y: [0, -22, 0], x: [0, 14, 0] } : undefined}
+        transition={rich ? { duration: 16, repeat: Infinity, ease: "easeInOut" } : undefined}
         className="absolute top-10 right-[8%] w-56 h-56 rounded-full bg-sky-300/20 blur-3xl pointer-events-none z-0"
       />
-      <motion.div
+      <fm.div
         aria-hidden="true"
-        animate={{ y: [0, 20, 0], x: [0, -16, 0] }}
-
+        animate={rich ? { y: [0, 20, 0], x: [0, -16, 0] } : undefined}
+        transition={rich ? { duration: 19, repeat: Infinity, ease: "easeInOut" } : undefined}
         className="absolute bottom-0 right-1/3 w-72 h-72 rounded-full bg-primary/10 blur-3xl pointer-events-none z-0"
       />
+
+      {/* Drifting clouds + mist (desktop only) */}
+      {rich && (
+        <div ref={cloudsRef} className="vsx-clouds opacity-70" data-paused="false" aria-hidden="true">
+          <fm.div className="absolute inset-0" style={{ y: cloudY }}>
+            {(["a", "b"] as const).map((l) => (
+              <div key={l} className={`vsx-layer vsx-layer--${l}`}>
+                {[0, 1].map((g) => (
+                  <div key={g} className="vsx-group">
+                    {[0, 1, 2].map((i) => (
+                      <img key={i} src={cloudImg} alt="" loading="lazy" decoding="async" className="vsx-cloud" />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </fm.div>
+          <div className="vsx-mist" />
+        </div>
+      )}
 
       <div className="container-tight relative z-10 max-w-full">
         <div className="grid lg:grid-cols-[1fr_1.2fr] gap-16 lg:gap-24 items-center">
 
           {/* Left — title + contact info + socials */}
           <div className="w-full relative">
-            <motion.div
-
-              whileInView={{ opacity: 1, x: 0 }}
-
-
+            <fm.div
+              variants={container}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.15 }}
             >
               {/* Mountain sky backdrop — fades softly into the page */}
               <div aria-hidden="true" className="pointer-events-none absolute -inset-x-6 -top-10 h-[34rem] sm:h-[36rem] -z-10 overflow-hidden rounded-[2rem] [mask-image:linear-gradient(to_bottom,#000_55%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,#000_55%,transparent_100%)]">
@@ -433,65 +482,81 @@ export default function Contact() {
               </div>
 
               {/* Eyebrow — red dot pill */}
-              <div className="inline-flex items-center gap-2 mb-7 px-4 py-1.5 rounded-full bg-white/85 backdrop-blur-xl border border-white/80 shadow-[0_8px_24px_-12px_rgba(15,45,90,0.25)]">
-                <span className="w-2 h-2 rounded-full bg-red-500" aria-hidden="true" />
+              <fm.div variants={item} className="inline-flex items-center gap-2 mb-7 px-4 py-1.5 rounded-full bg-white/85 backdrop-blur-xl border border-white/80 shadow-[0_8px_24px_-12px_rgba(15,45,90,0.25)]">
+                <span className="relative flex w-2 h-2" aria-hidden="true">
+                  {!reduce && (
+                    <fm.span
+                      className="absolute inset-0 rounded-full bg-red-500"
+                      animate={{ scale: [1, 2.6], opacity: [0.55, 0] }}
+                      transition={{ duration: 1.9, repeat: Infinity, ease: "easeOut" }}
+                    />
+                  )}
+                  <span className="relative w-2 h-2 rounded-full bg-red-500" />
+                </span>
                 <span className="text-[11px] sm:text-xs font-bold tracking-[0.12em] uppercase text-slate-800">Let's Connect</span>
-              </div>
+              </fm.div>
 
               <div className="relative">
                 {/* Handwritten note + curved arrow */}
-                <div aria-hidden="true" className="hidden sm:block absolute -left-4 lg:-left-20 top-6 font-script font-bold text-xl leading-[1.15] text-[#14284f] -rotate-[10deg] select-none">
+                <fm.div
+                  aria-hidden="true"
+                  variants={{ hidden: { opacity: 0, rotate: reduce ? -10 : -18 }, show: { opacity: 1, rotate: -10, transition: { duration: reduce ? 0.01 : 0.9, ease, delay: reduce ? 0 : 0.5 } } }}
+                  className="hidden sm:block absolute -left-4 lg:-left-20 top-6 font-script font-bold text-xl leading-[1.15] text-[#14284f] select-none"
+                >
                   Creative<br />Ideas<br />Collaboration
                   <svg viewBox="0 0 70 60" className="mt-1 ml-6 w-14 h-12 text-primary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M6 4C10 30 28 46 58 50" />
-                    <path d="M48 42l11 8-12 6" />
+                    <fm.path d="M6 4C10 30 28 46 58 50" variants={drawPath(1.1)} />
+                    <fm.path d="M48 42l11 8-12 6" variants={drawPath(1.8)} />
                   </svg>
-                </div>
+                </fm.div>
 
-                <h2 className="font-sans font-extrabold tracking-tight text-[2.9rem] sm:text-6xl lg:text-[4.2rem] leading-[0.98] text-[#0a0f1e] mb-7 sm:pl-14 lg:pl-0">
-                  Let's Build
-                  <br />
-                  Something
-                  <br />
-                  <span className="relative inline-block font-script font-bold italic text-primary text-[1.18em] leading-none -rotate-3 align-baseline my-1">
-                    Amazing
-                    <svg aria-hidden="true" className="absolute left-0 -bottom-2 w-full h-3 text-primary" viewBox="0 0 200 12" preserveAspectRatio="none" fill="none">
-                      <path d="M3 8 C 40 2, 110 2, 197 6" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" />
-                    </svg>
-                  </span>
-                  <br />
-                  Together.
-                </h2>
+                <fm.h2
+                  variants={{ hidden: {}, show: { transition: { staggerChildren: 0.13 } } }}
+                  className="font-sans font-extrabold tracking-tight text-[2.9rem] sm:text-6xl lg:text-[4.2rem] leading-[0.98] text-[#0a0f1e] mb-7 sm:pl-14 lg:pl-0"
+                >
+                  <fm.span variants={item} className="block">Let's Build</fm.span>
+                  <fm.span variants={item} className="block">Something</fm.span>
+                  <fm.span variants={item} className="block">
+                    <span className="relative isolate inline-block font-script font-bold italic text-primary text-[1.18em] leading-none -rotate-3 align-baseline my-1">
+                      {!reduce && (
+                        <fm.span
+                          aria-hidden="true"
+                          className="absolute inset-x-1 inset-y-2 -z-10 rounded-full bg-primary/30 blur-2xl"
+                          animate={{ opacity: [0.15, 0.55, 0.15] }}
+                          transition={{ duration: 4.6, repeat: Infinity, ease: "easeInOut" }}
+                        />
+                      )}
+                      Amazing
+                      <svg aria-hidden="true" className="absolute left-0 -bottom-2 w-full h-3 text-primary" viewBox="0 0 200 12" preserveAspectRatio="none" fill="none">
+                        <fm.path d="M3 8 C 40 2, 110 2, 197 6" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" variants={drawPath(0.7)} />
+                      </svg>
+                    </span>
+                  </fm.span>
+                  <fm.span variants={item} className="block">Together.</fm.span>
+                </fm.h2>
               </div>
 
-              <p className="text-base sm:text-[1.05rem] text-slate-700 mb-10 max-w-md leading-relaxed">
+              <fm.p variants={item} className="text-base sm:text-[1.05rem] text-slate-700 mb-10 max-w-md leading-relaxed">
                 Have a project in mind or just want to say hi? Tell me what you're building and I'll get back to you as soon as possible.
-              </p>
+              </fm.p>
 
               {/* Contact info cards */}
-              <motion.div
-                variants={staggerContainer}
-
-                whileInView="show"
-
-                className="flex flex-col gap-3 mb-10 max-w-md"
-              >
+              <fm.div variants={stagger} className="flex flex-col gap-3 mb-10 max-w-md">
                 {contactInfo.map(({ Icon, label, value, href }) => {
-                  const Wrapper = href ? motion.a : motion.div;
+                  const Wrapper = href ? fm.a : fm.div;
                   const isExternal = href?.startsWith("http");
                   return (
                     <Wrapper
                       key={label}
                       {...(href ? { href } : {})}
                       {...(isExternal ? { target: "_blank", rel: "noreferrer" } : {})}
-                      variants={cinChildSmall}
-
-                      className={`interactive group flex items-center gap-4 p-3.5 rounded-xl border border-blue-100/70 bg-white/50 backdrop-blur-sm    min-h-[48px] ${href ? "hover:bg-white/80 hover:border-primary/30 hover:shadow-[0_10px_30px_rgba(29,111,235,0.15)]" : ""}`}
+                      variants={child}
+                      className={`interactive group flex items-center gap-4 p-3.5 rounded-xl border border-blue-100/70 bg-white/50 backdrop-blur-sm min-h-[48px] transition-[transform,box-shadow,background-color,border-color] duration-300 ${href ? "hover:-translate-y-0.5 hover:bg-white/80 hover:border-primary/30 hover:shadow-[0_10px_30px_rgba(29,111,235,0.15)]" : ""}`}
                     >
                       <motion.div
 
 
-                        className="w-10 h-10 shrink-0 rounded-lg bg-primary/10 group-hover:bg-primary/15 flex items-center justify-center "
+                        className="w-10 h-10 shrink-0 rounded-lg bg-primary/10 group-hover:bg-primary/15 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
                       >
                         <Icon className="w-[18px] h-[18px] text-primary" />
                       </motion.div>
@@ -502,7 +567,7 @@ export default function Contact() {
                       {href && (
                         <div
                           aria-hidden="true"
-                          className="shrink-0 text-slate-300 opacity-0 -translate-x-1 group-hover:opacity-100  group-hover:text-primary  "
+                          className="shrink-0 text-slate-300 opacity-0 -translate-x-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-primary"
                         >
                           <ArrowRight className="w-5 h-5" />
                         </div>
@@ -510,42 +575,34 @@ export default function Contact() {
                     </Wrapper>
                   );
                 })}
-              </motion.div>
+              </fm.div>
 
               {/* Social icons — circular glass buttons */}
-              <motion.div
-                variants={staggerContainer}
-
-                whileInView="show"
-
-                className="flex gap-4 flex-wrap"
-              >
+              <fm.div variants={stagger} className="flex gap-4 flex-wrap">
                 {socials.map(({ Icon, href, label }) => (
                   <Magnetic key={label} range={40} strength={0.35} scaleHover={1.12}>
-                    <motion.a
+                    <fm.a
                       href={href}
                       target={href.startsWith("http") ? "_blank" : undefined}
                       rel={href.startsWith("http") ? "noreferrer" : undefined}
                       aria-label={label}
-                      variants={cinChildSmall}
-
-
-                      className="interactive w-11 h-11 rounded-full flex items-center justify-center border border-blue-100/70 bg-white/50 backdrop-blur-md hover:bg-white/80 hover:border-primary/40  text-slate-700 hover:text-primary"
+                      variants={child}
+                      className="interactive w-11 h-11 rounded-full flex items-center justify-center border border-white/80 bg-white/50 backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_6px_16px_-8px_rgba(29,111,235,0.3)] transition-[transform,box-shadow,background-color,color] duration-300 hover:-translate-y-[3px] hover:scale-110 hover:bg-white/85 hover:shadow-[0_0_0_4px_rgba(29,111,235,0.12),0_10px_26px_-6px_rgba(29,111,235,0.5)] active:scale-95 text-slate-700 hover:text-primary"
                     >
                       <Icon className="w-5 h-5" />
-                    </motion.a>
+                    </fm.a>
                   </Magnetic>
                 ))}
-              </motion.div>
-            </motion.div>
+              </fm.div>
+            </fm.div>
           </div>
 
           {/* Right — form */}
-          <motion.div
-
-            whileInView={{ opacity: 1, y: 0 }}
-
-
+          <fm.div
+            variants={{ hidden: { opacity: 0, y: reduce ? 0 : 44 }, show: { opacity: 1, y: 0, transition: { duration: reduce ? 0.01 : 0.95, ease, delay: reduce ? 0 : 0.15, staggerChildren: 0.08, delayChildren: 0.4 } } }}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.1 }}
             className="w-full max-w-full relative"
           >
             {/* Soft blue glow behind the glass card */}
@@ -595,13 +652,12 @@ export default function Contact() {
 
 
 
-                  className={`w-full py-4 font-bold rounded-xl  flex items-center justify-center gap-3 disabled:opacity-80 mt-2 relative overflow-hidden text-white shadow-lg shadow-blue-200/60 ${sent ? "bg-green-500" : "bg-gradient-to-r from-primary to-sky-500"}`}
+                  className={`group w-full py-4 font-bold rounded-xl flex items-center justify-center gap-3 disabled:opacity-80 mt-2 relative overflow-hidden text-white shadow-lg shadow-blue-200/60 ${sent ? "bg-green-500" : "bg-gradient-to-r from-primary to-sky-500"}`}
                 >
                   {/* Shine sweep on hover */}
-                  <motion.div
-                    className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none"
-
-
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none transition-transform duration-700 ease-out group-hover:translate-x-full motion-reduce:transition-none"
                   />
                   <AnimatePresence mode="wait">
                     {isSubmitting ? (
@@ -612,7 +668,7 @@ export default function Contact() {
 
                         role="status"
                         aria-label="Sending message"
-                        className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full "
+                        className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin motion-reduce:animate-none"
                       />
                     ) : sent ? (
                       <motion.span
@@ -644,9 +700,9 @@ export default function Contact() {
               </p>
 
               {/* Trust badges — single horizontal row, no wrap */}
-              <div className="flex items-start justify-between gap-2 pt-1">
+              <fm.div variants={stagger} className="flex items-start justify-between gap-2 pt-1">
                 {trustBadges.map(({ Icon, line1, line2 }) => (
-                  <div key={line1} className="flex flex-col items-center text-center gap-1.5 flex-1 min-w-0">
+                  <fm.div key={line1} variants={child} className="flex flex-col items-center text-center gap-1.5 flex-1 min-w-0">
                     <div className="w-9 h-9 shrink-0 rounded-full border border-primary/25 bg-primary/5 flex items-center justify-center">
                       <Icon className="w-4 h-4 text-primary" aria-hidden="true" />
                     </div>
@@ -654,11 +710,11 @@ export default function Contact() {
                       <span className="block font-semibold text-slate-700">{line1}</span>
                       {line2}
                     </p>
-                  </div>
+                  </fm.div>
                 ))}
-              </div>
+              </fm.div>
             </form>
-          </motion.div>
+          </fm.div>
         </div>
       </div>
     </section>
