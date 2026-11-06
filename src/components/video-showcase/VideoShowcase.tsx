@@ -6,6 +6,8 @@ import BackgroundGlow from "./BackgroundGlow";
 import ShowcaseIntro from "./ShowcaseIntro";
 import FeaturedVideoCard from "./FeaturedVideoCard";
 import ProjectCarousel from "./ProjectCarousel";
+import GradingCompare from "./GradingCompare";
+import FeatureStrip from "./FeatureStrip";
 import VideoLightbox from "./VideoLightbox";
 import { ease } from "@/animations/videoShowcase.motion";
 
@@ -55,6 +57,9 @@ export default function VideoShowcase() {
             <ProjectCarousel items={reelProjects} onPlay={handlePlayProject} paused={!!activeVideo} />
           </motion.div>
         </motion.div>
+
+        <GradingCompare />
+        <FeatureStrip />
       </div>
 
       <VideoLightbox
