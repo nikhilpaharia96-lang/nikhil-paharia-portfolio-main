@@ -1,0 +1,32 @@
+/* Video showcase — slow drifting clouds + mist (transform/opacity only). */
+.vsx-clouds { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; contain: layout paint; }
+.vsx-clouds[data-paused="true"] * { animation-play-state: paused !important; }
+
+.vsx-layer {
+  position: absolute; left: 0; top: var(--top);
+  display: flex; width: max-content; opacity: var(--o);
+  animation: vsx-drift var(--dur) linear infinite;
+  animation-direction: var(--dir, normal);
+  will-change: transform;
+}
+.vsx-group { display: flex; flex-shrink: 0; }
+.vsx-cloud { flex-shrink: 0; width: var(--w); height: auto; user-select: none; }
+.vsx-cloud:nth-child(2) { transform: scaleX(-1); margin-top: 40px; }
+.vsx-cloud:nth-child(3) { width: calc(var(--w) * .8); margin-left: calc(var(--w) * .1); }
+.vsx-layer--a { --top: 4%;  --o: .42; --w: clamp(340px, 42vw, 700px); --dur: 180s; }
+.vsx-layer--b { --top: 66%; --o: .34; --w: clamp(420px, 56vw, 920px); --dur: 125s; --dir: reverse; }
+@keyframes vsx-drift { from { transform: translate3d(0,0,0); } to { transform: translate3d(-50%,0,0); } }
+
+.vsx-mist {
+  position: absolute; left: -25%; bottom: -6%; width: 150%; height: 34%; opacity: .55;
+  background:
+    radial-gradient(ellipse 40% 55% at 30% 60%, rgba(255,255,255,.8), transparent 70%),
+    radial-gradient(ellipse 45% 50% at 72% 45%, rgba(228,240,255,.75), transparent 70%);
+  animation: vsx-mist 52s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes vsx-mist { from { transform: translate3d(-7%,0,0); } to { transform: translate3d(7%,-4%,0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .vsx-layer, .vsx-mist { animation: none !important; }
+}

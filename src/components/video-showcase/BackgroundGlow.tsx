@@ -1,6 +1,8 @@
-import { useMemo } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useMemo, useRef } from "react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import showcaseBg from "@/assets/images/showcase-bg.webp";
+import cloudImg from "@/assets/images/cloud2.895414a23f99e60c66ea.webp";
+import "./showcase-fx.css";
 import { useReducedFx } from "@/hooks/use-reduced-fx";
 
 export default function BackgroundGlow() {
@@ -9,9 +11,26 @@ export default function BackgroundGlow() {
   const animate = !prefersReducedMotion && !reduceFx;
   const particles = useMemo(() => Array.from({ length: reduceFx ? 6 : 14 }), [reduceFx]);
 
+  const rootRef = useRef<HTMLDivElement>(null);
+  const cloudsRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: rootRef, offset: ["start end", "end start"] });
+  const bgY = useTransform(scrollYProgress, [0, 1], animate ? [-26, 26] : [0, 0]);
+  const cloudY = useTransform(scrollYProgress, [0, 1], animate ? [-50, 50] : [0, 0]);
+
+  // Pause drifting clouds/mist while the section is off-screen.
+  useEffect(() => {
+    const root = rootRef.current;
+    const clouds = cloudsRef.current;
+    if (!root || !clouds) return;
+    const io = new IntersectionObserver(([e]) => { clouds.dataset.paused = e.isIntersecting ? "false" : "true"; });
+    io.observe(root);
+    return () => io.disconnect();
+  }, [animate]);
+
   return (
     <>
-      <div className="absolute inset-0 z-0">
+      <div ref={rootRef} className="absolute inset-0 z-0">
+        <motion.div className="absolute inset-0" style={{ y: bgY }}>
         <motion.img
           src={showcaseBg}
           alt=""
@@ -22,10 +41,38 @@ export default function BackgroundGlow() {
           animate={animate ? { scale: [1.05, 1.1, 1.05], x: [0, 10, 0] } : undefined}
           transition={animate ? { duration: 36, repeat: Infinity, ease: "easeInOut" } : undefined}
         />
+        </motion.div>
         <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/55" />
         <div className="absolute inset-0 bg-gradient-to-r from-white/70 via-white/25 to-transparent" />
         <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_100%,transparent_20%,rgba(8,20,45,0.06)_100%)]" />
       </div>
+
+      {/* Drifting clouds + mist (desktop only — skipped on phones / low-power devices / reduced motion) */}
+      {animate && (
+        <div ref={cloudsRef} className="vsx-clouds" data-paused="false" aria-hidden="true">
+          <motion.div className="absolute inset-0" style={{ y: cloudY }}>
+            <div className="vsx-layer vsx-layer--a">
+              {[0, 1].map((g) => (
+                <div key={g} className="vsx-group">
+                  {[0, 1, 2].map((i) => (
+                    <img key={i} src={cloudImg} alt="" loading="lazy" decoding="async" className="vsx-cloud" />
+                  ))}
+                </div>
+              ))}
+            </div>
+            <div className="vsx-layer vsx-layer--b">
+              {[0, 1].map((g) => (
+                <div key={g} className="vsx-group">
+                  {[0, 1, 2].map((i) => (
+                    <img key={i} src={cloudImg} alt="" loading="lazy" decoding="async" className="vsx-cloud" />
+                  ))}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+          <div className="vsx-mist" />
+        </div>
+      )}
 
       {/* Golden light sweep */}
       <motion.div

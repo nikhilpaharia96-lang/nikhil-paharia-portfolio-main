@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import type { Project } from "@/types/video";
 import { featuredVideo, projects } from "@/constants/videoShowcase";
 import BackgroundGlow from "./BackgroundGlow";
@@ -6,9 +7,11 @@ import ShowcaseIntro from "./ShowcaseIntro";
 import FeaturedVideoCard from "./FeaturedVideoCard";
 import ProjectCarousel from "./ProjectCarousel";
 import VideoLightbox from "./VideoLightbox";
+import { ease } from "@/animations/videoShowcase.motion";
 
 export default function VideoShowcase() {
   const [activeVideo, setActiveVideo] = useState<{ url: string; title: string } | null>(null);
+  const reduce = !!useReducedMotion();
 
   const handlePlayProject = (project: Project) => {
     if (project.videoUrl) setActiveVideo({ url: project.videoUrl, title: project.title });
@@ -36,9 +39,15 @@ export default function VideoShowcase() {
           </div>
         </div>
 
-        <div className="mt-10 sm:mt-12">
+        <motion.div
+          className="mt-10 sm:mt-12"
+          initial={{ opacity: 0, y: reduce ? 0 : 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: reduce ? 0.01 : 0.9, ease }}
+        >
           <ProjectCarousel items={projects} onPlay={handlePlayProject} paused={!!activeVideo} />
-        </div>
+        </motion.div>
       </div>
 
       <VideoLightbox
