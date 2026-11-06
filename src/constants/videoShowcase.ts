@@ -133,12 +133,6 @@ export const isReelUrl = (url?: string): boolean =>
  */
 export const reelProjects: Project[] = projects.filter((p) => isReelUrl(p.videoUrl));
 
-/** Frame used by the raw-vs-graded colour grading slider. */
-export const gradingDemo = {
-  image: cliffSunset,
-  alt: "Graded sunset landscape with warm golden light",
-};
-
 export const showcaseStats: ShowcaseStat[] = [
   { icon: Clapperboard, value: "50+", label: "Videos Edited" },
   { icon: Film, value: "10+", label: "Cinematic Films" },
