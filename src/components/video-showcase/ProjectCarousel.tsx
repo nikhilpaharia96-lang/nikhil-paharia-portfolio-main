@@ -39,7 +39,7 @@ export default function ProjectCarousel({ items, onPlay, paused }: ProjectCarous
       onMouseLeave={() => setHovered(false)}
     >
       <div
-        className="overflow-hidden py-8 -my-2 [mask-image:linear-gradient(to_right,transparent,#000_6%,#000_94%,transparent)] [-webkit-mask-image:linear-gradient(to_right,transparent,#000_6%,#000_94%,transparent)]"
+        className="overflow-hidden py-8 -my-2 -mx-4 px-4 md:mx-0 md:px-0 [mask-image:linear-gradient(to_right,#000_95%,transparent)] [-webkit-mask-image:linear-gradient(to_right,#000_95%,transparent)] md:[mask-image:linear-gradient(to_right,transparent,#000_6%,#000_94%,transparent)] md:[-webkit-mask-image:linear-gradient(to_right,transparent,#000_6%,#000_94%,transparent)]"
         ref={emblaRef}
       >
         <div className="flex gap-5 sm:gap-6 -ml-5 sm:-ml-6">

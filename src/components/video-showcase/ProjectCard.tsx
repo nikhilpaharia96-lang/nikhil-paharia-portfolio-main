@@ -53,7 +53,7 @@ export default function ProjectCard({ project, variant, distance, index, onSelec
       whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.6, delay: index * 0.06, ease }}
-      className="shrink-0 w-[78vw] xs:w-[300px] sm:w-[320px] snap-start"
+      className="shrink-0 w-[66vw] xs:w-[260px] sm:w-[320px] snap-start"
     >
       <motion.div
         ref={ref}

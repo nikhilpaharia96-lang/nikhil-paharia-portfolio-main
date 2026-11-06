@@ -13,7 +13,10 @@ export function useProjectCarousel(slideCount: number, { autoplayMs = 3000, paus
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
       loop: true,
-      align: "center",
+      // Phones: start-aligned so the next card peeks in from the right and it's
+      // obvious there's more than one reel. Tablet/desktop keep the centred look.
+      align: "start",
+      breakpoints: { "(min-width: 768px)": { align: "center" } },
       duration: 30, // smooth slide so autoplay feels fluid
       containScroll: "trimSnaps",
     },
