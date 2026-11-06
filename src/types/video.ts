@@ -20,6 +20,10 @@ export type Project = {
   image: string;
   description: string;
   location: string;
+  /** Optional client / brand name, shown on premium cards. */
+  client?: string;
+  /** Opt in to the premium cinematic card layout. Other cards are unchanged. */
+  premium?: boolean;
   /** Optional YouTube or Instagram link — paste a normal share URL here. */
   videoUrl?: string;
 };

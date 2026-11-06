@@ -111,10 +111,13 @@ export const projects: Project[] = [
     id: 7,
     title: "B.K. Jewellers — Special Invitation",
     category: "Commercial",
-    duration: "Reel",
+    // Real length isn't available (Instagram blocks metadata) — left empty so no fake number is shown.
+    duration: "",
     image: bkJewellers,
-    description: "A promo reel inviting customers to B.K. Jewellers' 3-day event — trusted since 1965 for gold, diamond & silver jewellery.",
+    description: "A promotional reel inviting customers to explore B.K. Jewellers' Gold, Diamond and Silver Jewellery collection.",
     location: "Jagiroad, Assam",
+    client: "B.K. Jewellers",
+    premium: true,
     videoUrl: "https://www.instagram.com/reel/DeOg4CbOw6L/?psln=MXFhb3JhbGRocGM5cg==",
   },
 ];
