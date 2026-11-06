@@ -25,7 +25,7 @@ const ANDROID_CHROME = "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537
 const IPHONE_INSTA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 330.0.0.20.99";
 const WIN_EDGE = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0";
 
-async function call(opts: { method?: string; ip: string; ua?: string; origin?: string | null; body?: unknown; country?: string }) {
+async function call(opts: { method?: string; ip: string; ua?: string; origin?: string | null; body?: unknown; country?: string; region?: string; city?: string }) {
   const res = { code: 0, json: undefined as unknown, headers: {} as Record<string, string>,
     setHeader(k: string, v: string) { this.headers[k] = v; return this; },
     status(c: number) { this.code = c; return this; },
@@ -38,6 +38,8 @@ async function call(opts: { method?: string; ip: string; ua?: string; origin?: s
       "x-forwarded-for": opts.ip, "user-agent": "ua" in opts ? opts.ua : ANDROID_CHROME, host: "www.nikhilpaharia.online",
       ...(opts.origin === null ? {} : { origin: opts.origin ?? "https://www.nikhilpaharia.online" }),
       ...(opts.country ? { "x-vercel-ip-country": opts.country } : {}),
+      ...(opts.region ? { "x-vercel-ip-country-region": opts.region } : {}),
+      ...(opts.city ? { "x-vercel-ip-city": opts.city } : {}),
     },
     body: opts.body ?? { path: "/", ref: "", touch: 5 },
   };
@@ -50,13 +52,13 @@ let n = 0;
 const test = async (name: string, fn: () => Promise<void>) => { await fn(); console.log(`  ✓ ${name}`); n++; };
 
 await test("valid visit sends one correctly-formed email", async () => {
-  const r = await call({ ip: "203.0.113.10", country: "IN", body: { path: "/services/video-editing?token=SECRET#x", ref: "l.instagram.com", touch: 5 } });
+  const r = await call({ ip: "203.0.113.10", country: "IN", region: "AS", city: "Guwahati", body: { path: "/services/video-editing?token=SECRET#x", ref: "l.instagram.com", touch: 5 } });
   assert.equal(r.code, 202); assert.equal(r.body.notified, true);
   assert.equal(sent.length, 1);
   const m = sent[0];
   assert.deepEqual(m.to, ["owner@example.com"]);
   assert.equal(m.subject, "🚀 New Visitor on Your Portfolio!");
-  for (const s of ["New Portfolio Visitor", "Instagram", "Mobile", "Chrome", "Android", "India", "IST", "clarity.microsoft.com/projects/view/z98h3pxnvk/dashboard", "https://www.nikhilpaharia.online/services/video-editing"])
+  for (const s of ["New Portfolio Visitor", "Instagram", "Mobile", "Chrome", "Android", "Assam, India (Guwahati)", "IST", "clarity.microsoft.com/projects/view/z98h3pxnvk/dashboard", "https://www.nikhilpaharia.online/services/video-editing"])
     assert.ok(m.html.includes(s) || m.text.includes(s), `missing ${s}`);
   assert.ok(!m.html.includes("SECRET") && !m.text.includes("SECRET"), "query string leaked");
   assert.ok(!/203\.0\.113\.10/.test(m.html + m.text), "IP leaked");
@@ -76,9 +78,20 @@ await test("device / browser / OS detection: iPhone Instagram + Windows Edge", a
   assert.match(b, /Device: Desktop/); assert.match(b, /Edge/); assert.match(b, /Windows/); assert.match(b, /Traffic source: Google/);
 });
 
-await test("country omitted when unavailable", async () => {
+await test("location formats: region+country (city), country-only fallbacks, encoded/hostile city", async () => {
+  await call({ ip: "203.0.113.20", ua: WIN_EDGE + " a", country: "BR", city: "S%C3%A3o%20Paulo" });
+  assert.match(sent.at(-1)!.text, /Location \(approx\.\): Brazil \(São Paulo\)/);
+  await call({ ip: "203.0.113.21", ua: WIN_EDGE + " b", country: "US", region: "CA", city: "San%20Jose" });
+  assert.match(sent.at(-1)!.text, /California, United States \(San Jose\)/);
+  await call({ ip: "203.0.113.22", ua: WIN_EDGE + " c", country: "IN", region: "AS" });
+  assert.match(sent.at(-1)!.text, /Location \(approx\.\): Assam, India\n/);
+  await call({ ip: "203.0.113.23", ua: WIN_EDGE + " d", country: "IN", region: "AS", city: "%3Cscript%3Ealert(1)%3C%2Fscript%3E" });
+  assert.ok(!/<script>/.test(sent.at(-1)!.html) && !/<script>/.test(sent.at(-1)!.text), "city markup leaked");
+});
+
+await test("location omitted when unavailable", async () => {
   await call({ ip: "203.0.113.13", ua: WIN_EDGE + " x", country: "XX" });
-  assert.match(sent.at(-1)!.text, /Country: Not available/);
+  assert.match(sent.at(-1)!.text, /Location \(approx\.\): Not available/);
 });
 
 await test("bots are filtered silently", async () => {

@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { checkRateLimit, getClientIp } from "./_lib/rateLimit.js";
 import { sendNotificationEmail } from "./_lib/sendEmail.js";
 import { claimOnce, incrWindow, releaseClaim } from "./_lib/visitStore.js";
-import { buildVisitorEmail, classifySource, countryName, isBotUserAgent, parseUserAgent } from "./_lib/visitor.js";
+import { buildVisitorEmail, classifySource, formatLocation, isBotUserAgent, parseUserAgent } from "./_lib/visitor.js";
 
 /**
  * POST /api/visit — emails the site owner a short, anonymous "new visitor" notification.
@@ -96,7 +96,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const touch = Number(body.touch) || 0;
   const { device, browser, os } = parseUserAgent(ua as string, touch);
   const source = classifySource(cleanHost(body.ref), typeof body.utm === "string" ? body.utm : undefined, allowedHosts());
-  const country = countryName(header(req, "x-vercel-ip-country"));
+  const location = formatLocation(header(req, "x-vercel-ip-country"), header(req, "x-vercel-ip-country-region"), header(req, "x-vercel-ip-city"));
 
   // Duplicate protection: one email per (salted, daily-rotating) visitor hash per window.
   const dedupeHours = Math.max(1, Number(process.env.VISITOR_NOTIFY_DEDUPE_HOURS) || 24);
@@ -113,7 +113,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const host = (header(req, "x-forwarded-host") || header(req, "host") || DEFAULT_HOSTS).split(",")[0].trim();
   const clarityId = (process.env.CLARITY_PROJECT_ID || "z98h3pxnvk").replace(/[^A-Za-z0-9]/g, "");
   const email = buildVisitorEmail(
-    { url: `https://${host}${cleanPath(body.path)}`, source, referrerHost: cleanHost(body.ref), device, browser, os, country, at: new Date() },
+    { url: `https://${host}${cleanPath(body.path)}`, source, referrerHost: cleanHost(body.ref), device, browser, os, location, at: new Date() },
     `https://clarity.microsoft.com/projects/view/${clarityId}/dashboard`,
   );
 

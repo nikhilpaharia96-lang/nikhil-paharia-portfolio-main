@@ -21,7 +21,8 @@ export interface VisitInfo {
   device: DeviceType;
   browser: string;
   os: string;
-  country?: string;
+  /** Approximate, IP-derived location such as "Assam, India (Guwahati)". Never an address or coordinates. */
+  location?: string;
   at: Date;
 }
 
@@ -115,6 +116,51 @@ export function countryName(code: string | undefined): string | undefined {
   }
 }
 
+/** ISO 3166-2 subdivision names for the markets that matter most. Other countries fall back to city + country. */
+const REGIONS: Record<string, Record<string, string>> = {
+  IN: {
+    AN: "Andaman and Nicobar Islands", AP: "Andhra Pradesh", AR: "Arunachal Pradesh", AS: "Assam", BR: "Bihar", CH: "Chandigarh",
+    CG: "Chhattisgarh", CT: "Chhattisgarh", DH: "Dadra and Nagar Haveli and Daman and Diu", DN: "Dadra and Nagar Haveli and Daman and Diu",
+    DD: "Dadra and Nagar Haveli and Daman and Diu", DL: "Delhi", GA: "Goa", GJ: "Gujarat", HR: "Haryana", HP: "Himachal Pradesh",
+    JK: "Jammu and Kashmir", JH: "Jharkhand", KA: "Karnataka", KL: "Kerala", LA: "Ladakh", LD: "Lakshadweep", MP: "Madhya Pradesh",
+    MH: "Maharashtra", MN: "Manipur", ML: "Meghalaya", MZ: "Mizoram", NL: "Nagaland", OD: "Odisha", OR: "Odisha", PY: "Puducherry",
+    PB: "Punjab", RJ: "Rajasthan", SK: "Sikkim", TN: "Tamil Nadu", TG: "Telangana", TS: "Telangana", TR: "Tripura",
+    UP: "Uttar Pradesh", UT: "Uttarakhand", UK: "Uttarakhand", WB: "West Bengal",
+  },
+  US: {
+    AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California", CO: "Colorado", CT: "Connecticut", DE: "Delaware",
+    DC: "District of Columbia", FL: "Florida", GA: "Georgia", HI: "Hawaii", ID: "Idaho", IL: "Illinois", IN: "Indiana", IA: "Iowa",
+    KS: "Kansas", KY: "Kentucky", LA: "Louisiana", ME: "Maine", MD: "Maryland", MA: "Massachusetts", MI: "Michigan", MN: "Minnesota",
+    MS: "Mississippi", MO: "Missouri", MT: "Montana", NE: "Nebraska", NV: "Nevada", NH: "New Hampshire", NJ: "New Jersey",
+    NM: "New Mexico", NY: "New York", NC: "North Carolina", ND: "North Dakota", OH: "Ohio", OK: "Oklahoma", OR: "Oregon",
+    PA: "Pennsylvania", RI: "Rhode Island", SC: "South Carolina", SD: "South Dakota", TN: "Tennessee", TX: "Texas", UT: "Utah",
+    VT: "Vermont", VA: "Virginia", WA: "Washington", WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming",
+  },
+};
+
+/**
+ * Builds "Assam, India (Guwahati)" from the CDN's coarse geo headers. Every part is optional; returns undefined when
+ * not even the country is known. City is IP-derived and can be wrong (mobile carriers and ISPs often route through a
+ * hub city), which is why the email labels it "approximate".
+ */
+export function formatLocation(countryCode?: string, regionCode?: string, cityRaw?: string): string | undefined {
+  const country = countryName(countryCode);
+  if (!country) return undefined;
+  const cc = (countryCode as string).toUpperCase();
+  const region = regionCode ? REGIONS[cc]?.[regionCode.toUpperCase()] : undefined;
+  let city: string | undefined;
+  if (cityRaw) {
+    try {
+      city = decodeURIComponent(cityRaw);
+    } catch {
+      city = cityRaw;
+    }
+    city = city.replace(/[^\p{L}\p{M}\s.'-]/gu, "").trim().slice(0, 60) || undefined;
+  }
+  const base = region ? `${region}, ${country}` : country;
+  return city && city !== region ? `${base} (${city})` : base;
+}
+
 /* ───────────────────────── Email ───────────────────────── */
 
 const esc = (s: string) =>
@@ -134,7 +180,7 @@ export function buildVisitorEmail(info: VisitInfo, clarityUrl: string): { subjec
     ["Device", info.device],
     ["Browser", info.browser],
     ["Operating system", info.os],
-    ["Country", info.country || "Not available"],
+    ["Location (approx.)", info.location || "Not available"],
     ["Visit time", formatVisitTime(info.at)],
   ];
 
@@ -145,7 +191,7 @@ export function buildVisitorEmail(info: VisitInfo, clarityUrl: string): { subjec
     "",
     `Open Microsoft Clarity: ${clarityUrl}`,
     "",
-    "Anonymous, approximate analytics only — no IP address or personal data is included.",
+    "Anonymous, approximate analytics only — no IP address, exact location or personal data is included.",
   ].join("\n");
 
   const rowHtml = rows
@@ -176,7 +222,7 @@ export function buildVisitorEmail(info: VisitInfo, clarityUrl: string): { subjec
           <a href="${esc(clarityUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;background:#1266F1;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:14px 28px">Open Clarity Dashboard</a>
         </td></tr>
         <tr><td style="padding:20px 28px 28px;font-size:12px;line-height:1.6;color:#94a3b8;text-align:center">
-          Anonymous, approximate analytics only. No IP address or personal information is included in this email.<br>
+          Anonymous, approximate analytics only. Location is estimated from the network and may be inaccurate.<br>No IP address or personal information is included in this email.<br>
           Sent automatically by your portfolio at nikhilpaharia.online
         </td></tr>
       </table>

@@ -181,7 +181,7 @@ export default function Analytics() {
     >
       <p className="text-xs leading-relaxed">
         This site uses Microsoft Clarity to understand how visitors use it (anonymised session recordings and heatmaps)
-        and sends the site owner a simple anonymous visit notice (page, device type, country). Nothing is collected unless
+        and sends the site owner a simple anonymous visit notice (page, device type, approximate location). Nothing is collected unless
         you accept. Form fields and payment details are never recorded.
       </p>
       <div className="mt-3 flex gap-2">
