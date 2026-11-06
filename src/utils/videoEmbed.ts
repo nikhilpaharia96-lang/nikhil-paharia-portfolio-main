@@ -4,7 +4,7 @@
  * file is enough to make a video playable — no manual embed-code wrangling.
  */
 
-export type EmbedKind = "youtube" | "instagram" | "unknown";
+export type EmbedKind = "youtube" | "instagram" | "drive" | "unknown";
 
 export type ParsedEmbed = {
   kind: EmbedKind;
@@ -62,6 +62,20 @@ export function parseVideoUrl(rawUrl: string | undefined | null): ParsedEmbed | 
       sourceUrl: rawUrl,
       isVertical: true,
     };
+  }
+
+  // Google Drive: drive.google.com/file/d/<id>/view  ->  /preview (the file must be shared
+  // as "Anyone with the link"). Treated as a vertical reel.
+  if (host === "drive.google.com") {
+    const id = url.pathname.match(/\/file\/d\/([^/]+)/)?.[1] ?? url.searchParams.get("id");
+    if (id) {
+      return {
+        kind: "drive",
+        embedUrl: `https://drive.google.com/file/d/${id}/preview`,
+        sourceUrl: rawUrl,
+        isVertical: true,
+      };
+    }
   }
 
   return { kind: "unknown", embedUrl: "", sourceUrl: rawUrl, isVertical: false };

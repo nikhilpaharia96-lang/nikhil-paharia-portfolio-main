@@ -105,7 +105,7 @@ export const projects: Project[] = [
     image: vid3,
     description: "A wedding highlight film told through small, honest moments.",
     location: "Arunachal Pradesh, India",
-    videoUrl: "https://www.instagram.com/reel/DbdGUJjuSoH/?igsh=MzRpcWpwem1tdzhn",
+    videoUrl: "https://drive.google.com/file/d/1Jex6CCQk7IeJyXxrVR0xsXFUhEkegs5P/view?usp=drivesdk",
   },
   {
     id: 7,
@@ -122,9 +122,12 @@ export const projects: Project[] = [
   },
 ];
 
-/** True for short-form links only: Instagram Reels and YouTube Shorts. */
+/** True for short-form links only: Instagram Reels, YouTube Shorts and Google Drive reel files. */
 export const isReelUrl = (url?: string): boolean =>
-  !!url && /instagram\.com\/(reel|reels)\//i.test(url) || /youtube\.com\/shorts\//i.test(url ?? "");
+  !!url &&
+  (/instagram\.com\/(reel|reels)\//i.test(url) ||
+    /youtube\.com\/shorts\//i.test(url) ||
+    /drive\.google\.com\/file\//i.test(url));
 
 /**
  * The carousel under the featured video shows short-form reels only.

@@ -25,7 +25,7 @@ type VideoLightboxProps = {
 };
 
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
-const platformName = (kind: string) => (kind === "instagram" ? "Instagram" : kind === "youtube" ? "YouTube" : "original site");
+const platformName = (kind: string) => (kind === "instagram" ? "Instagram" : kind === "youtube" ? "YouTube" : kind === "drive" ? "Google Drive" : "original site");
 
 /**
  * Cinematic video player. Opens over the page with an ambient, blurred copy of the
