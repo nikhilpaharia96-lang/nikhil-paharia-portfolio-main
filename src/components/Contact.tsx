@@ -468,7 +468,7 @@ export default function Contact() {
               variants={container}
               initial="hidden"
               whileInView="show"
-              viewport={{ once: true, amount: 0.15 }}
+              viewport={{ once: false, amount: 0.15 }}
             >
               {/* Mountain sky backdrop — fades softly into the page */}
               <div aria-hidden="true" className="pointer-events-none absolute -inset-x-6 -top-10 h-[34rem] sm:h-[36rem] -z-10 overflow-hidden rounded-[2rem] [mask-image:linear-gradient(to_bottom,#000_55%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,#000_55%,transparent_100%)]">
@@ -599,16 +599,17 @@ export default function Contact() {
 
           {/* Right — form */}
           <fm.div
-            variants={{ hidden: { opacity: 0, y: reduce ? 0 : 44 }, show: { opacity: 1, y: 0, transition: { duration: reduce ? 0.01 : 0.95, ease, delay: reduce ? 0 : 0.15, staggerChildren: 0.08, delayChildren: 0.4 } } }}
+            variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { duration: reduce ? 0.01 : 0.7, ease, staggerChildren: 0.08, delayChildren: 0.4 } } }}
             initial="hidden"
             whileInView="show"
-            viewport={{ once: true, amount: 0.1 }}
+            viewport={{ once: false, amount: 0.1 }}
             className="w-full max-w-full relative"
           >
             {/* Soft blue glow behind the glass card */}
             <div aria-hidden="true" className="absolute -inset-4 bg-gradient-to-br from-primary/15 via-sky-300/10 to-transparent rounded-[32px] blur-2xl -z-10" />
 
-            <form
+            <fm.form
+              variants={{ hidden: { y: reduce ? 0 : 44 }, show: { y: 0, transition: { duration: reduce ? 0.01 : 0.95, ease, delay: reduce ? 0 : 0.15 } } }}
               ref={formRef}
               action={FORMSPREE_ENDPOINT}
               method="POST"
@@ -713,7 +714,7 @@ export default function Contact() {
                   </fm.div>
                 ))}
               </fm.div>
-            </form>
+            </fm.form>
           </fm.div>
         </div>
       </div>

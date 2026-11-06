@@ -8,14 +8,15 @@ import { ease } from "@/animations/videoShowcase.motion";
 // come from the existing trustStats data — nothing invented.
 const icons = [Users, Clapperboard, Star, Heart];
 
-/** Counts up from 0 once, when scrolled into view (final value for reduced motion). */
+/** Counts up from 0 every time it scrolls into view (final value for reduced motion). */
 function CountUp({ value, suffix = "", reduce }: { value: number; suffix?: string; reduce: boolean }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-40px" });
+  const inView = useInView(ref, { once: false, margin: "-40px" });
   const [n, setN] = useState(reduce ? value : 0);
 
   useEffect(() => {
-    if (reduce || !inView) return;
+    if (reduce) return;
+    if (!inView) { setN(0); return; }
     const controls = animate(0, value, { duration: 1.5, ease: [0.16, 1, 0.3, 1], onUpdate: (v) => setN(Math.round(v)) });
     return () => controls.stop();
   }, [inView, reduce, value]);
@@ -30,8 +31,8 @@ export default function TestimonialStats() {
     <motion.dl
       initial="hidden"
       whileInView="show"
-      viewport={{ once: true, amount: 0.3 }}
-      variants={{ hidden: { opacity: 0, y: reduce ? 0 : 24 }, show: { opacity: 1, y: 0, transition: { duration: reduce ? 0.01 : 0.8, ease, staggerChildren: 0.1, delayChildren: 0.15 } } }}
+      viewport={{ once: false, amount: 0.3 }}
+      variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { duration: reduce ? 0.01 : 0.8, ease, staggerChildren: 0.1, delayChildren: 0.15 } } }}
       className="grid grid-cols-4 lg:grid-cols-2 gap-x-0 sm:gap-x-4 gap-y-3.5 rounded-[clamp(1rem,4.5vw,1.25rem)] bg-white/55 backdrop-blur-md border border-white/70 px-[clamp(0.3rem,2.2vw,1.25rem)] py-[clamp(0.65rem,3vw,1rem)]"
     >
       {trustStats.slice(0, 4).map(({ value, suffix, label, staticText }, i) => {

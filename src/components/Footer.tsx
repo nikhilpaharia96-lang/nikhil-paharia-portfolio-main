@@ -98,12 +98,13 @@ export default function Footer() {
     hidden: { opacity: 0, y: dist },
     show: { opacity: 1, y: 0, transition: { duration: reduce ? 0.01 : 0.9, ease } },
   };
+  const fade = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { duration: reduce ? 0.01 : 0.8, ease } } };
   const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.09, delayChildren: 0.1 } } };
   const child = {
     hidden: { opacity: 0, y: reduce ? 0 : 18 },
     show: { opacity: 1, y: 0, transition: { duration: 0.7, ease } },
   };
-  const view = { once: true, amount: 0.25 } as const;
+  const view = { once: false, amount: 0.25 } as const; // replays every time the footer is scrolled into view
   const headingWords = "Let's build the future.".split(" ");
 
   return (
@@ -244,10 +245,10 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <motion.div
-          variants={rise}
+          variants={fade}
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true, amount: 0.5 }}
+          viewport={{ once: false, amount: 0.5 }}
           className="flex flex-col md:flex-row justify-between items-center gap-6 pt-8 border-t border-blue-100"
         >
           <p className="text-slate-700 text-sm font-medium">

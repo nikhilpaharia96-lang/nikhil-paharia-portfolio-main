@@ -41,12 +41,19 @@ export default function VideoShowcase() {
 
         <motion.div
           className="mt-10 sm:mt-12"
-          initial={{ opacity: 0, y: reduce ? 0 : 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: reduce ? 0.01 : 0.9, ease }}
+          variants={{ hidden: {}, show: {} }}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: false, margin: "-80px" }}
         >
-          <ProjectCarousel items={projects} onPlay={handlePlayProject} paused={!!activeVideo} />
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: reduce ? 0 : 40 },
+              show: { opacity: 1, y: 0, transition: { duration: reduce ? 0.01 : 0.9, ease } },
+            }}
+          >
+            <ProjectCarousel items={projects} onPlay={handlePlayProject} paused={!!activeVideo} />
+          </motion.div>
         </motion.div>
       </div>
 

@@ -15,7 +15,7 @@ export default function Testimonials() {
   const dur = reduce ? 0.01 : 0.8;
   const container = { hidden: {}, show: { transition: { staggerChildren: 0.11, delayChildren: 0.05 } } };
   const item = { hidden: { opacity: 0, y: reduce ? 0 : 24 }, show: { opacity: 1, y: 0, transition: { duration: dur, ease } } };
-  const view = { once: true, amount: 0.15 } as const;
+  const view = { once: false, amount: 0.15 } as const;
 
   return (
     <section
@@ -103,7 +103,7 @@ export default function Testimonials() {
               aria-hidden="true"
               initial={{ opacity: 0, rotate: reduce ? -6 : -14 }}
               whileInView={{ opacity: 1, rotate: -6 }}
-              viewport={{ once: true }}
+              viewport={{ once: false }}
               transition={{ duration: reduce ? 0.01 : 0.9, ease, delay: reduce ? 0 : 0.7 }}
               className="hidden xl:flex absolute -top-16 -right-24 flex-col items-start font-script font-bold text-xl leading-tight text-[#14284f]"
             >

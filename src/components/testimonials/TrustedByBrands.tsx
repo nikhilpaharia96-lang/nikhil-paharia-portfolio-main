@@ -60,11 +60,12 @@ export default function TrustedByBrands() {
   const reduce = !!useReducedMotion();
 
   return (
+    <motion.div variants={{ hidden: {}, show: {} }} initial="hidden" whileInView="show" viewport={{ once: false, margin: "-60px" }}>
     <motion.div
-      initial={{ opacity: 0, y: reduce ? 0 : 36 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: reduce ? 0.01 : 0.9, ease }}
+      variants={{
+        hidden: { opacity: 0, y: reduce ? 0 : 36 },
+        show: { opacity: 1, y: 0, transition: { duration: reduce ? 0.01 : 0.9, ease } },
+      }}
       className="mt-[clamp(0.75rem,3.2vw,1.25rem)] lg:mt-10 rounded-[clamp(1rem,4.5vw,1.5rem)] py-[clamp(0.8rem,3.6vw,1.4rem)] bg-white/75 backdrop-blur-xl border border-white/90 shadow-[0_1px_0_rgba(255,255,255,0.9)_inset,0_20px_44px_-28px_rgba(15,45,90,0.4)]"
     >
       <div className="text-center mb-[clamp(0.7rem,3.2vw,1.1rem)] px-4">
@@ -75,7 +76,7 @@ export default function TrustedByBrands() {
             className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-7 h-[3px] rounded-full bg-primary origin-center"
             initial={{ scaleX: reduce ? 1 : 0 }}
             whileInView={{ scaleX: 1 }}
-            viewport={{ once: true }}
+            viewport={{ once: false }}
             transition={{ duration: 0.7, ease, delay: 0.5 }}
           />
         </h3>
@@ -95,6 +96,7 @@ export default function TrustedByBrands() {
           </ul>
         </div>
       </div>
+    </motion.div>
     </motion.div>
   );
 }
