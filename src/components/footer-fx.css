@@ -1,0 +1,164 @@
+/* Footer FX — clouds, mist, light, links, glass socials, back-to-top.
+   Everything animates with transform / opacity only (compositor-friendly). */
+
+.ffx {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: layout paint;
+}
+.ffx[data-paused="true"] * { animation-play-state: paused !important; }
+
+/* ── Cloud layers: seamless horizontal drift, three depths at three speeds ── */
+.ffx-layer {
+  position: absolute;
+  left: 0;
+  top: var(--top, 10%);
+  display: flex;
+  width: max-content;
+  opacity: var(--o, 0.6);
+  animation: ffx-drift var(--dur, 120s) linear infinite;
+  animation-direction: var(--dir, normal);
+  will-change: transform;
+}
+.ffx-group { display: flex; flex-shrink: 0; align-items: flex-start; }
+.ffx-cloud {
+  flex-shrink: 0;
+  width: var(--w, 520px);
+  height: auto;
+  user-select: none;
+}
+.ffx-cloud:nth-child(1) { margin-top: 0; }
+.ffx-cloud:nth-child(2) { margin-top: var(--shift, 40px); transform: scaleX(-1); }
+.ffx-cloud:nth-child(3) { width: calc(var(--w, 520px) * .78); margin-top: calc(var(--shift, 40px) * -.4); margin-left: calc(var(--w, 520px) * .12); }
+
+@keyframes ffx-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+/* far: small, faint, slow · mid · near: big, brighter, fastest, opposite way */
+.ffx-layer--far  { --top: 4%;  --o: .5;  --w: clamp(300px, 40vw, 640px);  --dur: 190s; --shift: 20px; }
+.ffx-layer--mid  { --top: 20%; --o: .62; --w: clamp(380px, 54vw, 880px);  --dur: 130s; --shift: 50px; --dir: reverse; }
+.ffx-layer--near { --top: 46%; --o: .7;  --w: clamp(480px, 74vw, 1180px); --dur: 90s;  --shift: 70px; }
+@media (max-width: 767px) {
+  .ffx-layer--near { display: none; } /* two cloud depths on phones, three on desktop */
+  .ffx-layer--mid  { --top: 18%; }
+}
+
+/* ── Mist: soft gradient banks breathing across the valley (no blur filters) ── */
+.ffx-mist {
+  position: absolute;
+  left: -25%;
+  width: 150%;
+  height: 38%;
+  bottom: var(--b, 0%);
+  opacity: var(--o, .6);
+  background:
+    radial-gradient(ellipse 40% 55% at 28% 60%, rgba(255,255,255,.85), transparent 70%),
+    radial-gradient(ellipse 45% 50% at 72% 45%, rgba(228,240,255,.8), transparent 70%);
+  animation: ffx-mist var(--dur, 40s) ease-in-out infinite alternate;
+  will-change: transform;
+}
+.ffx-mist--a { --b: -4%; --o: .7;  --dur: 46s; }
+.ffx-mist--b { --b: 16%; --o: .45; --dur: 62s; animation-direction: alternate-reverse; }
+@keyframes ffx-mist {
+  from { transform: translate3d(-7%, 0, 0); }
+  to   { transform: translate3d(7%, -4%, 0); }
+}
+
+/* ── Light: warm sun glow + cool blue wash, slowly breathing ── */
+.ffx-sun {
+  position: absolute;
+  right: -12%;
+  top: 22%;
+  width: min(80vw, 760px);
+  aspect-ratio: 1;
+  background: radial-gradient(circle, rgba(255,236,190,.7) 0%, rgba(255,236,190,.25) 38%, transparent 68%);
+  animation: ffx-breathe 9s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+.ffx-blue {
+  position: absolute;
+  left: -15%;
+  top: -8%;
+  width: min(90vw, 820px);
+  aspect-ratio: 1;
+  background: radial-gradient(circle, rgba(29,111,235,.2) 0%, transparent 65%);
+  animation: ffx-breathe 13s ease-in-out -4s infinite;
+  will-change: transform, opacity;
+}
+@keyframes ffx-breathe {
+  0%, 100% { opacity: .55; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.08); }
+}
+
+/* ── "Explore" heading: soft blue glow pulse (opacity only) ── */
+.footer-glow-title { position: relative; isolation: isolate; }
+.footer-glow-title::before {
+  content: "";
+  position: absolute;
+  inset: -30% -25%;
+  z-index: -1;
+  background: radial-gradient(ellipse at center, rgba(29,111,235,.28), transparent 65%);
+  opacity: .4;
+  animation: ffx-glow 4.8s ease-in-out infinite;
+}
+@keyframes ffx-glow {
+  0%, 100% { opacity: .25; transform: scale(.94); }
+  50%      { opacity: .85; transform: scale(1.06); }
+}
+
+/* ── Nav links: lift + underline sweep ── */
+.footer-link {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 4px;
+  transition: color .3s ease, transform .35s cubic-bezier(.16,1,.3,1);
+}
+.footer-link::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, hsl(var(--primary)), #7db4ff);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform .45s cubic-bezier(.16,1,.3,1);
+}
+.footer-link:hover,
+.footer-link:focus-visible { transform: translateY(-2px); }
+.footer-link:hover::after,
+.footer-link:focus-visible::after { transform: scaleX(1); transform-origin: left; }
+
+/* ── Social icons: glass + scale + blue glow ── */
+.footer-social {
+  border: 1px solid rgba(255,255,255,.75);
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 6px 18px rgba(29,111,235,.14);
+  transition: transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s ease, background-color .3s ease, color .3s ease;
+}
+.footer-social:hover,
+.footer-social:focus-visible {
+  transform: translateY(-3px) scale(1.14);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 0 0 4px rgba(29,111,235,.12), 0 10px 28px rgba(29,111,235,.45);
+}
+.footer-social:active { transform: scale(.94); }
+
+/* ── Back-to-top: idle float, arrow shoots up on hover ── */
+.footer-top-btn { transition: background-color .3s, color .3s, border-color .3s, box-shadow .35s; }
+.footer-top-btn:hover { box-shadow: 0 0 0 5px rgba(29,111,235,.12), 0 10px 26px rgba(29,111,235,.4); }
+.footer-arrow { display: block; animation: ffx-bob 2.6s ease-in-out infinite; }
+.footer-top-btn:hover .footer-arrow { animation: ffx-shoot .7s cubic-bezier(.16,1,.3,1) infinite; }
+@keyframes ffx-bob   { 0%,100% { transform: translateY(1px); } 50% { transform: translateY(-3px); } }
+@keyframes ffx-shoot { 0% { transform: translateY(0); opacity: 1; } 55% { transform: translateY(-14px); opacity: 0; } 56% { transform: translateY(14px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ffx-layer, .ffx-mist, .ffx-sun, .ffx-blue,
+  .footer-glow-title::before, .footer-arrow,
+  .footer-top-btn:hover .footer-arrow { animation: none !important; }
+  .footer-link, .footer-social { transition: none; }
+}
