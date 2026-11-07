@@ -101,6 +101,28 @@ export interface Booking {
   statusHistory: { status: BookingStatus; at: string }[];
   /** Private admin notes. Never sent to the public. */
   notes: string;
+  /** Next follow-up date (YYYY-MM-DD, IST) or "" / undefined. */
+  followUpAt?: string;
+}
+
+export interface AdminStats {
+  totalLeads: number;
+  newInquiries: number;
+  confirmedBookings: number;
+  pendingPayments: number;
+  /** Everything actually received (token via Razorpay + milestones recorded by the admin). */
+  revenue: number;
+  tokenRevenue: number;
+  /** Still to collect on live (confirmed, not cancelled) bookings. */
+  outstanding: number;
+  /** Paid bookings ÷ all leads, in percent (0–100, one decimal). */
+  conversionRate: number;
+  /** Follow-ups due today or overdue on open leads. */
+  followUpsDue: number;
+  byStatus: Record<BookingStatus, number>;
+  /** Last 14 days (IST), oldest first. */
+  daily: { date: string; leads: number; revenue: number }[];
+  byService: { service: string; title: string; leads: number; confirmed: number; revenue: number }[];
 }
 
 /* ───────────────────────────── Input + validation ───────────────────────────── */
@@ -218,38 +240,78 @@ export function validateBookingInput(
 
 export const bookingRef = (id: string) => `NP-${id.replace(/-/g, "").slice(0, 8).toUpperCase()}`;
 
+export const WA_TEMPLATES = ["auto", "advance_reminder", "final_reminder", "completed", "check_in"] as const;
+export type WaTemplate = (typeof WA_TEMPLATES)[number];
+export const WA_TEMPLATE_LABELS: Record<WaTemplate, string> = {
+  auto: "Smart default (confirmation / follow-up)",
+  advance_reminder: "Project-start advance reminder",
+  final_reminder: "Final payment reminder",
+  completed: "Project completed + review request",
+  check_in: "Quick check-in",
+};
+
+type WaBooking = Pick<Booking, "id" | "name" | "phone" | "serviceTitle" | "company" | "quote" | "paymentStatus" | "startDate"> & {
+  payments?: Booking["payments"];
+};
+
 /**
  * Builds a wa.me link for a saved client, with a professional pre-filled message.
- * Paid bookings get a confirmation message; unpaid leads get a friendly follow-up.
+ * "auto" sends a confirmation for paid bookings and a friendly follow-up for unpaid leads;
+ * the other templates cover the rest of the project lifecycle.
  */
-export function buildWhatsAppLink(
-  b: Pick<Booking, "id" | "name" | "phone" | "serviceTitle" | "company" | "quote" | "paymentStatus" | "startDate">,
-): string {
+export function buildWhatsAppLink(b: WaBooking, template: WaTemplate = "auto"): string {
   const digits = normalizePhone(b.phone);
   const first = b.name.trim().split(" ")[0] || "there";
   const forCompany = b.company ? ` for ${b.company}` : "";
-  const lines =
-    b.paymentStatus === "paid"
-      ? [
-          `Hi ${first}, this is Nikhil Paharia. 👋`,
-          "",
-          `Thank you for booking *${b.serviceTitle}*${forCompany}! Your booking token of ${formatINR(b.quote.token)} has been received (Ref: ${bookingRef(b.id)}).`,
-          "",
-          `*Project total:* ${formatINR(b.quote.total)}`,
-          `• Paid now (${b.quote.tokenPercent}%): ${formatINR(b.quote.token)} ✅`,
-          `• At project start (${b.quote.startPercent}%): ${formatINR(b.quote.startAdvance)}`,
-          `• After completion (${b.quote.remainingPercent}%): ${formatINR(b.quote.remaining)}`,
-          ...(b.startDate ? ["", `Preferred start date: ${b.startDate}`] : []),
-          "",
-          "I'd like to go through your requirements in detail. When would be a good time for a quick call?",
-        ]
-      : [
-          `Hi ${first}, this is Nikhil Paharia. 👋`,
-          "",
-          `Thanks for your interest in *${b.serviceTitle}*${forCompany}. I saw your booking request (Ref: ${bookingRef(b.id)}) and wanted to help you complete it.`,
-          "",
-          `Your estimated project cost is ${formatINR(b.quote.total)}. Happy to discuss your requirements and answer any questions — when are you free for a quick chat?`,
-        ];
+  const ref = bookingRef(b.id);
+  const greet = `Hi ${first}, this is Nikhil Paharia. 👋`;
+  const received = (b.payments ?? []).reduce((sum, p) => sum + p.amount, 0);
+  const outstanding = Math.max(0, b.quote.total - received);
+  const paid = b.paymentStatus === "paid";
+  let lines: string[];
+
+  if (template === "advance_reminder") {
+    lines = [
+      greet, "",
+      `Quick reminder for *${b.serviceTitle}*${forCompany} (Ref: ${ref}). To kick off the project, the ${b.quote.startPercent}% project-start advance of *${formatINR(b.quote.startAdvance)}* is due.`,
+      "", "You can pay by UPI or bank transfer — reply here and I'll share the details. I'll start as soon as it's received. 🚀",
+    ];
+  } else if (template === "final_reminder") {
+    lines = [
+      greet, "",
+      `Your *${b.serviceTitle}* project${forCompany} (Ref: ${ref}) is ready. The remaining balance is *${formatINR(outstanding)}*.`,
+      "", "Once it's paid I'll share the final files / handover. You can pay by UPI or bank transfer — reply here for the details. Thank you! 🙏",
+    ];
+  } else if (template === "completed") {
+    lines = [
+      greet, "",
+      `Your *${b.serviceTitle}* project${forCompany} is complete — thank you for trusting me with it! 🎉`,
+      "", "If you're happy with the work, a short review or testimonial would mean a lot to me. And if you need any tweaks or have a new project, just message me here.",
+    ];
+  } else if (template === "check_in") {
+    lines = [
+      greet, "",
+      `Just checking in about your *${b.serviceTitle}* requirement${forCompany} (Ref: ${ref}). Do you have any questions, or would you like to schedule a quick call to move ahead?`,
+    ];
+  } else if (paid) {
+    lines = [
+      greet, "",
+      `Thank you for booking *${b.serviceTitle}*${forCompany}! Your booking token of ${formatINR(b.quote.token)} has been received (Ref: ${ref}).`,
+      "",
+      `*Project total:* ${formatINR(b.quote.total)}`,
+      `• Paid now (${b.quote.tokenPercent}%): ${formatINR(b.quote.token)} ✅`,
+      `• At project start (${b.quote.startPercent}%): ${formatINR(b.quote.startAdvance)}`,
+      `• After completion (${b.quote.remainingPercent}%): ${formatINR(b.quote.remaining)}`,
+      ...(b.startDate ? ["", `Preferred start date: ${b.startDate}`] : []),
+      "", "I'd like to go through your requirements in detail. When would be a good time for a quick call?",
+    ];
+  } else {
+    lines = [
+      greet, "",
+      `Thanks for your interest in *${b.serviceTitle}*${forCompany}. I saw your booking request (Ref: ${ref}) and wanted to help you complete it.`,
+      "", `Your estimated project cost is ${formatINR(b.quote.total)}. Happy to discuss your requirements and answer any questions — when are you free for a quick chat?`,
+    ];
+  }
   return `https://wa.me/91${digits}?text=${encodeURIComponent(lines.join("\n"))}`;
 }
 

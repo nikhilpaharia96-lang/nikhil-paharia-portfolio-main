@@ -21,6 +21,8 @@ export interface BookingStore {
   get(id: string): Promise<Booking | null>;
   getByOrder(orderId: string): Promise<Booking | null>;
   linkOrder(orderId: string, bookingId: string): Promise<void>;
+  /** Permanently removes a booking and its lookups. */
+  delete(b: Booking): Promise<void>;
   /** Newest first. */
   list(limit?: number): Promise<Booking[]>;
   /** Atomic "first caller wins". Returns true only for the caller that created the claim. */
@@ -64,6 +66,11 @@ export const redisStore: BookingStore = {
   async linkOrder(orderId, bookingId) {
     await cmd(["SET", `bk:order:${orderId}`, bookingId]);
   },
+  async delete(b) {
+    for (const o of b.orders) await cmd(["DEL", `bk:order:${o}`]);
+    await cmd(["ZREM", "bk:index", b.id]);
+    await cmd(["DEL", `bk:${b.id}`]);
+  },
   async list(limit = 500) {
     const ids = (await cmd(["ZRANGE", "bk:index", 0, limit - 1, "REV"])) as string[];
     if (!ids?.length) return [];
@@ -97,6 +104,10 @@ export function createMemoryStore(): BookingStore {
     },
     async linkOrder(orderId, id) {
       orders.set(orderId, id);
+    },
+    async delete(b) {
+      rows.delete(b.id);
+      b.orders.forEach((o) => orders.delete(o));
     },
     async list(limit = 500) {
       return [...rows.values()]

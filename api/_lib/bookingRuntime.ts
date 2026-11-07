@@ -3,6 +3,7 @@ import { normalizeSplit } from "../../shared/servicePricing.js";
 import { getStore } from "./bookingStore.js";
 import { notifyBooking } from "./bookingEmail.js";
 import type { Deps, Gateway } from "./bookingService.js";
+import type { Booking, PaymentRecord } from "../../shared/booking.js";
 
 /** Wires the real Razorpay SDK, the real store and the real notifications into the service layer. */
 export function razorpayGateway(keyId: string, keySecret: string): Gateway {
@@ -28,31 +29,34 @@ export function razorpayGateway(keyId: string, keySecret: string): Gateway {
   };
 }
 
+/** Sends the owner alert, client quotation email and WhatsApp PDF for a paid booking (best effort). */
+export async function notifyForBooking(b: Booking, p: PaymentRecord): Promise<void> {
+  await notifyBooking({
+    tags: {
+      source: "service-booking",
+      service: b.service,
+      total: String(b.quote.total),
+      token_pct: String(b.quote.tokenPercent),
+      start_pct: String(b.quote.startPercent),
+      name: b.name,
+      email: b.email,
+      phone: b.phone,
+      company: b.company,
+      website_type: b.websiteType,
+      start_date: b.startDate,
+    },
+    paymentId: p.razorpayPaymentId ?? p.id,
+    orderId: p.razorpayOrderId ?? "",
+    tokenPaid: p.amount,
+    requirements: b.description,
+  });
+}
+
 export function buildDeps(keyId: string, keySecret: string): Deps {
   return {
     store: getStore(),
     gateway: razorpayGateway(keyId, keySecret),
     split: normalizeSplit(process.env.BOOKING_TOKEN_PERCENT, process.env.START_ADVANCE_PERCENT),
-    notify: async (b, p) => {
-      await notifyBooking({
-        tags: {
-          source: "service-booking",
-          service: b.service,
-          total: String(b.quote.total),
-          token_pct: String(b.quote.tokenPercent),
-          start_pct: String(b.quote.startPercent),
-          name: b.name,
-          email: b.email,
-          phone: b.phone,
-          company: b.company,
-          website_type: b.websiteType,
-          start_date: b.startDate,
-        },
-        paymentId: p.razorpayPaymentId ?? p.id,
-        orderId: p.razorpayOrderId ?? "",
-        tokenPaid: p.amount,
-        requirements: b.description,
-      });
-    },
+    notify: notifyForBooking,
   };
 }

@@ -168,3 +168,59 @@ test("whatsapp link: uses saved phone and includes name, service, amounts", asyn
   const text = decodeURIComponent(link.split("text=")[1]);
   for (const s of ["Asha", "Website Development", "₹481", "₹2,403", "₹6,729"]) assert.ok(text.includes(s), s);
 });
+
+import { deleteBooking } from "../api/_lib/adminService.js";
+import { WA_TEMPLATES } from "../shared/booking.js";
+
+test("insights: byStatus, 14-day series, byService, conversion, follow-ups due", async () => {
+  const { deps, pay } = setup();
+  const a = await startBooking(deps, input()); const pid = pay(a.orderId, a.amount);
+  await confirmPayment(deps, { orderId: a.orderId, paymentId: pid, signature: null });
+  const b = await startBooking(deps, input({ service: "video-editing", budget: 1500, name: "Second Lead", phone: "9123456780" }));
+  await updateBooking(deps.store, b.leadId, { followUpAt: istToday() });
+  const done = await startBooking(deps, input({ name: "Closed Lead", phone: "9123456781" }));
+  await updateBooking(deps.store, done.leadId, { followUpAt: istToday(), status: "cancelled" });
+
+  const s = computeStats(await deps.store.list());
+  assert.equal(s.byStatus.booking_confirmed, 1); assert.equal(s.byStatus.new_lead, 1); assert.equal(s.byStatus.cancelled, 1);
+  assert.equal(s.conversionRate, 33.3);
+  assert.equal(s.followUpsDue, 1); // the cancelled lead's follow-up doesn't count
+  assert.equal(s.daily.length, 14);
+  assert.equal(s.daily.at(-1)!.leads, 3); assert.equal(s.daily.at(-1)!.revenue, 481);
+  assert.equal(s.byService[0].service, "website-development"); assert.equal(s.byService[0].revenue, 481);
+  assert.equal(computeStats([]).conversionRate, 0);
+});
+
+test("follow-up date validation", async () => {
+  const { deps } = setup();
+  const r = await startBooking(deps, input());
+  await assert.rejects(() => updateBooking(deps.store, r.leadId, { followUpAt: "yesterday" }), (e: BookingError) => e.status === 400);
+  await assert.rejects(() => updateBooking(deps.store, r.leadId, { followUpAt: "2000-01-01" }));
+  assert.equal((await updateBooking(deps.store, r.leadId, { followUpAt: istToday() })).followUpAt, istToday());
+  assert.equal((await updateBooking(deps.store, r.leadId, { followUpAt: "" })).followUpAt, "");
+});
+
+test("delete: unpaid lead can be removed (incl. order lookup); paid booking cannot", async () => {
+  const { deps, pay } = setup();
+  const unpaid = await startBooking(deps, input());
+  await deleteBooking(deps.store, unpaid.leadId);
+  assert.equal(await deps.store.get(unpaid.leadId), null);
+  assert.equal(await deps.store.getByOrder(unpaid.orderId), null);
+  const paid = await startBooking(deps, input({ name: "Paying Client", phone: "9123456780" }));
+  await confirmPayment(deps, { orderId: paid.orderId, paymentId: pay(paid.orderId, paid.amount), signature: null });
+  await assert.rejects(() => deleteBooking(deps.store, paid.leadId), (e: BookingError) => e.status === 409);
+  await assert.rejects(() => deleteBooking(deps.store, "nope"), (e: BookingError) => e.status === 404);
+});
+
+test("whatsapp templates: each builds a message with the right amounts", async () => {
+  const { deps, pay } = setup();
+  const r = await startBooking(deps, input()); await confirmPayment(deps, { orderId: r.orderId, paymentId: pay(r.orderId, r.amount), signature: null });
+  await recordManualPayment(deps.store, r.leadId, { milestone: "advance" });
+  const b = (await deps.store.get(r.leadId))!;
+  const text = (t: (typeof WA_TEMPLATES)[number]) => decodeURIComponent(buildWhatsAppLink(b, t).split("text=")[1]);
+  assert.ok(text("advance_reminder").includes("₹2,403"));
+  assert.ok(text("final_reminder").includes("₹6,729"));      // total 9,613 − 481 − 2,403
+  assert.ok(text("completed").toLowerCase().includes("review"));
+  assert.ok(text("check_in").includes("Website Development"));
+  for (const t of WA_TEMPLATES) assert.ok(buildWhatsAppLink(b, t).startsWith("https://wa.me/919876543210?text="));
+});

@@ -28,3 +28,11 @@ No public endpoint returns client data.
 ## Tests
 `npm test` (service logic, signatures, idempotency, admin auth + HTTP) · `npm run typecheck:api`.
 Note: `src/lib/smoothScroll-3.ts` is an unused file that already failed `npm run typecheck` before this work.
+
+## Admin features
+Stats (incl. conversion rate, follow-ups due) · clickable pipeline counts · 14-day leads/revenue charts and
+per-service breakdown · search, status / payment / service filters, sorting, "show more" · follow-up dates with
+due badges · quick status change and call from each card · 5 WhatsApp templates (confirmation, advance reminder,
+final-payment reminder, completed + review request, check-in) · record UPI/bank advance and final payments ·
+CSV export (formula-injection safe) · re-send confirmation · delete unpaid spam leads (leads with payments are
+never deletable — cancel them instead).

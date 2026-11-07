@@ -43,3 +43,15 @@ test("admin HTTP: locked without session, login → cookie → data, CSRF + lock
   for (let i = 0; i < 5; i++) await call("login", "POST", { body: { password: "bad" }, ip: "9.9.9.9" });
   assert.equal((await call("login", "POST", { body: { password: "correct-horse-battery" }, ip: "9.9.9.9" })).status, 429);
 });
+
+test("admin HTTP: delete + resend rules and auth", async () => {
+  const gateway = { createOrder: async ({ amountPaise }: any) => ({ id: "order_d" + Math.random(), amount: amountPaise, currency: "INR" }), fetchPayment: async () => { throw new Error("x"); } };
+  const r = await startBooking({ store: getStore(), gateway } as any, { service: "graphic-designing", name: "Spam Lead", phone: "9000000001", email: "s@x.com", description: "spam spam spam spam", budget: 999 });
+  const login = await call("login", "POST", { body: { password: "correct-horse-battery" }, ip: "7.7.7.7" });
+  const cookie = login.headers["set-cookie"].split(";")[0];
+  assert.equal((await call("delete", "POST", { body: { id: r.leadId } })).status, 401);
+  assert.equal((await call("resend", "POST", { cookie, body: { id: r.leadId } })).status, 409); // unpaid → can't resend
+  assert.equal((await call("delete", "POST", { cookie, body: { id: r.leadId }, origin: "https://evil.com" })).status, 403);
+  assert.equal((await call("delete", "POST", { cookie, body: { id: r.leadId } })).body.deleted, true);
+  assert.equal((await call("delete", "POST", { cookie, body: { id: r.leadId } })).status, 404);
+});
