@@ -375,7 +375,7 @@ export default function ServiceDetail() {
       </main>
       <Footer />
 
-      <BookingDialog open={bookingOpen} onOpenChange={setBookingOpen} slug={detail.slug as ServiceSlug} serviceTitle={price.title} quote={quote} />
+      <BookingDialog open={bookingOpen} onOpenChange={setBookingOpen} slug={detail.slug as ServiceSlug} initialTotal={totalError ? price.startingPrice : total} />
     </motion.div>
   );
 }

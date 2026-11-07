@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,6 +20,9 @@ import NotFound from "@/pages/not-found";
 import ServiceDetail from "@/pages/ServiceDetail";
 import Support from "@/pages/Support";
 import Analytics from "@/components/Analytics";
+
+// Private admin dashboard — lazy so it adds nothing to the public bundle.
+const Admin = lazy(() => import("@/pages/Admin"));
 
 const queryClient = new QueryClient();
 
@@ -66,6 +69,7 @@ function App() {
               <Route path="/" component={Portfolio} />
               <Route path="/services/:slug" component={ServiceDetail} />
               <Route path="/payment" component={Support} />
+              <Route path="/admin">{() => <Suspense fallback={null}><Admin /></Suspense>}</Route>
               <Route component={NotFound} />
             </Switch>
           </div>

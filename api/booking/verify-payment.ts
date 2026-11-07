@@ -1,98 +1,45 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import crypto from "crypto";
-import Razorpay from "razorpay";
 import { checkRateLimit, getClientIp } from "../_lib/rateLimit.js";
-import { markNotifiedIfNew } from "../_lib/sentPayments.js";
-import { notifyBooking } from "../_lib/bookingEmail.js";
-import { isServiceSlug, SERVICE_PRICES } from "../../shared/servicePricing.js";
+import { BookingError, confirmPayment } from "../_lib/bookingService.js";
+import { buildDeps } from "../_lib/bookingRuntime.js";
 
-// Verifies a booking-token payment: (1) HMAC-SHA256 signature from Razorpay Checkout, then
-// (2) re-reads the order and payment from Razorpay itself. Amounts, service and client
-// details come from the Razorpay ORDER (written server-side in create-order.ts) — never from
-// the browser. Only the free-text requirements come from the browser, and only for the email.
+// Confirms a booking ONLY after: HMAC signature + server-to-server payment fetch + exact amount match.
+// Idempotent: repeated calls for the same payment return the same receipt and send nothing twice.
 
 const RATE_LIMIT = { limit: 15, windowMs: 60_000 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Cache-Control", "no-store");
-
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ verified: false, error: "Method not allowed" });
   }
-
   const rl = checkRateLimit(`booking-verify:${getClientIp(req)}`, RATE_LIMIT);
   if (!rl.allowed) {
     res.setHeader("Retry-After", String(rl.retryAfterSeconds));
     return res.status(429).json({ verified: false, error: "Too many requests. Please wait a moment." });
   }
-
   const keyId = process.env.RAZORPAY_KEY_ID;
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
-  if (!keyId || !keySecret) {
-    return res.status(500).json({ verified: false, error: "Payment service is not configured yet." });
-  }
+  if (!keyId || !keySecret) return res.status(500).json({ verified: false, error: "Payment service is not configured yet." });
 
-  let body: unknown;
+  let b: Record<string, unknown>;
   try {
-    body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+    b = ((typeof req.body === "string" ? JSON.parse(req.body) : req.body) ?? {}) as Record<string, unknown>;
   } catch {
     return res.status(400).json({ verified: false, error: "Invalid request body." });
   }
-
-  const b = (body ?? {}) as Record<string, unknown>;
-  const orderId = b.razorpay_order_id;
-  const paymentId = b.razorpay_payment_id;
-  const signature = b.razorpay_signature;
+  const { razorpay_order_id: orderId, razorpay_payment_id: paymentId, razorpay_signature: signature } = b;
   if (typeof orderId !== "string" || typeof paymentId !== "string" || typeof signature !== "string" || !orderId || !paymentId || !signature) {
     return res.status(400).json({ verified: false, error: "Missing payment details." });
   }
-  const requirements = typeof b.requirements === "string" ? b.requirements.trim().slice(0, 2000) : "";
-
-  // 1) Signature: HMAC_SHA256(order_id|payment_id, key_secret)
-  const expected = Buffer.from(crypto.createHmac("sha256", keySecret).update(`${orderId}|${paymentId}`).digest("hex"), "utf8");
-  const received = Buffer.from(signature, "utf8");
-  if (expected.length !== received.length || !crypto.timingSafeEqual(expected, received)) {
-    console.warn("Razorpay booking signature verification failed", { orderId, paymentId });
-    return res.status(400).json({ verified: false, error: "Payment could not be verified." });
-  }
 
   try {
-    const razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
-
-    // 2) Confirm with Razorpay: the payment belongs to this order and is captured.
-    const payment = await razorpay.payments.fetch(paymentId);
-    if (payment.order_id !== orderId || (payment.status !== "captured" && payment.status !== "authorized")) {
-      return res.status(400).json({ verified: false, error: "Payment was not completed." });
-    }
-
-    const order = await razorpay.orders.fetch(orderId);
-    const notes = (order.notes ?? {}) as Record<string, string>;
-    if (notes.source !== "service-booking" || !isServiceSlug(notes.service)) {
-      return res.status(400).json({ verified: false, error: "Payment could not be verified." });
-    }
-
-    const token = Number(payment.amount) / 100;
-    const total = Number(notes.total ?? 0);
-    const startAdvance = Math.round((total * Number(notes.start_pct ?? 0)) / 100);
-    const remaining = Math.max(0, total - token - startAdvance);
-
-    if (markNotifiedIfNew(`razorpay:${paymentId}`)) {
-      await notifyBooking({ tags: notes, paymentId, orderId, tokenPaid: token, requirements });
-    }
-
-    return res.status(200).json({
-      verified: true,
-      paymentId,
-      orderId,
-      service: SERVICE_PRICES[notes.service].title,
-      total,
-      token,
-      startAdvance,
-      remaining,
-    });
+    const receipt = await confirmPayment(buildDeps(keyId, keySecret), { orderId, paymentId, signature, keySecret });
+    return res.status(200).json(receipt);
   } catch (err) {
+    if (err instanceof BookingError) return res.status(err.status).json({ verified: false, error: err.message });
     console.error("Booking verification failed:", err instanceof Error ? err.message : "unknown error");
-    return res.status(502).json({ verified: false, error: "Payment could not be verified." });
+    return res.status(502).json({ verified: false, error: "Payment could not be verified. If you were charged, your booking will be confirmed automatically — or contact me." });
   }
 }
