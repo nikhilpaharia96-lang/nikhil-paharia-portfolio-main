@@ -36,3 +36,10 @@ due badges · quick status change and call from each card · 5 WhatsApp template
 final-payment reminder, completed + review request, check-in) · record UPI/bank advance and final payments ·
 CSV export (formula-injection safe) · re-send confirmation · delete unpaid spam leads (leads with payments are
 never deletable — cancel them instead).
+
+## Optional: WhatsApp AI assistant bridge
+Set `N8N_BOOKING_WEBHOOK_URL` + `N8N_BOOKING_WEBHOOK_SECRET` (16+ chars) and, after each verified booking (and on
+admin "Re-send confirmation"), the site POSTs a signed `booking.confirmed` event to your self-hosted n8n
+(see `docs/BOOKING-INTEGRATION.md` in the whatsapp-ai-assistant repo). Signature = `sha256=` + HMAC-SHA256(secret,
+`${X-Booking-Timestamp}.${rawBody}`). It carries no email and no project description. It is a silent no-op when
+unconfigured and never blocks a booking. Leave `WHATSAPP_TOKEN` unset when using it, to avoid double messages.

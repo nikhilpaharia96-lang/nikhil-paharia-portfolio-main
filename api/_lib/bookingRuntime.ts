@@ -4,6 +4,7 @@ import { getStore } from "./bookingStore.js";
 import { notifyBooking } from "./bookingEmail.js";
 import type { Deps, Gateway } from "./bookingService.js";
 import type { Booking, PaymentRecord } from "../../shared/booking.js";
+import { notifyN8n } from "./n8nHook.js";
 
 /** Wires the real Razorpay SDK, the real store and the real notifications into the service layer. */
 export function razorpayGateway(keyId: string, keySecret: string): Gateway {
@@ -30,7 +31,7 @@ export function razorpayGateway(keyId: string, keySecret: string): Gateway {
 }
 
 /** Sends the owner alert, client quotation email and WhatsApp PDF for a paid booking (best effort). */
-export async function notifyForBooking(b: Booking, p: PaymentRecord): Promise<void> {
+export async function notifyForBooking(b: Booking, p: PaymentRecord, opts: { resend?: boolean } = {}): Promise<void> {
   await notifyBooking({
     tags: {
       source: "service-booking",
@@ -50,6 +51,8 @@ export async function notifyForBooking(b: Booking, p: PaymentRecord): Promise<vo
     tokenPaid: p.amount,
     requirements: b.description,
   });
+  // Optional: WhatsApp the client + feed the AI assistant via n8n (no-op unless configured; never throws).
+  await notifyN8n(b, p, { resend: opts.resend });
 }
 
 export function buildDeps(keyId: string, keySecret: string): Deps {

@@ -69,7 +69,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const pay = booking.payments.find((p) => p.milestone === "token" && p.method === "razorpay");
         if (booking.paymentStatus !== "paid" || !pay) return res.status(409).json({ error: "Only bookings with a verified token payment can be re-sent." });
         if (!(await store.claim(`resend:${booking.id}`, 30))) return res.status(429).json({ error: "Already sent — wait a few seconds." });
-        await notifyForBooking(booking, pay);
+        await notifyForBooking(booking, pay, { resend: true });
         return res.status(200).json({ sent: true });
       }
       const booking = action === "update" ? await updateBooking(store, b.id, b) : await recordManualPayment(store, b.id, b);
