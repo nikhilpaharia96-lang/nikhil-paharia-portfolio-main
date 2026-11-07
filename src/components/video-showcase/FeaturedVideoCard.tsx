@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } from "framer-motion";
-import { Play, Volume2, Settings, Maximize, X } from "lucide-react";
+import { Play, X, MapPin, ExternalLink } from "lucide-react";
 import bgVideo from "@/assets/videos/loading-bg-desktop.mp4";
 import { featuredVideo, projects, reelProjects } from "@/constants/videoShowcase";
 import { parseVideoUrl } from "@/utils/videoEmbed";
@@ -24,6 +24,7 @@ export default function FeaturedVideoCard() {
   const [hovered, setHovered] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
+  const [loaded, setLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -56,9 +57,12 @@ export default function FeaturedVideoCard() {
     return items;
   }, []);
 
+  useEffect(() => setLoaded(false), [activeIdx, playing]);
+
   const current = playlist[activeIdx];
   const parsed = parseVideoUrl(current?.url);
   const hasVideos = playlist.length > 0;
+  const featuredLocation = projects.find((p) => p.videoUrl && p.videoUrl === featuredVideo.videoUrl)?.location;
 
   const open = (idx = 0) => {
     if (!hasVideos) return;
@@ -142,10 +146,14 @@ export default function FeaturedVideoCard() {
                 loading="lazy"
                 decoding="async"
                 animate={{
-                  scale: active ? 1.08 : 1,
+                  scale: active ? 1.1 : prefersReducedMotion ? 1 : [1.02, 1.09, 1.02],
                   filter: active ? "blur(1px) brightness(0.6)" : "brightness(0.95)",
                 }}
-                transition={{ duration: 0.7, ease: "easeOut" }}
+                transition={
+                  active || prefersReducedMotion
+                    ? { duration: 0.7, ease: "easeOut" }
+                    : { scale: { duration: 22, repeat: Infinity, ease: "easeInOut" }, filter: { duration: 0.7 } }
+                }
                 className="absolute inset-0 w-full h-full object-cover"
               />
 
@@ -162,7 +170,17 @@ export default function FeaturedVideoCard() {
                 }`}
               />
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-black/25 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/5 to-black/30 pointer-events-none" />
+              {/* cinema finish: vignette + a touch of film grain */}
+              <div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(0,0,0,0.5) 100%)" }} />
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 pointer-events-none opacity-[0.13] mix-blend-overlay"
+                style={{
+                  backgroundImage:
+                    "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")",
+                }}
+              />
 
               <motion.div
                 className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -171,16 +189,25 @@ export default function FeaturedVideoCard() {
 
               {/* Badges */}
               <div className="absolute top-3 left-3 right-3 sm:top-6 sm:left-6 sm:right-6 flex items-center justify-between z-20">
-                <span className="px-2.5 py-1 sm:px-4 sm:py-2 rounded-full bg-white/95 border border-white text-slate-800 text-[9px] sm:text-[13px] font-bold uppercase tracking-[0.14em] shadow-sm">
-                  {featuredVideo.category}
-                </span>
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 sm:px-3.5 sm:py-2 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white text-[9px] sm:text-[12px] font-bold uppercase tracking-[0.16em]">
+                    <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-70 animate-ping motion-reduce:hidden" />
+                      <span className="relative inline-flex h-full w-full rounded-full bg-red-500" />
+                    </span>
+                    Now showing
+                  </span>
+                  <span className="px-2.5 py-1 sm:px-4 sm:py-2 rounded-full bg-white/95 border border-white text-slate-800 text-[9px] sm:text-[13px] font-bold uppercase tracking-[0.14em] shadow-sm">
+                    {featuredVideo.category}
+                  </span>
+                </div>
                 <span className="px-2.5 py-1 sm:px-4 sm:py-2 rounded-full bg-black/45 backdrop-blur-md border border-white/15 text-white/95 text-[10px] sm:text-sm font-mono font-semibold">
                   {featuredVideo.duration}
                 </span>
               </div>
 
               {/* Centered stack: play button, title, script subtitle with side lines */}
-              <div className="absolute inset-x-0 top-8 sm:top-0 bottom-9 sm:bottom-14 lg:bottom-[4.5rem] z-20 flex flex-col items-center justify-center gap-1.5 sm:gap-4 px-4 text-center">
+              <div className="absolute inset-x-0 top-8 sm:top-0 bottom-9 sm:bottom-14 lg:bottom-[4.5rem] z-20 flex flex-col items-center justify-center gap-1.5 sm:gap-5 sm:pt-12 px-4 text-center">
                 <motion.button
                   type="button"
                   onClick={() => open(0)}
@@ -198,6 +225,20 @@ export default function FeaturedVideoCard() {
                       transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
                     />
                   )}
+                  <motion.svg
+                    aria-hidden="true"
+                    viewBox="0 0 120 120"
+                    className="hidden sm:block absolute -inset-4 w-[calc(100%+2rem)] h-[calc(100%+2rem)] text-white/85 pointer-events-none"
+                    animate={prefersReducedMotion ? undefined : { rotate: 360 }}
+                    transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+                  >
+                    <defs>
+                      <path id="play-ring" d="M60,60 m-50,0 a50,50 0 1,1 100,0 a50,50 0 1,1 -100,0" />
+                    </defs>
+                    <text fontSize="9" fontWeight="700" fill="currentColor">
+                      <textPath href="#play-ring" textLength="305" lengthAdjust="spacing">PLAY THE FILM • PLAY THE FILM •</textPath>
+                    </text>
+                  </motion.svg>
                   <div className="relative w-11 h-11 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-full bg-white flex items-center justify-center shadow-[0_18px_40px_-10px_rgba(0,0,0,0.45)] focus-visible:ring-4 focus-visible:ring-primary/50">
                     <Play className="w-4 h-4 sm:w-9 sm:h-9 text-primary ml-0.5 sm:ml-1" fill="currentColor" aria-hidden="true" />
                   </div>
@@ -217,34 +258,24 @@ export default function FeaturedVideoCard() {
                 </div>
               </div>
 
-              {/* Player bar — play / fullscreen start the video, the rest is visual only */}
-              <div className="absolute inset-x-0 bottom-0 z-20 flex items-center gap-2.5 sm:gap-5 px-3 sm:px-8 pb-2.5 sm:pb-6 pt-6 sm:pt-10 text-white bg-gradient-to-t from-black/45 to-transparent">
-                <button
-                  type="button"
-                  aria-label={`Play ${featuredVideo.title}`}
-                  onClick={() => open(0)}
-                  disabled={!hasVideos}
-                  className="shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 rounded"
-                >
-                  <Play className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" aria-hidden="true" />
-                </button>
-                <span aria-hidden="true" className="shrink-0 text-[10px] sm:text-sm font-medium tabular-nums text-white">
-                  0:00 / {featuredVideo.duration}
-                </span>
-                <div aria-hidden="true" className="relative h-1 sm:h-1.5 flex-1 rounded-full bg-white/40">
-                  <div className="absolute inset-y-0 left-0 w-[12%] rounded-full bg-primary" />
-                  <div className="absolute left-[12%] top-1/2 -translate-y-1/2 w-3 h-3 sm:w-[18px] sm:h-[18px] rounded-full bg-primary border-2 border-white shadow-md" />
+              {/* Info bar — real details + a clear call to action (no fake progress bar) */}
+              <div className="absolute inset-x-0 bottom-0 z-20 flex items-center justify-between gap-3 px-3 sm:px-8 pb-2.5 sm:pb-6 pt-6 sm:pt-10 text-white bg-gradient-to-t from-black/55 to-transparent">
+                <div className="min-w-0 flex items-center gap-x-3 text-[10px] sm:text-sm text-white/90 font-medium">
+                  {featuredLocation && (
+                    <span className="inline-flex items-center gap-1.5 min-w-0">
+                      <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" aria-hidden="true" />
+                      <span className="truncate">{featuredLocation}</span>
+                    </span>
+                  )}
                 </div>
-                <Volume2 className="hidden xs:block w-5 h-5 shrink-0 text-white/90" aria-hidden="true" />
-                <Settings className="hidden xs:block w-5 h-5 shrink-0 text-white/90" aria-hidden="true" />
                 <button
                   type="button"
-                  aria-label={`Open ${featuredVideo.title} player`}
                   onClick={() => open(0)}
                   disabled={!hasVideos}
-                  className="shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 rounded"
+                  className="interactive shrink-0 inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-full bg-white text-slate-900 text-[10px] sm:text-sm font-bold shadow-lg hover:bg-white/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 disabled:opacity-60"
                 >
-                  <Maximize className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
+                  <Play className="w-3 h-3 sm:w-4 sm:h-4 text-primary" fill="currentColor" aria-hidden="true" />
+                  Watch film
                 </button>
               </div>
             </div>
@@ -261,11 +292,19 @@ export default function FeaturedVideoCard() {
                   parsed?.isVertical ? "w-[min(100%,300px)] aspect-[9/16]" : "w-full aspect-video"
                 }`}
               >
+                <div className={`absolute inset-0 transition-opacity duration-500 ${loaded ? "opacity-0 pointer-events-none" : "opacity-100"}`} aria-hidden={loaded}>
+                  <img src={current.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/55 flex flex-col items-center justify-center gap-3 text-white/90">
+                    <span className="w-10 h-10 rounded-full border-2 border-white/25 border-t-white animate-spin motion-reduce:animate-none" />
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.16em]">Loading film…</span>
+                  </div>
+                </div>
                 {parsed && parsed.kind !== "unknown" && (
                   <iframe
                     key={parsed.embedUrl}
                     src={parsed.embedUrl}
                     title={current.title}
+                    onLoad={() => setLoaded(true)}
                     allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
                     allowFullScreen
                     className="absolute inset-0 w-full h-full border-0"
@@ -279,6 +318,18 @@ export default function FeaturedVideoCard() {
                     <p className="text-sm sm:text-base font-bold text-white truncate">{current.title}</p>
                     <p className="text-xs text-white/55 line-clamp-1">{current.desc}</p>
                   </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                  {parsed && (
+                    <a
+                      href={parsed.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Open original video in a new tab"
+                      className="shrink-0 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                    >
+                      <ExternalLink className="w-4 h-4" aria-hidden="true" />
+                    </a>
+                  )}
                   <button
                     type="button"
                     onClick={() => setPlaying(false)}
@@ -287,6 +338,7 @@ export default function FeaturedVideoCard() {
                   >
                     <X className="w-4 h-4" aria-hidden="true" />
                   </button>
+                  </div>
                 </div>
 
                 {playlist.length > 1 && (
