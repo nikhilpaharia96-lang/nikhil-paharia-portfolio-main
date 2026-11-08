@@ -20,6 +20,7 @@ import NotFound from "@/pages/not-found";
 import ServiceDetail from "@/pages/ServiceDetail";
 import Support from "@/pages/Support";
 import Analytics from "@/components/Analytics";
+import { captureAttribution } from "@/lib/attribution";
 
 // Private admin dashboard — lazy so it adds nothing to the public bundle.
 const Admin = lazy(() => import("@/pages/Admin"));
@@ -59,6 +60,9 @@ function Portfolio() {
 }
 
 function App() {
+  // Remember utm_* / referrer so a later enquiry or booking can be attributed to the campaign.
+  useEffect(() => { captureAttribution(); }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

@@ -103,6 +103,10 @@ export interface Booking {
   notes: string;
   /** Next follow-up date (YYYY-MM-DD, IST) or "" / undefined. */
   followUpAt?: string;
+  /** Where the visitor came from, e.g. "outreach/email/dentist-jaipur-no-website" (first touch, from utm_* params). */
+  source?: string;
+  /** True for a "send me a quote, no payment" enquiry that has not (yet) turned into a paid booking. */
+  inquiry?: boolean;
 }
 
 export interface AdminStats {
@@ -123,6 +127,8 @@ export interface AdminStats {
   /** Last 14 days (IST), oldest first. */
   daily: { date: string; leads: number; revenue: number }[];
   byService: { service: string; title: string; leads: number; confirmed: number; revenue: number }[];
+  /** Lead sources (utm/referrer), best first. "direct" = no attribution. */
+  bySource: { source: string; leads: number; confirmed: number; revenue: number }[];
 }
 
 /* ───────────────────────────── Input + validation ───────────────────────────── */
@@ -137,7 +143,13 @@ export interface BookingInput {
   description: string;
   budget: number;
   startDate: string;
+  /** Optional attribution (utm_*), already sanitised by sanitizeSource. */
+  source?: string;
 }
+
+/** Lower-case, [a-z0-9._/-] only, max 80 chars — safe to store, display and put in a CSV. */
+export const sanitizeSource = (s: unknown): string =>
+  typeof s === "string" ? s.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9._/-]/g, "").replace(/\/{2,}/g, "/").slice(0, 80) : "";
 
 export type FieldErrors = Partial<Record<keyof BookingInput, string>>;
 
@@ -191,6 +203,7 @@ export function validateBookingInput(
   const websiteType = str("websiteType");
   const description = str("description");
   const startDate = str("startDate");
+  const source = sanitizeSource(r.source);
   const budgetRaw = typeof r.budget === "string" ? Number(r.budget.replace(/[^\d]/g, "")) : r.budget;
   const budget = typeof budgetRaw === "number" ? budgetRaw : NaN;
 
@@ -231,7 +244,7 @@ export function validateBookingInput(
 
   if (Object.keys(errors).length) return { value: null, errors };
   return {
-    value: { service, name, phone, email, company, websiteType, description, budget, startDate },
+    value: { service, name, phone, email, company, websiteType, description, budget, startDate, source },
     errors,
   };
 }
@@ -252,6 +265,7 @@ export const WA_TEMPLATE_LABELS: Record<WaTemplate, string> = {
 
 type WaBooking = Pick<Booking, "id" | "name" | "phone" | "serviceTitle" | "company" | "quote" | "paymentStatus" | "startDate"> & {
   payments?: Booking["payments"];
+  inquiry?: boolean;
 };
 
 /**
@@ -308,7 +322,7 @@ export function buildWhatsAppLink(b: WaBooking, template: WaTemplate = "auto"): 
   } else {
     lines = [
       greet, "",
-      `Thanks for your interest in *${b.serviceTitle}*${forCompany}. I saw your booking request (Ref: ${ref}) and wanted to help you complete it.`,
+      `Thanks for your interest in *${b.serviceTitle}*${forCompany}. I saw your ${b.inquiry ? "enquiry" : "booking request"} (Ref: ${ref}) and wanted to follow up personally.`,
       "", `Your estimated project cost is ${formatINR(b.quote.total)}. Happy to discuss your requirements and answer any questions — when are you free for a quick chat?`,
     ];
   }

@@ -5,6 +5,8 @@ import { notifyBooking } from "./bookingEmail.js";
 import type { Deps, Gateway } from "./bookingService.js";
 import type { Booking, PaymentRecord } from "../../shared/booking.js";
 import { notifyN8n } from "./n8nHook.js";
+import { sendNotificationEmail } from "./sendEmail.js";
+import { bookingRef } from "../../shared/booking.js";
 
 /** Wires the real Razorpay SDK, the real store and the real notifications into the service layer. */
 export function razorpayGateway(keyId: string, keySecret: string): Gateway {
@@ -53,6 +55,38 @@ export async function notifyForBooking(b: Booking, p: PaymentRecord, opts: { res
   });
   // Optional: WhatsApp the client + feed the AI assistant via n8n (no-op unless configured; never throws).
   await notifyN8n(b, p, { resend: opts.resend });
+}
+
+/** Owner alert for a no-payment enquiry. Plain text only (the description is client-controlled). */
+export async function notifyInquiryForBooking(b: Booking): Promise<void> {
+  const text = [
+    `New enquiry — ${b.serviceTitle}`,
+    `Ref: ${bookingRef(b.id)}`,
+    `Source: ${b.source || "direct"}`,
+    "",
+    `Name: ${b.name}${b.company ? ` (${b.company})` : ""}`,
+    `WhatsApp: +91${b.phone}`,
+    `Email: ${b.email}`,
+    `Budget: ₹${b.budget.toLocaleString("en-IN")}`,
+    ...(b.websiteType ? [`Website type: ${b.websiteType}`] : []),
+    ...(b.startDate ? [`Preferred start: ${b.startDate}`] : []),
+    "",
+    "Project:",
+    b.description,
+    "",
+    "Reply fast — enquiries convert best within the hour. Manage it in /admin.",
+  ].join("\n");
+  await sendNotificationEmail({ subject: `New enquiry: ${b.serviceTitle} — ${b.name} (₹${b.budget.toLocaleString("en-IN")})`, text, replyTo: b.email });
+}
+
+/** Enquiries never touch Razorpay, so they get a gateway that refuses to be used. */
+export function buildInquiryDeps(): Deps {
+  return {
+    store: getStore(),
+    gateway: { createOrder: async () => { throw new Error("not available"); }, fetchPayment: async () => { throw new Error("not available"); } },
+    split: normalizeSplit(process.env.BOOKING_TOKEN_PERCENT, process.env.START_ADVANCE_PERCENT),
+    notifyInquiry: notifyInquiryForBooking,
+  };
 }
 
 export function buildDeps(keyId: string, keySecret: string): Deps {

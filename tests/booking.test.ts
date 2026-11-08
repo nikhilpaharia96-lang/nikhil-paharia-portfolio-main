@@ -224,3 +224,53 @@ test("whatsapp templates: each builds a message with the right amounts", async (
   assert.ok(text("check_in").includes("Website Development"));
   for (const t of WA_TEMPLATES) assert.ok(buildWhatsAppLink(b, t).startsWith("https://wa.me/919876543210?text="));
 });
+
+import { saveInquiry } from "../api/_lib/bookingService.js";
+import { sanitizeSource } from "../shared/booking.js";
+
+test("source: sanitised, first touch wins, stored on the lead", async () => {
+  assert.equal(sanitizeSource("Outreach/Email/Dentist Jaipur-NO-website<script>"), "outreach/email/dentist-jaipur-no-websitescript");
+  assert.equal(sanitizeSource("x".repeat(200)).length, 80);
+  assert.equal(sanitizeSource(undefined), ""); assert.equal(sanitizeSource({}), "");
+  const { deps } = setup();
+  const a = await startBooking(deps, input({ source: "outreach/email/dentist-jaipur" }));
+  assert.equal((await deps.store.get(a.leadId))?.source, "outreach/email/dentist-jaipur");
+  await startBooking(deps, input({ source: "something-else" }), a.leadId);
+  assert.equal((await deps.store.get(a.leadId))?.source, "outreach/email/dentist-jaipur");
+});
+
+test("inquiry: saved without any payment order, notifies owner once, counts as new inquiry not pending payment", async () => {
+  const { deps } = setup();
+  const sent: string[] = [];
+  deps.notifyInquiry = async (b) => { sent.push(b.name); };
+  const r = await saveInquiry(deps, input({ source: "referral/google.com" }));
+  const b = (await deps.store.get(r.leadId))!;
+  assert.equal(b.inquiry, true); assert.equal(b.orders.length, 0); assert.equal(b.payments.length, 0); assert.equal(b.source, "referral/google.com");
+  assert.match(r.ref, /^NP-[0-9A-F]{8}$/);
+  await saveInquiry(deps, input({ description: "Updated description of the project" }), r.leadId); // resubmitting updates, doesn't duplicate / re-alert
+  assert.equal((await deps.store.list()).length, 1); assert.deepEqual(sent, ["Asha Rao"]);
+  const s = computeStats(await deps.store.list());
+  assert.deepEqual([s.newInquiries, s.pendingPayments, s.confirmedBookings], [1, 0, 0]);
+  assert.equal(s.bySource[0].source, "referral/google.com");
+  await assert.rejects(() => saveInquiry(deps, input({ phone: "123" })), (e: BookingError) => e.status === 400 && !!e.fieldErrors?.phone);
+});
+
+test("inquiry → then pays in the same session: same lead, no longer an enquiry, still confirms", async () => {
+  const { deps, pay } = setup();
+  const q = await saveInquiry(deps, input());
+  const r = await startBooking(deps, input(), q.leadId);
+  assert.equal(r.leadId, q.leadId);
+  assert.equal((await deps.store.get(q.leadId))?.inquiry, false);
+  await confirmPayment(deps, { orderId: r.orderId, paymentId: pay(r.orderId, r.amount), signature: null });
+  assert.equal((await deps.store.get(q.leadId))?.paymentStatus, "paid");
+  await assert.rejects(() => saveInquiry(deps, input(), q.leadId), (e: BookingError) => e.status === 409); // paid → can't be re-opened
+  const s = computeStats(await deps.store.list());
+  assert.equal(s.bySource[0].source, "direct"); assert.equal(s.bySource[0].confirmed, 1);
+});
+
+test("whatsapp follow-up says 'enquiry' for enquiry leads", async () => {
+  const { deps } = setup();
+  const q = await saveInquiry(deps, input());
+  const text = decodeURIComponent(buildWhatsAppLink((await deps.store.get(q.leadId))!).split("text=")[1]);
+  assert.ok(text.includes("your enquiry") && !text.includes("booking request"));
+});

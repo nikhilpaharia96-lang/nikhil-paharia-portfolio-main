@@ -43,3 +43,11 @@ admin "Re-send confirmation"), the site POSTs a signed `booking.confirmed` event
 (see `docs/BOOKING-INTEGRATION.md` in the whatsapp-ai-assistant repo). Signature = `sha256=` + HMAC-SHA256(secret,
 `${X-Booking-Timestamp}.${rawBody}`). It carries no email and no project description. It is a silent no-op when
 unconfigured and never blocks a booking. Leave `WHATSAPP_TOKEN` unset when using it, to avoid double messages.
+
+## Getting clients: enquiry, source tracking, lead engine
+- Step 3 of the modal has **"Not ready to pay? Send an enquiry — no payment"** (`/api/booking/inquiry`): saves the
+  lead, emails you immediately, shows as an *Enquiry* in `/admin`. Rate-limited + honeypot. (Functions used: 11/12.)
+- `utm_*` params / external referrer are remembered for 30 days (`src/lib/attribution.ts`) and stored on the lead as
+  its **source**; `/admin` → Insights → *By source*.
+- Optional `VITE_CAL_LINK` adds "Book a free 15-minute call" on service pages and after an enquiry.
+- `tools/leadgen/` — Google-Maps CSV → scored leads → listmonk-ready outreach lists. See its README.

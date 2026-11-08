@@ -6,3 +6,10 @@ dist
 .env.local
 .env*.local
 .vercel
+
+# Lead engine output contains personal data (business emails/phones) — never commit
+tools/leadgen/out/
+tools/leadgen/config.json
+tools/leadgen/*.csv
+tools/leadgen/suppress.txt
+*.leads.csv

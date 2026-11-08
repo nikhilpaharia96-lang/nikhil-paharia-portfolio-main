@@ -63,6 +63,10 @@ function ToolBadge({ t }: { t: Tool }) {
   );
 }
 
+// Optional Cal.com / Cal.diy link for a free discovery call (https only).
+const CAL_LINK = ((import.meta.env.VITE_CAL_LINK as string | undefined) ?? "").trim();
+const CAL_OK = /^https:\/\//.test(CAL_LINK);
+
 export default function ServiceDetail() {
   const [match, params] = useRoute("/services/:slug");
   const slug = (params as { slug?: string } | null)?.slug ?? "";
@@ -369,6 +373,11 @@ export default function ServiceDetail() {
                 <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-primary transition group-hover:translate-x-0.5"><ArrowRight className="h-5 w-5" /></span>
               </button>
               <p className="flex items-center gap-1.5 text-xs text-slate-500"><ShieldCheck className="h-4 w-4 text-primary" /> Secure payment · Pay only the booking token now</p>
+              {CAL_OK && (
+                <a href={CAL_LINK} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-primary underline-offset-4 hover:underline">
+                  Prefer to talk first? Book a free 15-minute call
+                </a>
+              )}
             </Reveal>
           </div>
         </section>

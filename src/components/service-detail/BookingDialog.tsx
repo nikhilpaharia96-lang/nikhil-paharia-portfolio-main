@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { toast } from "sonner";
-import { AlertTriangle, ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Loader2, Lock, ShieldCheck, MessageCircle } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Loader2, Lock, ShieldCheck, MessageCircle, PhoneCall } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
-import { payBookingToken, PaymentError, type BookingReceipt } from "@/lib/booking";
+import { payBookingToken, sendInquiry, PaymentError, type BookingReceipt } from "@/lib/booking";
+import { getSource } from "@/lib/attribution";
 import { getServiceDetail } from "@/constants/serviceDetails";
 import {
   SERVICE_PRICES, SERVICE_SLUGS, computeQuote, normalizeSplit, formatINR, MAX_PROJECT_TOTAL_INR, type ServiceSlug,
@@ -13,8 +14,11 @@ import { validateBookingInput, WEBSITE_TYPES, WEBSITE_TYPE_SERVICES, istToday, t
 // Keep in sync with the server's BOOKING_TOKEN_PERCENT / START_ADVANCE_PERCENT (default 5 / 25).
 const SPLIT = normalizeSplit(import.meta.env.VITE_BOOKING_TOKEN_PERCENT, import.meta.env.VITE_START_ADVANCE_PERCENT);
 const OWNER_WA = (import.meta.env.VITE_OWNER_WHATSAPP as string | undefined)?.replace(/\D/g, "");
+// Optional: a Cal.com / Cal.diy booking link for a free discovery call (must be https).
+const CAL_LINK = ((import.meta.env.VITE_CAL_LINK as string | undefined) ?? "").trim();
+const CAL_OK = /^https:\/\//.test(CAL_LINK);
 
-type Step = 0 | 1 | 2 | "paying" | "success" | "failed";
+type Step = 0 | 1 | 2 | "paying" | "sending" | "enquiry" | "success" | "failed";
 const STEP_FIELDS: Record<0 | 1, (keyof BookingInput)[]> = {
   0: ["name", "phone", "email", "company", "service"],
   1: ["websiteType", "description", "budget", "startDate"],
@@ -39,6 +43,7 @@ export default function BookingDialog({ open, onOpenChange, slug, initialTotal }
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
   const [receipt, setReceipt] = useState<BookingReceipt | null>(null);
+  const [enquiryRef, setEnquiryRef] = useState("");
   const leadId = useRef<string | undefined>(undefined);
   const honeypot = useRef<HTMLInputElement>(null);
   const budgetTouched = useRef(false);
@@ -46,7 +51,7 @@ export default function BookingDialog({ open, onOpenChange, slug, initialTotal }
 
   // Each time the dialog opens (never mid-payment / after success): sync service + budget from the page.
   useEffect(() => {
-    if (!open || step === "paying" || step === "success") return;
+    if (!open || step === "paying" || step === "sending" || step === "enquiry" || step === "success") return;
     budgetTouched.current = false;
     setForm((f) => ({ ...f, service: slug, budget: String(initialTotal) }));
     setStep(0);
@@ -66,6 +71,7 @@ export default function BookingDialog({ open, onOpenChange, slug, initialTotal }
   const input: BookingInput = {
     service: form.service, name: form.name, phone: form.phone, email: form.email, company: form.company,
     websiteType: needsWebsiteType ? form.websiteType : "", description: form.description, budget, startDate: form.startDate,
+    source: getSource(),
   };
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -125,21 +131,46 @@ export default function BookingDialog({ open, onOpenChange, slug, initialTotal }
     }
   };
 
+  /** "Not ready to pay": save the lead + notify the owner, no payment. */
+  const enquire = async () => {
+    if (!validateStep(2)) { toast.error("Please fix the highlighted details."); return; }
+    setStep("sending");
+    setError("");
+    try {
+      const r = await sendInquiry(input, { leadId: leadId.current, onLead: (id) => (leadId.current = id), honeypot: honeypot.current?.value });
+      setEnquiryRef(r.ref);
+      setStep("enquiry");
+    } catch (err) {
+      if (err instanceof PaymentError && err.fieldErrors) {
+        const fe = Object.fromEntries(Object.entries(err.fieldErrors).filter(([, v]) => v)) as Record<string, string>;
+        setErrors(fe);
+        setStep(STEP_FIELDS[0].some((k) => fe[k]) ? 0 : 1);
+        toast.error(err.message);
+        return;
+      }
+      const msg = err instanceof Error ? err.message : "Something went wrong.";
+      setError(msg);
+      setStep("failed");
+      toast.error(msg);
+    }
+  };
+
   const closeAfterSuccess = () => {
     leadId.current = undefined;
     setReceipt(null);
+    setEnquiryRef("");
     setForm((f) => ({ ...f, name: "", phone: "", email: "", company: "", websiteType: "", description: "", startDate: "" }));
     setStep(0);
     onOpenChange(false);
   };
 
-  const busy = step === "paying";
+  const busy = step === "paying" || step === "sending";
   const inFlow = step === 0 || step === 1 || step === 2;
   const anim = rm ? {} : { initial: { opacity: 0, x: 24 }, animate: { opacity: 1, x: 0 }, exit: { opacity: 0, x: -24 }, transition: { duration: 0.22 } };
   const waText = receipt ? encodeURIComponent(`Hi Nikhil, I've booked ${receipt.service} (Ref: ${receipt.ref}) and paid the booking token of ${formatINR(receipt.token)}.`) : "";
 
   return (
-    <Dialog open={open} onOpenChange={(o) => (!busy ? (step === "success" ? closeAfterSuccess() : onOpenChange(o)) : undefined)}>
+    <Dialog open={open} onOpenChange={(o) => (!busy ? (step === "success" || step === "enquiry" ? closeAfterSuccess() : onOpenChange(o)) : undefined)}>
       <DialogContent
         data-clarity-mask="true"
         className="max-h-[94vh] w-[calc(100%-20px)] max-w-lg gap-0 overflow-hidden rounded-3xl border border-white/50 bg-white/85 p-0 shadow-[0_30px_80px_-20px_rgba(18,102,241,0.45)] backdrop-blur-2xl [&>button]:z-10 [&>button]:text-white [&>button]:opacity-80"
@@ -149,7 +180,7 @@ export default function BookingDialog({ open, onOpenChange, slug, initialTotal }
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-100">Book this service</p>
           <DialogTitle className="mt-1 font-serif text-xl font-black uppercase tracking-tight sm:text-2xl">{SERVICE_PRICES[svc]?.title}</DialogTitle>
           <DialogDescription className="mt-1 text-sm text-blue-50/90">
-            {step === "success" ? "Your booking is confirmed." : "Three quick steps — pay only the booking token now."}
+            {step === "success" ? "Your booking is confirmed." : step === "enquiry" ? "Your enquiry is on its way." : "Three quick steps — pay only the booking token now, or just send an enquiry."}
           </DialogDescription>
           {inFlow && (
             <ol className="mt-4 flex items-center gap-2" aria-label="Progress">
@@ -264,6 +295,9 @@ export default function BookingDialog({ open, onOpenChange, slug, initialTotal }
                   <GhostBtn onClick={() => setStep(1)}><ArrowLeft className="h-4 w-4" /> Edit</GhostBtn>
                   <PrimaryBtn onClick={pay}><Lock className="h-4 w-4" /> Pay {formatINR(quote.token)} &amp; Confirm Booking</PrimaryBtn>
                 </div>
+                <button type="button" onClick={enquire} className="w-full rounded-full border border-dashed border-primary/40 bg-primary/5 py-3 text-sm font-bold text-primary transition hover:bg-primary/10">
+                  Not ready to pay? Send an enquiry — no payment
+                </button>
               </motion.div>
             )}
 
@@ -272,6 +306,39 @@ export default function BookingDialog({ open, onOpenChange, slug, initialTotal }
                 <Loader2 className="h-9 w-9 animate-spin text-primary" />
                 <p className="font-semibold text-slate-800">Waiting for payment…</p>
                 <p className="max-w-xs text-sm text-slate-500">Complete the payment in the secure window. Please don't close this page.</p>
+              </motion.div>
+            )}
+
+            {step === "sending" && (
+              <motion.div key="sending" {...anim} className="flex flex-col items-center gap-3 py-10 text-center" role="status">
+                <Loader2 className="h-9 w-9 animate-spin text-primary" />
+                <p className="font-semibold text-slate-800">Sending your enquiry…</p>
+              </motion.div>
+            )}
+
+            {step === "enquiry" && (
+              <motion.div key="enquiry" {...anim} className="space-y-5 text-center">
+                <motion.div initial={rm ? false : { scale: 0.4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 260, damping: 16 }}>
+                  <CheckCircle2 className="mx-auto h-16 w-16 text-primary" />
+                </motion.div>
+                <div>
+                  <h3 className="font-serif text-2xl font-black text-slate-900">Enquiry sent</h3>
+                  <p className="mt-1 text-sm text-slate-600">Thanks, {form.name.trim().split(" ")[0]}! I'll review your project and reply on WhatsApp ({`+91 ${input.phone.replace(/\D/g, "").slice(-10)}`}) or email, usually within a few hours. No payment has been taken.</p>
+                  <p className="mt-2 inline-block rounded-full bg-primary/10 px-3 py-1 font-mono text-xs font-bold text-primary">Ref {enquiryRef}</p>
+                </div>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  {CAL_OK && (
+                    <a href={CAL_LINK} target="_blank" rel="noopener noreferrer" className="flex flex-1 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#1266f1] to-[#0b49b8] py-3 text-sm font-bold text-white transition hover:brightness-110">
+                      <PhoneCall className="h-4 w-4" /> Book a free 15-min call
+                    </a>
+                  )}
+                  {OWNER_WA && (
+                    <a href={`https://wa.me/${OWNER_WA}?text=${encodeURIComponent(`Hi Nikhil, I just sent an enquiry for ${SERVICE_PRICES[svc].title} (Ref: ${enquiryRef}).`)}`} target="_blank" rel="noopener noreferrer" className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#25D366] py-3 text-sm font-bold text-white transition hover:brightness-105">
+                      <MessageCircle className="h-4 w-4" /> WhatsApp me
+                    </a>
+                  )}
+                  <button onClick={closeAfterSuccess} className="flex-1 rounded-full bg-slate-900 py-3 text-sm font-bold text-white transition hover:bg-slate-800">Done</button>
+                </div>
               </motion.div>
             )}
 

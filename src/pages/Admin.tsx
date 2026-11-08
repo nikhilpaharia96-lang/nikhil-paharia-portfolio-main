@@ -45,9 +45,9 @@ const csvCell = (v: unknown) => {
   return `"${s.replace(/"/g, '""')}"`;
 };
 function exportCsv(rows: Booking[]) {
-  const head = ["Ref", "Created", "Name", "WhatsApp", "Email", "Company", "Service", "Website type", "Budget", "Status", "Payment", "Received", "Balance", "Preferred start", "Follow-up", "Description", "Notes"];
+  const head = ["Ref", "Created", "Type", "Source", "Name", "WhatsApp", "Email", "Company", "Service", "Website type", "Budget", "Status", "Payment", "Received", "Balance", "Preferred start", "Follow-up", "Description", "Notes"];
   const lines = rows.map((b) => [
-    bookingRef(b.id), b.createdAt, b.name, `91${b.phone}`, b.email, b.company, b.serviceTitle, b.websiteType, b.budget,
+    bookingRef(b.id), b.createdAt, b.inquiry && b.paymentStatus !== "paid" ? "Enquiry" : "Booking", b.source || "direct", b.name, `91${b.phone}`, b.email, b.company, b.serviceTitle, b.websiteType, b.budget,
     STATUS_LABELS[b.status], PAY_LABEL[b.paymentStatus], paidSum(b), Math.max(0, b.quote.total - paidSum(b)), b.startDate, b.followUpAt ?? "", b.description, b.notes,
   ].map(csvCell).join(","));
   const blob = new Blob(["\uFEFF" + [head.map(csvCell).join(","), ...lines].join("\r\n")], { type: "text/csv;charset=utf-8" });
@@ -139,7 +139,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       (f.pay === "all" || b.paymentStatus === f.pay) &&
       (f.service === "all" || b.service === f.service) &&
       (!f.due || isDue(b)) &&
-      (!t || [b.name, b.email, b.phone, b.company, b.serviceTitle, bookingRef(b.id)].join(" ").toLowerCase().includes(t)));
+      (!t || [b.name, b.email, b.phone, b.company, b.serviceTitle, b.source ?? "", bookingRef(b.id)].join(" ").toLowerCase().includes(t)));
     const by: Record<Sort, (a: Booking, b: Booking) => number> = {
       newest: (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt),
       oldest: (a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt),
@@ -196,7 +196,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
               <span className="text-xs font-semibold text-slate-400">{insights ? "Hide" : "Show"}</span>
             </button>
             {insights && (
-              <div className="mt-4 grid gap-6 md:grid-cols-3">
+              <div className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <Bars title="New leads per day" data={s.daily.map((d) => ({ label: shortDay(d.date), v: d.leads }))} color="bg-sky-400" fmt={(n) => String(n)} />
                 <Bars title="Revenue per day" data={s.daily.map((d) => ({ label: shortDay(d.date), v: d.revenue }))} color="bg-emerald-500" fmt={formatINR} />
                 <div>
@@ -212,6 +212,19 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       );
                     })}
                     {!s.byService.length && <p className="text-xs text-slate-400">No data yet.</p>}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="mb-2 text-xs font-bold text-slate-500">By source (leads → paid)</h3>
+                  <div className="space-y-2">
+                    {s.bySource.slice(0, 6).map((r) => (
+                      <button key={r.source} onClick={() => patch({ q: r.source === "direct" ? "" : r.source })} className="block w-full text-left">
+                        <div className="flex justify-between text-xs"><span className="truncate font-semibold text-slate-700" title={r.source}>{r.source}</span><span className="shrink-0 pl-2 font-mono text-slate-500">{r.leads} → {r.confirmed} · {formatINR(r.revenue)}</span></div>
+                        <div className="mt-1 h-1.5 rounded-full bg-slate-100"><div className="h-full rounded-full bg-emerald-500" style={{ width: `${r.leads ? (r.confirmed / r.leads) * 100 : 0}%` }} /></div>
+                      </button>
+                    ))}
+                    {!s.bySource.length && <p className="text-xs text-slate-400">No data yet.</p>}
+                    <p className="text-[10px] text-slate-400">Tracked from utm_* links and referrers. Tap a source to filter.</p>
                   </div>
                 </div>
               </div>
@@ -250,7 +263,10 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] font-bold">
                 <span className={`rounded-full px-2.5 py-1 ${STATUS_STYLE[b.status]}`}>{STATUS_LABELS[b.status]}</span>
-                <span className={`rounded-full px-2.5 py-1 ${PAY_STYLE[b.paymentStatus]}`}>{PAY_LABEL[b.paymentStatus]}</span>
+                {b.inquiry && b.paymentStatus !== "paid"
+                  ? <span className="rounded-full bg-violet-100 px-2.5 py-1 text-violet-700">Enquiry · no payment</span>
+                  : <span className={`rounded-full px-2.5 py-1 ${PAY_STYLE[b.paymentStatus]}`}>{PAY_LABEL[b.paymentStatus]}</span>}
+                {b.source && <span className="max-w-[11rem] truncate rounded-full bg-slate-100 px-2.5 py-1 font-medium text-slate-600" title={b.source}>{b.source}</span>}
                 {b.followUpAt && isOpen(b) && <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 ${isDue(b) ? "bg-rose-100 text-rose-700" : "bg-slate-100 text-slate-600"}`}><BellRing className="h-3 w-3" />{b.followUpAt === istToday() ? "Today" : shortDay(b.followUpAt)}</span>}
                 <span className="ml-auto font-medium text-slate-400">{fmtDate(b.createdAt)}</span>
               </div>
@@ -351,6 +367,7 @@ function Detail({ b, onGone }: { b: Booking; onGone: () => void }) {
 
         <Block title="Project">
           <p className="flex items-center gap-2"><IndianRupee className="h-4 w-4 text-slate-400" />Budget <b className="font-mono">{formatINR(b.budget)}</b></p>
+          <p>Source: <b>{b.source || "direct"}</b>{b.inquiry && b.paymentStatus !== "paid" ? " · sent as an enquiry (no payment)" : ""}</p>
           {b.websiteType && <p>Type: <b>{b.websiteType}</b></p>}
           {b.startDate && <p className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-slate-400" />Start: <b>{b.startDate}</b></p>}
           <p className="whitespace-pre-wrap rounded-xl bg-slate-50 p-3 text-slate-700">{b.description}</p>

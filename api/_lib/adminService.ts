@@ -44,11 +44,21 @@ export function computeStats(list: Booking[], now = Date.now()): AdminStats {
     svc.set(b.service, row);
   });
 
+  const src = new Map<string, { source: string; leads: number; confirmed: number; revenue: number }>();
+  list.forEach((b) => {
+    const key = b.source || "direct";
+    const row = src.get(key) ?? { source: key, leads: 0, confirmed: 0, revenue: 0 };
+    row.leads += 1;
+    if (b.paymentStatus === "paid" && b.status !== "cancelled") row.confirmed += 1;
+    row.revenue += amountPaid(b);
+    src.set(key, row);
+  });
+
   return {
     totalLeads: list.length,
     newInquiries: byStatus.new_lead,
     confirmedBookings: paid.length,
-    pendingPayments: live.filter((b) => b.paymentStatus !== "paid").length,
+    pendingPayments: live.filter((b) => b.paymentStatus !== "paid" && !b.inquiry).length,
     revenue: list.reduce((s, b) => s + amountPaid(b), 0),
     tokenRevenue: list.reduce((s, b) => s + b.payments.filter((p) => p.milestone === "token").reduce((a, p) => a + p.amount, 0), 0),
     outstanding: paid.reduce((s, b) => s + Math.max(0, b.quote.total - amountPaid(b)), 0),
@@ -57,6 +67,7 @@ export function computeStats(list: Booking[], now = Date.now()): AdminStats {
     byStatus,
     daily,
     byService: [...svc.values()].sort((a, b) => b.revenue - a.revenue || b.leads - a.leads),
+    bySource: [...src.values()].sort((a, b) => b.revenue - a.revenue || b.leads - a.leads).slice(0, 12),
   };
 }
 

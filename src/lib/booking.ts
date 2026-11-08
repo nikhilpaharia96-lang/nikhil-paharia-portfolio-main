@@ -1,5 +1,6 @@
 import { loadRazorpayScript } from "@/lib/loadRazorpayScript";
 import type { BookingInput, FieldErrors } from "../../shared/booking";
+import { getSource } from "@/lib/attribution";
 
 export type { BookingInput, FieldErrors };
 
@@ -76,7 +77,7 @@ export async function payBookingToken(input: BookingInput, opts: PayOptions = {}
   const loaded = await loadRazorpayScript();
   if (!loaded || !window.Razorpay) throw new PaymentError("Could not load the payment window. Check your connection and try again.");
 
-  const order = await postJson("/api/booking/create-order", { ...input, leadId: opts.leadId, companyWebsite: opts.honeypot ?? "" }).catch((e) => {
+  const order = await postJson("/api/booking/create-order", { ...input, source: input.source || getSource(), leadId: opts.leadId, companyWebsite: opts.honeypot ?? "" }).catch((e) => {
     throw e instanceof PaymentError ? e : new PaymentError("Could not reach the payment service. Check your connection and try again.");
   });
   if (!order.ok) throw new PaymentError(order.data?.error || "Could not start payment.", false, order.data?.fieldErrors);
@@ -120,4 +121,17 @@ export async function payBookingToken(input: BookingInput, opts: PayOptions = {}
     });
     rzp.open();
   });
+}
+
+/**
+ * "Not ready to pay" path: saves the lead + emails the owner. No payment window, no money moves.
+ * Returns the reference to show the visitor.
+ */
+export async function sendInquiry(input: BookingInput, opts: PayOptions = {}): Promise<{ leadId: string; ref: string }> {
+  const r = await postJson("/api/booking/inquiry", { ...input, source: input.source || getSource(), leadId: opts.leadId, companyWebsite: opts.honeypot ?? "" }).catch((e) => {
+    throw e instanceof PaymentError ? e : new PaymentError("Could not reach the server. Check your connection and try again.");
+  });
+  if (!r.ok) throw new PaymentError(r.data?.error || "Could not send your enquiry.", false, r.data?.fieldErrors);
+  opts.onLead?.(r.data.leadId);
+  return r.data;
 }

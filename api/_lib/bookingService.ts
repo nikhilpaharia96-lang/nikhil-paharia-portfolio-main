@@ -58,6 +58,8 @@ export interface Deps {
   sleep?: (ms: number) => Promise<void>;
   /** Best-effort side effects (emails / WhatsApp). Failures never undo a verified payment. */
   notify?: (booking: Booking, payment: PaymentRecord) => Promise<void>;
+  /** Owner alert for a no-payment enquiry (best effort). */
+  notifyInquiry?: (booking: Booking) => Promise<void>;
 }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-9a-f][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -138,8 +140,10 @@ export async function startBooking(deps: Deps, raw: unknown, leadId?: unknown): 
     budget: value.budget,
     quote,
     paymentStatus: "pending",
+    inquiry: false, // they chose to pay — no longer just an enquiry
     updatedAt: ts,
   });
+  if (!booking.source && value.source) booking.source = value.source; // first touch wins
   await deps.store.save(booking); // lead captured before any payment is attempted
 
   const order = await deps.gateway.createOrder({
@@ -173,6 +177,48 @@ export async function startBooking(deps: Deps, raw: unknown, leadId?: unknown): 
     startAdvance: quote.startAdvance,
     remaining: quote.remaining,
   };
+}
+
+/**
+ * "Not ready to pay? Send me an enquiry." Saves the same lead record (so it shows up in /admin with its
+ * source) but creates NO payment order. Reuses the lead when the visitor already started a checkout.
+ */
+export async function saveInquiry(deps: Deps, raw: unknown, leadId?: unknown): Promise<{ leadId: string; ref: string }> {
+  const nowMs = (deps.now ?? Date.now)();
+  const { value, errors } = validateBookingInput(raw, nowMs);
+  if (!value) throw new BookingError(400, Object.values(errors)[0] ?? "Please check your details.", errors);
+  const slug = value.service as ServiceSlug;
+  const quote = computeQuote(value.budget, deps.split ?? normalizeSplit());
+  const ts = iso(deps);
+
+  let booking: Booking | null = null;
+  if (typeof leadId === "string" && UUID_RE.test(leadId)) {
+    booking = await deps.store.get(leadId);
+    if (booking?.paymentStatus === "paid") throw new BookingError(409, "This booking is already confirmed.");
+  }
+  const isNew = !booking;
+  booking ??= {
+    id: crypto.randomUUID(), createdAt: ts, updatedAt: ts, service: slug, serviceTitle: SERVICE_PRICES[slug].title,
+    name: "", phone: "", email: "", company: "", websiteType: "", description: "", startDate: "", budget: 0, quote,
+    status: "new_lead", paymentStatus: "pending", orders: [], payments: [], failures: [],
+    statusHistory: [{ status: "new_lead", at: ts }], notes: "",
+  };
+  Object.assign(booking, {
+    service: slug, serviceTitle: SERVICE_PRICES[slug].title, name: value.name, phone: value.phone, email: value.email,
+    company: value.company, websiteType: value.websiteType, description: value.description, startDate: value.startDate,
+    budget: value.budget, quote, updatedAt: ts,
+  });
+  if (!booking.orders.length) booking.inquiry = true; // a lead that already opened checkout stays a checkout lead
+  if (!booking.source && value.source) booking.source = value.source;
+  await deps.store.save(booking);
+  if (isNew) {
+    try {
+      await deps.notifyInquiry?.(booking);
+    } catch (err) {
+      console.error("[booking] inquiry notification failed:", err instanceof Error ? err.message : "unknown error");
+    }
+  }
+  return { leadId: booking.id, ref: bookingRef(booking.id) };
 }
 
 /** What the browser receives after a verified payment. Contains no personal data. */
