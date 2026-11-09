@@ -24,6 +24,7 @@ import {
   SiInstagram,
 } from "react-icons/si";
 import { VscVscode } from "react-icons/vsc";
+import { Paperclip } from "lucide-react";
 import profilePhoto from "../assets/images/profile-nobg.png";
 import myNewPhoto from "../assets/images/my-new-photo.jpg";
 import teaGardenAbout from "../assets/images/tea-sunset-portrait.webp";
@@ -1689,6 +1690,47 @@ export default function About() {
             full-width page turned only by the reader's swipe or corner tap
             — a real one-page-at-a-time notebook feel, not a shrunk-down
             spread. */}
+        {/* ── Section title — same treatment as the Projects heading ── */}
+        <div className="px-6 sm:px-0 max-w-[1200px] mx-auto mb-10 sm:mb-14">
+          <motion.div
+            initial={{ opacity: 0, y: rm ? 0 : 26 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.6, ease }}
+            className="mb-5"
+          >
+            <div
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-black uppercase tracking-widest border-2"
+              style={{ borderColor: "#1d6feb", color: "#1d6feb", background: "#fff" }}
+            >
+              02 — About Me
+            </div>
+          </motion.div>
+
+          <motion.h2
+            initial={{ opacity: 0, x: rm ? 0 : 100, y: rm ? 0 : 30 }}
+            whileInView={{ opacity: 1, x: 0, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.65, ease, delay: 0.1 }}
+            className="relative inline-block m-4 sm:m-5"
+          >
+            <span
+              className="absolute inset-0 -m-4 sm:-m-5 rounded-2xl"
+              style={{ background: "#0b0d12", transform: "rotate(-2deg)", boxShadow: "0 18px 38px -12px rgba(11,13,18,0.45)" }}
+            />
+            <span
+              className="relative inline-block text-7xl sm:text-8xl font-bold text-white px-2"
+              style={{ fontFamily: "'Caveat', cursive", transform: "rotate(-1.5deg)" }}
+            >
+              About Me
+              <Paperclip className="absolute -top-5 -left-8 text-slate-300 rotate-[-25deg]" size={30} strokeWidth={1.5} />
+              <svg viewBox="0 0 220 14" className="absolute -bottom-1 left-1 w-[85%]" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M2 8c40-8 140-8 216 2" stroke="#7fb2ff" strokeWidth="4" strokeLinecap="round" fill="none" />
+              </svg>
+            </span>
+          </motion.h2>
+        </div>
+
         <div className="block relative max-w-[1200px] mx-auto">
           {/* floating stickers around the notebook */}
           <FloatingSticker className="-top-6 left-4 sm:left-10" delay={0} duration={7}>
