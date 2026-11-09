@@ -450,7 +450,7 @@ export default function Hero() {
               animate={{ opacity: 1, y: 0 }}
 
               className="relative inline-block mb-2"
-              style={{ transform: 'rotate(-1.5deg)' }}
+              style={{ transform: 'rotate(-1.5deg)', maxWidth: 'min(100%, 56vw)' }}
             >
               <p
                 className="text-slate-800"
