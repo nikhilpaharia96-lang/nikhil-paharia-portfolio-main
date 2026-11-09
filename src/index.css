@@ -748,3 +748,36 @@ body::before {
   .brand-marquee-track { animation: none; }
   .brand-marquee { overflow-x: auto; }
 }
+
+/* Testimonials — tilted, endlessly scrolling reviews wall (ReviewsBackdrop).
+   Each column translates by -50% (content is rendered twice) for a seamless loop. */
+.rb-stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 140%;
+  height: 150%;
+  transform: translate(-50%, -50%) rotate(-8deg) skewY(-3deg);
+  filter: blur(0.6px);
+  opacity: 0.9;
+}
+.rb-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; height: 100%; padding: 0 1rem; }
+@media (min-width: 1024px) { .rb-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.75rem; } }
+.rb-col { overflow: hidden; height: 100%; }
+.rb-track { display: flex; flex-direction: column; will-change: transform; animation: rb-scroll-up linear infinite; }
+.rb-track--down { animation-name: rb-scroll-down; }
+.rb-set { display: flex; flex-direction: column; gap: 1.25rem; padding-bottom: 1.25rem; }
+@media (min-width: 1024px) { .rb-set { gap: 1.75rem; padding-bottom: 1.75rem; } }
+.rb-card {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 1.1rem;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 14px 34px -16px rgba(15, 45, 90, 0.28), 0 2px 6px rgba(15, 45, 90, 0.05);
+}
+@keyframes rb-scroll-up { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+@keyframes rb-scroll-down { from { transform: translateY(-50%); } to { transform: translateY(0); } }
+.rb-stage[data-static="true"] .rb-track { animation-duration: 140s !important; }
+@media (prefers-reduced-motion: reduce) {
+  .rb-track { animation: none; }
+}

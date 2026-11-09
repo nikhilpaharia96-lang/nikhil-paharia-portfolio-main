@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { MoveDownLeft } from "lucide-react";
 import { ease } from "@/animations/videoShowcase.motion";
-import BackgroundGlow from "./BackgroundGlow";
+import ReviewsBackdrop from "./ReviewsBackdrop";
 import FeaturedTestimonial from "./FeaturedTestimonial";
 import TestimonialStats from "./TestimonialStats";
 import TrustedByBrands from "./TrustedByBrands";
@@ -23,7 +23,7 @@ export default function Testimonials() {
       className="relative overflow-hidden section-wrap max-w-full pt-14 pb-14 sm:pt-32 sm:pb-20 lg:py-32"
       aria-label="Testimonials — Client Stories"
     >
-      <BackgroundGlow />
+      <ReviewsBackdrop />
 
       <div className="container-tight relative z-10 max-w-full">
         {/* Mobile order: intro → feedback card → carousel → stats. Desktop: two columns. */}
