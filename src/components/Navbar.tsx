@@ -144,8 +144,8 @@ export default function Navbar() {
         aria-label="Primary"
         className={`nav-enter relative pointer-events-auto w-full flex items-center justify-between gap-3 xl:gap-6 rounded-none border-0 border-b px-4 sm:px-6 lg:px-10 h-[64px] sm:h-[70px] xl:h-[74px] transition-[background-color,box-shadow,border-color] duration-300 motion-reduce:transition-none ${
           isScrolled
-            ? "bg-white/[0.92] border-white/85 backdrop-blur-[18px] backdrop-saturate-150 shadow-[0_10px_36px_rgba(30,100,200,0.18)]"
-            : "bg-white/80 border-white/60 backdrop-blur-[12px] backdrop-saturate-150 shadow-[0_6px_24px_rgba(30,100,200,0.08)]"
+            ? "bg-white/[0.62] border-white/70 backdrop-blur-[18px] backdrop-saturate-150 shadow-[0_10px_36px_rgba(30,100,200,0.18)]"
+            : "bg-white/[0.42] border-white/50 backdrop-blur-[14px] backdrop-saturate-150 shadow-[0_6px_24px_rgba(30,100,200,0.08)]"
         }`}
       >
         {/* Brand */}
@@ -249,7 +249,7 @@ export default function Navbar() {
         id="mobile-menu"
         aria-hidden={!menuOpen}
         {...(!menuOpen ? { inert: "" } : {})}
-        className={`xl:hidden pointer-events-auto w-full mt-0 rounded-none border-0 border-b border-white/85 bg-white/[0.86] backdrop-blur-[18px] backdrop-saturate-150 shadow-[0_18px_48px_rgba(30,100,200,0.20)] overflow-hidden origin-top transition duration-300 motion-reduce:transition-none ${
+        className={`xl:hidden pointer-events-auto w-full mt-0 rounded-none border-0 border-b border-white/85 bg-white/[0.72] backdrop-blur-[18px] backdrop-saturate-150 shadow-[0_18px_48px_rgba(30,100,200,0.20)] overflow-hidden origin-top transition duration-300 motion-reduce:transition-none ${
           menuOpen ? "opacity-100 translate-y-0 scale-100 visible" : "opacity-0 -translate-y-2 scale-[0.98] invisible pointer-events-none"
         }`}
       >
