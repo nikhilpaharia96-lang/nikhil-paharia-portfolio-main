@@ -755,11 +755,10 @@ body::before {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 140%;
-  height: 150%;
+  width: 150%;
+  height: 160%;
   transform: translate(-50%, -50%) rotate(-8deg) skewY(-3deg);
-  filter: blur(0.6px);
-  opacity: 0.9;
+  opacity: 1;
 }
 .rb-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; height: 100%; padding: 0 1rem; }
 @media (min-width: 1024px) { .rb-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.75rem; } }
@@ -769,15 +768,14 @@ body::before {
 .rb-set { display: flex; flex-direction: column; gap: 1.25rem; padding-bottom: 1.25rem; }
 @media (min-width: 1024px) { .rb-set { gap: 1.75rem; padding-bottom: 1.75rem; } }
 .rb-card {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: #fff;
+  border: 1px solid rgba(15, 45, 90, 0.08);
   border-radius: 1.1rem;
   padding: 1rem 1.1rem;
-  box-shadow: 0 14px 34px -16px rgba(15, 45, 90, 0.28), 0 2px 6px rgba(15, 45, 90, 0.05);
+  box-shadow: 0 18px 40px -14px rgba(15, 45, 90, 0.38), 0 2px 8px rgba(15, 45, 90, 0.08);
 }
 @keyframes rb-scroll-up { from { transform: translateY(0); } to { transform: translateY(-50%); } }
 @keyframes rb-scroll-down { from { transform: translateY(-50%); } to { transform: translateY(0); } }
-.rb-stage[data-static="true"] .rb-track { animation-duration: 140s !important; }
 @media (prefers-reduced-motion: reduce) {
   .rb-track { animation: none; }
 }

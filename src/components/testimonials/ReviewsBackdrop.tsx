@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { allTestimonials } from "@/constants/testimonials";
 import type { Testimonial } from "@/types/testimonial";
-import { useReducedFx } from "@/hooks/use-reduced-fx";
 
 /**
  * Tilted, endlessly scrolling wall of client-review cards used as the
@@ -66,7 +65,6 @@ function Column({ items, dir, speed }: { items: Testimonial[]; dir: "up" | "down
 }
 
 export default function ReviewsBackdrop() {
-  const reduceFx = useReducedFx();
 
   const columns = useMemo(() => {
     const list = allTestimonials;
@@ -79,19 +77,20 @@ export default function ReviewsBackdrop() {
 
   return (
     <div className="absolute inset-0 z-0 overflow-hidden bg-[#f4f8ff]" aria-hidden="true">
-      <div className="rb-stage" data-static={reduceFx ? "true" : "false"}>
+      <div className="rb-stage">
         <div className="rb-grid">
-          <Column items={columns[0]} dir="up" speed={70} />
-          <Column items={columns[1]} dir="down" speed={85} />
-          <Column items={columns[2]} dir="up" speed={75} />
+          <Column items={columns[0]} dir="up" speed={55} />
+          <Column items={columns[1]} dir="down" speed={65} />
+          <Column items={columns[2]} dir="up" speed={60} />
           <div className="hidden lg:block">
-            <Column items={columns[1]} dir="down" speed={90} />
+            <Column items={columns[1]} dir="down" speed={70} />
           </div>
         </div>
       </div>
       {/* Soft veil + edge fades keep text readable and give the blurred, depth-of-field look */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white via-white/55 to-white" />
-      <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/10 to-white/70" />
+      <div className="absolute inset-0 bg-gradient-to-b from-white/90 via-transparent to-white/90" />
+      <div className="hidden lg:block absolute inset-0 bg-gradient-to-r from-white/75 via-white/0 to-transparent" />
+      <div className="lg:hidden absolute inset-0 bg-white/30" />
     </div>
   );
 }
