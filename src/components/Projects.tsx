@@ -661,12 +661,80 @@ function FolderExpanded({
         </div>
       </div>
 
-      {/* body */}
-      <div className="p-5 sm:p-7 pt-5 sm:pt-6" style={{ color: tone.text }}>
-        <p className="text-sm sm:text-[15px] leading-relaxed max-w-2xl" style={{ color: tone.sub }}>
-          {project.overview}
+      {/* body — compact: title + type tag, one-line pitch, tech icons, actions */}
+      <div className="px-5 sm:px-7 pt-6 pb-5" style={{ color: tone.text }}>
+        <div className="flex items-start justify-between gap-3">
+          <h4 className="text-xl sm:text-2xl font-extrabold leading-tight" style={{ fontFamily: FONT_BODY }}>
+            {project.title}
+          </h4>
+          <span
+            className="shrink-0 px-3 py-1 rounded-full text-[11px] font-bold"
+            style={{ background: `${project.accentColor}26`, color: project.accentColor }}
+          >
+            {project.category.split("/").pop()?.trim()}
+          </span>
+        </div>
+        <p className="mt-2 text-base sm:text-lg leading-snug max-w-2xl" style={{ color: tone.sub }}>
+          {project.tagline}
         </p>
 
+        {/* tech — round icon badges */}
+        <div className="flex flex-wrap items-center gap-3 mt-4">
+          {project.tech.map((t) => {
+            const tech = getTechIcon(t);
+            return (
+              <span
+                key={t}
+                title={t}
+                aria-label={t}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 border border-black/10 shadow-sm"
+              >
+                {tech ? <tech.Icon size={20} style={{ color: tech.color }} /> : <span className="text-[10px] font-bold text-slate-600">{t.slice(0, 2)}</span>}
+              </span>
+            );
+          })}
+        </div>
+
+        {/* actions */}
+        <div className="grid grid-cols-3 gap-2 mt-5 text-xs font-bold">
+          <a
+            href={project.live}
+            data-track-event="project_link_click" data-track-kind="live" data-track-label={project.title}
+            target="_blank" rel="noopener noreferrer"
+            onPointerDown={(e) => e.stopPropagation()}
+            className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-white"
+            style={{ background: project.accentColor }}
+          >
+            <ExternalLink size={13} /> Live Demo
+          </a>
+          <a
+            href={project.github ?? project.live}
+            data-track-event="project_link_click" data-track-kind="code" data-track-label={project.title}
+            target="_blank" rel="noopener noreferrer"
+            onPointerDown={(e) => e.stopPropagation()}
+            className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl"
+            style={{ background: "rgba(0,0,0,0.08)", color: tone.text }}
+          >
+            <SiGithub size={13} /> Code
+          </a>
+          <a
+            href={project.caseStudy}
+            data-track-event="project_link_click" data-track-kind="case_study" data-track-label={project.title}
+            target="_blank" rel="noopener noreferrer"
+            onPointerDown={(e) => e.stopPropagation()}
+            className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl"
+            style={{ background: "rgba(0,0,0,0.08)", color: tone.text }}
+          >
+            <FileText size={13} /> Case Study
+          </a>
+        </div>
+
+        {/* everything else lives behind one toggle so the card stays short */}
+        <details className="group mt-4" onPointerDown={(e) => e.stopPropagation()}>
+          <summary className="cursor-pointer list-none text-xs font-bold inline-flex items-center gap-1" style={{ color: tone.sub }}>
+            <ChevronRight size={14} className="transition-transform group-open:rotate-90" /> More details
+          </summary>
+          <p className="mt-3 text-sm leading-relaxed max-w-2xl" style={{ color: tone.sub }}>{project.overview}</p>
         <div className="grid sm:grid-cols-2 gap-2.5 mt-5">
           {project.features.map((f) => (
             <div key={f} className="flex items-start gap-2 text-xs sm:text-[13px]">
@@ -674,10 +742,6 @@ function FolderExpanded({
               <span style={{ color: tone.sub }}>{f}</span>
             </div>
           ))}
-        </div>
-
-        <div className="flex flex-wrap gap-2 mt-5">
-          {project.tech.map((t) => <TechChip key={t} tag={t} />)}
         </div>
 
         {project.narrative && (
@@ -711,38 +775,7 @@ function FolderExpanded({
           ))}
         </div>
 
-        <div className="grid grid-cols-3 gap-2 mt-6 text-xs font-bold">
-          <a
-            href={project.live}
-            data-track-event="project_link_click" data-track-kind="live" data-track-label={project.title}
-            target="_blank" rel="noopener noreferrer"
-            onPointerDown={(e) => e.stopPropagation()}
-            className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-white"
-            style={{ background: project.accentColor }}
-          >
-            <ExternalLink size={13} /> Live Demo
-          </a>
-          <a
-            href={project.github ?? project.live}
-            data-track-event="project_link_click" data-track-kind="code" data-track-label={project.title}
-            target="_blank" rel="noopener noreferrer"
-            onPointerDown={(e) => e.stopPropagation()}
-            className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl"
-            style={{ background: "rgba(0,0,0,0.08)", color: tone.text }}
-          >
-            <SiGithub size={13} /> Code
-          </a>
-          <a
-            href={project.caseStudy}
-            data-track-event="project_link_click" data-track-kind="case_study" data-track-label={project.title}
-            target="_blank" rel="noopener noreferrer"
-            onPointerDown={(e) => e.stopPropagation()}
-            className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl"
-            style={{ background: "rgba(0,0,0,0.08)", color: tone.text }}
-          >
-            <FileText size={13} /> Case Study
-          </a>
-        </div>
+        </details>
       </div>
 
       {/* prev/next controls — steps which card is expanded, order never changes */}
