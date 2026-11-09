@@ -90,7 +90,7 @@ export default function ReviewsBackdrop() {
       {/* Soft veil + edge fades keep text readable and give the blurred, depth-of-field look */}
       <div className="absolute inset-0 bg-gradient-to-b from-white/90 via-transparent to-white/90" />
       <div className="hidden lg:block absolute inset-0 bg-gradient-to-r from-white/75 via-white/0 to-transparent" />
-      <div className="lg:hidden absolute inset-0 bg-white/30" />
+      <div className="lg:hidden absolute inset-0 bg-white/45" />
     </div>
   );
 }

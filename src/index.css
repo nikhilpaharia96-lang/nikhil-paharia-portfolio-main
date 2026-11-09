@@ -763,6 +763,14 @@ body::before {
 .rb-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; height: 100%; padding: 0 1rem; }
 @media (min-width: 1024px) { .rb-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.75rem; } }
 .rb-col { overflow: hidden; height: 100%; }
+/* Phones: smaller, softer, slightly blurred cards so foreground text stays readable */
+@media (max-width: 767px) {
+  .rb-stage { width: 170%; height: 150%; transform: translate(-50%, -50%) rotate(-6deg) skewY(-2deg); opacity: 0.5; filter: blur(1.6px); }
+  .rb-grid { gap: 0.75rem; padding: 0 0.5rem; }
+  .rb-set { gap: 0.75rem; padding-bottom: 0.75rem; }
+  .rb-card { padding: 0.65rem 0.75rem; border-radius: 0.8rem; box-shadow: 0 8px 18px -10px rgba(15, 45, 90, 0.25); }
+  .rb-card p { font-size: 10.5px !important; }
+}
 .rb-track { display: flex; flex-direction: column; will-change: transform; animation: rb-scroll-up linear infinite; }
 .rb-track--down { animation-name: rb-scroll-down; }
 .rb-set { display: flex; flex-direction: column; gap: 1.25rem; padding-bottom: 1.25rem; }
