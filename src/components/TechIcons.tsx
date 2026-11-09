@@ -41,7 +41,7 @@ const MOBILE: Item[] = [
   { kind: "node", label: "Node.js", pos: { top: "19%", right: "27%" }, box: "w-8 h-8 sm:w-9 sm:h-9", glyph: 14, glyphClass: "text-green-500", tip: "top", align: "end", delay: "-1.2s" },
   { kind: "video", label: "Video Editing", pos: { top: "35%", right: "4%" }, box: "w-8 h-8 sm:w-9 sm:h-9", glyph: 14, glyphClass: "text-rose-500", tip: "top", align: "end" },
   { kind: "code", label: "Coding", pos: { top: "49%", right: "19%" }, box: "w-8 h-8 sm:w-9 sm:h-9", glyph: 14, glyphClass: "text-slate-700", tip: "top", align: "end", delay: "-2s" },
-  { kind: "js", label: "JavaScript", pos: { top: "57%", right: "5%" }, box: "w-7 h-7 sm:w-9 sm:h-9", badge: "bg-yellow-400", glyph: 13, glyphClass: "text-white", tip: "top", align: "start", delay: "-0.6s" },
+  { kind: "js", label: "JavaScript", pos: { top: "64%", right: "65%" }, box: "w-7 h-7 sm:w-9 sm:h-9", badge: "bg-yellow-400", glyph: 13, glyphClass: "text-white", tip: "top", align: "start", delay: "-0.6s" },
 ];
 
 const DESKTOP: Item[] = [
