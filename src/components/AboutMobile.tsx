@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from "framer-motion";
-import { MapPin, CalendarDays, GraduationCap, Code2, Layers, Users, Trophy, Video, Rocket } from "lucide-react";
+import { Paperclip, MapPin, CalendarDays, GraduationCap, Code2, Layers, Users, Trophy, Video, Rocket } from "lucide-react";
 import { SiReact, SiNextdotjs, SiNodedotjs, SiMongodb, SiTailwindcss, SiTypescript } from "react-icons/si";
 import portrait from "../assets/images/Desktop Nikhil Paharia profile photo.png";
 import "./about-mobile.css";
@@ -60,11 +60,19 @@ export default function AboutMobile() {
         {/* ── Intro ── */}
         <div className="am-hero">
           <motion.div className="am-hero__text" {...rise()}>
-            <p className="am-eyebrow">About Me</p>
+            <p className="am-badge">01 — About Me</p>
             <h2 className="am-title">
-              The Story
-              <br />
-              <span className="am-grad">Behind the Work</span>
+              <span className="am-slabwrap">
+                <span className="am-slab" aria-hidden="true" />
+                <span className="am-slabtext">
+                  The Story
+                  <Paperclip className="am-clip" aria-hidden="true" strokeWidth={1.5} />
+                  <svg viewBox="0 0 220 14" className="am-underline" preserveAspectRatio="none" aria-hidden="true">
+                    <path d="M2 8c40-8 140-8 216 2" stroke="#7fb2ff" strokeWidth="4" strokeLinecap="round" fill="none" />
+                  </svg>
+                </span>
+              </span>
+              <span className="am-grad am-sub">Behind the Work</span>
             </h2>
             <p className="am-lead">
               A developer and video editor from Assam, passionate about building useful digital products and creating impactful visual stories.
