@@ -76,16 +76,16 @@ export default function AboutMobile() {
               <img src={portrait} alt="Nikhil Paharia" loading="lazy" decoding="async" />
             </div>
           </motion.div>
-        </div>
 
-        <motion.ul className="am-chips" {...rise(0.05)}>
-          {CHIPS.map(({ Icon, label }) => (
+          <motion.ul className="am-chips" {...rise(0.05)}>
+            {CHIPS.map(({ Icon, label }) => (
             <li key={label} className="am-chip">
               <Icon aria-hidden="true" />
               <span>{label}</span>
             </li>
           ))}
         </motion.ul>
+        </div>
 
         {/* ── Stats ── */}
         <motion.dl className="am-stats" {...rise(0.05)}>
