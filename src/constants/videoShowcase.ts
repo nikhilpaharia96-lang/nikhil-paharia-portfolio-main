@@ -1,6 +1,4 @@
 import {
-  AudioLines,
-  BookOpen,
   Clapperboard,
   Film,
   Tv,
@@ -18,7 +16,6 @@ import bkJewellers from "@/assets/images/bk-jewellers.webp";
 import type {
   FeaturedVideo,
   Project,
-  ShowcaseFeature,
   ShowcaseStat,
   VideoFilter,
 } from "@/types/video";
@@ -142,8 +139,3 @@ export const showcaseStats: ShowcaseStat[] = [
 ];
 
 export const behindTheScenes: string[] = [vid1, cliffSunset, mistyValley, teaPortrait, teaGarden];
-
-export const showcaseFeatures: ShowcaseFeature[] = [
-  { icon: AudioLines, title: "Sound Design", desc: "Immersive audio for better impact." },
-  { icon: BookOpen, title: "Storytelling", desc: "Turning moments into emotions." },
-];

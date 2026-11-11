@@ -6,7 +6,6 @@ import BackgroundGlow from "./BackgroundGlow";
 import ShowcaseIntro from "./ShowcaseIntro";
 import FeaturedVideoCard from "./FeaturedVideoCard";
 import ProjectCarousel from "./ProjectCarousel";
-import FeatureStrip from "./FeatureStrip";
 import VideoLightbox, { type LightboxItem } from "./VideoLightbox";
 import { ease } from "@/animations/videoShowcase.motion";
 
@@ -88,7 +87,6 @@ export default function VideoShowcase() {
           </motion.div>
         </motion.div>
 
-        <FeatureStrip />
       </div>
 
       <VideoLightbox items={playlist} index={activeIdx} onIndexChange={setActiveIdx} onClose={closePlayer} />
