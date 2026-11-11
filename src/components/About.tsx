@@ -36,6 +36,7 @@ import about5 from "../assets/images/about-5.webp";
 import aboutPage1 from "../assets/images/about-page-1.webp";
 import aboutPage2 from "../assets/images/about-page-2.webp";
 import SplitText from "@/components/ui/SplitText";
+import AboutMobile from "@/components/AboutMobile";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -1642,6 +1643,9 @@ export default function About() {
   };
 
   const dust = useMemo(() => Array.from({ length: 10 }), []);
+
+  // Phones & tablets get the dark "story" page instead of the notebook flip-book.
+  if (!isDesktopViewport) return <AboutMobile />;
 
   return (
     <section
