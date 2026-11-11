@@ -988,7 +988,7 @@ export default function Projects() {
           {/* sticky note */}
           <Reveal fromY={30} rotate={6} delay={0.25} className="hidden md:block justify-self-start lg:justify-self-end w-full max-w-[280px]">
           <div
-            className="relative rounded-sm p-5"
+            className="paper-note relative rounded-sm p-5"
             style={{
               background: "#FFF6D6",
               boxShadow: "0 16px 34px -12px rgba(15,23,42,0.25)",

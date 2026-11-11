@@ -21,6 +21,9 @@ export default function GlobalBackground() {
 
   return (
     <div className="fixed inset-0 -z-50 overflow-hidden pointer-events-none bg-[#f8fbff]">
+      {/* night mode only: faint starfield (see dark-theme.css) */}
+      <div aria-hidden="true" className="night-stars" />
+
       {/* slow dynamic mesh gradient */}
       <div className="absolute inset-0 opacity-45">
         <div

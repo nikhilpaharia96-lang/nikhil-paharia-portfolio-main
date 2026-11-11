@@ -29,6 +29,23 @@
     <meta name="twitter:image" content="https://www.nikhilpaharia.online/og-image.png" />
     <meta name="twitter:image:alt" content="Nikhil Paharia — Full-Stack Developer &amp; Video Editor from Assam, India" />
 
+    <meta name="theme-color" content="#f8fbff" />
+    <meta name="color-scheme" content="light dark" />
+    <!-- Apply the saved / OS theme before first paint so there is no light flash in night mode -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("np-theme");
+          var dark = t ? t === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+          if (dark) {
+            document.documentElement.classList.add("dark");
+            document.documentElement.style.colorScheme = "dark";
+            var m = document.querySelector('meta[name="theme-color"]');
+            if (m) m.setAttribute("content", "#050b18");
+          }
+        } catch (e) {}
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

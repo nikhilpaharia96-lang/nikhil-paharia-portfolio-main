@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { X, ArrowUpRight } from "lucide-react";
 import brandLogo from "../assets/logos/nikhil-paharia-logo-v2.webp";
 import { lockBodyScroll } from "@/lib/scrollLock";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const navLinks = [
   { name: "Home", href: "#home" },
@@ -203,6 +204,7 @@ export default function Navbar() {
 
         {/* Actions */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <ThemeToggle className="nav-icon-btn bg-white/60 border-blue-100 text-[#172033] hover:bg-blue-50" />
           <a
             href="#contact"
             onClick={connect}
@@ -217,7 +219,7 @@ export default function Navbar() {
           <button
             ref={toggleRef}
             type="button"
-            className={`xl:hidden w-11 h-11 rounded-full bg-white/60 border border-blue-100 text-[#172033] flex items-center justify-center hover:bg-blue-50 transition-colors motion-reduce:transition-none ${focusRing}`}
+            className={`nav-icon-btn xl:hidden w-11 h-11 rounded-full bg-white/60 border border-blue-100 text-[#172033] flex items-center justify-center hover:bg-blue-50 transition-colors motion-reduce:transition-none ${focusRing}`}
             onClick={() => setMenuOpen((o) => !o)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
