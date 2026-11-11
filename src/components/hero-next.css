@@ -1,0 +1,10 @@
+.hn-playhead{left:0;animation:hn-scrub 3.2s cubic-bezier(.65,0,.35,1) .6s forwards}
+.hn-clip{transform-origin:left;transform:scaleX(0);animation:hn-clip .7s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes hn-scrub{to{left:100%}}
+@keyframes hn-clip{to{transform:scaleX(1)}}
+.hn-rise{opacity:0;transform:translateY(14px);animation:hn-rise .8s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes hn-rise{to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+ .hn-playhead{animation:none;left:62%}
+ .hn-clip,.hn-rise{animation:none;transform:none;opacity:1}
+}
