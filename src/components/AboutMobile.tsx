@@ -33,7 +33,7 @@ const JOURNEY = [
 
 const TECH: { name: string; node: React.ReactNode }[] = [
   { name: "React", node: <SiReact style={{ color: "#61DAFB" }} /> },
-  { name: "Next.js", node: <SiNextdotjs style={{ color: "#fff" }} /> },
+  { name: "Next.js", node: <SiNextdotjs /> },
   { name: "Node.js", node: <SiNodedotjs style={{ color: "#5FA04E" }} /> },
   { name: "MongoDB", node: <SiMongodb style={{ color: "#47A248" }} /> },
   { name: "Tailwind", node: <SiTailwindcss style={{ color: "#38BDF8" }} /> },
