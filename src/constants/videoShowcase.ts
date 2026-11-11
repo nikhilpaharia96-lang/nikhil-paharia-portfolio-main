@@ -1,6 +1,4 @@
 import {
-  Scissors,
-  Palette,
   AudioLines,
   BookOpen,
   Clapperboard,
@@ -146,8 +144,6 @@ export const showcaseStats: ShowcaseStat[] = [
 export const behindTheScenes: string[] = [vid1, cliffSunset, mistyValley, teaPortrait, teaGarden];
 
 export const showcaseFeatures: ShowcaseFeature[] = [
-  { icon: Scissors, title: "Creative Editing", desc: "Clean, engaging and cinematic cuts." },
-  { icon: Palette, title: "Color Grading", desc: "Professional color correction." },
   { icon: AudioLines, title: "Sound Design", desc: "Immersive audio for better impact." },
   { icon: BookOpen, title: "Storytelling", desc: "Turning moments into emotions." },
 ];
