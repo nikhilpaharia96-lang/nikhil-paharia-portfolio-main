@@ -104,7 +104,7 @@ function FanDeckCard({ service, index, total }: { service: ServiceItem; index: n
                     className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white flex items-center justify-center shadow-sm overflow-hidden"
                   >
                     {b.logo ? (
-                      <img loading="lazy" decoding="async" src={b.logo} alt={b.label} className="w-7 h-7 sm:w-8 sm:h-8 rounded-md" />
+                      <img src={b.logo} alt={b.label} className="w-7 h-7 sm:w-8 sm:h-8 rounded-md" />
                     ) : Icon ? (
                       <Icon className="text-2xl sm:text-3xl" style={{ color: b.color }} />
                     ) : (

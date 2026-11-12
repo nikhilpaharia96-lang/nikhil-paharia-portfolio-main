@@ -284,7 +284,7 @@ export default function SubmitTestimonialModal({ open, onClose }: SubmitTestimon
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0">
                           {photoDataUrl ? (
-                            <img loading="lazy" decoding="async" src={photoDataUrl} alt="" className="w-full h-full object-cover" />
+                            <img src={photoDataUrl} alt="" className="w-full h-full object-cover" />
                           ) : (
                             <User className="w-5 h-5 text-slate-400" aria-hidden="true" />
                           )}

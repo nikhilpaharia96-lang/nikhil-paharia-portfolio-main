@@ -7,7 +7,7 @@ import { desktopMasks, mobileMasks } from "@/components/parallaxMasks";
 import "@/components/brush-reveal.css";
 import { motion, useScroll, useTransform, useSpring, useMotionValueEvent, useInView, useReducedMotion } from "@/lib/static-motion";
 import { useRef, useState, useEffect } from "react";
-import teaBg from "../assets/images/file_0000000066b08207b18b1ec1e8269869.webp";
+import teaBg from "../assets/images/file_0000000066b08207b18b1ec1e8269869.png";
 import teaBgMobile from "../assets/images/tea-brush-mobile.webp";
 import SplitText from "@/components/ui/SplitText";
 import HeroCTAs from "@/components/HeroCTA";
@@ -18,9 +18,9 @@ import PortraitFX from "@/components/PortraitFX";
 
 // ── Desktop-only Hero assets ──────────────────────────────────────────────
 import desktopPortrait from "../assets/images/Desktop Nikhil Paharia profile photo.png";
-import brushStroke from "../assets/images/blue-brush-stroke.webp";
+import brushStroke from "../assets/images/blue-brush-stroke.png";
 import botamLeft from "../assets/images/botam-left.png";
-import ovalLandscape from "../assets/images/Assam landscape.webp";
+import ovalLandscape from "../assets/images/Assam landscape.png";
 import threeStrokes from "../assets/images/three-strokes.png.png";
 // assam-map-clean.webp ships with its "transparent" background baked in as an
 // opaque checkerboard (no real alpha channel) — assam-map-transparent.png is

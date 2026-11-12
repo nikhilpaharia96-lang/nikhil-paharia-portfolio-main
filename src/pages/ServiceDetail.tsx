@@ -51,7 +51,7 @@ function ToolBadge({ t }: { t: Tool }) {
     <div className="flex w-[92px] flex-col items-center gap-2 text-center sm:w-[104px]">
       <span className="flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-100 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg sm:h-[72px] sm:w-[72px]">
         {t.logo ? (
-          <img loading="lazy" decoding="async" src={t.logo} alt="" className="h-9 w-9 rounded-md" />
+          <img src={t.logo} alt="" className="h-9 w-9 rounded-md" />
         ) : Icon ? (
           <Icon className="text-3xl sm:text-[34px]" style={{ color: t.color }} />
         ) : (
@@ -152,7 +152,7 @@ export default function ServiceDetail() {
                     const Icon = b.icon;
                     return (
                       <span key={b.label} title={b.label} className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-md">
-                        {b.logo ? <img loading="lazy" decoding="async" src={b.logo} alt={b.label} className="h-7 w-7 rounded-md" /> : Icon ? <Icon className="text-2xl" style={{ color: b.color }} /> : <span className="text-lg font-extrabold" style={{ color: b.color }}>{b.text}</span>}
+                        {b.logo ? <img src={b.logo} alt={b.label} className="h-7 w-7 rounded-md" /> : Icon ? <Icon className="text-2xl" style={{ color: b.color }} /> : <span className="text-lg font-extrabold" style={{ color: b.color }}>{b.text}</span>}
                       </span>
                     );
                   })}

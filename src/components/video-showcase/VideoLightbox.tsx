@@ -192,7 +192,7 @@ export default function VideoLightbox({ items, index, onIndexChange, onClose }: 
                     className={`absolute inset-0 transition-opacity duration-500 ${loaded ? "opacity-0 pointer-events-none" : "opacity-100"}`}
                     aria-hidden={loaded}
                   >
-                    {item.image && <img loading="lazy" decoding="async" src={item.image} alt="" className="absolute inset-0 w-full h-full object-cover" />}
+                    {item.image && <img src={item.image} alt="" className="absolute inset-0 w-full h-full object-cover" />}
                     <div className="absolute inset-0 bg-black/55" />
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-white/90">
                       <span className="w-10 h-10 rounded-full border-2 border-white/25 border-t-white animate-spin motion-reduce:animate-none" />

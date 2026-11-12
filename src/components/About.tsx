@@ -1920,12 +1920,12 @@ export default function About() {
                   style={{}}
                 >
                   <NotebookPage className="p-0 flex items-center justify-center overflow-hidden">
-                    <img loading="lazy" decoding="async" src={aboutPage1} alt="About Me — The Beginning: from a tea garden village in Assam to building things on the internet" draggable={false} className="w-full h-full object-contain select-none" />
+                    <img src={aboutPage1} alt="About Me — The Beginning: from a tea garden village in Assam to building things on the internet" draggable={false} className="w-full h-full object-contain select-none" />
                   </NotebookPage>
 
                   {/* ═══════════ PAGE 2 ═══════════ */}
                   <NotebookPage className="p-0 flex items-center justify-center overflow-hidden">
-                    <img loading="lazy" decoding="async" src={aboutPage2} alt="About Me — Art with a purpose: what I do, tech I work with, daily fuel" draggable={false} className="w-full h-full object-contain select-none" />
+                    <img src={aboutPage2} alt="About Me — Art with a purpose: what I do, tech I work with, daily fuel" draggable={false} className="w-full h-full object-contain select-none" />
                   </NotebookPage>
 
                   {/* ═══════════ PAGES 3–10 — the photo gallery ═══════════

@@ -161,7 +161,7 @@ function GlassSkillCard({ skill, index }: { skill: Skill; index: number }) {
                          transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:rotate-3 overflow-hidden"
             >
               {skill.logo ? (
-                <img loading="lazy" decoding="async" src={skill.logo} alt="" className="w-5 h-5 sm:w-6 sm:h-6 rounded-md" />
+                <img src={skill.logo} alt="" className="w-5 h-5 sm:w-6 sm:h-6 rounded-md" />
               ) : Icon ? (
                 <Icon className="text-lg sm:text-xl" style={{ color: skill.color }} />
               ) : null}

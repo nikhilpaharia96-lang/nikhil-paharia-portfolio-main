@@ -19,18 +19,6 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist"),
     emptyOutDir: true,
-    rollupOptions: {
-      output: {
-        manualChunks(id: string) {
-          if (!id.includes("node_modules")) return undefined;
-          if (/framer-motion|motion-dom|motion-utils/.test(id)) return "vendor-motion";
-          if (/node_modules\/gsap/.test(id)) return "vendor-gsap";
-          if (/@radix-ui|cmdk|vaul|embla/.test(id)) return "vendor-ui";
-          if (/node_modules\/(react|react-dom|scheduler|wouter)\//.test(id)) return "vendor-react";
-          return undefined;
-        },
-      },
-    },
   },
   server: { port, host: "0.0.0.0", allowedHosts: true },
   preview: { port, host: "0.0.0.0", allowedHosts: true },
