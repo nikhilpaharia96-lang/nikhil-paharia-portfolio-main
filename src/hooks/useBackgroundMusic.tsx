@@ -73,7 +73,7 @@ export function useBackgroundMusic() {
   React.useEffect(() => {
     const audio = new Audio();
     audio.loop = true;
-    audio.preload = "auto";
+    audio.preload = "metadata";
     audio.volume = readVolume();
     audio.muted = readMuted();
 

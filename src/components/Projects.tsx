@@ -643,7 +643,7 @@ function FolderExpanded({
           </span>
         </div>
         <div className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden">
-          <img
+          <img loading="lazy" decoding="async"
             src={project.image}
             alt={`${project.title} — screenshot`}
             draggable={false}
