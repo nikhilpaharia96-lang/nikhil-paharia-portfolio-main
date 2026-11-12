@@ -54,7 +54,7 @@ export default function LoadingScreen() {
           animate={prefersReducedMotion ? undefined : { scale: [1, 1.05, 1] }}
           transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
         >
-          <img src={npLogo} alt="Nikhil Paharia" className="w-9 h-9 sm:w-11 sm:h-11 object-contain" />
+          <img loading="lazy" decoding="async" src={npLogo} alt="Nikhil Paharia" className="w-9 h-9 sm:w-11 sm:h-11 object-contain" />
         </motion.div>
 
         {prefersReducedMotion ? (

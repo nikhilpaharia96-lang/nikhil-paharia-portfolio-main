@@ -202,7 +202,7 @@ export default function FloatingLeaves({ density = 1, className = "" }: Floating
           >
             <div className="leaf__fall">
               <div className="leaf__sway">
-                <img
+                <img loading="lazy"
                   className={`leaf__img${leaf.spin ? " leaf__img--spin" : ""}`}
                   src={leaf.src}
                   alt=""

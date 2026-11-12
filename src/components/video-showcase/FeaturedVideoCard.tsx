@@ -293,7 +293,7 @@ export default function FeaturedVideoCard() {
                 }`}
               >
                 <div className={`absolute inset-0 transition-opacity duration-500 ${loaded ? "opacity-0 pointer-events-none" : "opacity-100"}`} aria-hidden={loaded}>
-                  <img src={current.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                  <img loading="lazy" decoding="async" src={current.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/55 flex flex-col items-center justify-center gap-3 text-white/90">
                     <span className="w-10 h-10 rounded-full border-2 border-white/25 border-t-white animate-spin motion-reduce:animate-none" />
                     <span className="text-[11px] font-semibold uppercase tracking-[0.16em]">Loading film…</span>

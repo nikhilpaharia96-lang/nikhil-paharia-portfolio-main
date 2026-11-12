@@ -4,10 +4,10 @@ import {
   Tv,
   Heart,
 } from "lucide-react";
-import mistyValley from "@/assets/images/tea-garden-about.png";
+import mistyValley from "@/assets/images/tea-garden-about.webp";
 import cliffSunset from "@/assets/images/tea-sunset-person-wide.webp";
 import teaPortrait from "@/assets/images/tea-sunset-portrait.webp";
-import teaGarden from "@/assets/images/tea-garden-hero.png";
+import teaGarden from "@/assets/images/tea-garden-hero.webp";
 import creatorPhoto from "@/assets/images/my-new-photo.jpg";
 import vid1 from "@/assets/images/video-1.png";
 import vid2 from "@/assets/images/video-2.png";
