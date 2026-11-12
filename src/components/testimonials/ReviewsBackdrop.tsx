@@ -54,8 +54,8 @@ function Column({ items, dir, speed }: { items: Testimonial[]; dir: "up" | "down
       <div className={`rb-track rb-track--${dir}`} style={{ animationDuration: `${speed}s` }}>
         {[0, 1].map((copy) => (
           <div key={copy} className="rb-set" aria-hidden={copy === 1 ? "true" : undefined}>
-            {items.map((t) => (
-              <ReviewCard key={`${copy}-${t.id}`} t={t} />
+            {items.map((t, i) => (
+              <ReviewCard key={`${copy}-${i}-${t.id}`} t={t} />
             ))}
           </div>
         ))}
