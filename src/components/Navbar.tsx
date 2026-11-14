@@ -278,6 +278,14 @@ export default function Navbar() {
             );
           })}
         </ul>
+        <div className="px-3 pb-2">
+          <a
+            href="/studynova"
+            className={`flex items-center justify-between rounded-none border border-[#1266F1]/25 px-4 py-3 text-[14px] font-semibold uppercase tracking-[0.08em] text-[#1266F1] hover:bg-blue-50/70 ${focusRing}`}
+          >
+            StudyNova AI <span className="text-[10px] tracking-wider opacity-70">Prototype</span>
+          </a>
+        </div>
         <div className="px-3 pb-3 sm:hidden">
           <a
             href="#contact"
