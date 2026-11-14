@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useLocation } from "wouter";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import "../studynova/studynova.css";
 import Header from "../studynova/components/Header";
 import CommandBox from "../studynova/components/CommandBox";
@@ -20,6 +23,20 @@ export default function StudyNova() {
   const [text, setText] = useState("");
   const [present, setPresent] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
+  const [, navigate] = useLocation();
+
+  // Open at top, and send the site Navbar/Footer anchors (#about, #contact…) to the home page.
+  useEffect(() => { window.scrollTo({ top: 0, behavior: "auto" }); }, []);
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      const a = (e.target as HTMLElement | null)?.closest?.("a[href^='#']") as HTMLAnchorElement | null;
+      if (!a || a.closest(".sn-subnav")) return;
+      e.preventDefault(); e.stopPropagation();
+      navigate(`/${a.getAttribute("href")}`);
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, [navigate]);
 
   useEffect(() => { const prev = document.title; document.title = "StudyNova AI — Prototype"; return () => { document.title = prev; }; }, []);
 
@@ -31,19 +48,19 @@ export default function StudyNova() {
 
   return (
     <div className="sn-root" style={{ minHeight: "100vh" }}>
-      <div className="sn-bg" aria-hidden="true" />
-      <Header onPresent={() => setPresent(true)} />
-      <main>
+      <Navbar />
+      <main style={{ paddingTop: "6.5rem" }}>
+        <Header onPresent={() => setPresent(true)} />
         <section id="command" className="sn-section"><div className="sn-wrap">
           <p className="sn-eyebrow">Hackathon prototype</p>
-          <h1 className="sn-h2" style={{ fontSize: "clamp(2rem,5.5vw,4rem)", margin: 0 }}>Your entire world, <span className="sn-grad">powered by one AI.</span></h1>
+          <h1 className="sn-h2 sn-hero-h1" style={{ fontSize: "clamp(2rem,5.5vw,3.6rem)", lineHeight: 1.08 }}>Your entire world, <span className="sn-grad">powered by one AI.</span></h1>
           <p className="sn-lead">Learn, create, work and grow with an intelligent AI companion.</p>
-          <div style={{ display: "flex", gap: ".5rem", alignItems: "center", flexWrap: "wrap", margin: ".6rem 0 1rem" }}>
+          <div style={{ display: "flex", gap: ".5rem", alignItems: "center", justifyContent: "center", flexWrap: "wrap", margin: ".6rem 0 1rem" }}>
             <SimBadge label="Scripted prototype — sample data, no real AI" />
             <button className="sn-chip" onClick={() => setFast(!fast)} aria-pressed={fast} style={{ cursor: "pointer" }}>Speed: {fast ? "Fast" : "Normal"}</button>
           </div>
           <CommandBox value={text} setValue={setText} busy={state.phase === "running"} onSubmit={(p) => start(p)} />
-          <div style={{ display: "flex", gap: ".5rem", flexWrap: "wrap", marginTop: ".8rem" }}>
+          <div style={{ display: "flex", gap: ".5rem", flexWrap: "wrap", justifyContent: "center", marginTop: ".8rem" }}>
             {EXAMPLE_PROMPTS.map((p) => <button key={p.text} className="sn-chip" style={{ cursor: "pointer" }} onClick={() => { setText(p.text); start(p.text, p.demo); }}>{p.text}</button>)}
           </div>
           <div ref={resultRef} style={{ marginTop: "1.5rem", scrollMarginTop: "5rem" }}>
@@ -77,6 +94,7 @@ export default function StudyNova() {
           <p className="sn-muted" style={{ fontSize: ".8rem", marginTop: ".8rem" }}>StudyNova AI is a hackathon prototype. All results are pre-written samples; no real AI, WhatsApp or server is used.</p>
         </div></section>
       </main>
+      <Footer />
       {present && <Presentation onClose={() => setPresent(false)} />}
     </div>
   );
