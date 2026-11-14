@@ -12,6 +12,7 @@ import Wearable from "../studynova/components/Wearable";
 import Architecture from "../studynova/components/Architecture";
 import PrototypeNotes from "../studynova/components/PrototypeNotes";
 import Presentation from "../studynova/components/Presentation";
+import Board from "../studynova/components/Board";
 import SimBadge from "../studynova/components/SimBadge";
 import { Gallery } from "../studynova/components/MediaSlot";
 import { useNovaRun } from "../studynova/hooks/useNovaRun";
@@ -49,18 +50,20 @@ export default function StudyNova() {
   return (
     <div className="sn-root" style={{ minHeight: "100vh" }}>
       <Navbar />
-      <main style={{ paddingTop: "6.5rem" }}>
+      <main style={{ paddingTop: "6rem" }}>
         <Header onPresent={() => setPresent(true)} />
-        <section id="command" className="sn-section"><div className="sn-wrap">
-          <p className="sn-eyebrow">Hackathon prototype</p>
-          <h1 className="sn-h2 sn-hero-h1" style={{ fontSize: "clamp(2rem,5.5vw,3.6rem)", lineHeight: 1.08 }}>Your entire world, <span className="sn-grad">powered by one AI.</span></h1>
-          <p className="sn-lead">Learn, create, work and grow with an intelligent AI companion.</p>
-          <div style={{ display: "flex", gap: ".5rem", alignItems: "center", justifyContent: "center", flexWrap: "wrap", margin: ".6rem 0 1rem" }}>
+        <section id="command" className="sn-section" style={{ paddingTop: "1.5rem" }}><div className="sn-wrap">
+          <Board id="hero" alt="StudyNova AI — Meet the future of AI. One AI. Your entire world." />
+          <div style={{ height: "2.2rem" }} />
+          <p className="sn-eyebrow">Ideathon '26 · Prototype</p>
+          <h1 className="sn-h2 sn-hero-h1" style={{ fontSize: "clamp(2.4rem,7vw,4.6rem)" }}>Your entire world, <span className="sn-mark">powered by one AI.</span></h1>
+          <p className="sn-lead">Learn, create, work and grow with an intelligent AI companion. Type an instruction below and watch Nova Brain plan the result.</p>
+          <div style={{ display: "flex", gap: ".5rem", alignItems: "center", flexWrap: "wrap", margin: ".6rem 0 1rem" }}>
             <SimBadge label="Scripted prototype — sample data, no real AI" />
             <button className="sn-chip" onClick={() => setFast(!fast)} aria-pressed={fast} style={{ cursor: "pointer" }}>Speed: {fast ? "Fast" : "Normal"}</button>
           </div>
           <CommandBox value={text} setValue={setText} busy={state.phase === "running"} onSubmit={(p) => start(p)} />
-          <div style={{ display: "flex", gap: ".5rem", flexWrap: "wrap", justifyContent: "center", marginTop: ".8rem" }}>
+          <div style={{ display: "flex", gap: ".5rem", flexWrap: "wrap", marginTop: ".9rem" }}>
             {EXAMPLE_PROMPTS.map((p) => <button key={p.text} className="sn-chip" style={{ cursor: "pointer" }} onClick={() => { setText(p.text); start(p.text, p.demo); }}>{p.text}</button>)}
           </div>
           <div ref={resultRef} style={{ marginTop: "1.5rem", scrollMarginTop: "5rem" }}>
@@ -68,21 +71,41 @@ export default function StudyNova() {
           </div>
         </div></section>
 
+        <section id="problem" className="sn-section"><div className="sn-wrap">
+          <p className="sn-eyebrow">01 · The problem</p><h2 className="sn-h2">Too many tools. <span className="sn-mark">One companion.</span></h2>
+          <p className="sn-lead">Students, business owners and creators juggle disconnected apps. People need one intelligent companion.</p>
+          <Board id="problem" alt="The problem: the world has too many tools, people need one intelligent companion." stamp="It's time for a change" />
+        </div></section>
+
+        <section id="vision" className="sn-section"><div className="sn-wrap">
+          <p className="sn-eyebrow">02 · Our vision</p><h2 className="sn-h2">Imagine one AI that <span className="sn-mark">understands what you need.</span></h2>
+          <Board id="vision" alt="Vision: one intelligent ecosystem across education, business, creativity, research, development, productivity and automation." caption="One intelligent ecosystem. Unlimited possibilities." />
+        </div></section>
+
+        <section id="how" className="sn-section"><div className="sn-wrap">
+          <p className="sn-eyebrow">03 · Meet StudyNova AI</p><h2 className="sn-h2">One AI. <span className="sn-mark">Every possibility.</span></h2>
+          <Board id="how" alt="From a simple instruction to a complete result: Nova Learn, Nova Business, Nova Creator, Nova Life." stamp="Proposed AI ecosystem" caption="You give the idea. StudyNova helps build the result." />
+        </div></section>
+
         <section id="whatsapp" className="sn-section"><div className="sn-wrap">
-          <p className="sn-eyebrow">Coming soon</p><h2 className="sn-h2">StudyNova AI — Coming to WhatsApp</h2>
+          <p className="sn-eyebrow">04 · Coming soon</p><h2 className="sn-h2">StudyNova AI — Coming to WhatsApp</h2>
           <p className="sn-lead">A visual simulation of how a learner or business owner could use StudyNova inside WhatsApp.</p>
           <WhatsAppDemo />
         </div></section>
 
         <section id="ecosystem" className="sn-section"><div className="sn-wrap">
-          <p className="sn-eyebrow">Ecosystem</p><h2 className="sn-h2">Nine modules, one Nova Brain</h2>
+          <p className="sn-eyebrow">Ecosystem</p><h2 className="sn-h2">Nine modules, <span className="sn-mark">one Nova Brain</span></h2>
           <Ecosystem onRun={(d) => { runDemo(d); }} />
+          <div style={{ height: "2rem" }} />
+          <Board id="learn" alt="Nova Learn: one prompt becomes a complete learning package." stamp="Concept preview" caption="One prompt. A complete learning package." />
         </div></section>
 
         <section id="wearable" className="sn-section"><div className="sn-wrap"><Wearable /></div></section>
 
         <section id="architecture" className="sn-section"><div className="sn-wrap">
-          <p className="sn-eyebrow">Innovation</p><h2 className="sn-h2">How it fits together</h2><Architecture />
+          <p className="sn-eyebrow">Innovation</p><h2 className="sn-h2">How it fits together</h2>
+          <Board id="brain" alt="Nova Brain: understand, plan, select, process, deliver." stamp="Proposed system architecture" caption="Not just answering questions — coordinating actions." />
+          <div style={{ height: "2rem" }} /><Architecture />
         </div></section>
 
         <section id="gallery" className="sn-section"><div className="sn-wrap">
