@@ -11,6 +11,7 @@ import Hero from "@/components/Hero";
 import Marquee from "@/components/Marquee";
 import About from "@/components/About";
 import Projects from "@/components/Projects";
+import StudyNovaCard from "@/components/StudyNovaCard";
 import VideoShowcase from "@/components/video-showcase/VideoShowcase";
 import Services from "@/components/Services";
 import Testimonials from "@/components/testimonials/Testimonials";
@@ -24,6 +25,7 @@ import { captureAttribution } from "@/lib/attribution";
 
 // Private admin dashboard — lazy so it adds nothing to the public bundle.
 const Admin = lazy(() => import("@/pages/Admin"));
+const StudyNova = lazy(() => import("@/pages/StudyNova"));
 
 const queryClient = new QueryClient();
 
@@ -49,6 +51,7 @@ function Portfolio() {
         <Marquee />
         <About />
         <Projects />
+        <StudyNovaCard />
         <VideoShowcase />
         <Services />
         <Testimonials />
@@ -73,6 +76,7 @@ function App() {
               <Route path="/" component={Portfolio} />
               <Route path="/services/:slug" component={ServiceDetail} />
               <Route path="/payment" component={Support} />
+              <Route path="/studynova">{() => <Suspense fallback={null}><StudyNova /></Suspense>}</Route>
               <Route path="/admin">{() => <Suspense fallback={null}><Admin /></Suspense>}</Route>
               <Route component={NotFound} />
             </Switch>
