@@ -5,6 +5,7 @@ import {
   Loader2, LogOut, MessageCircle, RefreshCw, Search, Lock, Phone, Mail, Building2, CalendarDays, IndianRupee,
   Download, Copy, Eye, EyeOff, Trash2, Send, BellRing, TrendingUp,
 } from "lucide-react";
+import VisitorsPanel from "@/components/admin/VisitorsPanel";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import {
   BOOKING_STATUSES, STATUS_LABELS, MILESTONE_LABELS, WA_TEMPLATES, WA_TEMPLATE_LABELS, buildWhatsAppLink, bookingRef, istToday,
@@ -60,6 +61,7 @@ function exportCsv(rows: Booking[]) {
 
 export default function Admin() {
   const qc = useQueryClient();
+  const [tab, setTab] = useState<"leads" | "visitors">("leads");
   useEffect(() => {
     const prev = document.title;
     const m = document.createElement("meta");
@@ -74,12 +76,27 @@ export default function Admin() {
   if (!session.data?.authenticated) {
     return <Shell><Login configured={session.data?.configured ?? true} onDone={() => qc.invalidateQueries({ queryKey: ["admin"] })} /></Shell>;
   }
-  return <Shell wide><Dashboard onLogout={async () => { await api("logout", {}); qc.clear(); qc.invalidateQueries({ queryKey: ["admin"] }); }} /></Shell>;
+  const logout = async () => { await api("logout", {}); qc.clear(); qc.invalidateQueries({ queryKey: ["admin"] }); };
+  return (
+    <Shell wide>
+      <div role="tablist" aria-label="Admin sections" className="mb-5 inline-flex rounded-full border border-white/60 bg-white/70 p-1 shadow-lg backdrop-blur-xl">
+        {(["leads", "visitors"] as const).map((t) => (
+          <button key={t} role="tab" type="button" aria-selected={tab === t} onClick={() => setTab(t)}
+            className={`rounded-full px-5 py-2 text-sm font-bold capitalize transition-colors ${tab === t ? "bg-primary text-white" : "text-slate-600"}`}>
+            {t}
+          </button>
+        ))}
+      </div>
+      {/* Leads stays mounted (just hidden) so its filters/scroll survive switching tabs. */}
+      <div hidden={tab !== "leads"}><Dashboard onLogout={logout} /></div>
+      {tab === "visitors" && <VisitorsPanel onLogout={logout} />}
+    </Shell>
+  );
 }
 
 function Shell({ children, wide }: { children: ReactNode; wide?: boolean }) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50/60 px-4 py-8">
+    <div data-clarity-mask="true" className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50/60 px-4 py-8">
       <div className={`mx-auto ${wide ? "max-w-6xl" : "max-w-sm"}`}>{children}</div>
     </div>
   );

@@ -25,6 +25,7 @@ function safeStorage(kind: "local" | "session"): Storage | null {
 export function notifyVisit(): void {
   if (!trackingEligible() || import.meta.env.VITE_VISIT_NOTIFY_ENABLED === "false") return;
   if (navigator.webdriver) return;
+  if (window.location.pathname.startsWith("/admin")) return; // the private dashboard is never a "visit"
   if (consentRequired() && getStoredConsent() !== "granted") return;
 
   const local = safeStorage("local");

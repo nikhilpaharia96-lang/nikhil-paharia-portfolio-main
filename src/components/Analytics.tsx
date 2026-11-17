@@ -107,13 +107,14 @@ export default function Analytics() {
 
   // Page views (SPA route changes). Clarity also records URL changes natively; this adds a named event + tag.
   useEffect(() => {
+    if (path.startsWith("/admin")) return; // keep the private dashboard out of analytics
     track("page_view", { page_path: path });
     firedDepths.current = new Set();
   }, [path]);
 
   // Scroll depth: rAF-throttled passive listener, each milestone fires once per page view.
   useEffect(() => {
-    if (!isAnalyticsEnabled()) return;
+    if (!isAnalyticsEnabled() || path.startsWith("/admin")) return;
     let raf = 0;
     const measure = () => {
       raf = 0;

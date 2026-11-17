@@ -6,11 +6,12 @@ import { notifyForBooking } from "../_lib/bookingRuntime.js";
 import { BookingError } from "../_lib/bookingService.js";
 import { getStore, StoreNotConfiguredError } from "../_lib/bookingStore.js";
 import { getClientIp } from "../_lib/rateLimit.js";
-import { incrWindow } from "../_lib/visitStore.js";
+import { durableStoreConfigured, incrWindow, readVisits, VISIT_RETENTION_DAYS } from "../_lib/visitStore.js";
 
 // ONE function for every admin action (keeps the project under Vercel Hobby's 12-function limit):
 //   POST login · POST logout · GET session · GET bookings · POST update · POST record-payment
 //   POST delete (unpaid leads only) · POST resend (re-sends the confirmation emails / WhatsApp PDF)
+//   GET visitors (anonymous visit log for the Visitors tab — independent of the booking store)
 // Everything except login/logout/session requires the signed admin cookie. Client data is never
 // served by any public endpoint.
 
@@ -47,6 +48,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // ── everything below needs a valid admin session ──
     if (!isAuthed(req)) return res.status(401).json({ error: "Unauthorized." });
+
+    // Anonymous visit log (no IPs / user agents). Needs Upstash; handled before getStore() so it never depends on it.
+    if (action === "visitors" && req.method === "GET") {
+      if (!durableStoreConfigured()) return res.status(200).json({ storage: false, retentionDays: VISIT_RETENTION_DAYS, visits: [] });
+      const days = Math.min(Math.max(Number(req.query.days) || 7, 1), VISIT_RETENTION_DAYS);
+      return res.status(200).json({ storage: true, retentionDays: VISIT_RETENTION_DAYS, days, visits: await readVisits(Date.now() - days * 86_400_000) });
+    }
+
     const store = getStore();
 
     if (action === "bookings" && req.method === "GET") {

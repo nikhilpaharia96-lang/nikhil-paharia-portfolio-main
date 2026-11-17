@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createHash } from "node:crypto";
 import { checkRateLimit, getClientIp } from "./_lib/rateLimit.js";
 import { sendNotificationEmail } from "./_lib/sendEmail.js";
-import { claimOnce, incrWindow, releaseClaim } from "./_lib/visitStore.js";
+import { claimOnce, incrWindow, logVisit, releaseClaim } from "./_lib/visitStore.js";
 import { buildVisitorEmail, classifySource, formatLocation, isBotUserAgent, parseUserAgent } from "./_lib/visitor.js";
 
 /**
@@ -19,7 +19,8 @@ import { buildVisitorEmail, classifySource, formatLocation, isBotUserAgent, pars
  *   VISITOR_NOTIFY_MAX_PER_HOUR  global cap on emails per hour (default 20)
  *   VISITOR_NOTIFY_DEDUPE_HOURS  one email per unique visitor per N hours (default 24)
  *   CLARITY_PROJECT_ID           for the dashboard button (default z98h3pxnvk)
- *   UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN   durable dedupe + cap across instances
+ *   UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN   durable dedupe + cap across instances, and the /admin visit log
+ *   ADMIN_PASSWORD (12+ chars) / ADMIN_SESSION_SECRET   private /admin dashboard login (see api/admin/*)
  */
 
 const DEFAULT_HOSTS = "nikhilpaharia.online";
@@ -93,6 +94,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: "Invalid request body." });
   }
 
+  // The private admin page is never counted as a visit.
+  if (cleanPath(body.path).startsWith("/admin")) return quiet();
+
   const touch = Number(body.touch) || 0;
   const { device, browser, os } = parseUserAgent(ua as string, touch);
   const source = classifySource(cleanHost(body.ref), typeof body.utm === "string" ? body.utm : undefined, allowedHosts());
@@ -104,6 +108,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const salt = process.env.VISITOR_HASH_SALT || FALLBACK_SALT;
   const visitorKey = `visit:${createHash("sha256").update(`${salt}|${day}|${ip}|${ua}`).digest("hex").slice(0, 32)}`;
   if (!(await claimOnce(visitorKey, dedupeHours * 3600))) return quiet();
+
+  // Keep an anonymous record for the /admin dashboard (no-op unless Upstash is configured).
+  await logVisit({ t: Date.now(), p: cleanPath(body.path), s: source, d: device, b: browser, o: os, l: location });
 
   // Global hourly cap protects the Gmail/Resend quota if a flood slips past the filters.
   const maxPerHour = Math.max(1, Number(process.env.VISITOR_NOTIFY_MAX_PER_HOUR) || 20);

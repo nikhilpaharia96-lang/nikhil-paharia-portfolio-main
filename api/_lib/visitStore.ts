@@ -72,3 +72,47 @@ export async function incrWindow(key: string, ttlSeconds: number): Promise<numbe
   cur.n += 1;
   return cur.n;
 }
+
+/* ───────────────────────── Visit log (admin panel) ───────────────────────── */
+
+/** An anonymous visit — exactly the fields shown in the notification email. Never an IP or user agent string. */
+export interface VisitRecord {
+  t: number; // epoch ms
+  p: string; // path
+  s: string; // traffic source
+  d: string; // device
+  b: string; // browser
+  o: string; // OS
+  l?: string; // approximate location
+}
+
+export const VISIT_LOG_KEY = "visits:log";
+export const VISIT_RETENTION_DAYS = 90;
+const VISIT_LOG_MAX = 5000;
+
+/** Append a visit and prune anything older than the retention window. No-op without durable storage. */
+export async function logVisit(rec: VisitRecord): Promise<void> {
+  if (!durableStoreConfigured()) return;
+  try {
+    const member = JSON.stringify({ ...rec, id: Math.random().toString(36).slice(2, 8) }); // id keeps members unique
+    await redis(["ZADD", VISIT_LOG_KEY, rec.t, member]);
+    await redis(["ZREMRANGEBYSCORE", VISIT_LOG_KEY, "-inf", rec.t - VISIT_RETENTION_DAYS * 86_400_000]);
+    await redis(["ZREMRANGEBYRANK", VISIT_LOG_KEY, 0, -(VISIT_LOG_MAX + 1)]);
+  } catch {
+    /* logging must never break the visit flow */
+  }
+}
+
+/** Newest-first visits since `sinceMs`. Throws if storage fails so the admin UI can show an error. */
+export async function readVisits(sinceMs: number, limit = 1500): Promise<VisitRecord[]> {
+  if (!durableStoreConfigured()) return [];
+  const rows = (await redis(["ZREVRANGEBYSCORE", VISIT_LOG_KEY, "+inf", sinceMs, "LIMIT", 0, limit])) as string[];
+  return rows.flatMap((r) => {
+    try {
+      const { id: _id, ...rec } = JSON.parse(r) as VisitRecord & { id?: string };
+      return [rec];
+    } catch {
+      return [];
+    }
+  });
+}
