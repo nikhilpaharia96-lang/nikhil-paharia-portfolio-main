@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { X, ArrowUpRight } from "lucide-react";
-import brandLogo from "../assets/logos/nikhil-paharia-logo-v2.webp";
+import brandMark from "../assets/logos/np-mark.webp";
 import { lockBodyScroll } from "@/lib/scrollLock";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -159,15 +159,21 @@ export default function Navbar() {
           aria-label="Nikhil Paharia — back to top"
           className={`group flex items-center min-w-0 rounded-none pr-2 ${focusRing}`}
         >
-          {/* Full logo lockup: NP mark + divider + "Nikhil Paharia" (transparent PNG → webp) */}
+          {/* NP mark + divider (image) and the name set in Futura (Jost as free fallback) */}
           <img
-            src={brandLogo}
+            src={brandMark}
             alt=""
-            width={1100}
+            width={345}
             height={261}
             decoding="async"
-            className="h-[min(44px,calc((100vw-168px)/4.215))] sm:h-12 xl:h-[54px] 2xl:h-[62px] w-auto max-w-full shrink-0 transition duration-300 group-hover:scale-[1.03] group-hover:drop-shadow-[0_4px_10px_rgba(18,102,241,0.3)] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            className="h-[34px] sm:h-10 xl:h-[46px] 2xl:h-[52px] w-auto shrink-0 transition duration-300 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
+          <span
+            className="ml-1 whitespace-nowrap font-bold tracking-tight leading-none text-[17px] min-[400px]:text-[19px] sm:text-[22px] xl:text-[25px] 2xl:text-[29px]"
+            style={{ fontFamily: 'Futura, "Futura PT", "Jost", "Century Gothic", sans-serif', fontWeight: 700 }}
+          >
+            <span className="np-name-first text-[#0b1530]">Nikhil</span> <span className="text-[#1266F1]">Paharia</span>
+          </span>
         </a>
 
         {/* Desktop links */}

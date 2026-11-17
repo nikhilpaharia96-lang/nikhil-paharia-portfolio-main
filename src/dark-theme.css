@@ -157,3 +157,6 @@ html.dark #about .page { filter: brightness(0.93); }
 
 /* ═════════════ Footer: dim the daylight cloud photos so links stay readable ═════════════ */
 html.dark footer img, html.dark footer [style*="background-image"] { filter: brightness(0.5) saturate(1.05); }
+
+/* Navbar name (Futura text): keep "Nikhil" readable on the dark navbar */
+html.dark .np-name-first { color: #f1f5ff; }
