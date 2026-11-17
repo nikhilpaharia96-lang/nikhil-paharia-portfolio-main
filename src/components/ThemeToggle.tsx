@@ -12,7 +12,7 @@ export default function ThemeToggle({ className = "" }: { className?: string }) 
       aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
       aria-pressed={dark}
       title={dark ? "Light mode" : "Dark mode"}
-      className={`theme-toggle relative w-11 h-11 shrink-0 rounded-full border flex items-center justify-center overflow-hidden transition-colors duration-300 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40 ${className}`}
+      className={`theme-toggle relative w-10 h-10 sm:w-11 sm:h-11 shrink-0 rounded-full border flex items-center justify-center overflow-hidden transition-colors duration-300 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40 ${className}`}
     >
       <Sun
         aria-hidden="true"

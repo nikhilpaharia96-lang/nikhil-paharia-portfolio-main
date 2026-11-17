@@ -166,13 +166,25 @@ export default function Navbar() {
             width={345}
             height={261}
             decoding="async"
-            className="h-[34px] sm:h-10 xl:h-[46px] 2xl:h-[52px] w-auto shrink-0 transition duration-300 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            className="h-[38px] sm:h-[46px] xl:h-[52px] 2xl:h-[58px] w-auto shrink-0 transition duration-300 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
-          <span
-            className="ml-1 whitespace-nowrap font-bold tracking-tight leading-none text-[17px] min-[400px]:text-[19px] sm:text-[22px] xl:text-[25px] 2xl:text-[29px]"
-            style={{ fontFamily: 'Futura, "Futura PT", "Jost", "Century Gothic", sans-serif', fontWeight: 700 }}
-          >
-            <span className="np-name-first text-[#0b1530]">Nikhil</span> <span className="text-[#1266F1]">Paharia</span>
+          <span className="ml-1.5 inline-flex flex-col items-stretch">
+            <span
+              className="whitespace-nowrap font-bold tracking-tight leading-none text-[18px] min-[400px]:text-[21px] sm:text-[25px] xl:text-[28px] 2xl:text-[32px]"
+              style={{ fontFamily: 'Futura, "Futura PT", "Jost", "Century Gothic", sans-serif', fontWeight: 700 }}
+            >
+              <span className="np-name-first text-[#0b1530]">Nikhil</span> <span className="text-[#1266F1]">Paharia</span>
+            </span>
+            {/* Curved underline swoosh (as in the original logo) */}
+            <svg viewBox="0 0 200 10" preserveAspectRatio="none" aria-hidden="true" className="mt-[5px] h-[6px] sm:h-[8px] w-full">
+              <defs>
+                <linearGradient id="np-swoosh" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stopColor="#1266F1" />
+                  <stop offset="1" stopColor="#1266F1" stopOpacity="0.15" />
+                </linearGradient>
+              </defs>
+              <path d="M1 7.5 C 50 1.5, 130 1.5, 199 6.5 C 130 4.2, 50 4.8, 1 7.5 Z" fill="url(#np-swoosh)" />
+            </svg>
           </span>
         </a>
 
@@ -225,7 +237,7 @@ export default function Navbar() {
           <button
             ref={toggleRef}
             type="button"
-            className={`nav-icon-btn xl:hidden w-11 h-11 rounded-full bg-white/60 border border-blue-100 text-[#172033] flex items-center justify-center hover:bg-blue-50 transition-colors motion-reduce:transition-none ${focusRing}`}
+            className={`nav-icon-btn xl:hidden w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/60 border border-blue-100 text-[#172033] flex items-center justify-center hover:bg-blue-50 transition-colors motion-reduce:transition-none ${focusRing}`}
             onClick={() => setMenuOpen((o) => !o)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
