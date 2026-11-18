@@ -150,7 +150,7 @@ export default function Services() {
           transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
           className="text-center mb-20"
         >
-          <motion.h2 style={{ scale }} className="section-title mb-4 inline-block">
+          <motion.h2 style={{ scale, fontFamily: 'Futura, "Futura PT", "Jost", "Century Gothic", sans-serif', fontWeight: 700, letterSpacing: "-0.02em" }} className="section-title mb-4 inline-block">
             What I <span className="text-gradient">Offer</span>
           </motion.h2>
           <div className="section-divider mx-auto" />
