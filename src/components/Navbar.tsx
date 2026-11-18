@@ -173,7 +173,7 @@ export default function Navbar() {
               className="whitespace-nowrap font-bold tracking-tight leading-none text-[18px] min-[400px]:text-[21px] sm:text-[25px] xl:text-[28px] 2xl:text-[32px]"
               style={{ fontFamily: 'Futura, "Futura PT", "Jost", "Century Gothic", sans-serif', fontWeight: 700 }}
             >
-              <span className="np-name-first text-[#0b1530]">Nikhil</span> <span className="text-[#1266F1]">Paharia</span>
+              <span className="np-name-first text-[#0b1530]">Nikhil</span> <span className="name-shimmer">Paharia</span>
             </span>
             {/* Curved underline swoosh (as in the original logo) */}
             <svg viewBox="0 0 200 10" preserveAspectRatio="none" aria-hidden="true" className="mt-[5px] h-[6px] sm:h-[8px] w-full">

@@ -814,3 +814,17 @@ body::before {
 @media (prefers-reduced-motion: reduce) {
   .rb-track { animation: none; }
 }
+
+
+/* ── Name shimmer (same effect as the "Northeast India" headline on ApunBazar):
+   a bright highlight sweeps across the gradient text, looping. */
+@keyframes name-shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+.name-shimmer {
+  color: #1266f1;
+  background-image: linear-gradient(90deg, #0b4fd8 0%, #1266f1 28%, #4f9bff 46%, #1266f1 64%, #0b4fd8 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: name-shimmer 3s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) { .name-shimmer { animation: none; } }

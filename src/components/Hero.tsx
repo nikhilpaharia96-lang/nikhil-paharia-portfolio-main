@@ -428,7 +428,7 @@ export default function Hero() {
                   </motion.svg>
                 </span>
                 <span className="block relative" style={{ width: 'fit-content', maxWidth: '100%' }}>
-                  <SplitText type="chars" delay={0.35} charClassName="gradient-text">Paharia</SplitText>
+                  <SplitText type="chars" delay={0.35} charClassName="gradient-text name-shimmer">Paharia</SplitText>
                   {/* Three-strokes accent — above the last "a" in Paharia,
                       replacing the old paint-drops decoration */}
                   <img
@@ -789,7 +789,7 @@ export default function Hero() {
                 className="font-bold text-4xl xl:text-5xl 2xl:text-6xl"
                 style={{ lineHeight: 1.0, letterSpacing: '-0.02em' }}
               >
-                <SplitText type="chars" delay={0.3} className="gradient-text">Nikhil Paharia</SplitText>
+                <SplitText type="chars" delay={0.3} className="gradient-text name-shimmer">Nikhil Paharia</SplitText>
               </h1>
               <motion.svg
                 viewBox="60 4 640 29"

@@ -225,3 +225,10 @@ html.dark .btn-primary { background-color: #c8ff00; color: #0a0a0a; box-shadow: 
 html.dark .btn-primary:hover { background-color: #ff6a00; }
 html.dark [class*="to-sky-500"] { --tw-gradient-to: #ff8a1f; }
 html.dark [class*="from-primary"][class*="text-white"], html.dark [class*="from-primary"] [class*="text-white"], html.dark [class*="from-primary"] svg { color: #0a0a0a; }
+
+html.dark .name-shimmer {
+  color: #c8ff00;
+  background-image: linear-gradient(90deg, #c8ff00 0%, #e8ff5a 25%, #ffffff 45%, #e8ff5a 65%, #c8ff00 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
