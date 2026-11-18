@@ -51,3 +51,28 @@ unconfigured and never blocks a booking. Leave `WHATSAPP_TOKEN` unset when using
   its **source**; `/admin` → Insights → *By source*.
 - Optional `VITE_CAL_LINK` adds "Book a free 15-minute call" on service pages and after an enquiry.
 - `tools/leadgen/` — Google-Maps CSV → scored leads → listmonk-ready outreach lists. See its README.
+
+## Optional: UPI Gateway instead of Razorpay
+Takes the booking token through the self-hosted [UPI Gateway](https://github.com/mynkdev-21/upi-gateway) (Laravel app you host
+separately on cPanel/VPS — it cannot run on Vercel). Razorpay stays as the default; nothing changes until you set the env vars.
+
+1. Install the gateway, add your UPI/PG account, then in its dashboard: **Settings → allowed redirect domains** = your site's
+   domain, and **API & Webhooks** → copy the API key/secret and the *Live* webhook signing secret.
+2. Webhook URL in the gateway: `https://<site>/api/booking/upi-webhook`.
+3. Vercel env vars:
+   `BOOKING_PAYMENT_PROVIDER=upi`, `UPI_GATEWAY_URL=https://pay.yourdomain.com`, `UPI_GATEWAY_API_KEY`,
+   `UPI_GATEWAY_API_SECRET`, `UPI_GATEWAY_WEBHOOK_SECRET`, `SITE_URL=https://yourdomain.com`.
+   (Use the `test_key_…` / `test_sec_…` pair first — it creates sandbox orders only.) Remove `BOOKING_PAYMENT_PROVIDER` to go back to Razorpay.
+4. Redeploy.
+
+Flow: `create-order` saves the lead, computes the token server-side, creates a gateway order → browser is redirected to the
+gateway's hosted checkout → after payment the gateway sends the customer to `/booking/return?order_id=…` → that page calls
+`verify-payment` (`upi_order_id`) which **re-reads the order from the gateway API** and requires `paid`, INR, the exact token and
+our own `client_order_id` (`bk_<lead>_<n>`). `/api/booking/upi-webhook` (HMAC `t=…,v1=…`, 5-min window) is the safety net for
+customers who never come back; it also re-fetches instead of trusting the body. Each order is applied once (same atomic claim).
+`?status=paid` in the URL is never trusted.
+
+Notes: gateway max per order is ₹1,00,000 (larger tokens are refused → use enquiry). Orders expire (~15 min) — a retry creates a
+new order for the same lead. Functions used: 12/12 on Vercel Hobby (the new `upi-webhook` is the 12th). Paytm *Business*
+verification in the gateway is unofficial and manual-UTR orders land in "review" (we show "verifying" and confirm only when
+the gateway marks it paid) — for real client money prefer a Paytm PG / PhonePe PG account or a current-account VPA.

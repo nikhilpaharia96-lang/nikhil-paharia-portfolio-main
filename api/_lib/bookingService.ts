@@ -9,6 +9,7 @@ import {
 } from "../../shared/booking.js";
 import { SERVICE_PRICES, computeQuote, normalizeSplit, type ServiceSlug, type SplitPercents } from "../../shared/servicePricing.js";
 import type { BookingStore } from "./bookingStore.js";
+import type { UpiOrder } from "./upiGateway.js";
 
 /**
  * The payment-critical logic, kept free of HTTP and of the Razorpay SDK so it can be unit-tested
@@ -50,9 +51,16 @@ export interface Gateway {
   fetchPayment(paymentId: string): Promise<GatewayPayment>;
 }
 
+/** UPI Gateway port (see api/_lib/upiGateway.ts). When present, new checkouts use it instead of Razorpay. */
+export interface UpiPort {
+  createOrder(args: { amountRupees: number; clientOrderId: string; name: string; email: string; mobile: string; note: string }): Promise<UpiOrder>;
+  fetchOrder(orderId: string): Promise<UpiOrder>;
+}
+
 export interface Deps {
   store: BookingStore;
   gateway: Gateway;
+  upi?: UpiPort;
   split?: SplitPercents;
   now?: () => number;
   sleep?: (ms: number) => Promise<void>;
@@ -67,6 +75,9 @@ const CLAIM_TTL = 60 * 60 * 24 * 90;
 const iso = (deps: Deps) => new Date((deps.now ?? Date.now)()).toISOString();
 
 export interface StartResult {
+  provider: "razorpay" | "upi";
+  /** Hosted UPI checkout the browser must be sent to (provider "upi" only). */
+  paymentUrl?: string;
   leadId: string;
   orderId: string;
   amount: number;
@@ -146,20 +157,37 @@ export async function startBooking(deps: Deps, raw: unknown, leadId?: unknown): 
   if (!booking.source && value.source) booking.source = value.source; // first touch wins
   await deps.store.save(booking); // lead captured before any payment is attempted
 
-  const order = await deps.gateway.createOrder({
-    amountPaise: quote.token * 100, // whole rupees → paise, exact
-    receipt: `bk_${booking.id.slice(0, 8)}_${booking.orders.length + 1}`,
-    notes: {
-      source: "service-booking",
-      lead: booking.id,
-      service: slug,
-      total: String(quote.total),
-      token_pct: String(quote.tokenPercent),
-      start_pct: String(quote.startPercent),
-      name: value.name.slice(0, 100),
-      phone: value.phone,
-    },
-  });
+  const receipt = `bk_${booking.id.slice(0, 8)}_${booking.orders.length + 1}`;
+  let order: { id: string; amount: number; currency: string };
+  let paymentUrl: string | undefined;
+  if (deps.upi) {
+    if (quote.token > 100_000) throw new BookingError(400, "Booking token is above the UPI limit — please send an enquiry instead.");
+    const u = await deps.upi.createOrder({
+      amountRupees: quote.token,
+      clientOrderId: receipt,
+      name: value.name,
+      email: value.email,
+      mobile: value.phone,
+      note: `Booking token ${booking.serviceTitle}`,
+    });
+    order = { id: u.order_id, amount: quote.token * 100, currency: "INR" };
+    paymentUrl = u.payment_url;
+  } else {
+    order = await deps.gateway.createOrder({
+      amountPaise: quote.token * 100, // whole rupees → paise, exact
+      receipt,
+      notes: {
+        source: "service-booking",
+        lead: booking.id,
+        service: slug,
+        total: String(quote.total),
+        token_pct: String(quote.tokenPercent),
+        start_pct: String(quote.startPercent),
+        name: value.name.slice(0, 100),
+        phone: value.phone,
+      },
+    });
+  }
 
   booking.orders.push(order.id);
   booking.orderId = order.id;
@@ -167,6 +195,8 @@ export async function startBooking(deps: Deps, raw: unknown, leadId?: unknown): 
   await deps.store.linkOrder(order.id, booking.id);
 
   return {
+    provider: deps.upi ? "upi" : "razorpay",
+    paymentUrl,
     leadId: booking.id,
     orderId: order.id,
     amount: order.amount,
@@ -299,13 +329,28 @@ export async function confirmPayment(
     throw new BookingError(400, "Payment could not be verified.");
   }
 
-  // Idempotency: exactly one caller applies this payment id.
+  return applyPayment(deps, booking, { paymentId, orderId, amountRupees: payment.amount / 100, method: "razorpay" });
+}
+
+interface Applied {
+  paymentId: string;
+  orderId: string;
+  amountRupees: number;
+  method: "razorpay" | "upi";
+  utr?: string;
+}
+
+/** Records one verified payment exactly once (atomic claim), then fires best-effort notifications. */
+async function applyPayment(deps: Deps, booking: Booking, a: Applied): Promise<Receipt> {
+  const { paymentId, orderId } = a;
+  const sleep = deps.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
+  const same = (p: PaymentRecord) => p.razorpayPaymentId === paymentId || p.upiOrderId === paymentId;
   const claimKey = `pay:${paymentId}`;
   const won = await deps.store.claim(claimKey, CLAIM_TTL);
   if (!won) {
     for (let i = 0; i < 4; i++) {
       const cur = await deps.store.get(booking.id);
-      if (cur?.payments.some((p) => p.razorpayPaymentId === paymentId)) return receiptOf(cur, paymentId, orderId);
+      if (cur?.payments.some(same)) return receiptOf(cur, paymentId, orderId);
       await sleep(400);
     }
     // The winner is still writing; the payment itself is verified, so the receipt is still true.
@@ -319,10 +364,9 @@ export async function confirmPayment(
     const record: PaymentRecord = {
       id: crypto.randomUUID(),
       milestone: "token",
-      amount: payment.amount / 100,
-      method: "razorpay",
-      razorpayPaymentId: paymentId,
-      razorpayOrderId: orderId,
+      amount: a.amountRupees,
+      method: a.method,
+      ...(a.method === "razorpay" ? { razorpayPaymentId: paymentId, razorpayOrderId: orderId } : { upiOrderId: orderId, utr: a.utr }),
       at: ts,
       note: alreadyPaid ? "Possible duplicate payment for the same booking — consider a refund." : undefined,
     };
@@ -347,6 +391,36 @@ export async function confirmPayment(
     await deps.store.release(claimKey).catch(() => undefined); // let a retry / the webhook try again
     throw err;
   }
+}
+
+/**
+ * Confirms a booking token paid through the UPI Gateway. The gateway's order is re-read server-to-server
+ * (never trusted from the browser or the webhook body) and must be paid, INR, exactly the expected token,
+ * and carry OUR client_order_id for this booking. Safe to call repeatedly (return page, polling, webhook).
+ */
+export async function confirmUpiPayment(deps: Deps, args: { orderId: string }): Promise<Receipt> {
+  if (!deps.upi) throw new BookingError(500, "UPI payments are not configured.");
+  const { orderId } = args;
+  const booking = await deps.store.getByOrder(orderId);
+  if (!booking) throw new BookingError(404, "Payment could not be verified.");
+
+  const order = await deps.upi.fetchOrder(orderId);
+  if (order.order_id !== orderId || !order.client_order_id.startsWith(`bk_${booking.id.slice(0, 8)}_`)) {
+    throw new BookingError(400, "Payment could not be verified.");
+  }
+  if (order.status === "review") {
+    throw new BookingError(409, "We received your payment details and are verifying them. You'll get a confirmation shortly — please don't pay again.");
+  }
+  if (order.status === "pending") throw new BookingError(409, "Payment is not completed yet.");
+  if (order.status !== "paid") {
+    throw new BookingError(order.status === "expired" ? 410 : 402, order.status === "expired" ? "This payment link expired. Please start again." : "Payment was not completed.");
+  }
+  if (order.currency !== "INR" || Number(order.amount) !== booking.quote.token) {
+    console.error("[booking] upi amount/currency mismatch", { orderId, got: order.amount, want: booking.quote.token });
+    await recordFailure(deps, { orderId, reason: "Amount or currency mismatch — not confirmed." });
+    throw new BookingError(400, "Payment could not be verified.");
+  }
+  return applyPayment(deps, booking, { paymentId: orderId, orderId, amountRupees: booking.quote.token, method: "upi", utr: order.utr ?? undefined });
 }
 
 /** Records a failed / rejected payment attempt on the lead (shown to the admin). Never confirms anything. */

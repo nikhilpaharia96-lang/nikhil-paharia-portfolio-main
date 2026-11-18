@@ -49,9 +49,12 @@ export interface PaymentRecord {
   /** Whole rupees. */
   amount: number;
   /** "razorpay" = verified server-side; "manual" = recorded by the admin (bank / UPI transfer). */
-  method: "razorpay" | "manual";
+  method: "razorpay" | "upi" | "manual";
   razorpayPaymentId?: string;
   razorpayOrderId?: string;
+  /** UPI Gateway order id (ORD…) and the bank UTR, when method is "upi". */
+  upiOrderId?: string;
+  utr?: string;
   at: string;
   note?: string;
 }

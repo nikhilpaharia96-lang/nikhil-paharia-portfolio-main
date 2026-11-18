@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { checkRateLimit, getClientIp } from "../_lib/rateLimit.js";
 import { BookingError, startBooking } from "../_lib/bookingService.js";
-import { buildDeps } from "../_lib/bookingRuntime.js";
+import { buildDeps, buildUpiDeps, upiEnabled } from "../_lib/bookingRuntime.js";
 import { StoreNotConfiguredError } from "../_lib/bookingStore.js";
 
 // Saves the lead, then creates a Razorpay order for the booking token. The token amount is
@@ -20,9 +20,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.setHeader("Retry-After", String(rl.retryAfterSeconds));
     return res.status(429).json({ error: "Too many requests. Please wait a moment and try again." });
   }
+  const useUpi = upiEnabled();
   const keyId = process.env.RAZORPAY_KEY_ID;
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
-  if (!keyId || !keySecret) {
+  if (!useUpi && (!keyId || !keySecret)) {
     console.error("Razorpay env vars missing: RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET");
     return res.status(500).json({ error: "Payment service is not configured yet." });
   }
@@ -39,8 +40,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const result = await startBooking(buildDeps(keyId, keySecret), body, body.leadId);
-    return res.status(200).json({ ...result, keyId }); // keyId is the publishable key — safe to expose
+    const result = await startBooking(useUpi ? buildUpiDeps() : buildDeps(keyId as string, keySecret as string), body, body.leadId);
+    // keyId is Razorpay's publishable key — safe to expose. The UPI path never sends any gateway credential.
+    return res.status(200).json(useUpi ? result : { ...result, keyId });
   } catch (err) {
     if (err instanceof BookingError) return res.status(err.status).json({ error: err.message, fieldErrors: err.fieldErrors });
     if (err instanceof StoreNotConfiguredError) {

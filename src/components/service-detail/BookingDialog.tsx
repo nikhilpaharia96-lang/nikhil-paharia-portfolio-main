@@ -289,7 +289,7 @@ export default function BookingDialog({ open, onOpenChange, slug, initialTotal }
 
                 <p className="flex items-start gap-2 text-xs leading-relaxed text-slate-500">
                   <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                  Secure payment via Razorpay. Your booking is confirmed only after the payment is verified on our server.
+                  Secure online payment. Your booking is confirmed only after the payment is verified on our server.
                 </p>
                 <div className="flex gap-3">
                   <GhostBtn onClick={() => setStep(1)}><ArrowLeft className="h-4 w-4" /> Edit</GhostBtn>
@@ -305,7 +305,7 @@ export default function BookingDialog({ open, onOpenChange, slug, initialTotal }
               <motion.div key="paying" {...anim} className="flex flex-col items-center gap-3 py-10 text-center" role="status">
                 <Loader2 className="h-9 w-9 animate-spin text-primary" />
                 <p className="font-semibold text-slate-800">Waiting for payment…</p>
-                <p className="max-w-xs text-sm text-slate-500">Complete the payment in the secure window. Please don't close this page.</p>
+                <p className="max-w-xs text-sm text-slate-500">Complete the payment in the secure window. If you're redirected to the UPI page, you'll return here automatically.</p>
               </motion.div>
             )}
 
