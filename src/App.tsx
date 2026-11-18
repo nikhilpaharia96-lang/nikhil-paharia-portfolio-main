@@ -16,6 +16,7 @@ import Services from "@/components/Services";
 import Testimonials from "@/components/testimonials/Testimonials";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
+import DownloadPopup from "@/components/DownloadPopup";
 import NotFound from "@/pages/not-found";
 import ServiceDetail from "@/pages/ServiceDetail";
 import Support from "@/pages/Support";
@@ -55,6 +56,7 @@ function Portfolio() {
         <Contact />
       </main>
       <Footer />
+      <DownloadPopup />
     </>
   );
 }
