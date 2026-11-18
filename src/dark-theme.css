@@ -157,7 +157,7 @@ html.dark .np-name-first { color: #f1f5ff; }
 
 
 /* ═══════════════════════════════════════════════════════════════════
-   NEON LIME CONCEPT (from StudyNova): black ink + vibrant lime + orange
+   NEON LIME CONCEPT: black ink + vibrant lime + orange
    ═══════════════════════════════════════════════════════════════════ */
 html.dark {
   --np-lime: #c8ff00; --np-lime-soft: #dfff4d; --np-orange: #ff6a00; --np-ink: #0a0a0a;
