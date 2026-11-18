@@ -984,20 +984,6 @@ export default function Hero() {
             {/* Portrait visual area */}
             <div className="relative flex-1 flex items-center justify-center min-h-[480px] xl:min-h-[560px] 2xl:min-h-[620px]">
 
-              {/* Oval landscape — subtle secondary depth layer, sized off its
-                  own (relatively-positioned) container so it can't bleed
-                  past it at any breakpoint */}
-              <motion.img
-                src={ovalLandscape}
-                alt=""
-                aria-hidden="true"
-
-                animate={{ opacity: 2.2 }}
-
-                className="absolute pointer-events-none select-none object-contain"
-                style={{ width: '82%', left: '10%', bottom: '-2%' }}
-              />
-
               {/* Brush stroke — widened and rotated so it reads as one diagonal
                   sweep from the white left area toward the tea garden, rather
                   than a separate horizontal patch. Stays behind the portrait. */}
@@ -1039,6 +1025,20 @@ export default function Hero() {
                   landscape. Head stays clear of the navbar and orbit
                   icons; nothing is cropped. */}
               <div className="relative z-0 w-[320px] xl:w-[400px] 2xl:w-[480px]" style={{ transform: 'translate(5%, 5%)' }}>
+                {/* Oval landscape — centred on the portrait so it reads as one frame,
+                    with a feathered edge (no hard oval cut-off) */}
+                <img
+                  src={ovalLandscape}
+                  alt=""
+                  aria-hidden="true"
+                  className="hero-oval absolute pointer-events-none select-none"
+                  style={{
+                    zIndex: -1, left: '50%', top: '50%', width: '124%', height: 'auto',
+                    transform: 'translate(-50%, -47%)',
+                    WebkitMaskImage: 'radial-gradient(closest-side, #000 74%, transparent 100%)',
+                    maskImage: 'radial-gradient(closest-side, #000 74%, transparent 100%)',
+                  }}
+                />
                 <PortraitFX src={desktopPortrait} alt="Nikhil Paharia" shadow="0 30px 40px rgba(15,23,42,0.28)" />
               </div>
 

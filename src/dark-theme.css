@@ -232,3 +232,6 @@ html.dark .name-shimmer {
   background-size: 200% auto;
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
+
+/* Hero oval landscape: dim so it does not glow on the black page */
+html.dark .hero-oval { filter: brightness(0.5) saturate(1.05); }
