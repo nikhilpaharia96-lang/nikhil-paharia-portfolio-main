@@ -7,6 +7,7 @@ import type { Booking, PaymentRecord } from "../../shared/booking.js";
 import { notifyN8n } from "./n8nHook.js";
 import { sendNotificationEmail } from "./sendEmail.js";
 import { bookingRef } from "../../shared/booking.js";
+import { createUpiOrder, fetchUpiOrder, getUpiConfig, upiEnabled } from "./upiGateway.js";
 
 /** Wires the real Razorpay SDK, the real store and the real notifications into the service layer. */
 export function razorpayGateway(keyId: string, keySecret: string): Gateway {
@@ -88,6 +89,30 @@ export function buildInquiryDeps(): Deps {
     notifyInquiry: notifyInquiryForBooking,
   };
 }
+
+/** Deps that route new checkouts and confirmations through the self-hosted UPI Gateway. */
+export function buildUpiDeps(): Deps {
+  const cfg = getUpiConfig();
+  if (!cfg) throw new Error("UPI gateway is not configured.");
+  return {
+    store: getStore(),
+    gateway: { createOrder: async () => { throw new Error("not available"); }, fetchPayment: async () => { throw new Error("not available"); } },
+    upi: {
+      createOrder: (a) => createUpiOrder(cfg, { ...a, redirectUrl: returnUrl() }),
+      fetchOrder: (id) => fetchUpiOrder(cfg, id),
+    },
+    split: normalizeSplit(process.env.BOOKING_TOKEN_PERCENT, process.env.START_ADVANCE_PERCENT),
+    notify: notifyForBooking,
+  };
+}
+
+/** Where the gateway sends the customer after paying. Must be on the gateway merchant's allowed-domains list. */
+function returnUrl(): string | undefined {
+  const site = (process.env.SITE_URL ?? "").trim().replace(/\/+$/, "");
+  return /^https:\/\//.test(site) ? `${site}/booking/return` : undefined;
+}
+
+export { upiEnabled };
 
 export function buildDeps(keyId: string, keySecret: string): Deps {
   return {

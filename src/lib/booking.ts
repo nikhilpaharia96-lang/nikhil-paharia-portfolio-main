@@ -59,6 +59,16 @@ async function verifyWithRetry(payload: unknown): Promise<BookingReceipt> {
     : new PaymentError("We couldn't confirm your payment yet. If you were charged, your booking will be confirmed automatically — or contact me.");
 }
 
+export const UPI_PENDING_KEY = "np_upi_pending";
+
+/** One verification attempt for a UPI Gateway order (used by /booking/return). `pending` = not paid yet, keep polling. */
+export async function verifyUpiOrder(orderId: string): Promise<{ receipt?: BookingReceipt; pending?: boolean; error?: string }> {
+  const v = await postJson("/api/booking/verify-payment", { upi_order_id: orderId });
+  if (v.ok && v.data.verified === true) return { receipt: v.data as BookingReceipt };
+  if (v.data?.pending) return { pending: true, error: v.data.error };
+  return { error: v.data?.error || "We couldn't verify this payment." };
+}
+
 export interface PayOptions {
   /** Reuse the lead from an earlier attempt so a retry doesn't create a duplicate. */
   leadId?: string;
@@ -68,20 +78,29 @@ export interface PayOptions {
 }
 
 /**
- *   1. POST /api/booking/create-order   → server validates, saves the lead, computes the token, creates the Razorpay order
- *   2. Razorpay Checkout (modal)
+ *   1. POST /api/booking/create-order   → server validates, saves the lead, computes the token, creates the order
+ *   2. Razorpay Checkout (modal)   — or, when the server answers provider "upi", a redirect to the UPI Gateway checkout
  *   3. POST /api/booking/verify-payment → server checks signature + re-reads the payment from Razorpay + exact amount
  * Success can only come from step 3's `verified: true`.
  */
 export async function payBookingToken(input: BookingInput, opts: PayOptions = {}): Promise<BookingReceipt> {
-  const loaded = await loadRazorpayScript();
-  if (!loaded || !window.Razorpay) throw new PaymentError("Could not load the payment window. Check your connection and try again.");
-
   const order = await postJson("/api/booking/create-order", { ...input, source: input.source || getSource(), leadId: opts.leadId, companyWebsite: opts.honeypot ?? "" }).catch((e) => {
     throw e instanceof PaymentError ? e : new PaymentError("Could not reach the payment service. Check your connection and try again.");
   });
   if (!order.ok) throw new PaymentError(order.data?.error || "Could not start payment.", false, order.data?.fieldErrors);
   if (order.data.leadId) opts.onLead?.(order.data.leadId);
+
+  // UPI Gateway: send the visitor to the hosted UPI checkout. They come back to /booking/return, which verifies server-side.
+  if (order.data.provider === "upi") {
+    const url = String(order.data.paymentUrl ?? "");
+    if (!/^https:\/\//.test(url)) throw new PaymentError("Could not start the UPI payment. Please try again.");
+    try { localStorage.setItem(UPI_PENDING_KEY, JSON.stringify({ orderId: order.data.orderId, at: Date.now() })); } catch { /* private mode */ }
+    window.location.assign(url);
+    return new Promise<BookingReceipt>(() => {}); // the page is navigating away
+  }
+
+  const loaded = await loadRazorpayScript();
+  if (!loaded || !window.Razorpay) throw new PaymentError("Could not load the payment window. Check your connection and try again.");
   const Razorpay = window.Razorpay;
 
   return new Promise<BookingReceipt>((resolve, reject) => {

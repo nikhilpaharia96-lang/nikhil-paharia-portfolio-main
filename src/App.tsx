@@ -26,6 +26,7 @@ import { captureAttribution } from "@/lib/attribution";
 // Private admin dashboard — lazy so it adds nothing to the public bundle.
 const Admin = lazy(() => import("@/pages/Admin"));
 const StudyNova = lazy(() => import("@/pages/StudyNova"));
+const BookingReturn = lazy(() => import("@/pages/BookingReturn"));
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,7 @@ function App() {
               <Route path="/" component={Portfolio} />
               <Route path="/services/:slug" component={ServiceDetail} />
               <Route path="/payment" component={Support} />
+              <Route path="/booking/return">{() => <Suspense fallback={null}><BookingReturn /></Suspense>}</Route>
               <Route path="/studynova">{() => <Suspense fallback={null}><StudyNova /></Suspense>}</Route>
               <Route path="/admin">{() => <Suspense fallback={null}><Admin /></Suspense>}</Route>
               <Route component={NotFound} />

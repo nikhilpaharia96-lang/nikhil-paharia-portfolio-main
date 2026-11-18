@@ -402,7 +402,7 @@ function Detail({ b, onGone }: { b: Booking; onGone: () => void }) {
           {b.payments.map((p) => (
             <div key={p.id} className="rounded-xl bg-slate-50 p-3">
               <div className="flex justify-between"><b>{MILESTONE_LABELS[p.milestone]}</b><b className="font-mono text-emerald-700">{formatINR(p.amount)}</b></div>
-              <p className="text-xs text-slate-500">{fmtDate(p.at)} · {p.method === "razorpay" ? "Razorpay (verified)" : "Manual"}{p.razorpayPaymentId ? ` · ${p.razorpayPaymentId}` : ""}</p>
+              <p className="text-xs text-slate-500">{fmtDate(p.at)} · {p.method === "razorpay" ? "Razorpay (verified)" : p.method === "upi" ? "UPI Gateway (verified)" : "Manual"}{p.razorpayPaymentId ? ` · ${p.razorpayPaymentId}` : p.upiOrderId ? ` · ${p.upiOrderId}${p.utr ? ` · UTR ${p.utr}` : ""}` : ""}</p>
               {p.note && <p className="mt-1 text-xs font-semibold text-amber-700">{p.note}</p>}
             </div>
           ))}
