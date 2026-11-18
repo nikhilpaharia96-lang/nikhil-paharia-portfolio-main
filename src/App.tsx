@@ -16,6 +16,7 @@ import Services from "@/components/Services";
 import Testimonials from "@/components/testimonials/Testimonials";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
+import LeadFunnelPopup from "@/components/LeadFunnelPopup";
 import NotFound from "@/pages/not-found";
 import ServiceDetail from "@/pages/ServiceDetail";
 import Support from "@/pages/Support";
@@ -56,6 +57,7 @@ function Portfolio() {
         <Contact />
       </main>
       <Footer />
+      <LeadFunnelPopup />
     </>
   );
 }
