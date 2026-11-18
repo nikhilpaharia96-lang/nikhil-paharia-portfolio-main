@@ -4,42 +4,42 @@
    The portfolio was built light-only with many hard-coded Tailwind colours,
    so the night palette is applied as one override layer here (unlayered, so
    it wins over Tailwind utilities) instead of touching every component.
-   Palette: deep navy #050b18 → #0b1426, glass cards rgba(15,23,42,.7),
+   Palette (NEON LIME): near-black #0a0a0a, neon lime #c8ff00, orange #ff6a00. (Legacy note: deep navy #0a0a0a → #141414, glass cards rgba(15,23,42,.7),
    text #e8eefc / #a9b6cf, brand blue lifted to #5b9bff.
    ═══════════════════════════════════════════════════════════════════ */
 
 html.dark { color-scheme: dark; }
-html.dark body { background-color: #050b18; color: #e8eefc; }
-html.dark ::selection { background: rgba(91, 155, 255, 0.35); color: #fff; }
+html.dark body { background-color: #0a0a0a; color: #e8eefc; }
+html.dark ::selection { background: #c8ff00; color: #0a0a0a; }
 
 /* ── Page + section backdrops ── */
 html.dark [class*="bg-[#f8fbff]"],
 html.dark [class*="bg-[#f4f8ff]"],
-html.dark [class*="bg-[#cfe3fd]"] { background-color: #050b18 !important; }
-html.dark [class*="bg-gray-50"] { background-color: #0b1426; }
+html.dark [class*="bg-[#cfe3fd]"] { background-color: #0a0a0a !important; }
+html.dark [class*="bg-gray-50"] { background-color: #141414; }
 
 /* Soft pastel blobs in the global mesh background → deep blue glow */
 html.dark [class*="from-blue-100"], html.dark [class*="from-indigo-100"],
 html.dark [class*="bg-blue-200"], html.dark [class*="bg-sky-200"], html.dark [class*="bg-indigo-200"] {
-  --tw-gradient-from: rgba(37, 99, 235, 0.35);
-  background-color: rgba(37, 99, 235, 0.28);
+  --tw-gradient-from: rgba(255, 106, 0, 0.18);
+  background-color: rgba(255, 106, 0, 0.14);
 }
 
 /* ── Glass / white surfaces → dark glass ── */
-html.dark [class*="bg-white"] { background-color: rgba(13, 22, 41, 0.72); }
-html.dark [class*="bg-white"][class*="backdrop"] { background-color: rgba(10, 18, 36, 0.62); }
+html.dark [class*="bg-white"] { background-color: rgba(18, 18, 18, 0.72); }
+html.dark [class*="bg-white"][class*="backdrop"] { background-color: rgba(14, 14, 14, 0.62); }
 html.dark [class*="bg-blue-50"], html.dark [class*="bg-sky-50"], html.dark [class*="bg-indigo-50"],
 html.dark [class*="bg-blue-100"], html.dark [class*="bg-slate-50"], html.dark [class*="bg-slate-100"] {
-  background-color: rgba(59, 130, 246, 0.16);
+  background-color: rgba(200, 255, 0, 0.16);
 }
-html.dark [class*="hover:bg-blue-50"]:hover, html.dark [class*="hover:bg-white"]:hover { background-color: rgba(59, 130, 246, 0.22); }
-html.dark [class*="bg-[#fdfaf3]"], html.dark [class*="bg-[#f3e8cf]"], html.dark [class*="bg-[#ede0c2]"] { background-color: #121a2c; }
+html.dark [class*="hover:bg-blue-50"]:hover, html.dark [class*="hover:bg-white"]:hover { background-color: rgba(200, 255, 0, 0.22); }
+html.dark [class*="bg-[#fdfaf3]"], html.dark [class*="bg-[#f3e8cf]"], html.dark [class*="bg-[#ede0c2]"] { background-color: #181818; }
 
 /* White fades used as veils on top of photos → night veils */
 html.dark [class*="from-white"], html.dark [class*="via-white"], html.dark [class*="to-white"] {
-  --tw-gradient-from: rgba(5, 11, 24, 0.78);
-  --tw-gradient-via: rgba(5, 11, 24, 0.35);
-  --tw-gradient-to: rgba(5, 11, 24, 0.78);
+  --tw-gradient-from: rgba(10, 10, 10, 0.78);
+  --tw-gradient-via: rgba(10, 10, 10, 0.35);
+  --tw-gradient-to: rgba(10, 10, 10, 0.78);
 }
 html.dark [class*="from-transparent"][class*="to-white"] { --tw-gradient-from: transparent; }
 html.dark [class*="from-white"][class*="to-transparent"] { --tw-gradient-to: transparent; }
@@ -49,36 +49,36 @@ html.dark [class*="text-slate-9"], html.dark [class*="text-slate-8"], html.dark 
 html.dark [class*="text-black"], html.dark [class*="text-[#0b1530]"], html.dark [class*="text-[#172033]"],
 html.dark [class*="text-[#14284f]"], html.dark [class*="text-[#101828]"], html.dark [class*="text-[#0a0f1e]"],
 html.dark [class*="text-[#0f2a5c]"] { color: #f1f5ff; }
-html.dark [class*="text-slate-7"], html.dark [class*="text-gray-7"], html.dark [class*="text-slate-6"], html.dark [class*="text-gray-6"] { color: #c3cee6; }
-html.dark [class*="text-slate-5"], html.dark [class*="text-slate-4"], html.dark [class*="text-gray-5"] { color: #93a4c4; }
-html.dark [class*="text-primary"], html.dark [class*="text-[#1266F1]"], html.dark [class*="text-[#1a6bff]"], html.dark [class*="text-[#0866FF]"] { color: #6aa8ff; }
-html.dark [class*="hover:text-[#1266F1]"]:hover { color: #8dbbff; }
-html.dark [class*="text-[#5b86d6]"], html.dark [class*="text-[#7fa6e8]"] { color: #8fb4f5; }
+html.dark [class*="text-slate-7"], html.dark [class*="text-gray-7"], html.dark [class*="text-slate-6"], html.dark [class*="text-gray-6"] { color: #d4d4d8; }
+html.dark [class*="text-slate-5"], html.dark [class*="text-slate-4"], html.dark [class*="text-gray-5"] { color: #a1a1aa; }
+html.dark [class*="text-primary"], html.dark [class*="text-[#1266F1]"], html.dark [class*="text-[#1a6bff]"], html.dark [class*="text-[#0866FF]"] { color: #c8ff00; }
+html.dark [class*="hover:text-[#1266F1]"]:hover { color: #e0ff4d; }
+html.dark [class*="text-[#5b86d6]"], html.dark [class*="text-[#7fa6e8]"] { color: #d4ff33; }
 
 /* ── Borders ── */
 html.dark [class*="border-white"], html.dark [class*="border-slate-"], html.dark [class*="border-gray-"],
-html.dark [class*="border-blue-1"], html.dark [class*="border-black"] { border-color: rgba(148, 178, 230, 0.2); }
-html.dark [class*="ring-white"] { --tw-ring-color: rgba(148, 178, 230, 0.35); }
-html.dark [class*="divide-"] > * { border-color: rgba(148, 178, 230, 0.18); }
+html.dark [class*="border-blue-1"], html.dark [class*="border-black"] { border-color: rgba(200, 255, 0, 0.2); }
+html.dark [class*="ring-white"] { --tw-ring-color: rgba(200, 255, 0, 0.35); }
+html.dark [class*="divide-"] > * { border-color: rgba(200, 255, 0, 0.18); }
 
 /* ── Shadows: blue-tinted light shadows → deep neutral ones ── */
 html.dark [class*="shadow-["] { --tw-shadow-color: rgba(0, 0, 0, 0.55); }
 
 /* ── Native form controls ── */
 html.dark input, html.dark textarea, html.dark select {
-  color: #e8eefc; background-color: rgba(13, 22, 41, 0.8); border-color: rgba(148, 178, 230, 0.25);
+  color: #e8eefc; background-color: rgba(18, 18, 18, 0.8); border-color: rgba(200, 255, 0, 0.25);
 }
-html.dark input::placeholder, html.dark textarea::placeholder { color: #7d8db0; }
+html.dark input::placeholder, html.dark textarea::placeholder { color: #71717a; }
 
 /* ── Navbar ── */
 html.dark header nav { box-shadow: 0 10px 36px rgba(0, 0, 0, 0.45); }
-html.dark header nav[class*="bg-white"] { background-color: rgba(7, 14, 30, 0.55); border-color: rgba(148, 178, 230, 0.18); }
-html.dark #mobile-menu { background-color: rgba(7, 14, 30, 0.82); border-color: rgba(148, 178, 230, 0.18); }
-html.dark .nav-icon-btn { background-color: rgba(13, 22, 41, 0.7); border-color: rgba(148, 178, 230, 0.28); color: #e8eefc; }
-html.dark .nav-icon-btn:hover { background-color: rgba(59, 130, 246, 0.25); }
-html.dark header img[alt=""][src*="logo"] { filter: brightness(1.45) saturate(1.1) drop-shadow(0 0 10px rgba(91, 155, 255, 0.35)); }
+html.dark header nav[class*="bg-white"] { background-color: rgba(8, 8, 8, 0.55); border-color: rgba(200, 255, 0, 0.18); }
+html.dark #mobile-menu { background-color: rgba(8, 8, 8, 0.82); border-color: rgba(200, 255, 0, 0.18); }
+html.dark .nav-icon-btn { background-color: rgba(18, 18, 18, 0.7); border-color: rgba(200, 255, 0, 0.28); color: #e8eefc; }
+html.dark .nav-icon-btn:hover { background-color: rgba(200, 255, 0, 0.25); }
+html.dark header img[alt=""][src*="logo"] { filter: brightness(1.45) saturate(1.1) drop-shadow(0 0 10px rgba(200, 255, 0, 0.35)); }
 .theme-toggle { color: #172033; }
-html.dark .theme-toggle { color: #ffd76a; }
+html.dark .theme-toggle { color: #ff8a1f; }
 
 /* ── Toaster / dialogs / popovers inherit the dark tokens via CSS vars ── */
 
@@ -89,17 +89,17 @@ html.dark .night-stars {
   background-image:
     radial-gradient(1.2px 1.2px at 8% 12%, rgba(255,255,255,.85), transparent 60%),
     radial-gradient(1px 1px at 22% 38%, rgba(255,255,255,.6), transparent 60%),
-    radial-gradient(1.4px 1.4px at 35% 8%, rgba(190,215,255,.9), transparent 60%),
+    radial-gradient(1.4px 1.4px at 35% 8%, rgba(214,255,64,.9), transparent 60%),
     radial-gradient(1px 1px at 48% 27%, rgba(255,255,255,.55), transparent 60%),
     radial-gradient(1.2px 1.2px at 61% 14%, rgba(255,255,255,.8), transparent 60%),
-    radial-gradient(1px 1px at 74% 41%, rgba(190,215,255,.7), transparent 60%),
+    radial-gradient(1px 1px at 74% 41%, rgba(214,255,64,.7), transparent 60%),
     radial-gradient(1.5px 1.5px at 88% 9%, rgba(255,255,255,.9), transparent 60%),
     radial-gradient(1px 1px at 93% 33%, rgba(255,255,255,.55), transparent 60%),
     radial-gradient(1.2px 1.2px at 14% 62%, rgba(255,255,255,.7), transparent 60%),
-    radial-gradient(1px 1px at 29% 81%, rgba(190,215,255,.6), transparent 60%),
+    radial-gradient(1px 1px at 29% 81%, rgba(214,255,64,.6), transparent 60%),
     radial-gradient(1.3px 1.3px at 52% 70%, rgba(255,255,255,.75), transparent 60%),
     radial-gradient(1px 1px at 67% 88%, rgba(255,255,255,.5), transparent 60%),
-    radial-gradient(1.2px 1.2px at 81% 64%, rgba(190,215,255,.8), transparent 60%),
+    radial-gradient(1.2px 1.2px at 81% 64%, rgba(214,255,64,.8), transparent 60%),
     radial-gradient(1px 1px at 96% 79%, rgba(255,255,255,.6), transparent 60%),
     radial-gradient(1px 1px at 41% 50%, rgba(255,255,255,.45), transparent 60%);
   animation: np-twinkle 6s ease-in-out infinite alternate;
@@ -107,35 +107,29 @@ html.dark .night-stars {
 @keyframes np-twinkle { from { opacity: 0.55; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { html.dark .night-stars { animation: none; } }
 
-/* ═════════════ Navbar logo: keep the navy wordmark legible ═════════════ */
-html.dark header nav a[aria-label^="Nikhil Paharia"] {
-  background: rgba(255, 255, 255, 0.92);
-  border-radius: 0.6rem;
-  padding: 0.2rem 0.55rem;
-  box-shadow: 0 0 18px rgba(91, 155, 255, 0.25);
-}
-html.dark header img[alt=""][src*="logo"] { filter: none; }
+/* ═════════════ Navbar logo: NP mark turned neon lime ═════════════ */
+html.dark header img[alt=""][src*="np-mark"] { filter: hue-rotate(205deg) saturate(1.5) brightness(1.25) drop-shadow(0 0 10px rgba(200, 255, 0, 0.35)); }
 
 /* ═════════════ Hero ═════════════ */
 /* Night-tint the daylight landscape + keep it behind the content */
 html.dark #home > div.absolute.inset-0.z-0 { filter: brightness(0.5) saturate(1.05) contrast(1.05); }
 html.dark .stat-card, html.dark .stat-panel {
-  background: rgba(13, 22, 41, 0.72) !important;
-  border-color: rgba(148, 178, 230, 0.22);
+  background: rgba(18, 18, 18, 0.72) !important;
+  border-color: rgba(200, 255, 0, 0.22);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 10px 24px -12px rgba(0, 0, 0, 0.6);
 }
-html.dark .hero-cta--work { background: rgba(13, 22, 41, 0.75); border-color: rgba(96, 165, 250, 0.4); color: #8dbbff; }
+html.dark .hero-cta--work { background: rgba(18, 18, 18, 0.75); border-color: rgba(200, 255, 0, 0.4); color: #e0ff4d; }
 
 /* ═════════════ Projects ═════════════ */
 html.dark #projects {
   background-image:
-    linear-gradient(rgba(96, 165, 250, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(96, 165, 250, 0.07) 1px, transparent 1px),
+    linear-gradient(rgba(200, 255, 0, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200, 255, 0, 0.07) 1px, transparent 1px),
     radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0),
-    linear-gradient(135deg, #060d1c 0%, #0a1426 100%) !important;
+    linear-gradient(135deg, #0a0a0a 0%, #111111 100%) !important;
 }
 html.dark #projects > div.pointer-events-none.absolute.inset-0 {
-  background: radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.22), transparent 45%), radial-gradient(circle at 0% 100%, rgba(37, 99, 235, 0.16), transparent 45%) !important;
+  background: radial-gradient(circle at 100% 0%, rgba(255, 106, 0, 0.16), transparent 45%), radial-gradient(circle at 0% 100%, rgba(200, 255, 0, 0.10), transparent 45%) !important;
 }
 /* Paper-like cards keep dark ink on their light paper */
 html.dark .paper-note [class*="text-slate"] { color: #1e293b; }
@@ -143,13 +137,13 @@ html.dark .paper-note [class*="text-blue"] { color: #1d4ed8; }
 
 /* ═════════════ Contact ═════════════ */
 html.dark .glass-premium {
-  background: rgba(10, 18, 36, 0.78);
-  border-color: rgba(148, 178, 230, 0.22);
+  background: rgba(14, 14, 14, 0.78);
+  border-color: rgba(200, 255, 0, 0.22);
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* ═════════════ Testimonials backdrop cards ═════════════ */
-html.dark .rb-card { background: #0f1a30; border-color: rgba(148, 178, 230, 0.16); }
+html.dark .rb-card { background: #161616; border-color: rgba(200, 255, 0, 0.16); }
 html.dark .rb-stage { opacity: 0.85; }
 
 /* ═════════════ Book / photo-like assets: soften glare on a dark page ═════════════ */
@@ -160,3 +154,74 @@ html.dark footer img, html.dark footer [style*="background-image"] { filter: bri
 
 /* Navbar name (Futura text): keep "Nikhil" readable on the dark navbar */
 html.dark .np-name-first { color: #f1f5ff; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   NEON LIME CONCEPT (from StudyNova): black ink + vibrant lime + orange
+   ═══════════════════════════════════════════════════════════════════ */
+html.dark {
+  --np-lime: #c8ff00; --np-lime-soft: #dfff4d; --np-orange: #ff6a00; --np-ink: #0a0a0a;
+}
+/* Solid brand buttons / badges → lime with black text */
+html.dark .bg-primary, html.dark [class*="bg-[#1266F1]"], html.dark [class*="bg-[#0866FF]"], html.dark [class*="bg-[#1a6bff]"] {
+  background-color: var(--np-lime) !important; color: var(--np-ink) !important;
+  box-shadow: 0 0 22px -4px rgba(200, 255, 0, 0.55);
+}
+html.dark .bg-primary [class*="text-white"], html.dark [class*="bg-[#1266F1]"] [class*="text-white"],
+html.dark .bg-primary.text-white, html.dark [class*="bg-[#1266F1]"].text-white, html.dark .bg-primary svg, html.dark [class*="bg-[#1266F1]"] svg { color: var(--np-ink) !important; }
+html.dark a[class*="bg-[#1266F1]"]:hover, html.dark button[class*="bg-[#1266F1]"]:hover, html.dark [class*="hover:bg-[#0F58D6]"]:hover { background-color: var(--np-orange) !important; color: #0a0a0a !important; }
+html.dark [class*="bg-primary/"] { background-color: rgba(200, 255, 0, 0.14); }
+html.dark [class*="border-primary"], html.dark [class*="border-[#1266F1]"] { border-color: rgba(200, 255, 0, 0.45); }
+html.dark [class*="from-primary"], html.dark [class*="from-[#1266F1]"] { --tw-gradient-from: #c8ff00; }
+html.dark [class*="to-primary"], html.dark [class*="to-[#1266F1]"] { --tw-gradient-to: #ff6a00; }
+html.dark [class*="to-blue-5"], html.dark [class*="to-blue-6"], html.dark [class*="to-blue-7"] { --tw-gradient-to: #ff6a00; }
+html.dark [class*="via-blue-5"], html.dark [class*="via-blue-6"] { --tw-gradient-via: #c8ff00; }
+html.dark [class*="from-blue-4"], html.dark [class*="from-blue-5"], html.dark [class*="from-blue-6"], html.dark [class*="from-sky-4"], html.dark [class*="from-sky-5"], html.dark [class*="from-indigo-5"] { --tw-gradient-from: #c8ff00; }
+html.dark [class*="from-blue-50"], html.dark [class*="to-blue-50"] { --tw-gradient-from: rgba(200, 255, 0, 0.05); --tw-gradient-to: rgba(10, 10, 10, 0.9); }
+/* Blue utility text/bg → lime */
+html.dark [class*="text-blue-"], html.dark [class*="text-sky-"], html.dark [class*="text-indigo-"], html.dark [class*="text-[#1d4ed8]"] { color: #c8ff00; }
+html.dark [class*="hover:text-[#1266F1]"]:hover, html.dark [class*="hover:text-primary"]:hover { color: var(--np-orange); }
+html.dark [class*="stroke-primary"], html.dark [class*="stroke-blue"] { stroke: #c8ff00; }
+html.dark [class*="fill-primary"], html.dark [class*="fill-blue"] { fill: #c8ff00; }
+/* Navbar */
+html.dark header nav { border-color: rgba(200, 255, 0, 0.2); }
+html.dark .np-name-first { color: #ffffff; }
+html.dark header nav a[aria-label^="Nikhil Paharia"] svg path { fill: #c8ff00; }
+html.dark header nav [aria-current="page"] { background-color: rgba(200, 255, 0, 0.12) !important; color: #c8ff00 !important; box-shadow: 0 0 18px -6px rgba(200, 255, 0, 0.5) !important; }
+html.dark .theme-toggle:hover { border-color: var(--np-orange); }
+/* Orange as the second accent */
+html.dark .hero-cta--work { color: #c8ff00; border-color: rgba(200, 255, 0, 0.5); }
+html.dark .hero-cta--work:hover { color: var(--np-orange); border-color: var(--np-orange); }
+html.dark [class*="text-amber-"], html.dark [class*="text-yellow-"], html.dark [class*="text-orange-"] { color: var(--np-orange); }
+html.dark [class*="fill-[#f5b400]"], html.dark svg[fill="#f5b400"] { fill: var(--np-orange); }
+html.dark ::-webkit-scrollbar-thumb { background: #c8ff00; }
+html.dark ::-webkit-scrollbar-track { background: #0a0a0a; }
+
+/* ── Neon lime: gradients, hero CTA, particles, stats ── */
+html.dark .gradient-text {
+  color: #c8ff00;
+  background: linear-gradient(120deg, #c8ff00 0%, #e8ff5a 45%, #ff8a1f 100%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+html.dark .hero-cta--hire {
+  color: #0a0a0a; background-color: #c8ff00;
+  background-image: linear-gradient(105deg, #c8ff00 0%, #dfff4d 40%, #ff8a1f 100%);
+  box-shadow: 0 10px 26px -8px rgba(200, 255, 0, 0.55), 0 2px 6px rgba(200, 255, 0, 0.25);
+}
+html.dark .hero-cta--hire * { color: #0a0a0a; }
+html.dark .stat-counter, html.dark .stat-card [class*="text-"] { color: #c8ff00; }
+html.dark .stat-icon { color: #ff8a1f; }
+html.dark .fp__dot { background: #c8ff00; box-shadow: 0 0 8px 1px rgba(200, 255, 0, 0.45); }
+html.dark .fp__dot--sky { background: #ff8a1f; box-shadow: 0 0 7px 1px rgba(255, 138, 31, 0.55); }
+html.dark .section-label { color: #c8ff00; }
+html.dark .social:focus-visible .social__dot { outline-color: #c8ff00; }
+html.dark .text-gradient {
+  color: #c8ff00;
+  background-image: linear-gradient(to right, #c8ff00, #e8ff5a, #ff8a1f);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+html.dark .section-divider { background-color: #c8ff00; box-shadow: 0 0 12px rgba(200, 255, 0, 0.7); }
+html.dark .btn-primary { background-color: #c8ff00; color: #0a0a0a; box-shadow: 0 0 22px -4px rgba(200, 255, 0, 0.55); }
+html.dark .btn-primary:hover { background-color: #ff6a00; }
+html.dark [class*="to-sky-500"] { --tw-gradient-to: #ff8a1f; }
+html.dark [class*="from-primary"][class*="text-white"], html.dark [class*="from-primary"] [class*="text-white"], html.dark [class*="from-primary"] svg { color: #0a0a0a; }
