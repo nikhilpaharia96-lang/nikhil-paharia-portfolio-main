@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Bot, Camera, Check, Download, Film, Globe, Loader2, Megaphone, MessageCircle, Palette, PenTool, ShieldCheck, ShoppingCart, Sparkles, Gift, X, type LucideIcon } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Download, Loader2, Palette, ShieldCheck, Sparkles, Gift, X } from "lucide-react";
+import { SiWhatsapp, SiReact, SiGoogleads, SiFigma, SiN8N, SiShopify, SiDavinciresolve } from "react-icons/si";
+import premiereProLogo from "@/assets/logos/premiere-pro.svg";
 import { Link } from "wouter";
 import { services } from "@/components/Services";
 import { track, consentRequired, getStoredConsent } from "@/lib/analytics";
@@ -28,17 +30,27 @@ const DRAFT_KEY = "np-lead-funnel-draft";
 const FILE = `${import.meta.env.BASE_URL}Nikhil-Paharia-Portfolio.pdf`;
 const WHATSAPP_NUMBER = "919395722454";
 
-const SERVICE_STYLE: Record<string, { Icon: LucideIcon; from: string; to: string }> = {
-  "website-development": { Icon: Globe, from: "#1266F1", to: "#4f9bff" },
-  "video-editing": { Icon: Film, from: "#e1306c", to: "#ff7aa8" },
-  "digital-marketing": { Icon: Megaphone, from: "#f59e0b", to: "#fcd34d" },
-  "graphic-designing": { Icon: Palette, from: "#0ea5e9", to: "#67e8f9" },
-  "ui-ux-design": { Icon: PenTool, from: "#7c3aed", to: "#c4b5fd" },
-  "automation-ai-solutions": { Icon: Bot, from: "#059669", to: "#6ee7b7" },
-  "e-commerce-solutions": { Icon: ShoppingCart, from: "#ea580c", to: "#fdba74" },
-  "cinematography-video-production": { Icon: Camera, from: "#334155", to: "#94a3b8" },
+type Mark = (p: { className?: string }) => JSX.Element;
+const brand = (C: React.ComponentType<{ className?: string; style?: React.CSSProperties }>, color: string): Mark =>
+  ({ className }) => <C className={className} style={{ color }} />;
+const img = (src: string): Mark => ({ className }) => <img src={src} alt="" className={className} />;
+
+// Real brand logos (Simple Icons / Adobe SVG) on a white tile.
+const SERVICE_STYLE: Record<string, { Icon: Mark; from: string; to: string }> = {
+  "website-development": { Icon: brand(SiReact, "#087EA4"), from: "#1266F1", to: "#4f9bff" },
+  "video-editing": { Icon: img(premiereProLogo), from: "#e1306c", to: "#ff7aa8" },
+  "digital-marketing": { Icon: brand(SiGoogleads, "#4285F4"), from: "#f59e0b", to: "#fcd34d" },
+  "graphic-designing": { Icon: brand(Palette, "#0ea5e9"), from: "#0ea5e9", to: "#67e8f9" },
+  "ui-ux-design": { Icon: brand(SiFigma, "#F24E1E"), from: "#7c3aed", to: "#c4b5fd" },
+  "automation-ai-solutions": { Icon: brand(SiN8N, "#EA4B71"), from: "#059669", to: "#6ee7b7" },
+  "e-commerce-solutions": { Icon: brand(SiShopify, "#5E8E3E"), from: "#ea580c", to: "#fdba74" },
+  "cinematography-video-production": { Icon: brand(SiDavinciresolve, "#233A51"), from: "#334155", to: "#94a3b8" },
 };
-const styleOf = (slug: string) => SERVICE_STYLE[slug] ?? { Icon: Sparkles, from: "#1266F1", to: "#4f9bff" };
+const styleOf = (slug: string) => SERVICE_STYLE[slug] ?? { Icon: brand(Sparkles, "#1266F1"), from: "#1266F1", to: "#4f9bff" };
+const WA_GREEN = "#25D366";
+const Wa = ({ className = "w-4 h-4", green = false }: { className?: string; green?: boolean }) => (
+  <SiWhatsapp className={className} style={green ? { color: WA_GREEN } : undefined} aria-hidden="true" />
+);
 
 const ls = {
   get: (k: string) => { try { return localStorage.getItem(k); } catch { return null; } },
@@ -279,8 +291,8 @@ export default function LeadFunnelPopup() {
                       return (
                         <button key={s.slug} type="button" onClick={() => choose({ slug: s.slug, title: s.title })}
                           className="group flex flex-col items-start gap-2 rounded-2xl border border-blue-100 bg-white px-3 py-3 text-left shadow-[0_6px_16px_-10px_rgba(15,45,90,0.35)] hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-[0_14px_26px_-12px_rgba(18,102,241,0.45)] active:scale-[0.99] transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40">
-                          <span className="grid h-9 w-9 place-items-center rounded-xl text-white shadow-sm" style={{ background: `linear-gradient(135deg,${st.from},${st.to})` }}>
-                            <st.Icon className="h-[18px] w-[18px]" aria-hidden="true" />
+                          <span className="grid h-9 w-9 place-items-center rounded-xl border border-slate-200 bg-white shadow-sm">
+                            <st.Icon className="h-5 w-5 object-contain" />
                           </span>
                           <span className="block text-[13px] font-bold leading-tight text-[#0b1530]">{s.title}</span>
                           <span className="inline-flex rounded-full bg-blue-50 px-2 py-0.5 text-[10.5px] font-semibold text-primary">from {s.price}</span>
@@ -302,7 +314,7 @@ export default function LeadFunnelPopup() {
                   <p className="mt-2 text-sm text-slate-600">I'll message you on WhatsApp with your free quote. Your reference: <b className="text-[#0b1530]">{done}</b></p>
                   <div className="mt-5 space-y-3">
                     <a href={waHref(done)} target="_blank" rel="noopener noreferrer" onClick={() => { track("funnel_whatsapp_click", { service: pick?.slug ?? "browsing", after: "lead" }); }} className={primary}>
-                      <MessageCircle className="w-4 h-4" aria-hidden="true" /> Message me on WhatsApp
+                      <Wa /> Message me on WhatsApp
                     </a>
                     <a href={FILE} download="Nikhil-Paharia-Portfolio.pdf" onClick={() => track("funnel_brochure_download", { service: pick?.slug ?? "browsing" })} className={secondary}>
                       <Download className="w-4 h-4" aria-hidden="true" /> Download brochure (PDF)
@@ -319,7 +331,7 @@ export default function LeadFunnelPopup() {
                 <div className="text-center">
                   {pick && (() => { const st = styleOf(pick.slug); return (
                     <span className="mx-auto mb-3 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50/70 py-1 pl-1 pr-3 text-xs font-semibold text-[#0b1530]">
-                      <span className="grid h-6 w-6 place-items-center rounded-full text-white" style={{ background: `linear-gradient(135deg,${st.from},${st.to})` }}><st.Icon className="h-3.5 w-3.5" aria-hidden="true" /></span>
+                      <span className="grid h-6 w-6 place-items-center rounded-full bg-white"><st.Icon className="h-3.5 w-3.5" /></span>
                       {pick.title}
                     </span>); })()}
                   <h2 id="funnel-title" className="text-2xl font-extrabold tracking-tight text-[#0b1530]">
@@ -365,7 +377,7 @@ export default function LeadFunnelPopup() {
                       </button>
                       <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 pt-1 text-[11px] font-medium text-slate-500">
                         <li className="inline-flex items-center gap-1"><Gift className="h-3.5 w-3.5 text-primary" aria-hidden="true" />Free quote</li>
-                        <li className="inline-flex items-center gap-1"><MessageCircle className="h-3.5 w-3.5 text-primary" aria-hidden="true" />Reply on WhatsApp</li>
+                        <li className="inline-flex items-center gap-1"><Wa className="h-3.5 w-3.5" green />Reply on WhatsApp</li>
                         <li className="inline-flex items-center gap-1"><ShieldCheck className="h-3.5 w-3.5 text-primary" aria-hidden="true" />No spam</li>
                       </ul>
                     </form>
@@ -375,7 +387,7 @@ export default function LeadFunnelPopup() {
                     <a href={waHref()} target="_blank" rel="noopener noreferrer"
                       onClick={() => { ls.set(SEEN_KEY, String(Date.now())); track("funnel_whatsapp_click", { service: pick?.slug ?? "browsing" }); setOpen(false); }}
                       className={pick ? secondary : primary}>
-                      <MessageCircle className="w-4 h-4" aria-hidden="true" /> {pick ? "Or chat on WhatsApp now" : "Get a free quote on WhatsApp"}
+                      <Wa green={!!pick} /> {pick ? "Or chat on WhatsApp now" : "Get a free quote on WhatsApp"}
                     </a>
                     <a href={FILE} download="Nikhil-Paharia-Portfolio.pdf" onClick={() => track("funnel_brochure_download", { service: pick?.slug ?? "browsing" })} className={secondary}>
                       <Download className="w-4 h-4" aria-hidden="true" /> Download brochure (PDF)
