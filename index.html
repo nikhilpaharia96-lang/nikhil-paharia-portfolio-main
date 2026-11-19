@@ -31,12 +31,12 @@
 
     <meta name="theme-color" content="#f8fbff" />
     <meta name="color-scheme" content="light dark" />
-    <!-- Apply the saved / OS theme before first paint so there is no light flash in night mode -->
+    <!-- Apply the saved theme (light by default) before first paint so there is no light flash in night mode -->
     <script>
       (function () {
         try {
           var t = localStorage.getItem("np-theme");
-          var dark = t ? t === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+          var dark = t === "dark"; /* first visit = light; dark only if the visitor chose it */
           if (dark) {
             document.documentElement.classList.add("dark");
             document.documentElement.style.colorScheme = "dark";

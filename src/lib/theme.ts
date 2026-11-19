@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 export type Theme = "light" | "dark";
 const KEY = "np-theme";
 
-/** Saved choice, else the visitor's OS preference. */
+/** Saved choice; first-time visitors always get light — dark is opt-in via the toggle. */
 export function getInitialTheme(): Theme {
   try {
     const saved = localStorage.getItem(KEY);
@@ -11,7 +11,7 @@ export function getInitialTheme(): Theme {
   } catch {
     /* storage blocked */
   }
-  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return "light";
 }
 
 export function applyTheme(theme: Theme) {
