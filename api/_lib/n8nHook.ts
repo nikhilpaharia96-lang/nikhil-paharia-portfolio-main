@@ -111,3 +111,64 @@ export async function notifyN8n(
     clearTimeout(timer);
   }
 }
+
+// ── Extra events for the WhatsApp AI assistant (all optional, silent no-ops when the bridge is not configured) ──
+export interface InquiryEvent {
+  event: "inquiry.created";
+  inquiry: { ref: string; name: string; phone: string; service: string; budget: number; source: string };
+}
+
+/** Structured facts only: NO email and NO free-text project description (client-controlled text). */
+export function buildInquiryEvent(b: Booking): InquiryEvent {
+  return {
+    event: "inquiry.created",
+    inquiry: {
+      ref: bookingRef(b.id),
+      name: oneLine(b.name, 60),
+      phone: `+91${b.phone}`,
+      service: b.serviceTitle,
+      budget: b.budget || 0,
+      source: oneLine(b.source || "direct", 40),
+    },
+  };
+}
+
+/** Same host + secret as the booking webhook, different path: https://n8n.../webhook/<path>. */
+export const n8nEventUrl = (path: string, env = process.env): string =>
+  (env.N8N_BOOKING_WEBHOOK_URL ?? "").replace(/\/webhook\/[^/]+\/?$/, `/webhook/${path}`);
+
+export async function notifyN8nInquiry(b: Booking, opts: { timeoutMs?: number; now?: () => number } = {}): Promise<{ sent: boolean; error?: string }> {
+  if (!n8nConfigured()) return { sent: false, error: "n8n bridge is not configured." };
+  const secret = process.env.N8N_BOOKING_WEBHOOK_SECRET as string;
+  const body = JSON.stringify(buildInquiryEvent(b));
+  const timestamp = String((opts.now ?? Date.now)());
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), opts.timeoutMs ?? 8000);
+  try {
+    const res = await fetch(n8nEventUrl("inquiry-created"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Booking-Timestamp": timestamp, "X-Booking-Signature": signPayload(secret, timestamp, body) },
+      body,
+      signal: ctrl.signal,
+    });
+    if (!res.ok) { console.error("[n8n] inquiry webhook responded", res.status); return { sent: false, error: `n8n responded ${res.status}` }; }
+    return { sent: true };
+  } catch (err) {
+    const reason = (err as Error)?.name === "AbortError" ? "timeout" : "network error";
+    console.error("[n8n] inquiry webhook failed:", reason);
+    return { sent: false, error: reason };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** Auth for the n8n -> site "daily digest" call: HMAC(secret, `${timestamp}.digest`), max 5 minutes old. */
+export function verifyDigestRequest(timestamp: string | undefined, signature: string | undefined, env = process.env, now = Date.now()): boolean {
+  const secret = env.N8N_BOOKING_WEBHOOK_SECRET ?? "";
+  if (secret.length < 16 || !timestamp || !signature) return false;
+  const ts = Number(timestamp);
+  if (!Number.isFinite(ts) || Math.abs(now - ts) > 5 * 60 * 1000) return false;
+  const expected = Buffer.from(signPayload(secret, timestamp, "digest"));
+  const got = Buffer.from(signature);
+  return expected.length === got.length && crypto.timingSafeEqual(expected, got);
+}

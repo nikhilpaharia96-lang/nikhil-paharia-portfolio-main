@@ -78,3 +78,48 @@ test("webhook: unconfigured / insecure URL / short secret = no-op; failures neve
 
   await withEnv("http://127.0.0.1:1/webhook/x", SECRET, async () => assert.equal((await notifyN8n(b, p)).sent, false));
 });
+
+// ── inquiry alert + digest auth ──
+import { buildInquiryEvent, notifyN8nInquiry, n8nEventUrl, verifyDigestRequest } from "../api/_lib/n8nHook.js";
+
+test("inquiry event carries only structured facts (no email, no free text)", async () => {
+  const { b } = await paidBooking();
+  const ev = buildInquiryEvent(b);
+  const s = JSON.stringify(ev);
+  assert.equal(ev.event, "inquiry.created");
+  assert.equal(ev.inquiry.phone, "+919876543210");
+  assert.ok(!s.includes("SECRET-DESCRIPTION-TEXT") && !s.includes("asha@example.com") && !s.includes("\n"));
+});
+
+test("inquiry webhook url is derived from the booking url, and the POST is signed", async () => {
+  assert.equal(n8nEventUrl("inquiry-created", { N8N_BOOKING_WEBHOOK_URL: "https://n8n.example.com/webhook/booking-confirmed" } as any), "https://n8n.example.com/webhook/inquiry-created");
+  const { b } = await paidBooking();
+  let got: { path: string; ts: string; sig: string; body: string } | null = null;
+  const srv = await server((req, body, res) => { got = { path: req.url!, ts: String(req.headers["x-booking-timestamp"]), sig: String(req.headers["x-booking-signature"]), body }; res.end("{}"); });
+  const prev = { u: process.env.N8N_BOOKING_WEBHOOK_URL, s: process.env.N8N_BOOKING_WEBHOOK_SECRET };
+  process.env.N8N_BOOKING_WEBHOOK_URL = srv.url; process.env.N8N_BOOKING_WEBHOOK_SECRET = SECRET;
+  try {
+    const r = await notifyN8nInquiry(b);
+    assert.equal(r.sent, true);
+    assert.equal(got!.path, "/webhook/inquiry-created");
+    assert.equal(got!.sig, signPayload(SECRET, got!.ts, got!.body));
+  } finally { srv.close(); process.env.N8N_BOOKING_WEBHOOK_URL = prev.u; process.env.N8N_BOOKING_WEBHOOK_SECRET = prev.s; }
+});
+
+test("inquiry alert is a silent no-op when the bridge is not configured", async () => {
+  const { b } = await paidBooking();
+  const prev = process.env.N8N_BOOKING_WEBHOOK_URL; delete process.env.N8N_BOOKING_WEBHOOK_URL;
+  try { assert.equal((await notifyN8nInquiry(b)).sent, false); } finally { if (prev) process.env.N8N_BOOKING_WEBHOOK_URL = prev; }
+});
+
+test("digest request: valid signature passes; wrong secret, stale, missing or tampered fail", () => {
+  const env = { N8N_BOOKING_WEBHOOK_SECRET: SECRET } as any;
+  const now = 1_800_000_000_000, ts = String(now);
+  const sig = signPayload(SECRET, ts, "digest");
+  assert.equal(verifyDigestRequest(ts, sig, env, now), true);
+  assert.equal(verifyDigestRequest(ts, signPayload("another-secret-0123456", ts, "digest"), env, now), false);
+  assert.equal(verifyDigestRequest(String(now - 6 * 60_000), signPayload(SECRET, String(now - 6 * 60_000), "digest"), env, now), false);
+  assert.equal(verifyDigestRequest(ts, signPayload(SECRET, ts, "bookings"), env, now), false);
+  assert.equal(verifyDigestRequest(undefined, sig, env, now), false);
+  assert.equal(verifyDigestRequest(ts, sig, {} as any, now), false);
+});

@@ -44,6 +44,14 @@ admin "Re-send confirmation"), the site POSTs a signed `booking.confirmed` event
 `${X-Booking-Timestamp}.${rawBody}`). It carries no email and no project description. It is a silent no-op when
 unconfigured and never blocks a booking. Leave `WHATSAPP_TOKEN` unset when using it, to avoid double messages.
 
+**More events for the assistant** (same two env vars, no new variables; same signature scheme):
+- `inquiry.created` → `<n8n>/webhook/inquiry-created`: sent when a *new* enquiry is saved. Structured facts only
+  (ref, name, phone, service, budget, source). n8n WhatsApps **you** the lead plus a ready-to-copy `CLIENT:` command.
+- `GET /api/admin/digest`: called once a day by n8n (header `X-Booking-Timestamp` + `X-Booking-Signature` =
+  `sha256=` HMAC-SHA256(secret, `<timestamp>.digest`), max 5 min old). Returns today's follow-ups due, number of new enquiries
+  and bookings with balance pending, no email or project text. n8n sends it to you as a morning WhatsApp.
+  n8n needs `PORTFOLIO_BASE_URL` (e.g. `https://your-site.vercel.app`) in its variables.
+
 ## Getting clients: enquiry, source tracking, lead engine
 - Step 3 of the modal has **"Not ready to pay? Send an enquiry — no payment"** (`/api/booking/inquiry`): saves the
   lead, emails you immediately, shows as an *Enquiry* in `/admin`. Rate-limited + honeypot. (Functions used: 11/12.)
