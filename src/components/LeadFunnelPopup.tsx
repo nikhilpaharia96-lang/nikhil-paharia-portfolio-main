@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Check, Download, Loader2, MessageCircle, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bot, Camera, Check, Download, Film, Globe, Loader2, Megaphone, MessageCircle, Palette, PenTool, ShieldCheck, ShoppingCart, Sparkles, Gift, X, type LucideIcon } from "lucide-react";
 import { Link } from "wouter";
 import { services } from "@/components/Services";
 import { track, consentRequired, getStoredConsent } from "@/lib/analytics";
 import { getSource } from "@/lib/attribution";
 import { sendQuickLead, PaymentError } from "@/lib/booking";
 import { lockBodyScroll } from "@/lib/scrollLock";
+import avatar from "../assets/images/funnel-avatar.webp";
 
 /**
  * Lead funnel (no personal data in analytics; the lead itself goes to /admin + email via /api/booking/inquiry).
@@ -26,6 +27,18 @@ const LEAD_KEY = "np-lead-funnel-sent";
 const DRAFT_KEY = "np-lead-funnel-draft";
 const FILE = `${import.meta.env.BASE_URL}Nikhil-Paharia-Portfolio.pdf`;
 const WHATSAPP_NUMBER = "919395722454";
+
+const SERVICE_STYLE: Record<string, { Icon: LucideIcon; from: string; to: string }> = {
+  "website-development": { Icon: Globe, from: "#1266F1", to: "#4f9bff" },
+  "video-editing": { Icon: Film, from: "#e1306c", to: "#ff7aa8" },
+  "digital-marketing": { Icon: Megaphone, from: "#f59e0b", to: "#fcd34d" },
+  "graphic-designing": { Icon: Palette, from: "#0ea5e9", to: "#67e8f9" },
+  "ui-ux-design": { Icon: PenTool, from: "#7c3aed", to: "#c4b5fd" },
+  "automation-ai-solutions": { Icon: Bot, from: "#059669", to: "#6ee7b7" },
+  "e-commerce-solutions": { Icon: ShoppingCart, from: "#ea580c", to: "#fdba74" },
+  "cinematography-video-production": { Icon: Camera, from: "#334155", to: "#94a3b8" },
+};
+const styleOf = (slug: string) => SERVICE_STYLE[slug] ?? { Icon: Sparkles, from: "#1266F1", to: "#4f9bff" };
 
 const ls = {
   get: (k: string) => { try { return localStorage.getItem(k); } catch { return null; } },
@@ -183,8 +196,8 @@ export default function LeadFunnelPopup() {
   };
 
   const btn = "inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40";
-  const primary = `${btn} bg-[#1266F1] text-white shadow-lg hover:bg-[#0F58D6]`;
-  const secondary = `${btn} border-2 border-blue-100 bg-white text-[#0b1530] hover:bg-blue-50`;
+  const primary = `${btn} bg-gradient-to-r from-[#1266F1] to-[#2f86ff] text-white shadow-[0_14px_30px_-10px_rgba(18,102,241,0.7)] hover:shadow-[0_18px_36px_-10px_rgba(18,102,241,0.85)] hover:-translate-y-0.5 active:translate-y-0`;
+  const secondary = `${btn} border-2 border-blue-100 bg-white text-[#0b1530] hover:bg-blue-50 hover:border-blue-200`;
   const field = "w-full rounded-xl border bg-white px-4 py-3 text-[15px] text-[#0b1530] placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-primary/30 focus:border-primary";
 
   return (
@@ -197,10 +210,14 @@ export default function LeadFunnelPopup() {
             initial={{ opacity: 0, y: reduce ? 0 : 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             transition={{ duration: reduce ? 0 : 0.3 }}
             onClick={() => { track("funnel_launcher_click"); openFunnel("launcher"); }}
-            className="fixed z-[80] right-4 bottom-4 sm:right-6 sm:bottom-6 inline-flex items-center gap-2 rounded-full bg-[#1266F1] pl-3.5 pr-4 py-3 text-[13px] font-bold uppercase tracking-wider text-white shadow-[0_12px_30px_-8px_rgba(18,102,241,0.65)] hover:bg-[#0F58D6] transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40"
+            className="group fixed z-[80] right-4 bottom-4 sm:right-6 sm:bottom-6 inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#1266F1] to-[#2f86ff] p-1.5 pr-4 text-[13px] font-bold uppercase tracking-wider text-white shadow-[0_14px_32px_-8px_rgba(18,102,241,0.7)] hover:-translate-y-0.5 transition-transform focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40"
             style={{ marginBottom: "env(safe-area-inset-bottom)" }}
           >
-            <MessageCircle className="w-4 h-4" aria-hidden="true" /> <span className="hidden min-[400px]:inline">Free quote</span><span className="min-[400px]:hidden">Quote</span>
+            <span className="relative grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-white/20 ring-2 ring-white/60">
+              <img src={avatar} alt="" width={36} height={36} className="h-full w-full object-cover" />
+              <span aria-hidden="true" className="absolute right-0 bottom-0 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-white" />
+            </span>
+            <span className="hidden min-[400px]:inline">Free quote</span><span className="min-[400px]:hidden">Quote</span>
           </motion.button>
         )}
       </AnimatePresence>
@@ -208,7 +225,7 @@ export default function LeadFunnelPopup() {
       <AnimatePresence>
         {open && (
           <motion.div
-            className="fixed inset-0 z-[90] flex items-end sm:items-center justify-center sm:p-4 bg-slate-900/55 backdrop-blur-sm"
+            className="fixed inset-0 z-[250] flex items-end sm:items-center justify-center sm:p-4 bg-slate-900/55 backdrop-blur-sm"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: reduce ? 0 : 0.25 }}
             onClick={() => close("backdrop")}
@@ -220,25 +237,36 @@ export default function LeadFunnelPopup() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: reduce ? 0 : 24 }}
               transition={{ duration: reduce ? 0 : 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="relative w-full sm:max-w-lg max-h-[92dvh] overflow-y-auto overscroll-contain rounded-t-3xl sm:rounded-3xl bg-white border border-blue-100 shadow-[0_30px_80px_-20px_rgba(15,45,90,0.45)] px-5 pt-3 pb-6 sm:px-8 sm:pt-7 sm:pb-8"
+              className="relative w-full sm:max-w-lg max-h-[92dvh] overflow-y-auto overscroll-contain rounded-t-[28px] sm:rounded-[28px] bg-white border border-blue-100 shadow-[0_40px_100px_-24px_rgba(15,45,90,0.6)] px-5 pb-6 sm:px-8 sm:pb-8"
               style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}
             >
-              <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-slate-200 sm:hidden" aria-hidden="true" />
-              <button type="button" onClick={() => close("x")} aria-label="Close"
-                className="absolute top-3 right-3 w-10 h-10 rounded-full grid place-items-center text-slate-500 hover:bg-blue-50 transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40">
-                <X className="w-5 h-5" />
-              </button>
-              {step === 2 && !done && (
-                <button type="button" onClick={() => { setStep(1); setErr({}); }} aria-label="Back to services"
-                  className="absolute top-3 left-3 sm:left-5 h-10 px-2.5 rounded-full inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:bg-blue-50 transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40">
-                  <ArrowLeft className="w-4 h-4" /> Back
+              {/* brand header band */}
+              <div className="-mx-5 sm:-mx-8 mb-5 relative overflow-hidden px-5 sm:px-8 pt-3 pb-4" style={{ background: "linear-gradient(135deg,#0b1530 0%,#123a9c 60%,#1266F1 100%)" }}>
+                <span aria-hidden="true" className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full" style={{ background: "radial-gradient(circle,rgba(127,178,255,0.45),transparent 70%)" }} />
+                <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-white/30 sm:hidden" aria-hidden="true" />
+                <div className="relative flex items-center gap-3 pr-10">
+                  {step === 2 && !done && (
+                    <button type="button" onClick={() => { setStep(1); setErr({}); }} aria-label="Back to services"
+                      className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/40">
+                      <ArrowLeft className="w-4 h-4" />
+                    </button>
+                  )}
+                  <span className="h-12 w-12 shrink-0 overflow-hidden rounded-full ring-2 ring-white/70" style={{ background: "linear-gradient(135deg,#1266F1,#7fb2ff)" }}>
+                    <img src={avatar} alt="Nikhil Paharia" width={48} height={48} className="h-full w-full object-cover" />
+                  </span>
+                  <span className="min-w-0 leading-tight">
+                    <span className="block truncate text-[15px] font-bold text-white">Nikhil Paharia</span>
+                    <span className="block truncate text-xs text-blue-100/90">Web Developer &amp; Video Editor · Assam</span>
+                  </span>
+                </div>
+                <button type="button" onClick={() => close("x")} aria-label="Close"
+                  className="absolute top-3 right-3 sm:top-3 grid h-9 w-9 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/40">
+                  <X className="w-4 h-4" />
                 </button>
-              )}
-
-              {/* progress */}
-              <div className="mx-auto mt-5 mb-4 flex w-24 gap-1.5" aria-hidden="true">
-                <span className="h-1 flex-1 rounded-full bg-primary" />
-                <span className={`h-1 flex-1 rounded-full transition-colors ${step === 2 ? "bg-primary" : "bg-blue-100"}`} />
+                <div className="relative mt-4 flex gap-1.5" aria-hidden="true">
+                  <span className="h-1 flex-1 rounded-full bg-white" />
+                  <span className={`h-1 flex-1 rounded-full transition-colors ${step === 2 ? "bg-white" : "bg-white/25"}`} />
+                </div>
               </div>
 
               {step === 1 ? (
@@ -246,13 +274,19 @@ export default function LeadFunnelPopup() {
                   <h2 id="funnel-title" className="text-2xl font-extrabold tracking-tight text-[#0b1530]">What do you need help with?</h2>
                   <p className="mt-2 text-sm text-slate-600">Pick one — I'll send you a free quote. Takes 20 seconds.</p>
                   <div className="mt-5 grid grid-cols-2 gap-2.5 text-left">
-                    {services.map((s) => (
-                      <button key={s.slug} type="button" onClick={() => choose({ slug: s.slug, title: s.title })}
-                        className="group rounded-2xl border border-blue-100 bg-blue-50/60 px-3 py-3 hover:border-primary hover:bg-blue-50 active:scale-[0.99] transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40">
-                        <span className="block text-[13px] font-bold leading-tight text-[#0b1530]">{s.title}</span>
-                        <span className="mt-1 block text-[11px] font-medium text-slate-500">from {s.price}</span>
-                      </button>
-                    ))}
+                    {services.map((s) => {
+                      const st = styleOf(s.slug);
+                      return (
+                        <button key={s.slug} type="button" onClick={() => choose({ slug: s.slug, title: s.title })}
+                          className="group flex flex-col items-start gap-2 rounded-2xl border border-blue-100 bg-white px-3 py-3 text-left shadow-[0_6px_16px_-10px_rgba(15,45,90,0.35)] hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-[0_14px_26px_-12px_rgba(18,102,241,0.45)] active:scale-[0.99] transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40">
+                          <span className="grid h-9 w-9 place-items-center rounded-xl text-white shadow-sm" style={{ background: `linear-gradient(135deg,${st.from},${st.to})` }}>
+                            <st.Icon className="h-[18px] w-[18px]" aria-hidden="true" />
+                          </span>
+                          <span className="block text-[13px] font-bold leading-tight text-[#0b1530]">{s.title}</span>
+                          <span className="inline-flex rounded-full bg-blue-50 px-2 py-0.5 text-[10.5px] font-semibold text-primary">from {s.price}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                   <button type="button" onClick={() => choose(null)} className="mt-4 inline-flex min-h-[44px] items-center text-sm font-medium text-slate-500 hover:text-slate-700">
                     Just browsing — show me the brochure
@@ -283,8 +317,13 @@ export default function LeadFunnelPopup() {
                 </div>
               ) : (
                 <div className="text-center">
+                  {pick && (() => { const st = styleOf(pick.slug); return (
+                    <span className="mx-auto mb-3 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50/70 py-1 pl-1 pr-3 text-xs font-semibold text-[#0b1530]">
+                      <span className="grid h-6 w-6 place-items-center rounded-full text-white" style={{ background: `linear-gradient(135deg,${st.from},${st.to})` }}><st.Icon className="h-3.5 w-3.5" aria-hidden="true" /></span>
+                      {pick.title}
+                    </span>); })()}
                   <h2 id="funnel-title" className="text-2xl font-extrabold tracking-tight text-[#0b1530]">
-                    {pick ? `Free quote for ${pick.title}` : "Here's how I can help"}
+                    {pick ? "Get your free quote" : "Here's how I can help"}
                   </h2>
                   <p className="mt-2 text-sm text-slate-600">
                     {pick ? "Leave your WhatsApp number and I'll send you a quote." : "Choose how you'd like to continue."}
@@ -324,7 +363,11 @@ export default function LeadFunnelPopup() {
                       <button type="submit" disabled={busy} className={`${primary} disabled:opacity-70`}>
                         {busy ? (<><Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> Sending…</>) : "Send my free-quote request"}
                       </button>
-                      <p className="px-1 text-center text-[11px] leading-snug text-slate-500">I'll only use your details to reply to this request.</p>
+                      <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 pt-1 text-[11px] font-medium text-slate-500">
+                        <li className="inline-flex items-center gap-1"><Gift className="h-3.5 w-3.5 text-primary" aria-hidden="true" />Free quote</li>
+                        <li className="inline-flex items-center gap-1"><MessageCircle className="h-3.5 w-3.5 text-primary" aria-hidden="true" />Reply on WhatsApp</li>
+                        <li className="inline-flex items-center gap-1"><ShieldCheck className="h-3.5 w-3.5 text-primary" aria-hidden="true" />No spam</li>
+                      </ul>
                     </form>
                   )}
 
