@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { ArrowRight } from "lucide-react";
 import { playCardPop } from "@/lib/sound";
 import "./services-cta.css";
@@ -65,6 +65,15 @@ function FanDeckCard({ service, index, total }: { service: ServiceItem; index: n
   const brightness = useTransform(scrollYProgress, [0, 1], [1, rm ? 1 : 0.88]);
   const filter = useTransform(brightness, (b) => `brightness(${b})`);
   const isLast = index === total - 1;
+  const [, navigate] = useLocation();
+  // Whole card opens the service brief; links/buttons inside keep their own behaviour,
+  // and a text-selection drag doesn't count as a click.
+  const openBrief = (e: React.MouseEvent) => {
+    if (!service.slug) return;
+    if ((e.target as HTMLElement).closest("a,button")) return;
+    if (window.getSelection()?.toString()) return;
+    navigate(`/services/${service.slug}`);
+  };
 
   return (
     <div
@@ -80,8 +89,9 @@ function FanDeckCard({ service, index, total }: { service: ServiceItem; index: n
         transition={{ duration: rm ? 0.2 : 0.65, ease: [0.16, 1, 0.3, 1] }}
         whileHover={{ rotate: 0, scale: 1.02 }}
         style={{ scale, filter, transformOrigin: "top center" }}
+        onClick={openBrief}
         className={`interactive relative rounded-2xl sm:rounded-3xl border-2 border-black/10 overflow-hidden mb-5
-                    shadow-[0_28px_55px_-18px_rgba(15,23,42,0.4)] cursor-default
+                    shadow-[0_28px_55px_-18px_rgba(15,23,42,0.4)] cursor-pointer
                     ${p.bg}`}
       >
         {/* huge translucent background number, deck-style */}
