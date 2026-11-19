@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { checkRateLimit, getClientIp } from "../_lib/rateLimit.js";
-import { BookingError, saveInquiry } from "../_lib/bookingService.js";
+import { BookingError, saveInquiry, saveQuickLead } from "../_lib/bookingService.js";
 import { buildInquiryDeps } from "../_lib/bookingRuntime.js";
 import { StoreNotConfiguredError } from "../_lib/bookingStore.js";
 
@@ -29,7 +29,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (typeof body.companyWebsite === "string" && body.companyWebsite.trim()) return res.status(400).json({ error: "Request rejected." });
 
   try {
-    const r = await saveInquiry(buildInquiryDeps(), body, body.leadId);
+    const r = body.quick === true ? await saveQuickLead(buildInquiryDeps(), body) : await saveInquiry(buildInquiryDeps(), body, body.leadId);
     return res.status(200).json(r);
   } catch (err) {
     if (err instanceof BookingError) return res.status(err.status).json({ error: err.message, fieldErrors: err.fieldErrors });

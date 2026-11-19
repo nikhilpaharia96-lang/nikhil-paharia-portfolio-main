@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import {
   validateBookingInput,
+  validateQuickLead,
   bookingRef,
   type Booking,
   type BookingStatus,
@@ -247,6 +248,38 @@ export async function saveInquiry(deps: Deps, raw: unknown, leadId?: unknown): P
     } catch (err) {
       console.error("[booking] inquiry notification failed:", err instanceof Error ? err.message : "unknown error");
     }
+  }
+  return { leadId: booking.id, ref: bookingRef(booking.id) };
+}
+
+/**
+ * Lightweight lead from the website funnel popup ("get a free quote"): saved as a new enquiry lead (visible in /admin,
+ * source "funnel-popup") and the owner is emailed. No payment. The same phone + service within 10 minutes reuses the lead,
+ * so a double-click or retry never creates duplicates or duplicate emails.
+ */
+export async function saveQuickLead(deps: Deps, raw: unknown): Promise<{ leadId: string; ref: string }> {
+  const { value, errors } = validateQuickLead(raw);
+  if (!value) throw new BookingError(400, Object.values(errors)[0] ?? "Please check your details.", errors as FieldErrors);
+  const slug = value.service as ServiceSlug;
+  const ts = iso(deps);
+  const id = crypto
+    .createHash("sha256").update(`quick:${value.phone}:${slug}:${Math.floor(((deps.now ?? Date.now)()) / 600_000)}`).digest("hex")
+    .replace(/^(.{8})(.{4}).(.{3}).(.{3})(.{12}).*$/, "$1-$2-4$3-8$4-$5");
+  const existing = await deps.store.get(id);
+  if (existing) return { leadId: existing.id, ref: bookingRef(existing.id) };
+  const booking: Booking = {
+    id, createdAt: ts, updatedAt: ts, service: slug, serviceTitle: SERVICE_PRICES[slug].title,
+    name: value.name, phone: value.phone, email: value.email, company: "", websiteType: "",
+    description: "Quick lead: asked for a free quote from the website popup. Contact on WhatsApp to understand the requirement.",
+    startDate: "", budget: 0, quote: computeQuote(0, deps.split ?? normalizeSplit()),
+    status: "new_lead", paymentStatus: "pending", orders: [], payments: [], failures: [],
+    statusHistory: [{ status: "new_lead", at: ts }], notes: "", inquiry: true, source: value.source,
+  };
+  await deps.store.save(booking);
+  try {
+    await deps.notifyInquiry?.(booking);
+  } catch (err) {
+    console.error("[booking] quick-lead notification failed:", err instanceof Error ? err.message : "unknown error");
   }
   return { leadId: booking.id, ref: bookingRef(booking.id) };
 }

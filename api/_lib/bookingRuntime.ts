@@ -67,8 +67,8 @@ export async function notifyInquiryForBooking(b: Booking): Promise<void> {
     "",
     `Name: ${b.name}${b.company ? ` (${b.company})` : ""}`,
     `WhatsApp: +91${b.phone}`,
-    `Email: ${b.email}`,
-    `Budget: ₹${b.budget.toLocaleString("en-IN")}`,
+    `Email: ${b.email || "not given"}`,
+    `Budget: ${b.budget ? `₹${b.budget.toLocaleString("en-IN")}` : "not given yet"}`,
     ...(b.websiteType ? [`Website type: ${b.websiteType}`] : []),
     ...(b.startDate ? [`Preferred start: ${b.startDate}`] : []),
     "",
@@ -77,7 +77,7 @@ export async function notifyInquiryForBooking(b: Booking): Promise<void> {
     "",
     "Reply fast — enquiries convert best within the hour. Manage it in /admin.",
   ].join("\n");
-  await sendNotificationEmail({ subject: `New enquiry: ${b.serviceTitle} — ${b.name} (₹${b.budget.toLocaleString("en-IN")})`, text, replyTo: b.email });
+  await sendNotificationEmail({ subject: `New enquiry: ${b.serviceTitle} — ${b.name}${b.budget ? ` (₹${b.budget.toLocaleString("en-IN")})` : ""}`, text, replyTo: b.email || undefined });
 }
 
 /** Enquiries never touch Razorpay, so they get a gateway that refuses to be used. */

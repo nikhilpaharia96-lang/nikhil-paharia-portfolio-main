@@ -252,6 +252,26 @@ export function validateBookingInput(
   };
 }
 
+/** The lightweight "free quote" lead from the website funnel popup: service + name + WhatsApp number (email optional). */
+export interface QuickLeadInput { service: string; name: string; phone: string; email: string; source?: string }
+
+export function validateQuickLead(raw: unknown): { value: QuickLeadInput | null; errors: Partial<Record<keyof QuickLeadInput, string>> } {
+  const r = (raw ?? {}) as Record<string, unknown>;
+  const str = (k: string) => (typeof r[k] === "string" ? clean(r[k] as string).trim() : "");
+  const errors: Partial<Record<keyof QuickLeadInput, string>> = {};
+  const service = str("service");
+  const name = str("name").replace(/\s+/g, " ");
+  const email = str("email").toLowerCase();
+  const phone = normalizePhone(typeof r.phone === "string" ? r.phone : "");
+  if (!isServiceSlug(service)) errors.service = "Please choose a service.";
+  if (name.length < 2) errors.name = "Please enter your name.";
+  else if (name.length > 100) errors.name = "Name is too long.";
+  if (!phone) errors.phone = "Enter a valid 10-digit WhatsApp number.";
+  if (email && (!EMAIL_RE.test(email) || email.length > 120)) errors.email = "Enter a valid email address (or leave it empty).";
+  if (Object.keys(errors).length) return { value: null, errors };
+  return { value: { service, name, phone, email, source: sanitizeSource(r.source) || "funnel-popup" }, errors };
+}
+
 /* ───────────────────────────── WhatsApp ───────────────────────────── */
 
 export const bookingRef = (id: string) => `NP-${id.replace(/-/g, "").slice(0, 8).toUpperCase()}`;

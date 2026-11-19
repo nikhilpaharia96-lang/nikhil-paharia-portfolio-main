@@ -4,6 +4,7 @@ import { ArrowRight, Download, MessageCircle, X } from "lucide-react";
 import { Link } from "wouter";
 import { services } from "@/components/Services";
 import { track } from "@/lib/analytics";
+import { sendQuickLead, PaymentError } from "@/lib/booking";
 import { getSource } from "@/lib/attribution";
 
 /**
@@ -12,6 +13,7 @@ import { getSource } from "@/lib/attribution";
  *   Step 2  Free quote on WhatsApp   → the lead lands in the owner's WhatsApp with the service + source prefilled
  *           Download brochure (PDF)  → lead magnet
  *           See pricing & book       → existing /services/:slug booking flow
+ * Step 2 also has a short form (name + WhatsApp number): it saves the lead in /admin and emails the owner.
  * Every stage fires an anonymous analytics event (funnel_*) so drop-off can be read in Clarity.
  */
 
@@ -29,6 +31,10 @@ export default function LeadFunnelPopup() {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
   const [pick, setPick] = useState<Pick>(null);
+  const [form, setForm] = useState({ name: "", phone: "", email: "", hp: "" });
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<Record<string, string>>({});
+  const [done, setDone] = useState<string | null>(null);
   const reduce = !!useReducedMotion();
   const first = useRef<HTMLButtonElement>(null);
 
@@ -49,6 +55,19 @@ export default function LeadFunnelPopup() {
   }, [open, step]);
 
   const choose = (p: Pick) => { setPick(p); setStep(2); track("funnel_need_selected", { service: p?.slug ?? "browsing" }); };
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pick || busy) return;
+    setBusy(true); setErr({});
+    try {
+      const r = await sendQuickLead({ service: pick.slug, name: form.name, phone: form.phone, email: form.email }, form.hp);
+      remember(); setDone(r.ref); track("funnel_lead_submitted", { service: pick.slug });
+    } catch (ex) {
+      const fe = (ex as PaymentError).fieldErrors as Record<string, string> | undefined;
+      setErr({ ...(fe ?? {}), form: fe && Object.keys(fe).length ? "" : (ex as Error).message });
+    } finally { setBusy(false); }
+  };
 
   const waHref = () => {
     const need = pick ? `I'm interested in ${pick.title}` : "I'd like to know more about your services";
@@ -107,13 +126,41 @@ export default function LeadFunnelPopup() {
                 <h2 id="funnel-title" className="mt-1 text-2xl font-extrabold tracking-tight text-[#0b1530]">
                   {pick ? `Great — let's talk ${pick.title}` : "Here's how I can help"}
                 </h2>
-                <p className="mt-2 text-sm text-slate-600">Choose how you'd like to continue. I usually reply on WhatsApp.</p>
-                <div className="mt-5 space-y-3">
-                  <a ref={undefined} href={waHref()} target="_blank" rel="noopener noreferrer"
-                    onClick={() => { remember(); track("funnel_whatsapp_click", { service: pick?.slug ?? "browsing" }); setOpen(false); }}
-                    className={`${btn} bg-[#1266F1] text-white shadow-lg hover:bg-[#0F58D6]`}>
-                    <MessageCircle className="w-4 h-4" aria-hidden="true" /> Get a free quote on WhatsApp
-                  </a>
+                <p className="mt-2 text-sm text-slate-600">{pick ? "Leave your number and I'll send you a free quote on WhatsApp." : "Choose how you'd like to continue. I usually reply on WhatsApp."}</p>
+                {pick && !done && (
+                  <form onSubmit={submit} noValidate className="mt-5 space-y-2.5 text-left">
+                    <input type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" value={form.hp} onChange={(e) => setForm({ ...form, hp: e.target.value })} className="absolute -left-[9999px] h-0 w-0 opacity-0" />
+                    {([["name", "Your name", "text", "name"], ["phone", "WhatsApp number (10 digits)", "tel", "tel"], ["email", "Email (optional)", "email", "email"]] as const).map(([k, ph, type, ac]) => (
+                      <div key={k}>
+                        <input
+                          type={type} autoComplete={ac} inputMode={k === "phone" ? "numeric" : undefined} placeholder={ph} aria-label={ph} aria-invalid={!!err[k]}
+                          value={form[k]} onChange={(e) => setForm({ ...form, [k]: e.target.value })}
+                          className="w-full rounded-xl border border-blue-100 bg-white px-4 py-3 text-sm text-[#0b1530] placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-primary/30 focus:border-primary"
+                        />
+                        {err[k] && <p className="mt-1 px-1 text-xs text-red-600">{err[k]}</p>}
+                      </div>
+                    ))}
+                    {err.form && <p role="alert" className="px-1 text-xs text-red-600">{err.form}</p>}
+                    <button type="submit" disabled={busy} className={`${btn} bg-[#1266F1] text-white shadow-lg hover:bg-[#0F58D6] disabled:opacity-60`}>
+                      {busy ? "Sending…" : "Send my free-quote request"}
+                    </button>
+                    <p className="px-1 text-[11px] text-slate-500">I'll message you on WhatsApp. Your details are used only to reply to this request.</p>
+                  </form>
+                )}
+                {done && (
+                  <div role="status" className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-900">
+                    <b>Thank you! Request received.</b> I'll WhatsApp you shortly.<br />
+                    <span className="text-xs">Your reference: <b>{done}</b></span>
+                  </div>
+                )}
+                <div className="mt-4 space-y-3">
+                  {!done && (
+                    <a href={waHref()} target="_blank" rel="noopener noreferrer"
+                      onClick={() => { remember(); track("funnel_whatsapp_click", { service: pick?.slug ?? "browsing" }); setOpen(false); }}
+                      className={`${btn} ${pick ? "border-2 border-blue-100 bg-white text-[#0b1530] hover:bg-blue-50" : "bg-[#1266F1] text-white shadow-lg hover:bg-[#0F58D6]"}`}>
+                      <MessageCircle className="w-4 h-4" aria-hidden="true" /> {pick ? "Or chat on WhatsApp now" : "Get a free quote on WhatsApp"}
+                    </a>
+                  )}
                   <a href={FILE} download="Nikhil-Paharia-Portfolio.pdf"
                     onClick={() => { remember(); track("funnel_brochure_download", { service: pick?.slug ?? "browsing" }); }}
                     className={`${btn} border-2 border-blue-100 bg-white text-[#0b1530] hover:bg-blue-50`}>

@@ -154,3 +154,12 @@ export async function sendInquiry(input: BookingInput, opts: PayOptions = {}): P
   opts.onLead?.(r.data.leadId);
   return r.data;
 }
+
+/** "Get a free quote" from the funnel popup: service + name + WhatsApp number (email optional). Saves a lead, emails the owner. */
+export async function sendQuickLead(input: { service: string; name: string; phone: string; email?: string }, honeypot = ""): Promise<{ leadId: string; ref: string }> {
+  const r = await postJson("/api/booking/inquiry", { ...input, quick: true, source: getSource() || "funnel-popup", companyWebsite: honeypot }).catch((e) => {
+    throw e instanceof PaymentError ? e : new PaymentError("Could not reach the server. Check your connection and try again.");
+  });
+  if (!r.ok) throw new PaymentError(r.data?.error || "Could not send your request.", false, r.data?.fieldErrors);
+  return r.data;
+}
