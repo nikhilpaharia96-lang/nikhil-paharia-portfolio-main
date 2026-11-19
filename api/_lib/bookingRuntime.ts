@@ -4,7 +4,7 @@ import { getStore } from "./bookingStore.js";
 import { notifyBooking } from "./bookingEmail.js";
 import type { Deps, Gateway } from "./bookingService.js";
 import type { Booking, PaymentRecord } from "../../shared/booking.js";
-import { notifyN8n } from "./n8nHook.js";
+import { notifyN8n, notifyN8nInquiry } from "./n8nHook.js";
 import { sendNotificationEmail } from "./sendEmail.js";
 import { bookingRef } from "../../shared/booking.js";
 import { createUpiOrder, fetchUpiOrder, getUpiConfig, upiEnabled } from "./upiGateway.js";
@@ -77,7 +77,11 @@ export async function notifyInquiryForBooking(b: Booking): Promise<void> {
     "",
     "Reply fast — enquiries convert best within the hour. Manage it in /admin.",
   ].join("\n");
-  await sendNotificationEmail({ subject: `New enquiry: ${b.serviceTitle} — ${b.name}${b.budget ? ` (₹${b.budget.toLocaleString("en-IN")})` : ""}`, text, replyTo: b.email || undefined });
+  try {
+    await sendNotificationEmail({ subject: `New enquiry: ${b.serviceTitle} — ${b.name}${b.budget ? ` (₹${b.budget.toLocaleString("en-IN")})` : ""}`, text, replyTo: b.email || undefined });
+  } finally {
+    await notifyN8nInquiry(b).catch(() => undefined); // WhatsApp alert to the owner; never blocks or fails the enquiry
+  }
 }
 
 /** Enquiries never touch Razorpay, so they get a gateway that refuses to be used. */

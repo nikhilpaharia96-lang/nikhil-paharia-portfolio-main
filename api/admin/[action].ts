@@ -4,8 +4,10 @@ import { adminConfigured, clearCookie, isAuthed, issueToken, passwordMatches, sa
 import { computeStats, deleteBooking, recordManualPayment, updateBooking } from "../_lib/adminService.js";
 import { notifyForBooking } from "../_lib/bookingRuntime.js";
 import { BookingError } from "../_lib/bookingService.js";
+import { bookingRef } from "../../shared/booking.js";
 import { getStore, StoreNotConfiguredError } from "../_lib/bookingStore.js";
 import { getClientIp } from "../_lib/rateLimit.js";
+import { verifyDigestRequest } from "../_lib/n8nHook.js";
 import { durableStoreConfigured, incrWindow, readVisits, VISIT_RETENTION_DAYS } from "../_lib/visitStore.js";
 
 // ONE function for every admin action (keeps the project under Vercel Hobby's 12-function limit):
@@ -47,6 +49,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // ── everything below needs a valid admin session ──
+    // GET digest: called once a day by the WhatsApp assistant (n8n), signed with the shared bridge secret instead of the
+    // admin cookie. Returns ONLY what the owner needs for a morning WhatsApp: who to follow up today (no email / project text).
+    if (action === "digest" && req.method === "GET") {
+      const h = (k: string) => (Array.isArray(req.headers[k]) ? (req.headers[k] as string[])[0] : (req.headers[k] as string | undefined));
+      if (!verifyDigestRequest(h("x-booking-timestamp"), h("x-booking-signature"))) return res.status(401).json({ error: "Unauthorized." });
+      const today = new Date(Date.now() + 5.5 * 3_600_000).toISOString().slice(0, 10);
+      const all = await getStore().list(500);
+      const open = all.filter((b) => b.status !== "completed" && b.status !== "cancelled");
+      const due = open.filter((b) => b.followUpAt && b.followUpAt <= today)
+        .sort((a, b) => String(a.followUpAt).localeCompare(String(b.followUpAt))).slice(0, 15)
+        .map((b) => ({ ref: bookingRef(b.id), name: b.name.slice(0, 60), phone: `+91${b.phone}`, service: b.serviceTitle, status: b.status, followUpAt: b.followUpAt }));
+      const newEnquiries = open.filter((b) => b.status === "new_lead").length;
+      const unpaidAdvance = open.filter((b) => b.paymentStatus === "paid" && b.quote.total > b.payments.reduce((s, p) => s + p.amount, 0)).length;
+      return res.status(200).json({ today, due, newEnquiries, unpaidAdvance });
+    }
+
     if (!isAuthed(req)) return res.status(401).json({ error: "Unauthorized." });
 
     // Anonymous visit log (no IPs / user agents). Needs Upstash; handled before getStore() so it never depends on it.
