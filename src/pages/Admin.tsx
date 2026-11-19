@@ -1,8 +1,9 @@
+import { SiWhatsapp } from "react-icons/si";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  Loader2, LogOut, MessageCircle, RefreshCw, Search, Lock, Phone, Mail, Building2, CalendarDays, IndianRupee,
+  Loader2, LogOut, RefreshCw, Search, Lock, Phone, Mail, Building2, CalendarDays, IndianRupee,
   Download, Copy, Eye, EyeOff, Trash2, Send, BellRing, TrendingUp,
 } from "lucide-react";
 import VisitorsPanel from "@/components/admin/VisitorsPanel";
@@ -289,7 +290,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
               </div>
             </button>
             <div className="mt-3 flex gap-2">
-              <a href={buildWhatsAppLink(b)} target="_blank" rel="noopener noreferrer" className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#25D366] py-2 text-sm font-bold text-white"><MessageCircle className="h-4 w-4" />WhatsApp</a>
+              <a href={buildWhatsAppLink(b)} target="_blank" rel="noopener noreferrer" className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#25D366] py-2 text-sm font-bold text-white"><SiWhatsapp className="h-4 w-4" aria-hidden="true" />WhatsApp</a>
               <a href={`tel:+91${b.phone}`} aria-label={`Call ${b.name}`} className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3.5 text-slate-700"><Phone className="h-4 w-4" /></a>
               <select aria-label="Change status" value={b.status} disabled={quickStatus.isPending} onChange={(e) => quickStatus.mutate({ id: b.id, status: e.target.value })} className="max-w-[9.5rem] rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700">
                 {BOOKING_STATUSES.map((st) => <option key={st} value={st}>{STATUS_LABELS[st]}</option>)}
@@ -357,7 +358,7 @@ function Detail({ b, onGone }: { b: Booking; onGone: () => void }) {
           <select value={tmpl} onChange={(e) => setTmpl(e.target.value as WaTemplate)} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 font-semibold">
             {WA_TEMPLATES.map((t) => <option key={t} value={t}>{WA_TEMPLATE_LABELS[t]}</option>)}
           </select>
-          <a href={buildWhatsAppLink(b, tmpl)} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded-full bg-[#25D366] py-3 font-bold text-white"><MessageCircle className="h-5 w-5" />Open in WhatsApp</a>
+          <a href={buildWhatsAppLink(b, tmpl)} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded-full bg-[#25D366] py-3 font-bold text-white"><SiWhatsapp className="h-5 w-5" aria-hidden="true" />Open in WhatsApp</a>
         </Block>
 
         <Block title="Status">

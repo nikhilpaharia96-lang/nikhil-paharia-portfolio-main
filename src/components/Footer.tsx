@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { RiArrowUpLine, RiGithubFill, RiLinkedinFill, RiInstagramLine, RiYoutubeFill } from "react-icons/ri";
+import { SiInstagram } from "react-icons/si";
+import { RiArrowUpLine, RiGithubFill, RiLinkedinFill, RiYoutubeFill } from "react-icons/ri";
 import footerBg from "../assets/images/footer-bg.webp";
 import Magnetic from "@/components/ui/Magnetic";
 import FloatingParticles from "@/components/FloatingParticles";
@@ -15,7 +16,7 @@ const bigText = "text-4xl sm:text-6xl md:text-7xl leading-[0.95] uppercase text-
 const socials = [
   { Icon: RiGithubFill,    href: "https://github.com/nikhilpaharia96-lang", label: "GitHub",    hoverBg: "hover:bg-slate-900"   },
   { Icon: RiLinkedinFill,  href: "#", label: "LinkedIn",  hoverBg: "hover:bg-[#0A66C2]"   },
-  { Icon: RiInstagramLine, href: "#", label: "Instagram", hoverBg: "hover:bg-[#E1306C]"   },
+  { Icon: SiInstagram, href: "#", label: "Instagram", hoverBg: "hover:bg-[#E1306C]"   },
   { Icon: RiYoutubeFill,   href: "#", label: "YouTube",   hoverBg: "hover:bg-[#FF0000]"   },
 ];
 

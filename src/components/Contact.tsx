@@ -8,8 +8,9 @@ import {
   Lock, Sparkles, Wallet, ListChecks,
 } from "lucide-react";
 import {
-  RiGithubFill, RiLinkedinFill, RiInstagramLine, RiYoutubeFill, RiWhatsappFill,
+  RiGithubFill, RiLinkedinFill, RiYoutubeFill, 
 } from "react-icons/ri";
+import { SiInstagram, SiWhatsapp } from "react-icons/si";
 import Magnetic from "@/components/ui/Magnetic";
 import connectBg from "@/assets/images/showcase-bg.webp";
 import cloudImg from "@/assets/images/cloud2.895414a23f99e60c66ea.webp";
@@ -290,9 +291,9 @@ const contactInfo = [
 const socials = [
   { Icon: RiGithubFill,    href: "https://github.com/nikhilpaharia96-lang", label: "GitHub"    },
   { Icon: RiLinkedinFill,  href: "", label: "LinkedIn"  }, // TODO: add LinkedIn URL
-  { Icon: RiInstagramLine, href: "", label: "Instagram" }, // TODO: add Instagram URL
+  { Icon: SiInstagram, href: "", label: "Instagram" }, // TODO: add Instagram URL
   { Icon: RiYoutubeFill,   href: "", label: "YouTube"   }, // TODO: add YouTube URL
-  { Icon: RiWhatsappFill,  href: `https://wa.me/${WHATSAPP_NUMBER}`, label: "WhatsApp" },
+  { Icon: SiWhatsapp, href: `https://wa.me/${WHATSAPP_NUMBER}`, label: "WhatsApp" },
 ].filter((s) => s.href);
 
 const trustBadges = [

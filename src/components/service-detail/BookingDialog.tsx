@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { toast } from "sonner";
-import { AlertTriangle, ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Loader2, Lock, ShieldCheck, MessageCircle, PhoneCall } from "lucide-react";
+import { SiWhatsapp } from "react-icons/si";
+import { AlertTriangle, ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Loader2, Lock, ShieldCheck, PhoneCall } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { payBookingToken, sendInquiry, PaymentError, type BookingReceipt } from "@/lib/booking";
 import { getSource } from "@/lib/attribution";
@@ -334,7 +335,7 @@ export default function BookingDialog({ open, onOpenChange, slug, initialTotal }
                   )}
                   {OWNER_WA && (
                     <a href={`https://wa.me/${OWNER_WA}?text=${encodeURIComponent(`Hi Nikhil, I just sent an enquiry for ${SERVICE_PRICES[svc].title} (Ref: ${enquiryRef}).`)}`} target="_blank" rel="noopener noreferrer" className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#25D366] py-3 text-sm font-bold text-white transition hover:brightness-105">
-                      <MessageCircle className="h-4 w-4" /> WhatsApp me
+                      <SiWhatsapp className="h-4 w-4" aria-hidden="true" /> WhatsApp me
                     </a>
                   )}
                   <button onClick={closeAfterSuccess} className="flex-1 rounded-full bg-slate-900 py-3 text-sm font-bold text-white transition hover:bg-slate-800">Done</button>
@@ -363,7 +364,7 @@ export default function BookingDialog({ open, onOpenChange, slug, initialTotal }
                 <div className="flex flex-col gap-2 sm:flex-row">
                   {OWNER_WA && (
                     <a href={`https://wa.me/${OWNER_WA}?text=${waText}`} target="_blank" rel="noopener noreferrer" className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#25D366] py-3 text-sm font-bold text-white transition hover:brightness-105">
-                      <MessageCircle className="h-4 w-4" /> Message me on WhatsApp
+                      <SiWhatsapp className="h-4 w-4" aria-hidden="true" /> Message me on WhatsApp
                     </a>
                   )}
                   <button onClick={closeAfterSuccess} className="flex-1 rounded-full bg-slate-900 py-3 text-sm font-bold text-white transition hover:bg-slate-800">Done</button>
