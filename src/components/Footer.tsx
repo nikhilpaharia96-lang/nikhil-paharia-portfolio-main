@@ -12,7 +12,7 @@ import "./footer-fx.css";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const FONT_CONDENSED = "'Anton', 'Impact', sans-serif";
-const bigText = "text-4xl sm:text-6xl md:text-7xl leading-[0.95] uppercase text-foreground";
+const bigText = "text-2xl sm:text-3xl md:text-4xl leading-[0.95] uppercase text-foreground";
 
 const allSocials = [
   { Icon: RiGithubFill,    href: "https://github.com/nikhilpaharia96-lang", label: "GitHub",    hoverBg: "hover:bg-slate-900"   },
@@ -117,7 +117,7 @@ export default function Footer() {
   const headingWords = "Let's build the future.".split(" ");
 
   return (
-    <footer ref={footerRef} className="relative bg-blue-50 pt-20 md:pt-32 pb-28 md:pb-24 border-t border-blue-100 overflow-hidden">
+    <footer ref={footerRef} className="relative bg-blue-50 pt-12 md:pt-16 pb-24 md:pb-20 border-t border-blue-100 overflow-hidden">
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <motion.div className="absolute inset-0" style={{ y: bgY }}>
           <img
@@ -164,9 +164,9 @@ export default function Footer() {
           initial="hidden"
           whileInView="show"
           viewport={view}
-          className="text-center mb-12 md:mb-24 max-w-2xl mx-auto"
+          className="text-center mb-8 md:mb-12 max-w-2xl mx-auto"
         >
-          <h2 className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-6 text-center" aria-label="Let's build the future.">
+          <h2 className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-3 text-center" aria-label="Let's build the future.">
             <span className="inline-flex flex-wrap justify-center" aria-hidden="true">
               {headingWords.map((w, i) => (
                 <span key={i} className="relative inline-block overflow-hidden mr-[0.24em] py-[0.1em] -my-[0.1em]">
@@ -183,12 +183,12 @@ export default function Footer() {
               ))}
             </span>
           </h2>
-          <motion.p variants={rise} className="text-lg text-slate-600 font-light">
+          <motion.p variants={rise} className="text-base md:text-lg text-slate-600 font-light">
             Available for freelance opportunities globally. Bring your boldest ideas.
           </motion.p>
         </motion.div>
 
-        <div className="flex flex-col md:flex-row justify-between items-center gap-8 md:gap-12 mb-10 md:mb-16">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-10 mb-6 md:mb-8">
 
           {/* Brand — from LEFT */}
           <motion.div
@@ -213,7 +213,7 @@ export default function Footer() {
             initial="hidden"
             whileInView="show"
             viewport={view}
-            className="flex flex-col items-center gap-6"
+            className="flex flex-col items-center gap-3 md:gap-4"
           >
             {/* Nav links */}
             <motion.h3 variants={child} className={`${bigText} footer-glow-title`} style={{ fontFamily: FONT_CONDENSED }}>Explore</motion.h3>
@@ -232,7 +232,7 @@ export default function Footer() {
             </div>
 
             {/* Social icons wrapped in Magnetic */}
-            <motion.h3 variants={child} className={`${bigText} mt-4`} style={{ fontFamily: FONT_CONDENSED }}>Social</motion.h3>
+            <motion.h3 variants={child} className={`${bigText} mt-2`} style={{ fontFamily: FONT_CONDENSED }}>Social</motion.h3>
             <div className="flex gap-4">
               {socials.map(({ Icon, href, label, hoverBg }) => (
                 <Magnetic key={label} range={45} strength={0.4} scaleHover={1.15}>
@@ -258,7 +258,7 @@ export default function Footer() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: false, amount: 0.5 }}
-          className="flex flex-col md:flex-row justify-between items-center gap-6 pt-8 border-t border-blue-100"
+          className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-6 pt-5 border-t border-blue-100"
         >
           <p className="text-slate-700 text-sm font-medium">
             © {new Date().getFullYear()} Nikhil Paharia. <span className="hidden sm:inline">All rights reserved.</span>
@@ -272,7 +272,7 @@ export default function Footer() {
               whileHover={reduce ? undefined : { y: -3, scale: 1.08 }}
               whileTap={reduce ? undefined : { scale: 0.9 }}
               transition={{ type: "spring", stiffness: 380, damping: 22 }}
-              className="footer-top-btn interactive w-12 h-12 rounded-full bg-white/90 border border-blue-200 flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary text-slate-600 overflow-hidden"
+              className="footer-top-btn interactive w-10 h-10 rounded-full bg-white/90 border border-blue-200 flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary text-slate-600 overflow-hidden"
               aria-label="Scroll to top"
             >
               <span className="footer-arrow">
