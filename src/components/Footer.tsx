@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { SiInstagram } from "react-icons/si";
+import { SiInstagram, SiWhatsapp } from "react-icons/si";
+import { Mail } from "lucide-react";
 import { RiArrowUpLine, RiGithubFill, RiLinkedinFill, RiYoutubeFill } from "react-icons/ri";
 import footerBg from "../assets/images/footer-bg.webp";
 import Magnetic from "@/components/ui/Magnetic";
@@ -13,18 +14,25 @@ const ease = [0.16, 1, 0.3, 1] as const;
 const FONT_CONDENSED = "'Anton', 'Impact', sans-serif";
 const bigText = "text-4xl sm:text-6xl md:text-7xl leading-[0.95] uppercase text-foreground";
 
-const socials = [
+const allSocials = [
   { Icon: RiGithubFill,    href: "https://github.com/nikhilpaharia96-lang", label: "GitHub",    hoverBg: "hover:bg-slate-900"   },
+  { Icon: SiWhatsapp,      href: "https://wa.me/919395722454", label: "WhatsApp",  hoverBg: "hover:bg-[#25D366]"   },
+  { Icon: Mail,            href: "mailto:nikhilpaharia96@gmail.com", label: "Email", hoverBg: "hover:bg-primary"    },
   { Icon: RiLinkedinFill,  href: "#", label: "LinkedIn",  hoverBg: "hover:bg-[#0A66C2]"   },
   { Icon: SiInstagram, href: "#", label: "Instagram", hoverBg: "hover:bg-[#E1306C]"   },
   { Icon: RiYoutubeFill,   href: "#", label: "YouTube",   hoverBg: "hover:bg-[#FF0000]"   },
 ];
+// Only real links are shown — fill in the "#" ones above and they appear automatically.
+const socials = allSocials.filter((x) => x.href && x.href !== "#");
 
 const navLinks = [
   { label: "Home",     href: "#home"     },
   { label: "About",    href: "#about"    },
+  { label: "Skills",   href: "#skills"   },
   { label: "Projects", href: "#projects" },
   { label: "Videos",   href: "#videos"   },
+  { label: "Services", href: "#services" },
+  { label: "Contact",  href: "#contact"  },
 ];
 
 // cloud2 is a clean stand-alone cumulus (cloud.webp is a hard-cropped cloud bank, so it is not used here).
@@ -109,7 +117,7 @@ export default function Footer() {
   const headingWords = "Let's build the future.".split(" ");
 
   return (
-    <footer ref={footerRef} className="relative bg-blue-50 pt-20 md:pt-32 pb-12 border-t border-blue-100 overflow-hidden">
+    <footer ref={footerRef} className="relative bg-blue-50 pt-20 md:pt-32 pb-28 md:pb-24 border-t border-blue-100 overflow-hidden">
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <motion.div className="absolute inset-0" style={{ y: bgY }}>
           <img
