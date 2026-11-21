@@ -1,0 +1,50 @@
+.ah { position: relative; padding: 56px 0 72px; overflow: hidden; }
+.ah-h { text-align: center; margin: 64px 0 36px; font-family: Futura, "Futura PT", "Jost", "Century Gothic", sans-serif; font-weight: 700; font-size: 1.9rem; letter-spacing: -0.02em; color: #0b1530; }
+html.dark .ah-h { color: #fff; }
+
+.ah-stat {
+  --gx: 50%; --gy: 50%;
+  position: relative; padding: 26px 22px; border-radius: 22px; text-align: center; overflow: hidden;
+  background: radial-gradient(220px circle at var(--gx) var(--gy), color-mix(in srgb, var(--tone) 16%, transparent), transparent 70%), rgba(255,255,255,.85);
+  border: 1px solid color-mix(in srgb, var(--tone) 30%, transparent);
+  box-shadow: 0 18px 40px -22px color-mix(in srgb, var(--tone) 55%, transparent);
+  transition: box-shadow .3s ease, border-color .3s ease; transform-style: preserve-3d;
+}
+.ah-stat:hover { box-shadow: 0 26px 50px -20px color-mix(in srgb, var(--tone) 70%, transparent); border-color: var(--tone); }
+.ah-stat__icon { display: inline-grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; color: var(--tone); background: color-mix(in srgb, var(--tone) 14%, transparent); margin-bottom: 10px; }
+.ah-stat__icon svg { width: 22px; height: 22px; }
+.ah-stat__value { font-family: Futura, "Futura PT", "Jost", sans-serif; font-weight: 700; font-size: 2.8rem; line-height: 1; color: #0b1530; }
+.ah-stat__label { margin-top: 6px; font-size: .85rem; font-weight: 600; color: #475569; letter-spacing: .02em; }
+html.dark .ah-stat { background: radial-gradient(220px circle at var(--gx) var(--gy), color-mix(in srgb, var(--tone) 24%, transparent), transparent 70%), rgba(255,255,255,.04); }
+html.dark .ah-stat__value { color: #fff; }
+html.dark .ah-stat__label { color: #b6bcc8; }
+
+.ah-journey { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding-top: 6px; }
+.ah-journey__line { position: absolute; left: 12.5%; right: 12.5%; top: 29px; height: 3px; border-radius: 3px; transform-origin: left center;
+  background: linear-gradient(90deg, #1266F1, #7c3aed, #ea7814); }
+.ah-step { position: relative; text-align: center; padding: 0 10px; }
+.ah-step__node { position: relative; z-index: 1; display: inline-grid; place-items: center; width: 52px; height: 52px; border-radius: 50%;
+  background: #fff; color: #1266F1; border: 3px solid #1266F1; box-shadow: 0 8px 20px -8px rgba(18,102,241,.55); transition: transform .3s cubic-bezier(.34,1.56,.64,1); }
+.ah-step:hover .ah-step__node { transform: scale(1.14) rotate(-6deg); }
+.ah-step__node svg { width: 22px; height: 22px; }
+.ah-step__when { display: block; margin-top: 10px; font: 700 .72rem/1 "Space Grotesk", monospace; letter-spacing: .16em; color: #1266F1; }
+.ah-step__title { margin-top: 6px; font-weight: 700; font-size: 1.05rem; color: #0b1530; }
+.ah-step__text { margin-top: 4px; font-size: .86rem; color: #475569; }
+html.dark .ah-step__node { background: #0a0a0a; color: #c8ff00; border-color: #c8ff00; box-shadow: 0 8px 22px -8px rgba(200,255,0,.45); }
+html.dark .ah-step__when { color: #ff8a1f; }
+html.dark .ah-step__title { color: #fff; }
+html.dark .ah-step__text { color: #b6bcc8; }
+html.dark .ah-journey__line { background: linear-gradient(90deg, #c8ff00, #ff8a1f); }
+
+.ah-marquee { margin-top: 64px; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
+.ah-marquee__track { display: flex; width: max-content; animation: ah-scroll 38s linear infinite; }
+.ah-marquee:hover .ah-marquee__track { animation-play-state: paused; }
+.ah-marquee__track.is-static { animation: none; }
+.ah-marquee__group { display: flex; gap: 14px; padding-right: 14px; list-style: none; margin: 0; }
+.ah-chip { display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 999px; background: rgba(255,255,255,.9); border: 1px solid rgba(18,102,241,.18);
+  font-weight: 600; font-size: .95rem; color: #0b1530; box-shadow: 0 8px 20px -14px rgba(18,102,241,.5); transition: transform .25s ease, border-color .25s ease; }
+.ah-chip:hover { transform: translateY(-4px); border-color: #1266F1; }
+.ah-chip svg { width: 22px; height: 22px; }
+html.dark .ah-chip { background: rgba(255,255,255,.06); border-color: rgba(200,255,0,.25); color: #fff; }
+@keyframes ah-scroll { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .ah-marquee__track { animation: none; } }

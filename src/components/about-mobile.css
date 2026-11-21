@@ -135,3 +135,16 @@ html.dark .am-slab { background: #15102e; border: 1px solid rgba(167, 139, 250, 
 .am-tech__icon { color: var(--am-text); font-size: max(15px, calc(48 * var(--u))); line-height: 1; display: grid; place-items: center; }
 .am-tech__name { font-size: max(6.5px, calc(16 * var(--u))); color: var(--am-text); text-align: center; line-height: 1.1; max-width: 100%; }
 .am-adobe { display: grid; place-items: center; width: max(15px, calc(48 * var(--u))); height: max(15px, calc(48 * var(--u))); border: 2px solid; border-radius: calc(10 * var(--u)); font-weight: 800; font-size: max(8px, calc(26 * var(--u))); background: var(--am-adobe-bg); }
+
+/* ── Motion polish ── */
+.am-portrait__frame { animation: am-float 6s ease-in-out infinite; }
+@keyframes am-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.am-card { transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease; }
+.am-card:active { transform: scale(.97); }
+.am-step { transition: transform .3s ease; }
+.am-step:active { transform: translateX(4px); }
+.am-stat__icon { animation: am-pulse 3.2s ease-in-out infinite; }
+@keyframes am-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+@media (prefers-reduced-motion: reduce) {
+  .am-portrait__frame, .am-stat__icon { animation: none; }
+}

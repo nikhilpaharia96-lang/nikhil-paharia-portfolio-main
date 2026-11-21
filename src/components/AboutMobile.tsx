@@ -2,6 +2,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Paperclip, MapPin, CalendarDays, GraduationCap, Code2, Layers, Users, Trophy, Video, Rocket } from "lucide-react";
 import { SiReact, SiNextdotjs, SiNodedotjs, SiMongodb, SiTailwindcss, SiTypescript } from "react-icons/si";
 import portrait from "../assets/images/Desktop Nikhil Paharia profile photo.png";
+import CountUp from "@/components/ui/CountUp";
 import "./about-mobile.css";
 
 /**
@@ -101,7 +102,7 @@ export default function AboutMobile() {
             <div key={label} className="am-stat">
               <Icon className="am-stat__icon" aria-hidden="true" />
               <div>
-                <dt className="am-stat__value">{value}</dt>
+                <dt className="am-stat__value"><CountUp value={value} /></dt>
                 <dd className="am-stat__label">{label}</dd>
               </div>
             </div>
@@ -142,11 +143,18 @@ export default function AboutMobile() {
         {/* ── Tech ── */}
         <motion.h3 className="am-h" {...rise()}>Tech I Use</motion.h3>
         <motion.ul className="am-tech" {...rise()}>
-          {TECH.map(({ name, node }) => (
-            <li key={name} className="am-tech__item">
+          {TECH.map(({ name, node }, i) => (
+            <motion.li
+              key={name}
+              className="am-tech__item"
+              initial={{ opacity: 0, scale: rm ? 1 : 0.6, y: rm ? 0 : 14 }}
+              whileInView={{ opacity: 1, scale: 1, y: 0 }}
+              viewport={{ once: true, margin: "-20px" }}
+              transition={{ type: "spring", stiffness: 260, damping: 18, delay: rm ? 0 : i * 0.06 }}
+            >
               <span className="am-tech__icon" aria-hidden="true">{node}</span>
               <span className="am-tech__name">{name}</span>
-            </li>
+            </motion.li>
           ))}
         </motion.ul>
       </div>

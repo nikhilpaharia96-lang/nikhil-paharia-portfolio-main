@@ -29,10 +29,7 @@ import profilePhoto from "../assets/images/profile-nobg.png";
 import myNewPhoto from "../assets/images/my-new-photo.jpg";
 import teaGardenAbout from "../assets/images/tea-sunset-portrait.webp";
 import teaSunsetPortrait from "../assets/images/tea-sunset-portrait.webp";
-// Gallery pages 3–5: put your three images in src/assets/images/ with exactly these names
-import about3 from "../assets/images/about-3.webp";
 import about4 from "../assets/images/about-4.webp";
-import about5 from "../assets/images/about-5.webp";
 import aboutPage1 from "../assets/images/about-page-1.webp";
 import aboutPage2 from "../assets/images/about-page-2.webp";
 import SplitText from "@/components/ui/SplitText";
@@ -1554,19 +1551,17 @@ export default function About() {
     ? Math.min(1.15, Math.max(0.55, notebookWidth / 1100))
     : 1;
 
-  // Pages 3–10: a straight photo gallery, one full-bleed image per page —
+  // Pages 3–8: a straight photo gallery, one full-bleed image per page —
   // deliberately no story text competing with them, just a short caption.
   // URLs rather than bundled assets, so swapping any one of these later is
   // a one-line change here rather than a re-import + rebuild.
   const galleryPages = [
-    { src: about3, label: "03", caption: "Hi, I'm Massoom Ahmed." },
-    { src: about4, label: "04", caption: "Skill." },
-    { src: about5, label: "05", caption: "My team member." },
-    { src: "https://www.gopalkrishnatea.com/static/media/Brochure7.993bd0c86c8cd0f40c24.webp", label: "06", caption: "Home, from every angle." },
-    { src: "https://www.gopalkrishnatea.com/static/media/Brochure11.b8524a9ef142de897823.webp", label: "07", caption: "The hills don't change much." },
-    { src: "https://www.gopalkrishnatea.com/static/media/Brochure12.214390bf5cd20d1cb55e.webp", label: "08", caption: "This is what I'm building toward." },
-    { src: "https://www.gopalkrishnatea.com/static/media/Brochure5.6a73e6331e62e365caec.webp", label: "09", caption: "A little further down the road." },
-    { src: "https://www.gopalkrishnatea.com/static/media/Brochure10.d942bbc39eaebfc165dd.webp", label: "10", caption: "Almost there." },
+    { src: about4, label: "03", caption: "Skill." },
+    { src: "https://www.gopalkrishnatea.com/static/media/Brochure7.993bd0c86c8cd0f40c24.webp", label: "04", caption: "Home, from every angle." },
+    { src: "https://www.gopalkrishnatea.com/static/media/Brochure11.b8524a9ef142de897823.webp", label: "05", caption: "The hills don't change much." },
+    { src: "https://www.gopalkrishnatea.com/static/media/Brochure12.214390bf5cd20d1cb55e.webp", label: "06", caption: "This is what I'm building toward." },
+    { src: "https://www.gopalkrishnatea.com/static/media/Brochure5.6a73e6331e62e365caec.webp", label: "07", caption: "A little further down the road." },
+    { src: "https://www.gopalkrishnatea.com/static/media/Brochure10.d942bbc39eaebfc165dd.webp", label: "08", caption: "Almost there." },
   ];
 
   useEffect(() => {
@@ -1928,7 +1923,7 @@ export default function About() {
                     <img src={aboutPage2} alt="About Me — Art with a purpose: what I do, tech I work with, daily fuel" draggable={false} className="w-full h-full object-contain select-none" />
                   </NotebookPage>
 
-                  {/* ═══════════ PAGES 3–10 — the photo gallery ═══════════
+                  {/* ═══════════ PAGES 3–8 — the photo gallery ═══════════
                       One full-bleed image per page, straight from the URLs
                       given — no story text competing with them, just a
                       short caption. */}
@@ -1965,13 +1960,13 @@ export default function About() {
                     </NotebookPage>
                   ))}
 
-                  {/* ═══════════ PAGE 11 — closing spread, left half ═══════════
+                  {/* ═══════════ PAGE 9 — closing spread, left half ═══════════
                       One final, quiet beat: just the signature. Everything
                       else on this page has been building toward this — it's
                       the one moment that gets to be almost empty. */}
                   <NotebookPage className="px-6 py-6 sm:px-10 sm:py-8 lg:pr-14 lg:pl-12 flex flex-col items-end justify-center">
                     <div className="absolute top-6 left-6 right-6 sm:top-10 sm:left-10 sm:right-10 flex items-center justify-between text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-slate-400">
-                      <span>11 — Closing</span>
+                      <span>09 — Closing</span>
                     </div>
                     <motion.div
                       initial={{ opacity: 0, y: rm ? 0 : 30, scale: 0.94 }}
@@ -1999,7 +1994,7 @@ export default function About() {
                     </motion.p>
                   </NotebookPage>
 
-                  {/* ═══════════ PAGE 12 — closing spread, right half ═══════════ */}
+                  {/* ═══════════ PAGE 10 — closing spread, right half ═══════════ */}
                   <NotebookPage className="px-6 py-6 sm:px-10 sm:py-8 lg:pl-14 lg:pr-12 flex flex-col items-start justify-center">
                     <div className="absolute top-6 left-6 right-6 sm:top-10 sm:left-10 sm:right-10 flex items-center justify-end text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-slate-400">
                       <span>Thank You</span>
