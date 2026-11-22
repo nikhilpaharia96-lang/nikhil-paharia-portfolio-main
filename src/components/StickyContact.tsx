@@ -24,7 +24,7 @@ export default function StickyContact() {
   return (
     <div
       aria-label="Quick contact"
-      className={`fixed left-4 bottom-4 sm:left-6 sm:bottom-6 z-[70] flex flex-col gap-3 transition duration-[250ms] ease-out motion-reduce:transition-none ${
+      className={`fixed left-4 bottom-4 sm:left-6 sm:bottom-6 z-40 flex flex-col gap-3 transition duration-[250ms] ease-out motion-reduce:transition-none ${
         show ? "opacity-100 translate-y-0" : "pointer-events-none opacity-0 translate-y-3"
       }`}
       style={{ marginBottom: "env(safe-area-inset-bottom)" }}

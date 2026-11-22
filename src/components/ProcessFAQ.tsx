@@ -1,6 +1,7 @@
-import { MessageCircle, FileText, Rocket, CheckCircle2, ArrowRight } from "lucide-react";
+import { MessageCircle, FileText, Rocket, CheckCircle2, ArrowRight, HelpCircle } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { waLink } from "@/lib/contact";
 
 /* Facts below mirror shared/serviceInfo.ts, shared/servicePricing.ts and the Contact section. */
@@ -40,86 +41,79 @@ const faqs = [
 ];
 
 export default function ProcessFAQ() {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: faqs.map((f) => ({
-      "@type": "Question",
-      name: f.q,
-      acceptedAnswer: { "@type": "Answer", text: f.a },
-    })),
-  };
-
   return (
-    <section id="faq" className="section-padding relative" aria-label="How it works and frequently asked questions">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+    <section id="faq" className="relative py-10 sm:py-14" aria-label="How it works and frequently asked questions">
       <div className="container-tight relative z-10">
-        {/* Process */}
-        <div className="text-center mb-10 sm:mb-14">
-          <h2 className="section-title mb-4 inline-block">
-            How it <span className="text-gradient">Works</span>
-          </h2>
-          <div className="section-divider mx-auto" />
-          <p className="mt-4 mx-auto max-w-xl text-sm sm:text-base text-slate-600">
-            Four simple steps from your first message to the finished work.
-          </p>
-        </div>
-
-        <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-16 sm:mb-20">
-          {steps.map(({ Icon, title, text }, i) => (
-            <li
-              key={title}
-              className="relative rounded-3xl border border-blue-100 bg-white/90 p-6 shadow-[0_18px_40px_-22px_rgba(18,102,241,0.35)]"
-            >
-              <span className="absolute right-5 top-4 text-5xl font-black text-primary/10 select-none" aria-hidden="true">
-                {i + 1}
-              </span>
-              <span className="mb-4 grid h-12 w-12 place-items-center rounded-2xl bg-blue-50 text-[#1266F1]">
-                <Icon className="h-6 w-6" aria-hidden="true" />
-              </span>
-              <h3 className="text-base font-bold text-[#0b1530]">
-                <span className="sr-only">Step {i + 1}: </span>
-                {title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">{text}</p>
-            </li>
-          ))}
-        </ol>
-
-        {/* FAQ */}
-        <div className="mx-auto max-w-3xl">
-          <div className="text-center mb-8 sm:mb-10">
-            <h2 className="section-title mb-4 inline-block">
-              Common <span className="text-gradient">Questions</span>
-            </h2>
-            <div className="section-divider mx-auto" />
+        <Dialog>
+          <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 rounded-3xl border border-blue-100 bg-white/90 px-6 py-7 text-center shadow-[0_18px_40px_-22px_rgba(18,102,241,0.35)] sm:flex-row sm:justify-between sm:text-left">
+            <div>
+              <h2 className="text-lg font-bold text-[#0b1530] sm:text-xl">Not sure how it works?</h2>
+              <p className="mt-1 text-sm text-slate-600">Process, pricing, timelines and payment: quick answers in one place.</p>
+            </div>
+            <DialogTrigger asChild>
+              <button
+                type="button"
+                className="inline-flex min-h-[48px] shrink-0 items-center gap-2 rounded-full bg-[#1266F1] px-6 py-3 text-sm font-bold text-white shadow-lg transition-transform duration-150 ease-out hover:-translate-y-0.5 active:scale-95 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-300"
+              >
+                <HelpCircle className="h-5 w-5" aria-hidden="true" />
+                How it Works &amp; FAQ
+              </button>
+            </DialogTrigger>
           </div>
 
-          <Accordion type="single" collapsible className="rounded-3xl border border-blue-100 bg-white/90 px-5 sm:px-7 shadow-[0_18px_40px_-22px_rgba(18,102,241,0.35)]">
-            {faqs.map((f, i) => (
-              <AccordionItem key={f.q} value={`faq-${i}`} className="border-blue-100">
-                <AccordionTrigger className="py-5 text-left text-[15px] sm:text-base font-semibold text-[#0b1530] hover:no-underline">
-                  {f.q}
-                </AccordionTrigger>
-                <AccordionContent className="pb-5 text-sm sm:text-[15px] leading-relaxed text-slate-600">{f.a}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+          <DialogContent className="max-h-[88dvh] w-[calc(100%-1.5rem)] max-w-3xl overflow-y-auto overscroll-contain rounded-3xl border-blue-100 bg-white p-5 sm:p-8">
+            <DialogTitle className="text-2xl font-bold text-[#0b1530] sm:text-3xl">
+              How it <span className="text-primary">Works</span>
+            </DialogTitle>
+            <DialogDescription className="text-sm text-slate-600">
+              Four simple steps from your first message to the finished work.
+            </DialogDescription>
 
-          <div className="mt-8 text-center">
-            <p className="text-sm text-slate-600 mb-4">Still have a question? Ask me directly.</p>
-            <a
-              href={waLink("Hi Nikhil, I have a question about your services.")}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-sm font-bold text-white shadow-lg transition-transform duration-150 ease-out hover:-translate-y-0.5 active:scale-95 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-green-300"
-            >
-              <SiWhatsapp className="h-5 w-5" aria-hidden="true" />
-              Ask on WhatsApp
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </a>
-          </div>
-        </div>
+            <ol className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {steps.map(({ Icon, title, text }, i) => (
+                <li key={title} className="flex gap-3 rounded-2xl border border-blue-100 bg-blue-50/40 p-4">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-[#1266F1] shadow-sm">
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <span>
+                    <span className="block text-sm font-bold text-[#0b1530]">
+                      {i + 1}. {title}
+                    </span>
+                    <span className="mt-1 block text-[13px] leading-relaxed text-slate-600">{text}</span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+
+            <h3 className="mt-2 text-xl font-bold text-[#0b1530]">
+              Common <span className="text-primary">Questions</span>
+            </h3>
+            <Accordion type="single" collapsible className="rounded-2xl border border-blue-100 px-4">
+              {faqs.map((f, i) => (
+                <AccordionItem key={f.q} value={`faq-${i}`} className="border-blue-100 last:border-b-0">
+                  <AccordionTrigger className="py-4 text-left text-[15px] font-semibold text-[#0b1530] hover:no-underline">
+                    {f.q}
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-4 text-sm leading-relaxed text-slate-600">{f.a}</AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+
+            <div className="text-center">
+              <p className="mb-3 text-sm text-slate-600">Still have a question? Ask me directly.</p>
+              <a
+                href={waLink("Hi Nikhil, I have a question about your services.")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[48px] items-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-sm font-bold text-white shadow-lg transition-transform duration-150 ease-out hover:-translate-y-0.5 active:scale-95 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-green-300"
+              >
+                <SiWhatsapp className="h-5 w-5" aria-hidden="true" />
+                Ask on WhatsApp
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </a>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </section>
   );
