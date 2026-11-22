@@ -15,9 +15,11 @@ import Projects from "@/components/Projects";
 import VideoShowcase from "@/components/video-showcase/VideoShowcase";
 import Services from "@/components/Services";
 import Testimonials from "@/components/testimonials/Testimonials";
+import ProcessFAQ from "@/components/ProcessFAQ";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import LeadFunnelPopup from "@/components/LeadFunnelPopup";
+import StickyContact from "@/components/StickyContact";
 import NotFound from "@/pages/not-found";
 import ServiceDetail from "@/pages/ServiceDetail";
 import Support from "@/pages/Support";
@@ -56,10 +58,12 @@ function Portfolio() {
         <VideoShowcase />
         <Services />
         <Testimonials />
+        <ProcessFAQ />
         <Contact />
       </main>
       <Footer />
       <LeadFunnelPopup />
+      <StickyContact />
     </>
   );
 }

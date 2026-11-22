@@ -2,6 +2,8 @@ import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { Link, useLocation } from "wouter";
 import { ArrowRight } from "lucide-react";
+import { SiWhatsapp } from "react-icons/si";
+import { waLink } from "@/lib/contact";
 import { playCardPop } from "@/lib/sound";
 import "./services-cta.css";
 
@@ -166,6 +168,22 @@ function FanDeckCard({ service, index, total }: { service: ServiceItem; index: n
                 </span>
               </Link>
             </div>
+          )}
+
+          {service.price && (
+            <a
+              href={waLink(`Hi Nikhil, I'm interested in ${service.title}. Can you share a quote?`)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`mt-4 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full border-2 px-5 py-3 text-sm font-bold transition-transform duration-150 ease-out hover:-translate-y-0.5 active:scale-[0.98] motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/50 ${
+                color === "cream"
+                  ? "border-[#25D366] bg-[#25D366] text-white"
+                  : "border-white/40 bg-white/10 text-white hover:bg-white/20"
+              }`}
+            >
+              <SiWhatsapp className="h-5 w-5" aria-hidden="true" />
+              Get a quote on WhatsApp
+            </a>
           )}
         </div>
       </motion.article>
