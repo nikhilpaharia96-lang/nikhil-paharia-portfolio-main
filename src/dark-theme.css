@@ -235,3 +235,6 @@ html.dark .name-shimmer {
 
 /* Hero oval landscape: dim so it does not glow on the black page */
 html.dark .hero-oval { filter: brightness(0.5) saturate(1.05); }
+
+/* Navbar timeline: the active clip is solid lime with dark text in night mode */
+html.dark header nav .nav-clip-active { background-color: #c8ff00 !important; color: #0a0a0a !important; box-shadow: none !important; }

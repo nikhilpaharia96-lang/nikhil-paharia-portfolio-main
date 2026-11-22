@@ -47,6 +47,12 @@ export default function Navbar() {
       const y = Math.max(window.scrollY, 0);
       setIsScrolled(y > 40);
       const max = document.documentElement.scrollHeight - window.innerHeight;
+      // Editor-style timecode (mm:ss:ff @30fps) mapped to page progress over a 3-minute "reel".
+      const t = (max > 0 ? Math.min(y / max, 1) : 0) * 180;
+      const tc = `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(Math.floor(t % 60)).padStart(2, "0")}:${String(Math.floor((t % 1) * 30)).padStart(2, "0")}`;
+      headerRef.current?.querySelectorAll<HTMLElement>("[data-timecode]").forEach((el) => {
+        el.textContent = tc;
+      });
       if (progressRef.current) {
         progressRef.current.style.transform = `scaleX(${max > 0 ? Math.min(y / max, 1) : 0})`;
       }
@@ -130,24 +136,31 @@ export default function Navbar() {
     scrollTo("#contact");
   };
 
+  const total = menuLinks.length;
+  const activeIdx = menuLinks.findIndex((l) => l.href.substring(1) === activeSection);
+  const playheadLeft =
+    activeIdx >= 0 ? ((activeIdx + 0.5) / total) * 100 : activeSection === "contact" ? 100 : 0;
+  // Pseudo start-time of each clip on the 3-minute reel, shown in the mobile menu.
+  const clipTime = (i: number) => {
+    const sec = Math.round((i / total) * 180);
+    return `${String(Math.floor(sec / 60)).padStart(2, "0")}:${String(sec % 60).padStart(2, "0")}`;
+  };
+
   return (
     <header
       ref={headerRef}
       onFocusCapture={() => setHidden(false)}
-      className={`fixed inset-x-0 top-0 z-[200] pointer-events-none px-3 sm:px-6 transition-transform duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
-        hidden ? "-translate-y-[calc(100%+1.5rem)]" : "translate-y-0"
+      className={`fixed inset-x-0 top-0 z-[200] pointer-events-none transition-transform duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+        hidden ? "-translate-y-full" : "translate-y-0"
       }`}
-      style={{
-        paddingTop: "calc(env(safe-area-inset-top, 0px) + 0.75rem)",
-      }}
+      style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
-      <div className="mx-auto w-full max-w-[1240px]">
       <nav
         aria-label="Primary"
-        className={`nav-enter relative pointer-events-auto w-full flex items-center justify-between gap-3 xl:gap-5 rounded-full border pl-4 pr-2 sm:pl-6 sm:pr-3 h-[58px] sm:h-[66px] transition-[background-color,box-shadow,border-color] duration-300 motion-reduce:transition-none ${
+        className={`nav-enter relative pointer-events-auto w-full flex items-center justify-between gap-3 xl:gap-5 border-b px-4 sm:px-6 lg:px-8 h-[62px] sm:h-[68px] transition-[background-color,box-shadow,border-color] duration-300 motion-reduce:transition-none ${
           isScrolled
-            ? "bg-white/[0.80] border-white/80 backdrop-blur-[20px] backdrop-saturate-150 shadow-[0_16px_44px_-12px_rgba(30,100,200,0.35)]"
-            : "bg-white/[0.58] border-white/70 backdrop-blur-[16px] backdrop-saturate-150 shadow-[0_10px_32px_-12px_rgba(30,100,200,0.22)]"
+            ? "bg-white/[0.82] border-white/80 backdrop-blur-[20px] backdrop-saturate-150 shadow-[0_12px_36px_-14px_rgba(30,100,200,0.35)]"
+            : "bg-white/[0.55] border-white/60 backdrop-blur-[14px] backdrop-saturate-150 shadow-[0_6px_24px_-12px_rgba(30,100,200,0.18)]"
         }`}
       >
         {/* Brand */}
@@ -158,25 +171,23 @@ export default function Navbar() {
             scrollTo("#home");
           }}
           aria-label="Nikhil Paharia — back to top"
-          className={`group flex items-center min-w-0 rounded-full pr-2 ${focusRing}`}
+          className={`group flex items-center min-w-0 rounded-lg pr-2 ${focusRing}`}
         >
-          {/* NP mark + divider (image) and the name set in Futura (Jost as free fallback) */}
           <img
             src={brandMark}
             alt=""
             width={345}
             height={261}
             decoding="async"
-            className="h-[32px] sm:h-[40px] xl:h-[44px] w-auto shrink-0 transition duration-300 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            className="h-[34px] sm:h-[42px] xl:h-[46px] w-auto shrink-0 transition duration-300 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
           <span className="ml-1.5 inline-flex flex-col items-stretch">
             <span
-              className="whitespace-nowrap font-bold tracking-tight leading-none text-[17px] min-[400px]:text-[19px] sm:text-[22px] xl:text-[24px]"
+              className="whitespace-nowrap font-bold tracking-tight leading-none text-[18px] min-[400px]:text-[20px] sm:text-[23px] xl:text-[25px]"
               style={{ fontFamily: 'Futura, "Futura PT", "Jost", "Century Gothic", sans-serif', fontWeight: 700 }}
             >
               <span className="np-name-first text-[#0b1530]">Nikhil</span> <span className="name-shimmer">Paharia</span>
             </span>
-            {/* Curved underline swoosh (as in the original logo) */}
             <svg viewBox="0 0 200 10" preserveAspectRatio="none" aria-hidden="true" className="mt-[5px] h-[6px] sm:h-[8px] w-full">
               <defs>
                 <linearGradient id="np-swoosh" x1="0" y1="0" x2="1" y2="0">
@@ -189,12 +200,14 @@ export default function Navbar() {
           </span>
         </a>
 
-        {/* Desktop links */}
-        <ul className="hidden xl:flex flex-1 items-center justify-center gap-1">
-          {menuLinks.map((link) => {
+        {/* Desktop: the timeline — every section is a clip, the playhead follows where you are */}
+        <ul
+          className="relative hidden xl:flex flex-1 max-w-[800px] items-stretch h-11 rounded-lg border border-slate-300/70 bg-slate-100/60"
+        >
+          {menuLinks.map((link, i) => {
             const isActive = activeSection === link.href.substring(1);
             return (
-              <li key={link.name}>
+              <li key={link.name} className="relative flex-1 min-w-0 border-l border-slate-300/60 first:border-l-0">
                 <a
                   href={link.href}
                   onClick={(e) => {
@@ -202,37 +215,59 @@ export default function Navbar() {
                     scrollTo(link.href);
                   }}
                   aria-current={isActive ? "page" : undefined}
-                  className={`block rounded-full px-4 py-2.5 text-sm font-semibold transition-[color,background-color] duration-150 motion-reduce:transition-none ${focusRing} ${
+                  className={`flex h-full w-full items-center justify-center gap-1.5 px-2 text-[13px] font-semibold transition-[color,background-color] duration-150 motion-reduce:transition-none ${focusRing} ${
+                    i === 0 ? "rounded-l-[7px]" : ""
+                  } ${i === total - 1 ? "rounded-r-[7px]" : ""} ${
                     isActive
-                      ? "text-[#1266F1] bg-blue-50"
+                      ? "nav-clip-active"
                       : "text-[#172033] hover:text-[#1266F1] hover:bg-black/[0.04]"
                   }`}
                 >
-                  {link.name}
+                  <span aria-hidden="true" className="hidden 2xl:inline font-mono text-[10px] opacity-55">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="truncate">{link.name}</span>
                 </a>
               </li>
             );
           })}
+          {/* Playhead */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-[7px] -bottom-[7px] w-0 transition-[left] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+            style={{ left: `${playheadLeft}%` }}
+          >
+            <span className="absolute left-[-5px] top-0 h-0 w-0 border-x-[5px] border-t-[7px] border-x-transparent" style={{ borderTopColor: "#ff6a1a" }} />
+            <span className="absolute left-[-1px] top-[6px] bottom-0 w-[2px] rounded-full" style={{ backgroundColor: "#ff6a1a" }} />
+          </span>
         </ul>
 
         {/* Actions */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <span
+            aria-hidden="true"
+            data-timecode
+            className="hidden min-[1500px]:inline-block rounded-md border border-slate-300/70 bg-slate-100/60 px-2.5 py-1.5 font-mono text-xs font-semibold tabular-nums text-slate-600"
+          >
+            00:00:00
+          </span>
           <ThemeToggle className="nav-icon-btn bg-white/60 border-blue-100 text-[#172033] hover:bg-blue-50" />
           <a
             href="#contact"
             onClick={connect}
-            className={`hidden sm:inline-flex group items-center gap-2 rounded-full bg-[#1266F1] px-6 min-h-[48px] text-sm font-bold text-white shadow-[0_10px_24px_-8px_rgba(18,102,241,0.6)] transition duration-150 hover:bg-[#0F58D6] hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-8px_rgba(18,102,241,0.7)] active:scale-95 motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${focusRing}`}
+            className={`hidden sm:inline-flex group items-center gap-2 rounded-lg bg-[#1266F1] px-5 min-h-[48px] text-sm font-bold text-white shadow-[0_10px_24px_-8px_rgba(18,102,241,0.6)] transition duration-150 hover:bg-[#0F58D6] hover:-translate-y-0.5 active:scale-95 motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${focusRing}`}
           >
+            <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#ff6a1a]" />
             Hire Me
             <ArrowUpRight
-              className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 motion-reduce:transition-none"
+              className="w-4 h-4 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 motion-reduce:transition-none"
               aria-hidden="true"
             />
           </a>
           <button
             ref={toggleRef}
             type="button"
-            className={`nav-icon-btn xl:hidden w-11 h-11 rounded-full bg-white/60 border border-blue-100 text-[#172033] flex items-center justify-center hover:bg-blue-50 transition-colors motion-reduce:transition-none ${focusRing}`}
+            className={`nav-icon-btn xl:hidden w-11 h-11 rounded-lg bg-white/60 border border-blue-100 text-[#172033] flex items-center justify-center hover:bg-blue-50 transition-colors motion-reduce:transition-none ${focusRing}`}
             onClick={() => setMenuOpen((o) => !o)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
@@ -250,28 +285,32 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Reading-progress line */}
+        {/* Reading-progress line = the reel's timeline bar */}
         <span
           ref={progressRef}
           aria-hidden="true"
-          className="absolute left-8 right-8 bottom-0 h-[2px] rounded-full origin-left bg-[#1266F1] pointer-events-none"
-          style={{ transform: "scaleX(0)" }}
+          className="absolute left-0 bottom-[-1px] h-[3px] w-full origin-left pointer-events-none"
+          style={{ transform: "scaleX(0)", background: "linear-gradient(90deg,#1266F1,#ff6a1a)" }}
         />
       </nav>
 
-      {/* Mobile / tablet menu — always mounted so open/close can transition */}
+      {/* Mobile / tablet menu — each section listed as a clip with its start time */}
       <div
         id="mobile-menu"
         aria-hidden={!menuOpen}
         {...(!menuOpen ? { inert: "" } : {})}
-        className={`xl:hidden pointer-events-auto w-full mt-2 rounded-3xl border border-white/85 bg-white/[0.88] backdrop-blur-[20px] backdrop-saturate-150 shadow-[0_24px_56px_-16px_rgba(30,100,200,0.4)] overflow-hidden origin-top ${
+        className={`xl:hidden pointer-events-auto w-full border-b border-white/85 bg-white/[0.9] backdrop-blur-[20px] backdrop-saturate-150 shadow-[0_24px_56px_-16px_rgba(30,100,200,0.4)] overflow-hidden origin-top ${
           menuOpen
-            ? "opacity-100 translate-y-0 scale-100 visible transition duration-[250ms] ease-out"
-            : "opacity-0 -translate-y-2 scale-[0.98] invisible pointer-events-none transition duration-[120ms] ease-in"
+            ? "opacity-100 translate-y-0 visible transition duration-[250ms] ease-out"
+            : "opacity-0 -translate-y-2 invisible pointer-events-none transition duration-[120ms] ease-in"
         } motion-reduce:transition-none`}
       >
-        <ul className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-1 max-h-[calc(100dvh-9rem)] overflow-y-auto">
-          {menuLinks.map((link) => {
+        <div className="flex items-center justify-between px-5 pt-3 font-mono text-[11px] uppercase tracking-widest text-slate-500">
+          <span>Reel</span>
+          <span data-timecode className="tabular-nums">00:00:00</span>
+        </div>
+        <ul className="p-3 pt-2 grid grid-cols-1 sm:grid-cols-2 gap-1 max-h-[calc(100dvh-9.5rem)] overflow-y-auto">
+          {menuLinks.map((link, i) => {
             const isActive = activeSection === link.href.substring(1);
             return (
               <li key={link.name}>
@@ -282,12 +321,17 @@ export default function Navbar() {
                     scrollTo(link.href);
                   }}
                   aria-current={isActive ? "page" : undefined}
-                  className={`flex items-center justify-between rounded-2xl px-4 py-3.5 text-[15px] font-semibold transition-colors motion-reduce:transition-none ${focusRing} ${
-                    isActive ? "bg-blue-50 text-[#1266F1]" : "text-[#172033] hover:bg-blue-50/70 hover:text-[#1266F1]"
+                  className={`flex min-h-[48px] items-center gap-3 rounded-lg px-4 py-3 text-[15px] font-semibold transition-colors motion-reduce:transition-none ${focusRing} ${
+                    isActive ? "bg-blue-50 text-[#1266F1]" : "text-[#172033] hover:bg-black/[0.04] hover:text-[#1266F1]"
                   }`}
                 >
-                  {link.name}
-                  {isActive && <span aria-hidden="true" className="w-2 h-2 rounded-full bg-[#1266F1]" />}
+                  <span aria-hidden="true" className="font-mono text-[11px] opacity-50">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="flex-1">{link.name}</span>
+                  <span aria-hidden="true" className="font-mono text-[11px] tabular-nums opacity-50">
+                    {clipTime(i)}
+                  </span>
                 </a>
               </li>
             );
@@ -297,13 +341,13 @@ export default function Navbar() {
           <a
             href="#contact"
             onClick={connect}
-            className={`group inline-flex w-full min-h-[48px] items-center justify-center gap-2 rounded-full bg-[#1266F1] px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_10px_24px_-8px_rgba(18,102,241,0.6)] ${focusRing}`}
+            className={`group inline-flex w-full min-h-[48px] items-center justify-center gap-2 rounded-lg bg-[#1266F1] px-5 py-3.5 text-[15px] font-bold text-white ${focusRing}`}
           >
+            <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#ff6a1a]" />
             Hire Me
             <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
           </a>
         </div>
-      </div>
       </div>
     </header>
   );
