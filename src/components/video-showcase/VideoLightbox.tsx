@@ -127,7 +127,7 @@ export default function VideoLightbox({ items, index, onIndexChange, onClose }: 
           ref={dialogRef}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          exit={{ opacity: 0, transition: { duration: reduce ? 0.01 : 0.15 } }}
           transition={{ duration: dur }}
           className="fixed inset-0 z-[100] overflow-y-auto overscroll-contain"
           role="dialog"

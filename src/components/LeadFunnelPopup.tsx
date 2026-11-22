@@ -219,7 +219,7 @@ export default function LeadFunnelPopup() {
         {launcher && !open && !leadSent && (
           <motion.button
             type="button" aria-label="Get a free quote"
-            initial={{ opacity: 0, y: reduce ? 0 : 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            initial={{ opacity: 0, y: reduce ? 0 : 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, transition: { duration: reduce ? 0 : 0.12 } }}
             transition={{ duration: reduce ? 0 : 0.3 }}
             onClick={() => { track("funnel_launcher_click"); openFunnel("launcher"); }}
             className="group fixed z-[80] right-4 bottom-4 sm:right-6 sm:bottom-6 inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#1266F1] to-[#2f86ff] p-1.5 pr-4 text-[13px] font-bold uppercase tracking-wider text-white shadow-[0_14px_32px_-8px_rgba(18,102,241,0.7)] hover:-translate-y-0.5 transition-transform focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40"
@@ -238,28 +238,28 @@ export default function LeadFunnelPopup() {
         {open && (
           <motion.div
             className="fixed inset-0 z-[250] flex items-end sm:items-center justify-center sm:p-4 bg-slate-900/55 backdrop-blur-sm"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: reduce ? 0 : 0.12 } }}
             transition={{ duration: reduce ? 0 : 0.25 }}
             onClick={() => close("backdrop")}
           >
             <motion.div
               ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="funnel-title"
               onClick={(e) => e.stopPropagation()}
-              initial={{ opacity: 0, y: reduce ? 0 : 40, scale: reduce ? 1 : 0.97 }}
+              initial={{ opacity: 0, y: reduce ? 0 : 24, scale: reduce ? 1 : 0.94 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: reduce ? 0 : 24 }}
+              exit={{ opacity: 0, y: reduce ? 0 : 12, transition: { duration: reduce ? 0 : 0.14, ease: [0.7, 0, 0.84, 0] } }}
               transition={{ duration: reduce ? 0 : 0.35, ease: [0.16, 1, 0.3, 1] }}
               className="relative w-full sm:max-w-lg max-h-[92dvh] overflow-y-auto overscroll-contain rounded-t-[28px] sm:rounded-[28px] bg-white border border-blue-100 shadow-[0_40px_100px_-24px_rgba(15,45,90,0.6)] px-5 pb-6 sm:px-8 sm:pb-8"
-              style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}
+              style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))", transformOrigin: "100% 100%" }}
             >
               {/* brand header band */}
               <div className="-mx-5 sm:-mx-8 mb-5 relative overflow-hidden px-5 sm:px-8 pt-3 pb-4" style={{ background: "linear-gradient(135deg,#0b1530 0%,#123a9c 60%,#1266F1 100%)" }}>
                 <span aria-hidden="true" className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full" style={{ background: "radial-gradient(circle,rgba(127,178,255,0.45),transparent 70%)" }} />
                 <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-white/30 sm:hidden" aria-hidden="true" />
-                <div className="relative flex items-center gap-3 pr-10">
+                <div className="relative flex items-center gap-3 pr-12">
                   {step === 2 && !done && (
                     <button type="button" onClick={() => { setStep(1); setErr({}); }} aria-label="Back to services"
-                      className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/40">
+                      className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/40">
                       <ArrowLeft className="w-4 h-4" />
                     </button>
                   )}
@@ -272,7 +272,7 @@ export default function LeadFunnelPopup() {
                   </span>
                 </div>
                 <button type="button" onClick={() => close("x")} aria-label="Close"
-                  className="absolute top-3 right-3 sm:top-3 grid h-9 w-9 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/40">
+                  className="absolute top-1.5 right-1.5 sm:top-1.5 grid h-11 w-11 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/40">
                   <X className="w-4 h-4" />
                 </button>
                 <div className="relative mt-4 flex gap-1.5" aria-hidden="true">

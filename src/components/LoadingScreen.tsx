@@ -2,12 +2,21 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import npLogo from "@/assets/logos/np-logo.webp";
 
-const DURATION_MS = 2200;
+const DURATION_MS = 1400;
+const SEEN_KEY = "np-intro-seen";
+
+function introAlreadySeen() {
+  try {
+    return sessionStorage.getItem(SEEN_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
 const FADE_MS = 450;
 
 export default function LoadingScreen() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [done, setDone] = useState(false);
+  const [done, setDone] = useState(introAlreadySeen);
   const prefersReducedMotion = useReducedMotion();
 
   const finish = () => {
@@ -21,6 +30,7 @@ export default function LoadingScreen() {
     // real page at all -- it's consumed by this invisible-but-still-there
     // overlay, which reads exactly like "the first swipe(s) after the page
     // loads do nothing."
+    try { sessionStorage.setItem(SEEN_KEY, "1"); } catch { /* ignore */ }
     containerRef.current.style.pointerEvents = "none";
     containerRef.current.style.transition = `opacity ${FADE_MS}ms ease`;
     containerRef.current.style.opacity = "0";
@@ -28,6 +38,7 @@ export default function LoadingScreen() {
   };
 
   useEffect(() => {
+    if (done) return;
     // Reduced-motion users get a near-instant, motion-free exit.
     const delay = prefersReducedMotion ? 150 : DURATION_MS;
     const timer = setTimeout(finish, delay);
