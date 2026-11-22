@@ -134,19 +134,20 @@ export default function Navbar() {
     <header
       ref={headerRef}
       onFocusCapture={() => setHidden(false)}
-      className={`fixed inset-x-0 top-0 z-[200] pointer-events-none transition-transform duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
-        hidden ? "-translate-y-full" : "translate-y-0"
+      className={`fixed inset-x-0 top-0 z-[200] pointer-events-none px-3 sm:px-6 transition-transform duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+        hidden ? "-translate-y-[calc(100%+1.5rem)]" : "translate-y-0"
       }`}
       style={{
-        paddingTop: "env(safe-area-inset-top, 0px)",
+        paddingTop: "calc(env(safe-area-inset-top, 0px) + 0.75rem)",
       }}
     >
+      <div className="mx-auto w-full max-w-[1240px]">
       <nav
         aria-label="Primary"
-        className={`nav-enter relative pointer-events-auto w-full flex items-center justify-between gap-3 xl:gap-6 rounded-none border-0 border-b px-4 sm:px-6 lg:px-10 h-[64px] sm:h-[70px] xl:h-[74px] transition-[background-color,box-shadow,border-color] duration-300 motion-reduce:transition-none ${
+        className={`nav-enter relative pointer-events-auto w-full flex items-center justify-between gap-3 xl:gap-5 rounded-full border pl-4 pr-2 sm:pl-6 sm:pr-3 h-[58px] sm:h-[66px] transition-[background-color,box-shadow,border-color] duration-300 motion-reduce:transition-none ${
           isScrolled
-            ? "bg-white/[0.62] border-white/70 backdrop-blur-[18px] backdrop-saturate-150 shadow-[0_10px_36px_rgba(30,100,200,0.18)]"
-            : "bg-white/[0.42] border-white/50 backdrop-blur-[14px] backdrop-saturate-150 shadow-[0_6px_24px_rgba(30,100,200,0.08)]"
+            ? "bg-white/[0.80] border-white/80 backdrop-blur-[20px] backdrop-saturate-150 shadow-[0_16px_44px_-12px_rgba(30,100,200,0.35)]"
+            : "bg-white/[0.58] border-white/70 backdrop-blur-[16px] backdrop-saturate-150 shadow-[0_10px_32px_-12px_rgba(30,100,200,0.22)]"
         }`}
       >
         {/* Brand */}
@@ -157,7 +158,7 @@ export default function Navbar() {
             scrollTo("#home");
           }}
           aria-label="Nikhil Paharia — back to top"
-          className={`group flex items-center min-w-0 rounded-none pr-2 ${focusRing}`}
+          className={`group flex items-center min-w-0 rounded-full pr-2 ${focusRing}`}
         >
           {/* NP mark + divider (image) and the name set in Futura (Jost as free fallback) */}
           <img
@@ -166,11 +167,11 @@ export default function Navbar() {
             width={345}
             height={261}
             decoding="async"
-            className="h-[38px] sm:h-[46px] xl:h-[52px] 2xl:h-[58px] w-auto shrink-0 transition duration-300 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            className="h-[32px] sm:h-[40px] xl:h-[44px] w-auto shrink-0 transition duration-300 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
           <span className="ml-1.5 inline-flex flex-col items-stretch">
             <span
-              className="whitespace-nowrap font-bold tracking-tight leading-none text-[18px] min-[400px]:text-[21px] sm:text-[25px] xl:text-[28px] 2xl:text-[32px]"
+              className="whitespace-nowrap font-bold tracking-tight leading-none text-[17px] min-[400px]:text-[19px] sm:text-[22px] xl:text-[24px]"
               style={{ fontFamily: 'Futura, "Futura PT", "Jost", "Century Gothic", sans-serif', fontWeight: 700 }}
             >
               <span className="np-name-first text-[#0b1530]">Nikhil</span> <span className="name-shimmer">Paharia</span>
@@ -189,7 +190,7 @@ export default function Navbar() {
         </a>
 
         {/* Desktop links */}
-        <ul className="hidden xl:flex flex-1 items-center justify-center gap-0.5 2xl:gap-2">
+        <ul className="hidden xl:flex flex-1 items-center justify-center gap-1">
           {menuLinks.map((link) => {
             const isActive = activeSection === link.href.substring(1);
             return (
@@ -201,19 +202,13 @@ export default function Navbar() {
                     scrollTo(link.href);
                   }}
                   aria-current={isActive ? "page" : undefined}
-                  className={`group relative block rounded-none px-4 2xl:px-5 py-2.5 text-[13px] 2xl:text-sm font-semibold uppercase tracking-[0.08em] transition-[color,background-color,box-shadow] duration-200 motion-reduce:transition-none hover:text-[#1266F1] ${focusRing} ${
+                  className={`block rounded-full px-4 py-2.5 text-sm font-semibold transition-[color,background-color] duration-150 motion-reduce:transition-none ${focusRing} ${
                     isActive
-                      ? "text-[#1266F1] bg-blue-50/80 shadow-[0_6px_16px_-8px_rgba(18,102,241,0.45)]"
-                      : "text-[#172033]"
+                      ? "text-[#1266F1] bg-blue-50"
+                      : "text-[#172033] hover:text-[#1266F1] hover:bg-black/[0.04]"
                   }`}
                 >
                   {link.name}
-                  <span
-                    aria-hidden="true"
-                    className={`absolute left-5 right-5 bottom-1.5 h-[2px] rounded-none bg-[#1266F1] origin-center transition-transform duration-300 motion-reduce:transition-none ${
-                      isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-                    }`}
-                  />
                 </a>
               </li>
             );
@@ -226,9 +221,9 @@ export default function Navbar() {
           <a
             href="#contact"
             onClick={connect}
-            className={`hidden sm:inline-flex group items-center gap-2 rounded-none bg-[#1266F1] px-5 xl:px-6 py-3 text-[13px] 2xl:text-sm font-semibold uppercase tracking-[0.08em] text-white shadow-[0_10px_24px_-8px_rgba(18,102,241,0.6)] transition duration-200 hover:bg-[#0F58D6] hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-8px_rgba(18,102,241,0.7)] motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${focusRing}`}
+            className={`hidden sm:inline-flex group items-center gap-2 rounded-full bg-[#1266F1] px-6 min-h-[48px] text-sm font-bold text-white shadow-[0_10px_24px_-8px_rgba(18,102,241,0.6)] transition duration-150 hover:bg-[#0F58D6] hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-8px_rgba(18,102,241,0.7)] active:scale-95 motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${focusRing}`}
           >
-            Contact
+            Hire Me
             <ArrowUpRight
               className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 motion-reduce:transition-none"
               aria-hidden="true"
@@ -237,7 +232,7 @@ export default function Navbar() {
           <button
             ref={toggleRef}
             type="button"
-            className={`nav-icon-btn xl:hidden w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/60 border border-blue-100 text-[#172033] flex items-center justify-center hover:bg-blue-50 transition-colors motion-reduce:transition-none ${focusRing}`}
+            className={`nav-icon-btn xl:hidden w-11 h-11 rounded-full bg-white/60 border border-blue-100 text-[#172033] flex items-center justify-center hover:bg-blue-50 transition-colors motion-reduce:transition-none ${focusRing}`}
             onClick={() => setMenuOpen((o) => !o)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
@@ -259,7 +254,7 @@ export default function Navbar() {
         <span
           ref={progressRef}
           aria-hidden="true"
-          className="absolute left-0 bottom-0 h-[2px] w-full origin-left bg-[#1266F1] pointer-events-none"
+          className="absolute left-8 right-8 bottom-0 h-[2px] rounded-full origin-left bg-[#1266F1] pointer-events-none"
           style={{ transform: "scaleX(0)" }}
         />
       </nav>
@@ -269,11 +264,13 @@ export default function Navbar() {
         id="mobile-menu"
         aria-hidden={!menuOpen}
         {...(!menuOpen ? { inert: "" } : {})}
-        className={`xl:hidden pointer-events-auto w-full mt-0 rounded-none border-0 border-b border-white/85 bg-white/[0.72] backdrop-blur-[18px] backdrop-saturate-150 shadow-[0_18px_48px_rgba(30,100,200,0.20)] overflow-hidden origin-top transition duration-300 motion-reduce:transition-none ${
-          menuOpen ? "opacity-100 translate-y-0 scale-100 visible" : "opacity-0 -translate-y-2 scale-[0.98] invisible pointer-events-none"
-        }`}
+        className={`xl:hidden pointer-events-auto w-full mt-2 rounded-3xl border border-white/85 bg-white/[0.88] backdrop-blur-[20px] backdrop-saturate-150 shadow-[0_24px_56px_-16px_rgba(30,100,200,0.4)] overflow-hidden origin-top ${
+          menuOpen
+            ? "opacity-100 translate-y-0 scale-100 visible transition duration-[250ms] ease-out"
+            : "opacity-0 -translate-y-2 scale-[0.98] invisible pointer-events-none transition duration-[120ms] ease-in"
+        } motion-reduce:transition-none`}
       >
-        <ul className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-1 max-h-[calc(100dvh-8.5rem)] overflow-y-auto">
+        <ul className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-1 max-h-[calc(100dvh-9rem)] overflow-y-auto">
           {menuLinks.map((link) => {
             const isActive = activeSection === link.href.substring(1);
             return (
@@ -285,7 +282,7 @@ export default function Navbar() {
                     scrollTo(link.href);
                   }}
                   aria-current={isActive ? "page" : undefined}
-                  className={`flex items-center justify-between rounded-none px-4 py-3.5 text-[15px] font-semibold uppercase tracking-[0.08em] transition-colors motion-reduce:transition-none ${focusRing} ${
+                  className={`flex items-center justify-between rounded-2xl px-4 py-3.5 text-[15px] font-semibold transition-colors motion-reduce:transition-none ${focusRing} ${
                     isActive ? "bg-blue-50 text-[#1266F1]" : "text-[#172033] hover:bg-blue-50/70 hover:text-[#1266F1]"
                   }`}
                 >
@@ -300,12 +297,13 @@ export default function Navbar() {
           <a
             href="#contact"
             onClick={connect}
-            className={`group inline-flex w-full items-center justify-center gap-2 rounded-none bg-[#1266F1] px-5 py-3.5 text-[15px] font-semibold uppercase tracking-[0.08em] text-white shadow-[0_10px_24px_-8px_rgba(18,102,241,0.6)] ${focusRing}`}
+            className={`group inline-flex w-full min-h-[48px] items-center justify-center gap-2 rounded-full bg-[#1266F1] px-5 py-3.5 text-[15px] font-bold text-white shadow-[0_10px_24px_-8px_rgba(18,102,241,0.6)] ${focusRing}`}
           >
-            Contact
+            Hire Me
             <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
           </a>
         </div>
+      </div>
       </div>
     </header>
   );
