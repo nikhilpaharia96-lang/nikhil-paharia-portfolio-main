@@ -1,0 +1,67 @@
+/* About (phone/tablet) — Instagram-Stories style chapters. Scroll-snap carousel, no JS animation. */
+.st-section {
+  position: relative;
+  padding: 5.5rem 0 3rem;
+  overflow: hidden;
+}
+
+.st-track {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding: 6px calc((100% - min(86vw, 400px)) / 2) 14px;
+  outline: none;
+}
+.st-track::-webkit-scrollbar { display: none; }
+.st-track:focus-visible { box-shadow: inset 0 0 0 3px rgba(18, 102, 241, 0.45); border-radius: 24px; }
+
+.st-slide {
+  position: relative;
+  flex: 0 0 min(86vw, 400px);
+  height: min(62dvh, 520px);
+  min-height: 460px;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  border-radius: 28px;
+  overflow: hidden;
+  color: #fff;
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 28px 56px -26px rgba(10, 30, 90, 0.7);
+  isolation: isolate;
+}
+/* soft film-grain / light sweep so the gradients feel like footage, not flat fills */
+.st-slide::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(120% 60% at 100% 0%, rgba(255, 255, 255, 0.18), transparent 60%),
+    radial-gradient(90% 50% at 0% 100%, rgba(0, 0, 0, 0.28), transparent 70%);
+}
+
+.st-year {
+  font-family: Futura, "Futura PT", "Jost", "Century Gothic", sans-serif;
+  font-weight: 800;
+  font-size: clamp(88px, 28vw, 120px);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(255, 255, 255, 0.55);
+  user-select: none;
+}
+
+.st-seg { transition: background-color 150ms ease-out; }
+.st-nav { transition: transform 150ms ease-out, background-color 150ms ease-out; }
+.st-nav:active { transform: scale(0.92); }
+
+@media (prefers-reduced-motion: reduce) {
+  .st-seg, .st-nav { transition: none; }
+  .st-nav:active { transform: none; }
+}
