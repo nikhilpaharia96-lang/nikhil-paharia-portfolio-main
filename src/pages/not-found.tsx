@@ -1,13 +1,20 @@
 import { Link } from "wouter";
-import { ArrowLeft, Compass } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import planeClouds from "@/assets/images/404-paper-plane.webp";
 
 export default function NotFound() {
   return (
     <main className="min-h-screen w-full flex items-center justify-center px-4 bg-[#f8fbff]">
       <div className="w-full max-w-md rounded-3xl border border-blue-100 bg-white/90 p-8 text-center shadow-[0_18px_40px_-18px_rgba(18,102,241,0.35)]">
-        <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-blue-50 text-[#1266F1]">
-          <Compass className="h-7 w-7" aria-hidden="true" />
-        </div>
+        <img
+          src={planeClouds}
+          alt=""
+          aria-hidden="true"
+          width={1000}
+          height={674}
+          decoding="async"
+          className="mx-auto mb-2 h-auto w-full max-w-[280px] select-none"
+        />
         <p className="text-sm font-bold uppercase tracking-widest text-[#1266F1]">Error 404</p>
         <h1 className="mt-1 text-3xl font-bold text-[#0b1530]">Page not found</h1>
         <p className="mt-3 text-sm text-slate-600">

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { allTestimonials } from "@/constants/testimonials";
 import scenic from "@/assets/images/showcase-bg.webp";
+import comingSoonPoster from "@/assets/images/testimonial-video-coming-soon.webp";
 import AvatarImage from "./AvatarImage";
 import TestimonialVideoModal from "./TestimonialVideoModal";
 
@@ -95,7 +96,7 @@ export default function FeaturedTestimonial() {
         {/* Video message panel */}
         <div className="relative h-52 min-[360px]:absolute min-[360px]:inset-y-0 min-[360px]:right-0 min-[360px]:h-auto min-[360px]:w-[50%] lg:w-[52%]">
           <img
-            src={t.videoPoster ?? scenic}
+            src={t.videoPoster ?? (t.videoUrl ? scenic : comingSoonPoster)}
             alt=""
             aria-hidden="true"
             width={1672}
