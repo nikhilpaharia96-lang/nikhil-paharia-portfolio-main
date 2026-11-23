@@ -12,8 +12,6 @@ import cloudB from "../assets/images/cloud2.895414a23f99e60c66ea.webp";
 import "./footer-fx.css";
 
 const ease = [0.16, 1, 0.3, 1] as const;
-const FONT_CONDENSED = "'Anton', 'Impact', sans-serif";
-const bigText = "text-2xl sm:text-3xl md:text-4xl leading-[0.95] uppercase text-foreground";
 
 const allSocials = [
   { Icon: RiGithubFill,    href: "https://github.com/nikhilpaharia96-lang", label: "GitHub",    hoverBg: "hover:bg-slate-900"   },
@@ -118,7 +116,7 @@ export default function Footer() {
   const headingWords = "Let's build the future.".split(" ");
 
   return (
-    <footer ref={footerRef} className="relative bg-blue-50 pt-12 md:pt-16 pb-32 md:pb-20 border-t border-blue-100 overflow-hidden">
+    <footer ref={footerRef} className="relative bg-blue-50 pt-8 md:pt-10 pb-28 md:pb-8 border-t border-blue-100 overflow-hidden">
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <motion.div className="absolute inset-0" style={{ y: bgY }}>
           <img
@@ -165,16 +163,16 @@ export default function Footer() {
           initial="hidden"
           whileInView="show"
           viewport={view}
-          className="text-center mb-8 md:mb-12 max-w-2xl mx-auto"
+          className="text-center mb-5 md:mb-6 max-w-2xl mx-auto"
         >
-          <motion.span variants={rise} className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-300/70 bg-white/70 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-emerald-700">
+          <motion.span variants={rise} className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-300/70 bg-white/70 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-emerald-700">
             <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
               {!reduce && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />}
               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
             </span>
             Taking new projects
           </motion.span>
-          <h2 className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-3 text-center" aria-label="Let's build the future.">
+          <h2 className="text-3xl md:text-4xl font-sans font-bold tracking-tight text-foreground mb-2 text-center" aria-label="Let's build the future.">
             <span className="inline-flex flex-wrap justify-center" aria-hidden="true">
               {headingWords.map((w, i) => (
                 <span key={i} className="relative inline-block overflow-hidden mr-[0.24em] py-[0.1em] -my-[0.1em]">
@@ -191,10 +189,10 @@ export default function Footer() {
               ))}
             </span>
           </h2>
-          <motion.p variants={rise} className="text-base md:text-lg text-slate-600 font-light">
+          <motion.p variants={rise} className="text-sm md:text-base text-slate-600">
             Available for freelance opportunities globally. Bring your boldest ideas.
           </motion.p>
-          <motion.div variants={rise} className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <motion.div variants={rise} className="mt-4 flex flex-wrap items-center justify-center gap-3">
             <a
               href={waLink("Hi Nikhil, I found your portfolio and would like to discuss a project.")}
               target="_blank"
@@ -212,7 +210,7 @@ export default function Footer() {
           </motion.div>
         </motion.div>
 
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-10 mb-6 md:mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 md:gap-10 mb-4 md:mb-5">
 
           {/* Brand — from LEFT */}
           <motion.div
@@ -223,12 +221,12 @@ export default function Footer() {
             className="text-center md:text-left"
           >
             <Magnetic range={50} strength={0.2}>
-              <a href="#home" aria-label="Nikhil Paharia" className="font-mono text-3xl font-bold tracking-wider block mb-3 flex items-center justify-center md:justify-start gap-2 text-foreground hover:opacity-80 transition-opacity">
+              <a href="#home" aria-label="Nikhil Paharia" className="font-sans text-2xl font-bold tracking-tight block mb-1 flex items-center justify-center md:justify-start gap-2 text-foreground hover:opacity-80 transition-opacity">
                 <span><StaggerChars text="Nikhil" reduce={reduce} base={0.15} /></span>
                 <span className="text-primary"><StaggerChars text="Paharia" reduce={reduce} base={0.45} /></span>
               </a>
             </Magnetic>
-            <motion.p variants={rise} className="text-slate-600 text-base">Crafting cinematic digital experiences.</motion.p>
+            <motion.p variants={rise} className="text-slate-600 text-sm">Crafting cinematic digital experiences.</motion.p>
           </motion.div>
 
           {/* Nav + Socials — from RIGHT */}
@@ -237,10 +235,9 @@ export default function Footer() {
             initial="hidden"
             whileInView="show"
             viewport={view}
-            className="flex flex-col items-center gap-3 md:gap-4"
+            className="flex flex-col items-center gap-3"
           >
             {/* Nav links */}
-            <motion.h3 variants={child} className={`${bigText} footer-glow-title`} style={{ fontFamily: FONT_CONDENSED }}>Explore</motion.h3>
             <div className="flex flex-wrap justify-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-widest text-slate-600">
               {navLinks.map((link) => (
                 <motion.a
@@ -256,7 +253,6 @@ export default function Footer() {
             </div>
 
             {/* Social icons wrapped in Magnetic */}
-            <motion.h3 variants={child} className={`${bigText} mt-2`} style={{ fontFamily: FONT_CONDENSED }}>Social</motion.h3>
             <div className="flex gap-4">
               {socials.map(({ Icon, href, label, hoverBg }) => (
                 <Magnetic key={label} range={45} strength={0.4} scaleHover={1.15}>
@@ -282,12 +278,12 @@ export default function Footer() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: false, amount: 0.5 }}
-          className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-6 pt-5 border-t border-blue-100"
+          className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-6 pt-3 border-t border-blue-100"
         >
-          <p className="text-slate-700 text-sm font-medium">
+          <p className="text-slate-700 text-xs font-medium md:pl-14">
             © {new Date().getFullYear()} Nikhil Paharia. <span className="hidden sm:inline">All rights reserved.</span>
           </p>
-          <p className="text-slate-700 text-sm italic">Crafted in Assam, for the world.</p>
+          <p className="text-slate-700 text-xs italic">Crafted in Assam, for the world.</p>
 
           {/* Back-to-top — elastic morph button with Magnetic */}
           <Magnetic range={60} strength={0.45} scaleHover={1.1}>
