@@ -172,7 +172,7 @@ export default function Footer() {
             </span>
             Taking new projects
           </motion.span>
-          <h2 className="text-2xl md:text-3xl font-sans font-bold tracking-tight text-foreground mb-0 text-center" aria-label="Let's build the future.">
+          <h2 className="text-2xl md:text-3xl font-serif font-bold tracking-tight text-foreground mb-0 text-center" aria-label="Let's build the future.">
             <span className="inline-flex flex-wrap justify-center" aria-hidden="true">
               {headingWords.map((w, i) => (
                 <span key={i} className="relative inline-block overflow-hidden mr-[0.24em] py-[0.1em] -my-[0.1em]">
@@ -218,7 +218,7 @@ export default function Footer() {
             className="text-center md:text-left"
           >
             <Magnetic range={50} strength={0.2}>
-              <a href="#home" aria-label="Nikhil Paharia" className="font-sans text-xl font-bold tracking-tight block mb-0 flex items-center justify-center md:justify-start gap-2 text-foreground hover:opacity-80 transition-opacity">
+              <a href="#home" aria-label="Nikhil Paharia" className="font-serif text-xl font-bold tracking-tight block mb-0 flex items-center justify-center md:justify-start gap-2 text-foreground hover:opacity-80 transition-opacity">
                 <span><StaggerChars text="Nikhil" reduce={reduce} base={0.15} /></span>
                 <span className="text-primary"><StaggerChars text="Paharia" reduce={reduce} base={0.45} /></span>
               </a>
