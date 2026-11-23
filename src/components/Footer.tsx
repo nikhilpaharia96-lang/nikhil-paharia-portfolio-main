@@ -1,129 +1,311 @@
-import { useReducedMotion } from "framer-motion";
-import { ArrowUp, Mail, Phone } from "lucide-react";
-import { SiWhatsapp } from "react-icons/si";
-import { RiGithubFill } from "react-icons/ri";
+import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { SiInstagram, SiWhatsapp } from "react-icons/si";
+import { Mail, Phone } from "lucide-react";
+import { RiArrowUpLine, RiGithubFill, RiLinkedinFill, RiYoutubeFill } from "react-icons/ri";
+import footerBg from "../assets/images/footer-bg.webp";
+import Magnetic from "@/components/ui/Magnetic";
+import FloatingParticles from "@/components/FloatingParticles";
 import { getLenis } from "@/lib/smoothScroll";
 import { PHONE_DISPLAY, PHONE_TEL, waLink } from "@/lib/contact";
-import "./footer-reel.css";
+import cloudB from "../assets/images/cloud2.895414a23f99e60c66ea.webp";
+import "./footer-fx.css";
 
-const chapters = [
-  { tc: "00:00", label: "Home", href: "#home" },
-  { tc: "00:12", label: "About", href: "#about" },
-  { tc: "00:25", label: "Skills", href: "#skills" },
-  { tc: "00:40", label: "Projects", href: "#projects" },
-  { tc: "00:58", label: "Videos", href: "#videos" },
-  { tc: "01:10", label: "Services", href: "#services" },
-  { tc: "01:24", label: "Contact", href: "#contact" },
+const ease = [0.16, 1, 0.3, 1] as const;
+const FONT_CONDENSED = "'Anton', 'Impact', sans-serif";
+const bigText = "text-2xl sm:text-3xl md:text-4xl leading-[0.95] uppercase text-foreground";
+
+const allSocials = [
+  { Icon: RiGithubFill,    href: "https://github.com/nikhilpaharia96-lang", label: "GitHub",    hoverBg: "hover:bg-slate-900"   },
+  { Icon: SiWhatsapp,      href: "https://wa.me/919395722454", label: "WhatsApp",  hoverBg: "hover:bg-[#25D366]"   },
+  { Icon: Mail,            href: "mailto:nikhilpaharia96@gmail.com", label: "Email", hoverBg: "hover:bg-primary"    },
+  { Icon: RiLinkedinFill,  href: "#", label: "LinkedIn",  hoverBg: "hover:bg-[#0A66C2]"   },
+  { Icon: SiInstagram, href: "#", label: "Instagram", hoverBg: "hover:bg-[#E1306C]"   },
+  { Icon: RiYoutubeFill,   href: "#", label: "YouTube",   hoverBg: "hover:bg-[#FF0000]"   },
+];
+// Only real links are shown — fill in the "#" ones above and they appear automatically.
+const socials = allSocials.filter((x) => x.href && x.href !== "#");
+
+const navLinks = [
+  { label: "Home",     href: "#home"     },
+  { label: "About",    href: "#about"    },
+  { label: "Skills",   href: "#skills"   },
+  { label: "Projects", href: "#projects" },
+  { label: "Videos",   href: "#videos"   },
+  { label: "Services", href: "#services" },
+  { label: "Contact",  href: "#contact"  },
 ];
 
-const credits = [
-  ["Directed by", "Nikhil Paharia"],
-  ["Websites & Web Apps", "React · TypeScript"],
-  ["Video Editing", "Reels · YouTube · Ads"],
-  ["Design", "Graphics · UI/UX"],
-  ["Growth", "Marketing · Automation"],
-  ["Shot on location", "Assam, India"],
-];
+// cloud2 is a clean stand-alone cumulus (cloud.webp is a hard-cropped cloud bank, so it is not used here).
+const clouds = [cloudB, cloudB, cloudB];
+
+/** Characters rise in one after another. */
+function StaggerChars({ text, reduce, base = 0 }: { text: string; reduce: boolean; base?: number }) {
+  return (
+    <>
+      {text.split("").map((ch, i) => (
+        <motion.span
+          key={i}
+          aria-hidden="true"
+          className="inline-block"
+          variants={{
+            hidden: { opacity: reduce ? 1 : 0, y: reduce ? 0 : 22 },
+            show: { opacity: 1, y: 0, transition: { duration: 0.7, ease, delay: base + i * 0.05 } },
+          }}
+        >
+          {ch}
+        </motion.span>
+      ))}
+    </>
+  );
+}
 
 export default function Footer() {
   const reduce = !!useReducedMotion();
+  const footerRef = useRef<HTMLElement>(null);
+  const fxRef = useRef<HTMLDivElement>(null);
+  const [mobile, setMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  // Pause every footer animation while the footer is off-screen.
+  useEffect(() => {
+    const el = footerRef.current;
+    const fx = fxRef.current;
+    if (!el || !fx) return;
+    const io = new IntersectionObserver(
+      ([e]) => { fx.dataset.paused = e.isIntersecting ? "false" : "true"; },
+      { rootMargin: "120px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  // Scroll-linked layered parallax: the further forward a layer, the more it travels.
+  const { scrollYProgress } = useScroll({ target: footerRef, offset: ["start end", "end start"] });
+  const k = reduce ? 0 : mobile ? 0.55 : 1;
+  const bgY   = useTransform(scrollYProgress, [0, 1], [-36 * k, 36 * k]);
+  const farY  = useTransform(scrollYProgress, [0, 1], [-18 * k, 18 * k]);
+  const midY  = useTransform(scrollYProgress, [0, 1], [-40 * k, 40 * k]);
+  const nearY = useTransform(scrollYProgress, [0, 1], [-76 * k, 76 * k]);
 
   const scrollToTop = () => {
     const lenis = getLenis();
     if (reduce) window.scrollTo({ top: 0, behavior: "auto" });
-    else if (lenis) lenis.scrollTo(0, { duration: 1.4, easing: (t: number) => 1 - Math.pow(1 - t, 4) });
+    else if (lenis) lenis.scrollTo(0, { duration: 1.6, easing: (t: number) => 1 - Math.pow(1 - t, 4) });
     else window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  return (
-    <footer className="rl-footer" aria-label="Footer">
-      <div className="rl-perf" aria-hidden="true" />
+  // Reveal variants (a plain fade when the visitor prefers reduced motion).
+  const dist = reduce ? 0 : 34;
+  const rise = {
+    hidden: { opacity: 0, y: dist },
+    show: { opacity: 1, y: 0, transition: { duration: reduce ? 0.01 : 0.9, ease } },
+  };
+  const fade = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { duration: reduce ? 0.01 : 0.8, ease } } };
+  const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.09, delayChildren: 0.1 } } };
+  const child = {
+    hidden: { opacity: 0, y: reduce ? 0 : 18 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.7, ease } },
+  };
+  const view = { once: false, amount: 0.25 } as const; // replays every time the footer is scrolled into view
+  const headingWords = "Let's build the future.".split(" ");
 
-      <div className="container-tight relative z-10 py-12 md:py-16">
-        <div className="rl-mono mb-6 flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-[#9aa6c8]">
-          <span className="rl-rec" aria-hidden="true" />
-          End of reel · Roll credits
+  return (
+    <footer ref={footerRef} className="relative bg-blue-50 pt-12 md:pt-16 pb-32 md:pb-20 border-t border-blue-100 overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+        <motion.div className="absolute inset-0" style={{ y: bgY }}>
+          <img
+            src={footerBg}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="w-full h-full object-cover object-[center_64%] scale-[1.12]"
+          />
+        </motion.div>
+        <div className="absolute inset-0 bg-white/30" />
+
+        {/* Atmosphere: light, clouds, mist, particles */}
+        <div ref={fxRef} className="ffx" data-paused="false">
+          <div className="ffx-blue" />
+          <div className="ffx-sun" />
+          {([["far", farY], ["mid", midY], ["near", nearY]] as const).map(([depth, y]) => (
+            <motion.div key={depth} className="absolute inset-0" style={{ y }}>
+              <div className={`ffx-layer ffx-layer--${depth}`}>
+                {[0, 1].map((g) => (
+                  <div key={g} className="ffx-group">
+                    {clouds.map((src, i) => (
+                      <img key={i} src={src} alt="" loading="lazy" decoding="async" className="ffx-cloud" />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          ))}
+          <div className="ffx-mist ffx-mist--b" />
+          <div className="ffx-mist ffx-mist--a" />
+          {!reduce && <FloatingParticles variant="dust" count={22} />}
         </div>
 
-        <div className="grid gap-10 md:grid-cols-[1.2fr_1fr] md:gap-14">
-          {/* Left: headline + CTA + credits */}
-          <div>
-            <h2 className="font-serif text-4xl font-bold leading-[1.05] text-white md:text-6xl">
-              Let&apos;s build<br />
-              <span className="text-[#ff8a4a]">the future.</span>
-            </h2>
-            <p className="mt-4 max-w-md text-base text-[#aab4d2]">
-              Available for freelance work worldwide. Tell me your idea and get a clear quote within 24–48 hours.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <a
-                href={waLink("Hi Nikhil, I found your portfolio and would like to discuss a project.")}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rl-btn bg-[#25D366] text-[#05210f]"
-              >
-                <SiWhatsapp className="h-5 w-5" aria-hidden="true" /> Start a project
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white/80 to-transparent" />
+      </div>
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+
+      <div className="container-tight relative z-10">
+
+        {/* Hero text */}
+        <motion.div
+          variants={stagger}
+          initial="hidden"
+          whileInView="show"
+          viewport={view}
+          className="text-center mb-8 md:mb-12 max-w-2xl mx-auto"
+        >
+          <motion.span variants={rise} className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-300/70 bg-white/70 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-emerald-700">
+            <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
+              {!reduce && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />}
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+            </span>
+            Taking new projects
+          </motion.span>
+          <h2 className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-3 text-center" aria-label="Let's build the future.">
+            <span className="inline-flex flex-wrap justify-center" aria-hidden="true">
+              {headingWords.map((w, i) => (
+                <span key={i} className="relative inline-block overflow-hidden mr-[0.24em] py-[0.1em] -my-[0.1em]">
+                  <motion.span
+                    className="inline-block"
+                    variants={{
+                      hidden: { y: reduce ? 0 : "110%", opacity: reduce ? 1 : 0 },
+                      show: { y: 0, opacity: 1, transition: { duration: 0.9, ease } },
+                    }}
+                  >
+                    {w}
+                  </motion.span>
+                </span>
+              ))}
+            </span>
+          </h2>
+          <motion.p variants={rise} className="text-base md:text-lg text-slate-600 font-light">
+            Available for freelance opportunities globally. Bring your boldest ideas.
+          </motion.p>
+          <motion.div variants={rise} className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <a
+              href={waLink("Hi Nikhil, I found your portfolio and would like to discuss a project.")}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="interactive inline-flex min-h-[48px] items-center gap-2 rounded-full bg-[#25D366] px-6 text-sm font-bold text-white shadow-lg transition-transform duration-150 ease-out hover:-translate-y-0.5 active:scale-95 motion-reduce:transition-none"
+            >
+              <SiWhatsapp className="text-lg" aria-hidden="true" /> Start a project
+            </a>
+            <a
+              href={`tel:${PHONE_TEL}`}
+              className="interactive inline-flex min-h-[48px] items-center gap-2 rounded-full border border-slate-300 bg-white/80 px-6 text-sm font-bold text-slate-800 transition-transform duration-150 ease-out hover:-translate-y-0.5 active:scale-95 motion-reduce:transition-none"
+            >
+              <Phone className="h-4 w-4" aria-hidden="true" /> {PHONE_DISPLAY}
+            </a>
+          </motion.div>
+        </motion.div>
+
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-10 mb-6 md:mb-8">
+
+          {/* Brand — from LEFT */}
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            whileInView="show"
+            viewport={view}
+            className="text-center md:text-left"
+          >
+            <Magnetic range={50} strength={0.2}>
+              <a href="#home" aria-label="Nikhil Paharia" className="font-mono text-3xl font-bold tracking-wider block mb-3 flex items-center justify-center md:justify-start gap-2 text-foreground hover:opacity-80 transition-opacity">
+                <span><StaggerChars text="Nikhil" reduce={reduce} base={0.15} /></span>
+                <span className="text-primary"><StaggerChars text="Paharia" reduce={reduce} base={0.45} /></span>
               </a>
-              <a href={`tel:${PHONE_TEL}`} className="rl-btn border border-white/20 text-white">
-                <Phone className="h-4 w-4" aria-hidden="true" /> {PHONE_DISPLAY}
-              </a>
+            </Magnetic>
+            <motion.p variants={rise} className="text-slate-600 text-base">Crafting cinematic digital experiences.</motion.p>
+          </motion.div>
+
+          {/* Nav + Socials — from RIGHT */}
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            whileInView="show"
+            viewport={view}
+            className="flex flex-col items-center gap-3 md:gap-4"
+          >
+            {/* Nav links */}
+            <motion.h3 variants={child} className={`${bigText} footer-glow-title`} style={{ fontFamily: FONT_CONDENSED }}>Explore</motion.h3>
+            <div className="flex flex-wrap justify-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-widest text-slate-600">
+              {navLinks.map((link) => (
+                <motion.a
+                  key={link.label}
+                  href={link.href}
+
+                  variants={child}
+                  className="interactive inline-flex min-h-[44px] items-center rounded-full border border-slate-300/70 bg-white/60 px-4 transition-colors duration-150 hover:border-primary hover:text-primary"
+                >
+                  {link.label}
+                </motion.a>
+              ))}
             </div>
 
-            <dl className="mt-10 max-w-lg">
-              {credits.map(([role, name]) => (
-                <div key={role} className="rl-credit">
-                  <dt className="rl-mono text-xs uppercase tracking-widest text-[#8793b8]">{role}</dt>
-                  <span className="rl-dots h-px w-10 bg-white/10" aria-hidden="true" />
-                  <dd className="text-sm font-semibold text-white sm:text-right">{name}</dd>
-                </div>
+            {/* Social icons wrapped in Magnetic */}
+            <motion.h3 variants={child} className={`${bigText} mt-2`} style={{ fontFamily: FONT_CONDENSED }}>Social</motion.h3>
+            <div className="flex gap-4">
+              {socials.map(({ Icon, href, label, hoverBg }) => (
+                <Magnetic key={label} range={45} strength={0.4} scaleHover={1.15}>
+                  <motion.a
+                    href={href}
+                    aria-label={label}
+                    {...(href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+
+                    variants={child}
+                    className={`footer-social interactive w-10 h-10 rounded-full bg-white/55 flex items-center justify-center ${hoverBg} hover:text-white`}
+                  >
+                    <Icon className="text-lg" />
+                  </motion.a>
+                </Magnetic>
               ))}
-            </dl>
-          </div>
-
-          {/* Right: chapters (nav) + links */}
-          <div>
-            <h3 className="rl-mono mb-3 text-xs uppercase tracking-[0.25em] text-[#9aa6c8]">Chapters</h3>
-            <nav aria-label="Footer">
-              <ul className="grid grid-cols-1 gap-1 sm:grid-cols-2 md:grid-cols-1">
-                {chapters.map((c) => (
-                  <li key={c.label}>
-                    <a href={c.href} className="rl-link">
-                      <span className="rl-mono rl-tc">{c.tc}</span>
-                      <span className="text-sm font-semibold uppercase tracking-widest">{c.label}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-
-            <h3 className="rl-mono mb-3 mt-8 text-xs uppercase tracking-[0.25em] text-[#9aa6c8]">Find me</h3>
-            <ul className="flex flex-wrap gap-2">
-              <li>
-                <a href="https://github.com/nikhilpaharia96-lang" target="_blank" rel="noopener noreferrer" className="rl-link border border-white/10">
-                  <RiGithubFill className="h-5 w-5" aria-hidden="true" /> GitHub
-                </a>
-              </li>
-              <li>
-                <a href="mailto:nikhilpaharia96@gmail.com" className="rl-link border border-white/10">
-                  <Mail className="h-5 w-5" aria-hidden="true" /> Email
-                </a>
-              </li>
-            </ul>
-          </div>
+            </div>
+          </motion.div>
         </div>
 
-        {/* Export bar */}
-        <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-5 sm:flex-row sm:items-center">
-          <p className="rl-mono text-xs text-[#8793b8]">
-            © {new Date().getFullYear()} Nikhil Paharia · Exported in Assam, for the world.
+        {/* Bottom bar */}
+        <motion.div
+          variants={fade}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: false, amount: 0.5 }}
+          className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-6 pt-5 border-t border-blue-100"
+        >
+          <p className="text-slate-700 text-sm font-medium">
+            © {new Date().getFullYear()} Nikhil Paharia. <span className="hidden sm:inline">All rights reserved.</span>
           </p>
-          <button type="button" onClick={scrollToTop} className="rl-btn bg-[#ff6a1a] text-[#1a0a00]" aria-label="Back to start of page">
-            <ArrowUp className="h-4 w-4" aria-hidden="true" /> Replay from start
-          </button>
-        </div>
+          <p className="text-slate-700 text-sm italic">Crafted in Assam, for the world.</p>
+
+          {/* Back-to-top — elastic morph button with Magnetic */}
+          <Magnetic range={60} strength={0.45} scaleHover={1.1}>
+            <motion.button
+              onClick={scrollToTop}
+              whileHover={reduce ? undefined : { y: -3, scale: 1.08 }}
+              whileTap={reduce ? undefined : { scale: 0.9 }}
+              transition={{ type: "spring", stiffness: 380, damping: 22 }}
+              className="footer-top-btn interactive w-10 h-10 rounded-full bg-white/90 border border-blue-200 flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary text-slate-600 overflow-hidden"
+              aria-label="Scroll to top"
+            >
+              <span className="footer-arrow">
+                <RiArrowUpLine className="text-2xl" />
+              </span>
+            </motion.button>
+          </Magnetic>
+        </motion.div>
       </div>
-      {/* keep room above the sticky buttons on phones */}
-      <div className="h-32 md:hidden" aria-hidden="true" />
     </footer>
   );
 }
