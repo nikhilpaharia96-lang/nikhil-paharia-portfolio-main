@@ -9,8 +9,7 @@ import GlobalBackground from "@/components/GlobalBackground";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Marquee from "@/components/Marquee";
-import About from "@/components/About";
-import AboutHighlights from "@/components/AboutHighlights";
+import AboutBooks from "@/components/AboutBooks";
 import Projects from "@/components/Projects";
 import VideoShowcase from "@/components/video-showcase/VideoShowcase";
 import Services from "@/components/Services";
@@ -52,8 +51,7 @@ function Portfolio() {
       <main className="max-w-full overflow-x-hidden">
         <Hero />
         <Marquee />
-        <About />
-        <AboutHighlights />
+        <AboutBooks />
         <Projects />
         <VideoShowcase />
         <Services />
