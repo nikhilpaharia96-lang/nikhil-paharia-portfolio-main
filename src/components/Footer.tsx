@@ -116,7 +116,7 @@ export default function Footer() {
   const headingWords = "Let's build the future.".split(" ");
 
   return (
-    <footer ref={footerRef} className="relative bg-blue-50 pt-8 md:pt-10 pb-28 md:pb-8 border-t border-blue-100 overflow-hidden">
+    <footer ref={footerRef} className="relative bg-blue-50 pt-6 md:pt-7 pb-24 md:pb-5 border-t border-blue-100 overflow-hidden">
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <motion.div className="absolute inset-0" style={{ y: bgY }}>
           <img
@@ -163,16 +163,16 @@ export default function Footer() {
           initial="hidden"
           whileInView="show"
           viewport={view}
-          className="text-center mb-5 md:mb-6 max-w-2xl mx-auto"
+          className="text-center mb-3 md:mb-4 max-w-2xl mx-auto"
         >
-          <motion.span variants={rise} className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-300/70 bg-white/70 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-emerald-700">
+          <motion.span variants={rise} className="mb-2 inline-flex items-center gap-2 rounded-full border border-emerald-300/70 bg-white/70 px-3 py-1 text-xs font-bold uppercase tracking-widest text-emerald-700">
             <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
               {!reduce && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />}
               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
             </span>
             Taking new projects
           </motion.span>
-          <h2 className="text-3xl md:text-4xl font-sans font-bold tracking-tight text-foreground mb-2 text-center" aria-label="Let's build the future.">
+          <h2 className="text-2xl md:text-3xl font-sans font-bold tracking-tight text-foreground mb-0 text-center" aria-label="Let's build the future.">
             <span className="inline-flex flex-wrap justify-center" aria-hidden="true">
               {headingWords.map((w, i) => (
                 <span key={i} className="relative inline-block overflow-hidden mr-[0.24em] py-[0.1em] -my-[0.1em]">
@@ -189,28 +189,25 @@ export default function Footer() {
               ))}
             </span>
           </h2>
-          <motion.p variants={rise} className="text-sm md:text-base text-slate-600">
-            Available for freelance opportunities globally. Bring your boldest ideas.
-          </motion.p>
-          <motion.div variants={rise} className="mt-4 flex flex-wrap items-center justify-center gap-3">
+          <motion.div variants={rise} className="mt-3 flex flex-wrap items-center justify-center gap-2">
             <a
               href={waLink("Hi Nikhil, I found your portfolio and would like to discuss a project.")}
               target="_blank"
               rel="noopener noreferrer"
-              className="interactive inline-flex min-h-[48px] items-center gap-2 rounded-full bg-[#25D366] px-6 text-sm font-bold text-white shadow-lg transition-transform duration-150 ease-out hover:-translate-y-0.5 active:scale-95 motion-reduce:transition-none"
+              className="interactive inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[#25D366] px-5 text-sm font-bold text-white shadow-lg transition-transform duration-150 ease-out hover:-translate-y-0.5 active:scale-95 motion-reduce:transition-none"
             >
               <SiWhatsapp className="text-lg" aria-hidden="true" /> Start a project
             </a>
             <a
               href={`tel:${PHONE_TEL}`}
-              className="interactive inline-flex min-h-[48px] items-center gap-2 rounded-full border border-slate-300 bg-white/80 px-6 text-sm font-bold text-slate-800 transition-transform duration-150 ease-out hover:-translate-y-0.5 active:scale-95 motion-reduce:transition-none"
+              className="interactive inline-flex min-h-[44px] items-center gap-2 rounded-full border border-slate-300 bg-white/80 px-5 text-sm font-bold text-slate-800 transition-transform duration-150 ease-out hover:-translate-y-0.5 active:scale-95 motion-reduce:transition-none"
             >
               <Phone className="h-4 w-4" aria-hidden="true" /> {PHONE_DISPLAY}
             </a>
           </motion.div>
         </motion.div>
 
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 md:gap-10 mb-4 md:mb-5">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-6 mb-3">
 
           {/* Brand — from LEFT */}
           <motion.div
@@ -221,7 +218,7 @@ export default function Footer() {
             className="text-center md:text-left"
           >
             <Magnetic range={50} strength={0.2}>
-              <a href="#home" aria-label="Nikhil Paharia" className="font-sans text-2xl font-bold tracking-tight block mb-1 flex items-center justify-center md:justify-start gap-2 text-foreground hover:opacity-80 transition-opacity">
+              <a href="#home" aria-label="Nikhil Paharia" className="font-sans text-xl font-bold tracking-tight block mb-0 flex items-center justify-center md:justify-start gap-2 text-foreground hover:opacity-80 transition-opacity">
                 <span><StaggerChars text="Nikhil" reduce={reduce} base={0.15} /></span>
                 <span className="text-primary"><StaggerChars text="Paharia" reduce={reduce} base={0.45} /></span>
               </a>
@@ -235,7 +232,7 @@ export default function Footer() {
             initial="hidden"
             whileInView="show"
             viewport={view}
-            className="flex flex-col items-center gap-3"
+            className="flex flex-col md:flex-row items-center gap-3"
           >
             {/* Nav links */}
             <div className="flex flex-wrap justify-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-widest text-slate-600">
@@ -245,7 +242,7 @@ export default function Footer() {
                   href={link.href}
 
                   variants={child}
-                  className="interactive inline-flex min-h-[44px] items-center rounded-full border border-slate-300/70 bg-white/60 px-4 transition-colors duration-150 hover:border-primary hover:text-primary"
+                  className="interactive inline-flex min-h-[44px] items-center rounded-full border border-slate-300/70 bg-white/60 px-3 transition-colors duration-150 hover:border-primary hover:text-primary"
                 >
                   {link.label}
                 </motion.a>
@@ -278,7 +275,7 @@ export default function Footer() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: false, amount: 0.5 }}
-          className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-6 pt-3 border-t border-blue-100"
+          className="flex flex-col md:flex-row justify-between items-center gap-1 md:gap-6 pt-2 border-t border-blue-100"
         >
           <p className="text-slate-700 text-xs font-medium md:pl-14">
             © {new Date().getFullYear()} Nikhil Paharia. <span className="hidden sm:inline">All rights reserved.</span>
