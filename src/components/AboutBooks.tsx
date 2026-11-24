@@ -293,6 +293,8 @@ function BookViewer({ index, onClose, onChange }: { index: number; onClose: () =
   const [narrow, setNarrow] = useState(() => typeof window !== "undefined" && window.matchMedia("(max-width: 759px)").matches);
   const [f, setF] = useState(0); // 0 = cover; wide: spread s = ceil(f/2); narrow: page f of 2n
   const [closing, setClosing] = useState(false);
+  const dir = useRef<"next" | "back">("next");
+  const swipe = useRef<number | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const returnTo = useRef<HTMLElement | null>(null);
@@ -315,11 +317,13 @@ function BookViewer({ index, onClose, onChange }: { index: number; onClose: () =
   const prevBook = useCallback(() => onChange((index - 1 + TOTAL) % TOTAL), [index, onChange]);
 
   const next = useCallback(() => {
+    dir.current = "next";
     if (f === 0) return setF(1);
     if (last) return nextBook();
     setF(narrow ? f + 1 : s * 2 + 1);
   }, [f, last, narrow, s, nextBook]);
   const back = useCallback(() => {
+    dir.current = "back";
     if (f === 0) return;
     if (narrow) return setF(f - 1);
     setF(s <= 1 ? 0 : (s - 1) * 2 - 1);
@@ -381,22 +385,33 @@ function BookViewer({ index, onClose, onChange }: { index: number; onClose: () =
           </button>
         </div>
 
-        <div className={`ab-book-wrap${narrow ? " ab-narrow" : ""}`} data-closed={f === 0}>
+        <div
+          className={`ab-book-wrap${narrow ? " ab-narrow" : ""}`}
+          data-closed={f === 0}
+          data-dir={dir.current}
+          onPointerDown={(e) => { swipe.current = e.clientX; }}
+          onPointerUp={(e) => {
+            const x0 = swipe.current; swipe.current = null;
+            if (x0 === null) return;
+            const dx = e.clientX - x0;
+            if (Math.abs(dx) > 50) { lastDrag.current = Date.now(); dx < 0 ? h.current.next() : h.current.back(); }
+          }}
+        >
           {narrow ? (
-            <div className="ab-pagebox" key={f} onClick={f === 0 ? next : undefined} role={f === 0 ? "button" : undefined} aria-label={f === 0 ? "Open the book" : undefined} tabIndex={f === 0 ? 0 : undefined} onKeyDown={(e) => { if (f === 0 && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); next(); } }}>
+            <div className="ab-pagebox" key={f} onClick={f === 0 ? () => { if (Date.now() - lastDrag.current > 350) next(); } : undefined} role={f === 0 ? "button" : undefined} aria-label={f === 0 ? "Open the book" : undefined} tabIndex={f === 0 ? 0 : undefined} onKeyDown={(e) => { if (f === 0 && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); next(); } }}>
               {f === 0 ? <Cover b={book} /> : f % 2 === 1 ? (
-                <div className="ab-page-in ab-pcolor" style={{ ...leftStyle, position: "relative" }} onClick={next}>{book.spreads[(f - 1) / 2].l}</div>
+                <div className="ab-page-in ab-pcolor" style={{ ...leftStyle, position: "relative" }} onClick={() => { if (Date.now() - lastDrag.current > 350) next(); }}>{book.spreads[(f - 1) / 2].l}</div>
               ) : (
-                <div className="ab-page-in ab-paper" onClick={next}>{book.spreads[f / 2 - 1].r}</div>
+                <div className="ab-page-in ab-paper" onClick={() => { if (Date.now() - lastDrag.current > 350) next(); }}>{book.spreads[f / 2 - 1].r}</div>
               )}
             </div>
           ) : (
             <>
               <div className="ab-spread-shadow" aria-hidden="true" style={{ opacity: f === 0 ? 0 : 1 }} />
-              <div className="ab-pagebox L ab-clickable" onClick={back} style={{ opacity: f === 0 ? 0 : 1, transition: `opacity 0s linear ${f > 0 ? 260 : 0}ms` }}>
+              <div className="ab-pagebox L ab-clickable" onClick={() => { if (Date.now() - lastDrag.current > 350) back(); }} style={{ opacity: f === 0 ? 0 : 1, transition: `opacity 0s linear ${f > 0 ? 260 : 0}ms` }}>
                 <div className="ab-page-in ab-pcolor" key={`l${s}`} style={{ ...leftStyle, position: "relative" }}>{spread.l}</div>
               </div>
-              <div className="ab-pagebox R ab-paper ab-clickable" onClick={next}>
+              <div className="ab-pagebox R ab-paper ab-clickable" onClick={() => { if (Date.now() - lastDrag.current > 350) next(); }}>
                 <div className="ab-page-in" key={`r${s}`}>{spread.r}</div>
               </div>
               <div className="ab-flip" data-open={f > 0} onClick={f === 0 ? next : undefined} role={f === 0 ? "button" : undefined} aria-label={f === 0 ? "Open the book" : undefined} aria-hidden={f > 0 ? true : undefined} tabIndex={f === 0 ? 0 : -1} onKeyDown={(e) => { if (f === 0 && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); next(); } }} style={{ cursor: f === 0 ? "pointer" : "default", pointerEvents: f > 0 ? "none" : "auto" }}>
@@ -438,6 +453,16 @@ export default function AboutBooks() {
   const rm = !!useReducedMotion();
   const [active, setActive] = useState(2);
   const [open, setOpen] = useState<number | null>(null);
+  const [ready, setReady] = useState(false);
+  const stageRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el || rm || typeof IntersectionObserver === "undefined") { setReady(true); return; }
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setReady(true); io.disconnect(); } }, { threshold: 0.25 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [rm]);
   const drag = useRef<{ x: number } | null>(null);
   const clamp = (i: number) => Math.max(0, Math.min(TOTAL - 1, i));
 
@@ -460,6 +485,7 @@ export default function AboutBooks() {
         </div>
 
         <div
+          ref={stageRef}
           className="ab-stage"
           tabIndex={0}
           role="region"
@@ -478,8 +504,11 @@ export default function AboutBooks() {
             const o = i - active;
             const a = Math.abs(o);
             const style: CSSProperties = {
-              transform: `translateX(calc(var(--bw) * ${o * 0.86})) translateZ(${-a * 150}px) rotateY(${-o * 32}deg)`,
-              opacity: a > 2 ? 0 : 1,
+              transform: ready
+                ? `translateX(calc(var(--bw) * ${o * 0.86})) translateZ(${-a * 150}px) rotateY(${-o * 32}deg)`
+                : `translateX(0) translateZ(-300px) rotateY(0deg) scale(.9)`,
+              opacity: !ready || a > 2 ? 0 : 1,
+              transitionDelay: ready && !rm ? `${a * 70}ms` : "0ms",
               zIndex: 10 - a,
               pointerEvents: a > 2 ? "none" : "auto",
               filter: a === 0 ? "none" : `brightness(${1 - a * 0.12})`,
@@ -501,6 +530,7 @@ export default function AboutBooks() {
               >
                 <span className="ab-book-in">
                   <Cover b={b} />
+                  {a === 0 && <span className="ab-sticker ab-mono" aria-hidden="true">Open ↗</span>}
                   <span className="ab-shadow" aria-hidden="true" />
                 </span>
               </button>
