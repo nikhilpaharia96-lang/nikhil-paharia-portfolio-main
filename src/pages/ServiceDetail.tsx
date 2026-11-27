@@ -108,7 +108,7 @@ export default function ServiceDetail() {
     () =>
       detail && price
         ? {
-            title: `${price.title} — Starting ${formatINR(price.startingPrice)}${price.unit} | Nikhil Paharia`,
+            title: detail.seoTitle ?? `${price.title} — Starting ${formatINR(price.startingPrice)}${price.unit} | Nikhil Paharia`,
             description: detail.seoDescription,
             path: `/services/${detail.slug}`,
             jsonLd: {
@@ -117,7 +117,7 @@ export default function ServiceDetail() {
               name: price.title,
               description: detail.seoDescription,
               provider: { "@type": "Person", name: "Nikhil Paharia" },
-              areaServed: "IN",
+              areaServed: [{ "@type": "AdministrativeArea", name: "Assam" }, { "@type": "Country", name: "India" }],
               offers: { "@type": "Offer", priceCurrency: "INR", price: String(price.startingPrice) },
             },
           }

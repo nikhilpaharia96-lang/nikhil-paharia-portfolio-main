@@ -26,7 +26,7 @@ function setMeta(attr: "name" | "property", key: string, content: string) {
 export function usePageSeo({ title, description, path, jsonLd }: Seo) {
   useEffect(() => {
     const prevTitle = document.title;
-    const url = `${window.location.origin}${path}`;
+    const url = `https://www.nikhilpaharia.online${path}`; // fixed to match sitemap + index.html canonical
     const prev = new Map<string, string | null>();
     const remember = (attr: "name" | "property", key: string) =>
       prev.set(`${attr}:${key}`, document.head.querySelector(`meta[${attr}="${key}"]`)?.getAttribute("content") ?? null);
