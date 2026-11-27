@@ -82,6 +82,13 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
   "website-development": {
     slug: "website-development",
     ...SERVICE_INFO["website-development"],
+    landing: {
+      headline: "A website that brings customers to your WhatsApp, not just one that looks good.",
+      subline: "Fast, mobile-friendly websites for local businesses. Starting at ₹2,999.",
+      sampleCta: "Get a Free Website Quote",
+      sampleNote: "Tell me about your business on WhatsApp and I'll send a clear quote. No commitment.",
+      sampleMessage: "I'd like a free quote for a website for my business.",
+    },
     seoDescription: "Fast, modern, responsive websites for businesses and brands — landing pages, business sites and custom web apps by Nikhil Paharia.",
     intro: {
       what: "I design and build fast, responsive, modern websites — from a single landing page to a complete business website or custom web application — that look great on every screen.",
@@ -172,6 +179,13 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
   "digital-marketing": {
     slug: "digital-marketing",
     ...SERVICE_INFO["digital-marketing"],
+    landing: {
+      headline: "Stop spending on ads that don't bring enquiries.",
+      subline: "Social media, Google & Meta ads and SEO with a monthly report in plain numbers. Starting at ₹1,999/month.",
+      sampleCta: "Get a Free Marketing Check",
+      sampleNote: "Share your page or website and I'll point out 3 things that can bring more leads. No commitment.",
+      sampleMessage: "I'd like a free marketing check for my business.",
+    },
     seoDescription: "Social media marketing, Google Ads, SEO and lead generation to grow your brand — monthly digital marketing by Nikhil Paharia.",
     intro: {
       what: "Monthly digital marketing that grows your brand: social media management, Google & Meta ads, SEO and lead-generation funnels, all tracked with real numbers.",
@@ -213,6 +227,13 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
   "graphic-designing": {
     slug: "graphic-designing",
     ...SERVICE_INFO["graphic-designing"],
+    landing: {
+      headline: "Designs that make your brand look trusted at first glance.",
+      subline: "Logos, banners, social posts and print design. Starting at ₹499.",
+      sampleCta: "Get a Free Design Quote",
+      sampleNote: "Tell me what you need and I'll share a quote and timeline. No commitment.",
+      sampleMessage: "I'd like a free quote for graphic design.",
+    },
     seoDescription: "Logos, banners, social media posts, branding and print design — professional graphic design by Nikhil Paharia.",
     intro: {
       what: "Logos, social media creatives, banners, brochures, packaging and complete brand identities — designed to look professional and consistent everywhere.",
@@ -251,6 +272,13 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
   "ui-ux-design": {
     slug: "ui-ux-design",
     ...SERVICE_INFO["ui-ux-design"],
+    landing: {
+      headline: "Apps and screens your users understand without being taught.",
+      subline: "Clean web and mobile interfaces, designed before a single line of code. Starting at ₹1,499.",
+      sampleCta: "Discuss Your App Idea",
+      sampleNote: "Describe your idea on WhatsApp and I'll suggest the right screens and scope. No commitment.",
+      sampleMessage: "I'd like to discuss a UI/UX design for my app or website.",
+    },
     seoDescription: "User-friendly UI/UX design for websites, web apps and mobile apps — wireframes, prototypes and design systems in Figma.",
     intro: {
       what: "User research, wireframes and polished interface design for websites and mobile apps — delivered as clickable Figma prototypes and developer-ready files.",
@@ -289,6 +317,13 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
   "automation-ai-solutions": {
     slug: "automation-ai-solutions",
     ...SERVICE_INFO["automation-ai-solutions"],
+    landing: {
+      headline: "Let WhatsApp replies and repeat work run on their own.",
+      subline: "Chatbots, workflow automation and CRM or API integration. Starting at ₹4,999.",
+      sampleCta: "Find What I Can Automate",
+      sampleNote: "Tell me one task that eats your time and I'll suggest how to automate it. No commitment.",
+      sampleMessage: "I'd like to find out what I can automate in my business.",
+    },
     seoDescription: "WhatsApp chatbots, workflow automation, CRM and API integration — save hours every week with AI and automation by Nikhil Paharia.",
     intro: {
       what: "I automate repetitive work with chatbots, workflow automation, CRM set-ups and API integrations so your business replies faster and runs with less manual effort.",
@@ -333,6 +368,13 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
   "e-commerce-solutions": {
     slug: "e-commerce-solutions",
     ...SERVICE_INFO["e-commerce-solutions"],
+    landing: {
+      headline: "Start selling online with a store that's easy for customers to buy from.",
+      subline: "Store setup, products, payments and management. Starting at ₹4,999.",
+      sampleCta: "Get a Free Store Quote",
+      sampleNote: "Tell me what you sell and I'll share a plan and a quote. No commitment.",
+      sampleMessage: "I'd like a free quote to set up an online store.",
+    },
     seoDescription: "Online store development, product setup, payment integration and store management on Shopify, WooCommerce and WordPress.",
     intro: {
       what: "Complete online stores — design, product upload, payment and shipping set-up and store management — so you can start selling online with confidence.",
@@ -372,6 +414,13 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
   "cinematography-video-production": {
     slug: "cinematography-video-production",
     ...SERVICE_INFO["cinematography-video-production"],
+    landing: {
+      headline: "Videos that make your business look as good as it really is.",
+      subline: "Shooting, cinematography and promo videos for brands and events. Starting at ₹2,999.",
+      sampleCta: "Get a Free Shoot Quote",
+      sampleNote: "Tell me about your shoot and I'll share a plan and a quote. No commitment.",
+      sampleMessage: "I'd like a free quote for a video shoot.",
+    },
     seoDescription: "Professional video shooting, cinematography, promotional videos and content creation — end-to-end video production by Nikhil Paharia.",
     intro: {
       what: "End-to-end video production — planning, shooting with cinematic cameras and lighting, and post-production — for promos, brand films, product videos and social content.",
