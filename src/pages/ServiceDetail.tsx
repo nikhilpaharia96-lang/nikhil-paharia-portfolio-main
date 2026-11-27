@@ -158,7 +158,14 @@ export default function ServiceDetail() {
                   })}
                 </div>
                 <h1 className="font-serif text-3xl font-black uppercase leading-[1.08] tracking-tight text-slate-900 sm:text-5xl">{price.title}</h1>
-                <p className="mt-4 text-base leading-relaxed text-slate-600 sm:text-lg">{card.desc}</p>
+                {detail.landing ? (
+                  <>
+                    <p className="mt-4 text-xl font-bold leading-snug text-slate-800 sm:text-2xl">{detail.landing.headline}</p>
+                    <p className="mt-2 text-base leading-relaxed text-slate-600 sm:text-lg">{detail.landing.subline}</p>
+                  </>
+                ) : (
+                  <p className="mt-4 text-base leading-relaxed text-slate-600 sm:text-lg">{card.desc}</p>
+                )}
                 <div className="mt-7 flex flex-wrap items-center gap-4">
                   <span className="inline-flex items-baseline gap-2 rounded-full bg-gradient-to-br from-[#1d6feb] to-[#0f58d6] px-5 py-2.5 text-white shadow-lg shadow-primary/30">
                     <span className="text-[11px] font-semibold uppercase tracking-wide opacity-80">Starting from</span>
@@ -169,6 +176,19 @@ export default function ServiceDetail() {
                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-slate-900"><ArrowRight className="h-4 w-4" /></span>
                   </a>
                 </div>
+                {detail.landing && (
+                  <div className="mt-5">
+                    <a
+                      href={`https://wa.me/919395722454?text=${encodeURIComponent(detail.landing.sampleMessage)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-full border-2 border-primary px-5 py-2.5 text-sm font-bold text-primary transition hover:bg-primary hover:text-white"
+                    >
+                      {detail.landing.sampleCta}
+                    </a>
+                    <p className="mt-2 text-xs text-slate-500">{detail.landing.sampleNote}</p>
+                  </div>
+                )}
               </div>
               <motion.img
                 src={card.image}

@@ -27,6 +27,14 @@ export interface ServiceDetail {
   slug: ServiceSlug;
   /** Short SEO description. */
   seoDescription: string;
+  /** Optional conversion copy shown in the page hero (replaces the plain card description). */
+  landing?: {
+    headline: string;
+    subline: string;
+    sampleCta: string;
+    sampleNote: string;
+    sampleMessage: string;
+  };
   intro: {
     what: string;
     why: string;
@@ -117,11 +125,18 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
   "video-editing": {
     slug: "video-editing",
     ...SERVICE_INFO["video-editing"],
+    landing: {
+      headline: "Edits that keep viewers watching till the last second.",
+      subline: "For YouTube, Reels and ads. Starting at ₹499, first draft in 48 hours.",
+      sampleCta: "Get a Free Sample Edit",
+      sampleNote: "Send a 30-second clip and I'll edit it free. No payment, no commitment.",
+      sampleMessage: "Hi Nikhil, I'd like a free sample edit for my video.",
+    },
     seoDescription: "Professional video editing for YouTube, Instagram Reels, ads and corporate videos — cuts, colour, sound and motion graphics.",
     intro: {
       what: "Professional editing that turns raw footage into engaging videos — YouTube videos, Instagram Reels, ads, promos and corporate films — with sharp cuts, colour, sound and motion graphics.",
       why: "Attention lasts seconds. A well-edited video keeps viewers watching, makes your brand look professional and makes your message land.",
-      problems: ["Raw footage that never gets published", "Videos that look amateur or drag on", "No time to edit consistently", "Weak hooks, audio and pacing"],
+      problems: ["Great footage, but it looks boring after editing and gets few views", "Editors who miss deadlines or charge extra for every revision", "Explaining your style again and again to every new editor", "Weak hooks, audio and pacing that make viewers leave early"],
       who: ["YouTubers & creators", "Brands running video ads", "Coaches and educators", "Businesses and event teams"],
     },
     provide: [
