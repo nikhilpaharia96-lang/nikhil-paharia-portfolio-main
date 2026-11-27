@@ -91,7 +91,7 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
       sampleNote: "Tell me about your business on WhatsApp and I'll send a clear quote. No commitment.",
       sampleMessage: "I'd like a free quote for a website for my business.",
     },
-    seoTitle: "Website Developer in Assam — Websites from ₹2,999",
+    seoTitle: "Website Developer in Guwahati — Websites from ₹2,999",
     seoDescription: "Website developer in Assam for businesses and brands: fast, mobile-friendly websites, landing pages and web apps from ₹2,999. Free quote on WhatsApp.",
     intro: {
       what: "I design and build fast, responsive, modern websites — from a single landing page to a complete business website or custom web application — that look great on every screen.",
@@ -142,7 +142,7 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
       sampleNote: "Send a 30-second clip and I'll edit it free. No payment, no commitment.",
       sampleMessage: "Hi Nikhil, I'd like a free sample edit for my video.",
     },
-    seoTitle: "Video Editor in Assam — YouTube & Reels Editing from ₹499",
+    seoTitle: "Video Editor in Guwahati — YouTube & Reels Editing from ₹499",
     seoDescription: "Video editor in Assam for YouTube, Instagram Reels, ads and corporate videos: cuts, colour, sound and motion graphics from ₹499. Free sample edit.",
     intro: {
       what: "Professional editing that turns raw footage into engaging videos — YouTube videos, Instagram Reels, ads, promos and corporate films — with sharp cuts, colour, sound and motion graphics.",
@@ -190,8 +190,8 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
       sampleNote: "Share your page or website and I'll point out 3 things that can bring more leads. No commitment.",
       sampleMessage: "I'd like a free marketing check for my business.",
     },
-    seoTitle: "Digital Marketing in Assam — SEO, Ads & Social Media ₹1,999/mo",
-    seoDescription: "Digital marketing in Assam: social media, Google & Meta ads, SEO and lead generation for local businesses from ₹1,999/month. Free marketing check.",
+    seoTitle: "Digital Marketing in Guwahati — SEO, Ads & Social Media ₹1,999/mo",
+    seoDescription: "Digital marketing in Guwahati, Assam: social media, Google & Meta ads, SEO and lead generation for local businesses from ₹1,999/month. Free marketing check.",
     intro: {
       what: "Monthly digital marketing that grows your brand: social media management, Google & Meta ads, SEO and lead-generation funnels, all tracked with real numbers.",
       why: "Having a product or service isn't enough — people must find you. Marketing puts your business in front of the right audience and brings in steady leads.",
@@ -239,8 +239,8 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
       sampleNote: "Tell me one task that eats your time and I'll suggest how to automate it. No commitment.",
       sampleMessage: "I'd like to find out what I can automate in my business.",
     },
-    seoTitle: "WhatsApp Chatbot & AI Automation — from ₹4,999",
-    seoDescription: "WhatsApp chatbots, workflow automation, CRM and API integration for businesses in Assam and India, from ₹4,999. Save hours every week.",
+    seoTitle: "WhatsApp Chatbot & AI Automation in Guwahati — from ₹4,999",
+    seoDescription: "WhatsApp chatbots, workflow automation, CRM and API integration for businesses in Guwahati, Assam and India, from ₹4,999. Save hours every week.",
     intro: {
       what: "I automate repetitive work with chatbots, workflow automation, CRM set-ups and API integrations so your business replies faster and runs with less manual effort.",
       why: "Manual follow-ups, copy-pasting and slow replies cost you time and customers. Automation works 24/7, never forgets and scales without extra staff.",
@@ -291,8 +291,8 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
       sampleNote: "Tell me what you sell and I'll share a plan and a quote. No commitment.",
       sampleMessage: "I'd like a free quote to set up an online store.",
     },
-    seoTitle: "E-Commerce Website Developer in Assam — Online Store ₹4,999",
-    seoDescription: "Online store development in Assam: Shopify, WooCommerce and WordPress stores with product setup and payments from ₹4,999. Free store quote.",
+    seoTitle: "E-Commerce Website Developer in Guwahati — Online Store ₹4,999",
+    seoDescription: "Online store development in Guwahati, Assam: Shopify, WooCommerce and WordPress stores with product setup and payments from ₹4,999. Free store quote.",
     intro: {
       what: "Complete online stores — design, product upload, payment and shipping set-up and store management — so you can start selling online with confidence.",
       why: "An online store sells while you sleep and reaches customers far beyond your area. A smooth, trustworthy checkout is what turns browsers into buyers.",
@@ -338,8 +338,8 @@ export const serviceDetails: Record<ServiceSlug, ServiceDetail> = {
       sampleNote: "Tell me about your shoot and I'll share a plan and a quote. No commitment.",
       sampleMessage: "I'd like a free quote for a video shoot.",
     },
-    seoTitle: "Cinematographer & Video Production in Assam — from ₹2,999",
-    seoDescription: "Cinematography and video production in Assam: shooting, promo videos and content creation for brands and events from ₹2,999. Free shoot quote.",
+    seoTitle: "Cinematographer & Video Production in Guwahati — from ₹2,999",
+    seoDescription: "Cinematography and video production in Guwahati, Assam: shooting, promo videos and content creation for brands and events from ₹2,999. Free shoot quote.",
     intro: {
       what: "End-to-end video production — planning, shooting with cinematic cameras and lighting, and post-production — for promos, brand films, product videos and social content.",
       why: "Great visuals tell your story better than words. Cinematic footage makes your brand feel premium and gives you content that works across every platform.",

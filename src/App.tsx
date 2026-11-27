@@ -22,6 +22,7 @@ import StickyContact from "@/components/StickyContact";
 import NotFound from "@/pages/not-found";
 import ServiceDetail from "@/pages/ServiceDetail";
 import Support from "@/pages/Support";
+import Guwahati from "@/pages/Guwahati";
 import Analytics from "@/components/Analytics";
 import { captureAttribution } from "@/lib/attribution";
 
@@ -79,6 +80,7 @@ function App() {
             <Switch>
               <Route path="/" component={Portfolio} />
               <Route path="/services/:slug" component={ServiceDetail} />
+              <Route path="/guwahati" component={Guwahati} />
               <Route path="/payment" component={Support} />
               <Route path="/booking/return">{() => <Suspense fallback={null}><BookingReturn /></Suspense>}</Route>
               <Route path="/admin">{() => <Suspense fallback={null}><Admin /></Suspense>}</Route>
