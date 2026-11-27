@@ -117,17 +117,18 @@ function HireMeButton({ variant, reduced }: { variant: Variant; reduced: boolean
   return (
     <div ref={wrapRef} className="hero-magnetic">
       <a
-        href="#contact"
+        href="https://wa.me/919395722454?text=Hi%20Nikhil%2C%20I%27d%20like%20a%20free%20quote%20for%20my%20business."
+        target="_blank"
+        rel="noopener noreferrer"
         className={`hero-cta hero-cta--hire hero-cta--${variant}`}
         onPointerDown={(e) => !reduced && e.button === 0 && spawnRipple(e)}
         onClick={(e) => {
           if (e.detail === 0 && !reduced) spawnRipple(e); // keyboard activation
-          if (scrollToSection("contact", reduced)) e.preventDefault();
         }}
       >
         <span className="hero-cta__ripples" aria-hidden="true" />
         <RiSendPlaneLine className="hero-cta__plane flex-shrink-0" aria-hidden="true" />
-        <span>Hire Me</span>
+        <span>{variant === "mobile" ? "Free Quote" : "Free Quote on WhatsApp"}</span>
         <RiArrowRightLine className="hero-cta__arrow flex-shrink-0" aria-hidden="true" />
       </a>
     </div>

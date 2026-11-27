@@ -554,7 +554,7 @@ export default function Hero() {
             >
               <div className="w-[3px] rounded-full bg-primary flex-shrink-0 self-stretch" />
               <p style={{ fontSize: 'clamp(0.72rem, 2.8vw, 0.85rem)', lineHeight: 1.35 }} className="text-slate-800">
-                𝗜 𝗯𝘂𝗶𝗹𝗱 𝗳𝗮𝘀𝘁, 𝗺𝗼𝗱𝗲𝗿𝗻 𝗮𝗻𝗱 𝘀𝗰𝗮𝗹𝗮𝗯𝗹𝗲 𝘄𝗲𝗯 𝗲𝘅𝗽𝗲𝗿𝗶𝗲𝗻𝗰𝗲𝘀 𝘁𝗵𝗮𝘁 𝗵𝗲𝗹𝗽 𝗯𝘂𝘀𝗶𝗻𝗲𝘀𝘀𝗲𝘀 𝗴𝗿𝗼𝘄 𝗮𝗻𝗱 𝘀𝘁𝗮𝗻𝗱 𝗼𝘂𝘁.
+                Websites that bring customers to your WhatsApp, not just look good. Starting at ₹2,999.
               </p>
             </motion.div>
 
@@ -582,6 +582,7 @@ export default function Hero() {
                 blurred background so it stays fully legible even where the
                 portrait passes behind it. */}
             <HeroCTAs variant="mobile" />
+            <p className="mt-2 text-[11px] text-slate-700 font-medium leading-snug" style={{ maxWidth: 'min(52vw, 200px)' }}>96+ projects · 24-hr reply · No pay if you don't like it</p>
 
           </motion.div>
 
@@ -936,7 +937,7 @@ export default function Hero() {
             >
               <div className="w-[3px] rounded-full bg-primary flex-shrink-0 self-stretch" />
               <p className="text-slate-600 leading-relaxed text-base">
-                I build fast, modern and scalable web experiences that help businesses grow and stand out.
+                Websites that bring customers to your WhatsApp, not just look good. Website, video and ads in one place, starting at ₹2,999.
               </p>
             </motion.div>
 
@@ -962,6 +963,7 @@ export default function Hero() {
 
             {/* CTAs */}
             <HeroCTAs variant="desktop" />
+            <p className="mt-2 text-xs text-slate-600 font-medium">96+ projects · 30+ happy clients · Reply within 24 hrs · No payment if you don't like it</p>
 
             {/* Social */}
             <motion.div
