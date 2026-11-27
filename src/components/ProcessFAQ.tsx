@@ -16,7 +16,7 @@ const steps = [
 const faqs = [
   {
     q: "How much will my project cost?",
-    a: "Prices start at ₹2,999 for websites, ₹499 for video editing and graphic design, ₹1,499 for UI/UX, ₹1,999/month for digital marketing and ₹4,999 for automation and e-commerce. The exact price depends on your requirements, and I share it before you pay anything.",
+    a: "Prices start at ₹2,999 for websites, ₹499 for video editing, ₹1,999/month for digital marketing and ₹4,999 for automation and e-commerce. The exact price depends on your requirements, and I share it before you pay anything.",
   },
   {
     q: "How long does it take?",

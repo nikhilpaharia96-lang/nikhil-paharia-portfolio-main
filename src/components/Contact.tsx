@@ -261,8 +261,6 @@ const SUBJECT_OPTIONS = [
   "Website Development",
   "Video Editing",
   "Digital Marketing",
-  "Graphic Designing",
-  "UI/UX Design",
   "Automation & AI Solutions",
   "E-Commerce Solutions",
   "Cinematography & Video Production",

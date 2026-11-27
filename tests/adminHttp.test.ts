@@ -46,7 +46,7 @@ test("admin HTTP: locked without session, login → cookie → data, CSRF + lock
 
 test("admin HTTP: delete + resend rules and auth", async () => {
   const gateway = { createOrder: async ({ amountPaise }: any) => ({ id: "order_d" + Math.random(), amount: amountPaise, currency: "INR" }), fetchPayment: async () => { throw new Error("x"); } };
-  const r = await startBooking({ store: getStore(), gateway } as any, { service: "graphic-designing", name: "Spam Lead", phone: "9000000001", email: "s@x.com", description: "spam spam spam spam", budget: 999 });
+  const r = await startBooking({ store: getStore(), gateway } as any, { service: "video-editing", name: "Spam Lead", phone: "9000000001", email: "s@x.com", description: "spam spam spam spam", budget: 999 });
   const login = await call("login", "POST", { body: { password: "correct-horse-battery" }, ip: "7.7.7.7" });
   const cookie = login.headers["set-cookie"].split(";")[0];
   assert.equal((await call("delete", "POST", { body: { id: r.leadId } })).status, 401);

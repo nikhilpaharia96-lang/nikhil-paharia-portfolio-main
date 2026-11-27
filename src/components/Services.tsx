@@ -18,8 +18,6 @@ import afterEffectsLogo from "../assets/logos/after-effects.svg";
 import websiteImage from "../assets/images/fullstack-service.webp";
 import videoEditingImage from "../assets/images/service-02.webp";
 import digitalMarketingImage from "../assets/images/service-digital-marketing.webp";
-import graphicDesignImage from "../assets/images/service-graphic-design.webp";
-import uiuxImage from "../assets/images/service-uiux.webp";
 import automationImage from "../assets/images/service-automation-ai.webp";
 import ecommerceImage from "../assets/images/service-ecommerce.webp";
 import cinematographyImage from "../assets/images/service-cinematography.webp";
@@ -58,28 +56,6 @@ export const services = [
     ],
     price: "₹1,999/month",
     image: digitalMarketingImage,
-  },
-  {
-    slug: "graphic-designing",
-    title: "Graphic Designing",
-    desc: "Logos, Banners, Social Media Posts, Branding and Print Design.",
-    badges: [
-      { label: "Photoshop", text: "Ps", color: "#31A8FF" },
-      { label: "Illustrator", text: "Ai", color: "#FF9A00" },
-    ],
-    price: "₹499",
-    image: graphicDesignImage,
-  },
-  {
-    slug: "ui-ux-design",
-    title: "UI/UX Design",
-    desc: "Modern, user-friendly interfaces for web and mobile applications.",
-    badges: [
-      { label: "Figma", icon: SiFigma, color: "#F24E1E" },
-      { label: "Adobe XD", text: "Xd", color: "#FF2BC2" },
-    ],
-    price: "₹1,499",
-    image: uiuxImage,
   },
   {
     slug: "automation-ai-solutions",

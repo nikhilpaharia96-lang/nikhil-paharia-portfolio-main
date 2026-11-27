@@ -40,8 +40,6 @@ const SERVICE_STYLE: Record<string, { Icon: Mark; from: string; to: string }> = 
   "website-development": { Icon: brand(SiReact, "#087EA4"), from: "#1266F1", to: "#4f9bff" },
   "video-editing": { Icon: img(premiereProLogo), from: "#e1306c", to: "#ff7aa8" },
   "digital-marketing": { Icon: brand(SiGoogleads, "#4285F4"), from: "#f59e0b", to: "#fcd34d" },
-  "graphic-designing": { Icon: brand(Palette, "#0ea5e9"), from: "#0ea5e9", to: "#67e8f9" },
-  "ui-ux-design": { Icon: brand(SiFigma, "#F24E1E"), from: "#7c3aed", to: "#c4b5fd" },
   "automation-ai-solutions": { Icon: brand(SiN8N, "#EA4B71"), from: "#059669", to: "#6ee7b7" },
   "e-commerce-solutions": { Icon: brand(SiShopify, "#5E8E3E"), from: "#ea580c", to: "#fdba74" },
   "cinematography-video-production": { Icon: brand(SiDavinciresolve, "#233A51"), from: "#334155", to: "#94a3b8" },

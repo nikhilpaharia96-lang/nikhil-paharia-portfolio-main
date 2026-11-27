@@ -40,24 +40,6 @@ export const SERVICE_INFO: Record<string, ServiceInfo> = {
     delivery: "Setup in ~1 week, then monthly",
     included: ["Monthly content plan", "Social media posting", "Basic ad setup", "Monthly report"],
   },
-  "graphic-designing": {
-    timeline: [
-      { label: "Social post / banner", value: "1 – 2 days" },
-      { label: "Logo design", value: "3 – 5 days" },
-      { label: "Full branding kit", value: "7 – 10 days" },
-    ],
-    delivery: "1 – 7 days (depending on scope)",
-    included: ["Up to 2 concepts", "Print & web-ready files", "1 round of revisions"],
-  },
-  "ui-ux-design": {
-    timeline: [
-      { label: "Wireframes", value: "2 – 3 days" },
-      { label: "Website UI (5 screens)", value: "5 – 7 days" },
-      { label: "Mobile app UI", value: "2 – 3 weeks" },
-    ],
-    delivery: "5 – 14 days (depending on screens)",
-    included: ["Up to 5 screens", "Clickable prototype", "Basic design system", "1 round of revisions"],
-  },
   "automation-ai-solutions": {
     timeline: [
       { label: "Simple automation", value: "2 – 4 days" },
