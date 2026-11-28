@@ -20,16 +20,15 @@ import Footer from "@/components/Footer";
 import LeadFunnelPopup from "@/components/LeadFunnelPopup";
 import StickyContact from "@/components/StickyContact";
 import NotFound from "@/pages/not-found";
+import ServiceDetail from "@/pages/ServiceDetail";
+import Support from "@/pages/Support";
+import Guwahati from "@/pages/Guwahati";
 import Analytics from "@/components/Analytics";
 import { captureAttribution } from "@/lib/attribution";
 
 // Private admin dashboard — lazy so it adds nothing to the public bundle.
 const Admin = lazy(() => import("@/pages/Admin"));
 const BookingReturn = lazy(() => import("@/pages/BookingReturn"));
-// Secondary pages load only when visited.
-const ServiceDetail = lazy(() => import("@/pages/ServiceDetail"));
-const Support = lazy(() => import("@/pages/Support"));
-const Guwahati = lazy(() => import("@/pages/Guwahati"));
 
 const queryClient = new QueryClient();
 
@@ -61,10 +60,7 @@ function Portfolio() {
         <ProcessFAQ />
         <Contact />
       </main>
-      {/* phones: room so the fixed contact bar never hides the end of the footer */}
-      <div className="pb-16 md:pb-0">
-        <Footer />
-      </div>
+      <Footer />
       <LeadFunnelPopup />
       <StickyContact />
     </>
@@ -83,9 +79,9 @@ function App() {
           <div className="relative overflow-x-hidden max-w-full">
             <Switch>
               <Route path="/" component={Portfolio} />
-              <Route path="/services/:slug">{(params) => <Suspense fallback={<div className="min-h-screen" />}><ServiceDetail {...({ params } as any)} /></Suspense>}</Route>
-              <Route path="/guwahati">{(params) => <Suspense fallback={<div className="min-h-screen" />}><Guwahati {...({ params } as any)} /></Suspense>}</Route>
-              <Route path="/payment">{(params) => <Suspense fallback={<div className="min-h-screen" />}><Support {...({ params } as any)} /></Suspense>}</Route>
+              <Route path="/services/:slug" component={ServiceDetail} />
+              <Route path="/guwahati" component={Guwahati} />
+              <Route path="/payment" component={Support} />
               <Route path="/booking/return">{() => <Suspense fallback={null}><BookingReturn /></Suspense>}</Route>
               <Route path="/admin">{() => <Suspense fallback={null}><Admin /></Suspense>}</Route>
               <Route component={NotFound} />

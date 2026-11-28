@@ -27,7 +27,7 @@ No public endpoint returns client data.
 
 ## Tests
 `npm test` (service logic, signatures, idempotency, admin auth + HTTP) · `npm run typecheck:api`.
-Note: the unused, corrupt `src/lib/smoothScroll-3.ts` file has been removed.
+Note: `src/lib/smoothScroll-3.ts` is an unused file that already failed `npm run typecheck` before this work.
 
 ## Admin features
 Stats (incl. conversion rate, follow-ups due) · clickable pipeline counts · 14-day leads/revenue charts and

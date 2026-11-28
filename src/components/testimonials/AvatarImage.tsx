@@ -10,7 +10,7 @@ type AvatarImageProps = {
 /** Renders a lazy-loaded image, falling back to initials text if the image fails to load. */
 export default function AvatarImage({ src, alt, fallback, className = "" }: AvatarImageProps) {
   const [failed, setFailed] = useState(false);
-  if (!src || failed) return <>{fallback}</>;
+  if (failed) return <>{fallback}</>;
   return (
     <img
       src={src}

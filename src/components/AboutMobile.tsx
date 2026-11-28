@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 import { MapPin, CalendarDays, GraduationCap, Code2, Layers, Users, Trophy, Video, Rocket, ChevronLeft, ChevronRight } from "lucide-react";
 import { SiReact, SiNextdotjs, SiNodedotjs, SiMongodb, SiTailwindcss, SiTypescript } from "react-icons/si";
-import portrait from "../assets/images/nikhil-portrait.webp";
+import portrait from "../assets/images/Desktop Nikhil Paharia profile photo.png";
 import CountUp from "@/components/ui/CountUp";
 import "./about-stories.css";
 

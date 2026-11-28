@@ -31,6 +31,12 @@ function ReviewCard({ t }: { t: Testimonial }) {
             ))}
           </div>
         </div>
+        <svg viewBox="0 0 48 48" className="w-4 h-4 shrink-0" aria-hidden="true">
+          <path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h11.8c-.5 2.8-2.1 5.1-4.5 6.7v5.5h7.3c4.3-4 6.5-9.8 6.5-16.2z" />
+          <path fill="#34A853" d="M24 46c6.1 0 11.2-2 14.9-5.4l-7.3-5.5c-2 1.4-4.6 2.2-7.6 2.2-5.8 0-10.8-3.9-12.5-9.2H4v5.7C7.7 41.1 15.3 46 24 46z" />
+          <path fill="#FBBC05" d="M11.5 28.1c-.4-1.4-.7-2.8-.7-4.1s.3-2.8.7-4.1v-5.7H4C2.4 17.3 1.5 20.5 1.5 24s.9 6.7 2.5 9.8l7.5-5.7z" />
+          <path fill="#EA4335" d="M24 10.7c3.3 0 6.2 1.1 8.5 3.3l6.4-6.4C35.2 4.1 30.1 2 24 2 15.3 2 7.7 6.9 4 14.2l7.5 5.7c1.7-5.3 6.7-9.2 12.5-9.2z" />
+        </svg>
       </div>
       <p className="mt-3 text-[13px] leading-snug text-slate-700 line-clamp-4">“{t.content}”</p>
       <div className="mt-3 pt-2.5 border-t border-slate-200/70 flex items-center justify-between text-[10px] font-semibold tracking-wider uppercase text-slate-500">

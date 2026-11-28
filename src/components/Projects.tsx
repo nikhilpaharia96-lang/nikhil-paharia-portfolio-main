@@ -31,7 +31,7 @@ import img2 from "../assets/images/project-2.webp"; // Abodiverse
 import img3 from "../assets/images/project-3.webp"; // Xarena
 import img4 from "../assets/images/project-4.webp"; // Travel Diaries
 import img5 from "../assets/images/project-5.webp"; // CreatorHub
-import img6 from "../assets/images/project-6-optimized.webp"; // Portfolio Website
+import img6 from "../assets/images/project-6.webp"; // Portfolio Website
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -296,25 +296,25 @@ const PROJECTS: Project[] = [
   {
     id: 6,
     number: "06",
-    title: "Gopal Krishna Tea",
+    title: "Gopal krishna tea",
     headline: "The Taste of Assam, Reimagined",
-    category: "Business Website",
+    category: "Personal Site",
     filterKey: "Web",
-    tagline: "My own project: a website for Gopal Krishna Tea and its Assam tea.",
+    tagline: "This very site — built with love, precision and purpose.",
     status: "Live",
     tone: "ink",
     accentColor: "#1d6feb",
-    overview: "Gopal Krishna Tea is my own project. Visit the live site to see it.",
-    features: [],
-    tech: [],
-    timeline: "",
+    overview: "The site you're on right now — a handcrafted, cinematically-animated portfolio designed and built from scratch, no template shortcuts.",
+    features: ["Cinematic scroll-driven motion", "Custom design system", "Fully responsive & accessible", "Built from scratch"],
+    tech: ["React", "Tailwind", "Framer Motion"],
+    timeline: "Ongoing",
     narrative: false,
-    metrics: null,
+    metrics: { screens: "10+", components: "60+", apis: "05+", score: "99%" },
     image: img6,
     imagePosition: "object-top",
     live: "https://www.gopalkrishnatea.com/",
-    github: "",
-    caseStudy: "",
+    github: "https://github.com/nikhilpaharia96-lang/nikhil-paharia-portfolio-main.git",
+    caseStudy: "#",
   },
 ];
 
@@ -707,30 +707,26 @@ function FolderExpanded({
           >
             <ExternalLink size={13} /> Live Demo
           </a>
-          {project.github !== "" && (
-            <a
-              href={project.github ?? project.live}
-              data-track-event="project_link_click" data-track-kind="code" data-track-label={project.title}
-              target="_blank" rel="noopener noreferrer"
-              onPointerDown={(e) => e.stopPropagation()}
-              className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl"
-              style={{ background: "rgba(0,0,0,0.08)", color: tone.text }}
-            >
-              <SiGithub size={13} /> Code
-            </a>
-          )}
-          {project.caseStudy !== "" && (
-            <a
-              href={project.caseStudy}
-              data-track-event="project_link_click" data-track-kind="case_study" data-track-label={project.title}
-              target="_blank" rel="noopener noreferrer"
-              onPointerDown={(e) => e.stopPropagation()}
-              className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl"
-              style={{ background: "rgba(0,0,0,0.08)", color: tone.text }}
-            >
-              <FileText size={13} /> Case Study
-            </a>
-          )}
+          <a
+            href={project.github ?? project.live}
+            data-track-event="project_link_click" data-track-kind="code" data-track-label={project.title}
+            target="_blank" rel="noopener noreferrer"
+            onPointerDown={(e) => e.stopPropagation()}
+            className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl"
+            style={{ background: "rgba(0,0,0,0.08)", color: tone.text }}
+          >
+            <SiGithub size={13} /> Code
+          </a>
+          <a
+            href={project.caseStudy}
+            data-track-event="project_link_click" data-track-kind="case_study" data-track-label={project.title}
+            target="_blank" rel="noopener noreferrer"
+            onPointerDown={(e) => e.stopPropagation()}
+            className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl"
+            style={{ background: "rgba(0,0,0,0.08)", color: tone.text }}
+          >
+            <FileText size={13} /> Case Study
+          </a>
         </div>
 
         {/* everything else lives behind one toggle so the card stays short */}
@@ -765,21 +761,19 @@ function FolderExpanded({
           </div>
         )}
 
-        {project.metrics && (
-          <div className="grid grid-cols-4 gap-2 mt-6 rounded-2xl p-3.5" style={{ background: "rgba(0,0,0,0.06)" }}>
-            {[
-              { label: "Screens", value: project.metrics.screens },
-              { label: "Components", value: project.metrics.components },
-              { label: "APIs", value: project.metrics.apis },
-              { label: "Timeline", value: project.timeline.split(" ")[0] },
-            ].map((m) => (
-              <div key={m.label} className="text-center">
-                <p className="text-sm sm:text-base font-black">{m.value}</p>
-                <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-wide" style={{ color: tone.sub }}>{m.label}</p>
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-4 gap-2 mt-6 rounded-2xl p-3.5" style={{ background: "rgba(0,0,0,0.06)" }}>
+          {[
+            { label: "Screens", value: project.metrics.screens },
+            { label: "Components", value: project.metrics.components },
+            { label: "APIs", value: project.metrics.apis },
+            { label: "Timeline", value: project.timeline.split(" ")[0] },
+          ].map((m) => (
+            <div key={m.label} className="text-center">
+              <p className="text-sm sm:text-base font-black">{m.value}</p>
+              <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-wide" style={{ color: tone.sub }}>{m.label}</p>
+            </div>
+          ))}
+        </div>
 
         </details>
       </div>
