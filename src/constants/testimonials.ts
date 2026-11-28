@@ -67,7 +67,7 @@ export const testimonials: Testimonial[] = [
     avatarFrom: "#059669",
     avatarTo: "#34d399",
     initials: "PD",
-    avatarImg: "https://www.shutterstock.com/image-photo/head-shot-portrait-beautiful-indian-260nw-2595362193.jpg",
+    avatarImg: "", // initials shown until the client shares a photo
     companyLogo:
       "https://api.dicebear.com/9.x/initials/svg?seed=FitBite&backgroundType=gradientLinear&backgroundColor=059669,34d399&fontFamily=Arial&fontWeight=700&radius=20",
     flag: "🇮🇳",
@@ -88,7 +88,7 @@ export const testimonials: Testimonial[] = [
     avatarFrom: "#f59e0b",
     avatarTo: "#fbbf24",
     initials: "MB",
-    avatarImg: "https://www.shutterstock.com/image-photo/happy-handsome-young-indian-man-260nw-2315729087.jpg",
+    avatarImg: "", // initials shown until the client shares a photo
     companyLogo:
       "https://api.dicebear.com/9.x/initials/svg?seed=TravelAssam&backgroundType=gradientLinear&backgroundColor=f59e0b,fbbf24&fontFamily=Arial&fontWeight=700&radius=20",
     flag: "🇮🇳",
@@ -98,49 +98,6 @@ export const testimonials: Testimonial[] = [
     result: "2x More Leads",
     content:
       "The website Nikhil built captured the soul of Assam perfectly. Bookings picked up almost immediately after launch, and clients keep complimenting the design.",
-  },
-  {
-    id: 4,
-    name: "Kabir Singh",
-    role: "Product Manager",
-    company: "Nexlify",
-    companyShort: "NX",
-    companyColor: "#0ea5e9",
-    avatarFrom: "#0ea5e9",
-    avatarTo: "#38bdf8",
-    initials: "KS",
-    avatarImg: "https://api.dicebear.com/9.x/avataaars/svg?seed=Kabir-Singh-Nexlify&backgroundColor=c5eefc,d6f2fd",
-    companyLogo:
-      "https://api.dicebear.com/9.x/initials/svg?seed=Nexlify&backgroundType=gradientLinear&backgroundColor=0ea5e9,38bdf8&fontFamily=Arial&fontWeight=700&radius=20",
-    flag: "🇦🇪",
-    country: "UAE",
-    category: "Startups",
-    projectType: "SaaS Dashboard",
-    result: "↑ 55% Retention",
-    content:
-      "Even working across time zones, Nikhil was responsive, sharp and precise. The dashboard he shipped is faster and cleaner than what our last agency delivered.",
-  },
-  {
-    id: 5,
-    name: "Ishita Bhattacharya",
-    role: "Creative Director",
-    company: "PixelCraft Studio",
-    companyShort: "PC",
-    companyColor: "#e1306c",
-    avatarFrom: "#e1306c",
-    avatarTo: "#f472b6",
-    initials: "IB",
-    avatarImg:
-      "https://api.dicebear.com/9.x/avataaars/svg?seed=Ishita-Bhattacharya-PixelCraft&backgroundColor=fbd5e4,fde2ec",
-    companyLogo:
-      "https://api.dicebear.com/9.x/initials/svg?seed=PixelCraftStudio&backgroundType=gradientLinear&backgroundColor=e1306c,f472b6&fontFamily=Arial&fontWeight=700&radius=20",
-    flag: "🇬🇧",
-    country: "UK",
-    category: "Creators",
-    projectType: "Brand Video Campaign",
-    result: "1M+ Impressions",
-    content:
-      "Rare to find someone who edits with this much taste. Every cut, transition and grade felt intentional. The campaign outperformed everything we've run before.",
   },
   // ─────────────────────────────────────────────────────────────
   // 👇 EXAMPLE: naya real testimonial add karne ka tarika (URL system).
