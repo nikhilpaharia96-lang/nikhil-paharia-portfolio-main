@@ -7,7 +7,7 @@ import { desktopMasks, mobileMasks } from "@/components/parallaxMasks";
 import "@/components/brush-reveal.css";
 import { motion, useScroll, useTransform, useSpring, useMotionValueEvent, useInView, useReducedMotion } from "@/lib/static-motion";
 import { useRef, useState, useEffect } from "react";
-import teaBg from "../assets/images/file_0000000066b08207b18b1ec1e8269869.png";
+import teaBg from "../assets/images/hero-art.webp";
 import teaBgMobile from "../assets/images/tea-brush-mobile.webp";
 import SplitText from "@/components/ui/SplitText";
 import HeroCTAs from "@/components/HeroCTA";
@@ -17,15 +17,15 @@ import FloatingLeaves from "@/components/FloatingLeaves";
 import PortraitFX from "@/components/PortraitFX";
 
 // ── Desktop-only Hero assets ──────────────────────────────────────────────
-import desktopPortrait from "../assets/images/Desktop Nikhil Paharia profile photo.png";
-import brushStroke from "../assets/images/blue-brush-stroke.png";
-import botamLeft from "../assets/images/botam-left.png";
-import ovalLandscape from "../assets/images/Assam landscape.png";
+import desktopPortrait from "../assets/images/nikhil-portrait.webp";
+import brushStroke from "../assets/images/blue-brush-stroke.webp";
+import botamLeft from "../assets/images/botam-left.webp";
+import ovalLandscape from "../assets/images/assam-landscape.webp";
 import threeStrokes from "../assets/images/three-strokes.png.png";
 // assam-map-clean.webp ships with its "transparent" background baked in as an
 // opaque checkerboard (no real alpha channel) — assam-map-transparent.png is
 // a chroma-keyed export of the same artwork with a real alpha channel.
-import assamMapImg from "../assets/images/assam-map-transparent.png";
+import assamMapImg from "../assets/images/assam-map.webp";
 // paper-airplane.png has the same baked-checkerboard problem; this Picsart
 // export of the identical artwork has genuine transparency.
 import cleanPaperPlane from "../assets/images/Picsart_26-08-04_10-20-09-507.png";
@@ -457,11 +457,15 @@ export default function Hero() {
                 style={{
                   fontFamily: "'Caveat', cursive",
                   fontWeight: 700,
-                  fontSize: 'clamp(1.07rem, 4vw, 2.4rem)',
+                  fontSize: 'clamp(1rem, 5.2vw, 2.4rem)',
+                  textShadow: '0 0 6px #fff, 0 0 10px #fff, 0 0 2px #fff',
+                  lineHeight: 1.05,
                   letterSpacing: '0.3px',
                 }}
               >
-                Full-Stack Developer <span className="text-primary">&</span> Video Editor
+                Full-Stack Developer
+                <br className="sm:hidden" />{' '}
+                <span className="text-primary">&</span> Video Editor
               </p>
               {/* Premium hand-drawn brush-stroke underline (mobile) — same
                   tapered ink shape as desktop, scaled down proportionally
@@ -558,31 +562,12 @@ export default function Hero() {
               </p>
             </motion.div>
 
-            {/* Capabilities — bullet role list, stacked vertically (one per
-                line) with icons restored to original size */}
-            <motion.div
-
-              animate={{ opacity: 1, y: 0 }}
-
-              className="flex flex-col items-start gap-1 mb-3"
-            >
-              <span className="inline-flex items-center gap-1.5 text-slate-800 font-medium whitespace-nowrap bg-white/70 backdrop-blur-[3px] rounded-full pl-1.5 pr-2.5 py-0.5" style={{ fontSize: 'clamp(0.66rem, 2.4vw, 0.78rem)' }}>
-                <RiCodeSSlashLine className="text-primary flex-shrink-0" /> 𝐅𝐮𝐥𝐥-𝐒𝐭𝐚𝐜𝐤 𝐃𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐫
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-slate-800 font-medium whitespace-nowrap bg-white/70 backdrop-blur-[3px] rounded-full pl-1.5 pr-2.5 py-0.5" style={{ fontSize: 'clamp(0.66rem, 2.4vw, 0.78rem)' }}>
-                <RiVideoLine className="text-primary flex-shrink-0" /> 𝐕𝐢𝐝𝐞𝐨 𝐄𝐝𝐢𝐭𝐨𝐫
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-slate-800 font-medium whitespace-nowrap bg-white/70 backdrop-blur-[3px] rounded-full pl-1.5 pr-2.5 py-0.5" style={{ fontSize: 'clamp(0.66rem, 2.4vw, 0.78rem)' }}>
-                <RiPencilLine className="text-primary flex-shrink-0" /> 𝐃𝐢𝐠𝐢𝐭𝐚𝐥 𝐂𝐫𝐞𝐚𝐭𝐨𝐫
-              </span>
-            </motion.div>
-
             {/* CTA Buttons — "Hire Me" pill + round icon-only "Work" button.
                 Both comfortably tappable (≥46px). Sits on z-10 with a solid/
                 blurred background so it stays fully legible even where the
                 portrait passes behind it. */}
             <HeroCTAs variant="mobile" />
-            <p className="mt-2 text-[11px] text-slate-700 font-medium leading-snug" style={{ maxWidth: 'min(52vw, 200px)' }}>96+ projects · 24-hr reply · No pay if you don't like it</p>
+            <p className="mt-2 w-fit rounded-lg bg-white/85 px-2 py-1 text-[11px] text-slate-800 font-medium leading-snug" style={{ maxWidth: 'min(52vw, 200px)' }}>96+ projects · 24-hr reply · No pay if you don't like it</p>
 
           </motion.div>
 

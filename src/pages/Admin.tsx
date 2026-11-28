@@ -329,7 +329,7 @@ function Bars({ title, data, color, fmt }: { title: string; data: { label: strin
       <div className="flex h-24 items-end gap-1" role="img" aria-label={`${title}: total ${fmt(total)}`}>
         {data.map((d) => <div key={d.label} title={`${d.label}: ${fmt(d.v)}`} className={`flex-1 rounded-t ${d.v ? color : "bg-slate-100"}`} style={{ height: `${Math.max(d.v ? 8 : 3, (d.v / max) * 100)}%` }} />)}
       </div>
-      <div className="mt-1 flex justify-between text-[10px] text-slate-400"><span>{data[0]?.label}</span><span>{data.at(-1)?.label}</span></div>
+      <div className="mt-1 flex justify-between text-[10px] text-slate-400"><span>{data[0]?.label}</span><span>{data[data.length - 1]?.label}</span></div>
     </div>
   );
 }

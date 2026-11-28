@@ -31,7 +31,7 @@ import img2 from "../assets/images/project-2.webp"; // Abodiverse
 import img3 from "../assets/images/project-3.webp"; // Xarena
 import img4 from "../assets/images/project-4.webp"; // Travel Diaries
 import img5 from "../assets/images/project-5.webp"; // CreatorHub
-import img6 from "../assets/images/project-6.webp"; // Portfolio Website
+import img6 from "../assets/images/project-6-optimized.webp"; // Portfolio Website
 
 const ease = [0.16, 1, 0.3, 1] as const;
 

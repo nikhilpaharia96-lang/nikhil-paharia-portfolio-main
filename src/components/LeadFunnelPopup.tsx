@@ -14,7 +14,7 @@ import avatar from "../assets/images/funnel-avatar.webp";
 /**
  * Lead funnel (no personal data in analytics; the lead itself goes to /admin + email via /api/booking/inquiry).
  *
- *   Trigger  → first of: 12 s on page · 35 % scroll · exit intent (desktop). Never while another dialog or the
+ *   Trigger  → first of: 45 s on page · 70 % scroll · exit intent (desktop). Never while another dialog or the
  *              analytics-consent banner is open. Shown once automatically.
  *   Launcher → small "Free quote" pill stays available after the popup is dismissed (until a lead is sent).
  *              Anything on the site can also open it:  window.dispatchEvent(new CustomEvent("np:open-funnel", { detail: { service: "video-editing" } }))
@@ -127,10 +127,10 @@ export default function LeadFunnelPopup() {
       if (blocked()) { window.setTimeout(() => fire(how), 5000); return; }
       fired = true; ls.set(SEEN_KEY, String(Date.now())); autoShown.current = true; openFunnel(how);
     };
-    const t = window.setTimeout(() => fire("time"), 12000);
+    const t = window.setTimeout(() => fire("time"), 45000);
     const onScroll = () => {
       const h = document.documentElement.scrollHeight - window.innerHeight;
-      if (h > 0 && window.scrollY / h > 0.35) fire("scroll");
+      if (h > 0 && window.scrollY / h > 0.7) fire("scroll");
     };
     const canExit = window.matchMedia?.("(pointer: fine)").matches;
     const armed = window.setTimeout(() => { if (canExit) document.addEventListener("mouseout", onOut); }, 4000);
@@ -220,7 +220,7 @@ export default function LeadFunnelPopup() {
             initial={{ opacity: 0, y: reduce ? 0 : 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, transition: { duration: reduce ? 0 : 0.12 } }}
             transition={{ duration: reduce ? 0 : 0.3 }}
             onClick={() => { track("funnel_launcher_click"); openFunnel("launcher"); }}
-            className="group fixed z-[80] right-4 bottom-4 sm:right-6 sm:bottom-6 inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#1266F1] to-[#2f86ff] p-1.5 pr-4 text-[13px] font-bold uppercase tracking-wider text-white shadow-[0_14px_32px_-8px_rgba(18,102,241,0.7)] hover:-translate-y-0.5 transition-transform focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40"
+            className="group fixed z-[80] right-6 bottom-6 hidden md:inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#1266F1] to-[#2f86ff] p-1.5 pr-4 text-[13px] font-bold uppercase tracking-wider text-white shadow-[0_14px_32px_-8px_rgba(18,102,241,0.7)] hover:-translate-y-0.5 transition-transform focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40"
             style={{ marginBottom: "env(safe-area-inset-bottom)" }}
           >
             <span className="relative grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-white/20 ring-2 ring-white/60">
